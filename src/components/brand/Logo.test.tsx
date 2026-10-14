@@ -3,14 +3,14 @@ import { render, screen } from "@testing-library/react";
 import { Logo } from "./Logo";
 
 describe("Logo", () => {
-  it("renders an svg with accessible name matching /cristache adrian/i", () => {
+  it("renders the monogram with an accessible Aristache name", () => {
     render(<Logo />);
-    expect(screen.getByRole("img", { name: /cristache adrian/i })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /aristache/i })).toBeInTheDocument();
   });
 
   it("renders wordmark 'aristache' when withWordmark is true", () => {
     render(<Logo withWordmark />);
-    expect(screen.getByText("aristache")).toBeInTheDocument();
+    expect(screen.getByText("Aristache")).toBeInTheDocument();
   });
 
   it("does NOT render wordmark by default", () => {

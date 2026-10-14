@@ -12,6 +12,6 @@ export default function manifest(): MetadataRoute.Manifest {
     // Was hardcoded #07070c, which had drifted from the dark ground in globals.css.
     background_color: GROUND.dark,
     theme_color: GROUND.dark,
-    icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" }],
+    icons: [{ src: "/icon.png", sizes: "32x32", type: "image/png", purpose: "maskable" }],
   };
 }

@@ -58,7 +58,7 @@ describe("Footer", () => {
     render(<Footer socials={mockSocials} />);
     // Wordmark text removed per design; the logo mark exposes an accessible label.
     expect(screen.queryByText("aristache")).toBeNull();
-    expect(screen.getByRole("img", { name: /cristache adrian logo/i })).toBeTruthy();
+    expect(screen.getByRole("img", { name: /aristache/i })).toBeTruthy();
   });
 
   it("renders social icon links with accessible labels", () => {

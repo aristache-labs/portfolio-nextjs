@@ -12,11 +12,10 @@ const profile = {
 };
 
 describe("Hero", () => {
-  it("renders the name as the h1, split across two display lines", () => {
+  it("renders the headline as the h1", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1).toHaveTextContent(/cristache/i);
-    expect(h1).toHaveTextContent(/adrian/i);
+    expect(h1).toHaveTextContent(/technology, built with intention/i);
   });
 
   it("renders the hero tagline chip", () => {
@@ -29,16 +28,18 @@ describe("Hero", () => {
     expect(screen.queryByText(/building ai-native products/i)).not.toBeInTheDocument();
   });
 
-  it("renders the roles marquee as decorative", () => {
+  it("renders the roles under the headline", () => {
     render(<Hero profile={profile} />);
-    const marquee = screen.getByTestId("hero-marquee");
-    expect(marquee).toHaveAttribute("aria-hidden", "true");
-    expect(marquee).toHaveTextContent("Full Stack Developer");
+    expect(screen.getByText(/full stack developer/i)).toBeInTheDocument();
   });
 
-  it("renders View work always and Sponsor only with sponsorUrl", () => {
+  it("renders Explore Projects and Get in Touch, and Sponsor only with sponsorUrl", () => {
     const { rerender } = render(<Hero profile={profile} />);
-    expect(screen.getByRole("link", { name: /view work/i })).toHaveAttribute("href", "#projects");
+    expect(screen.getByRole("link", { name: /explore projects/i })).toHaveAttribute(
+      "href",
+      "#projects",
+    );
+    expect(screen.getByRole("link", { name: /get in touch/i })).toHaveAttribute("href", "#contact");
     expect(screen.queryByRole("link", { name: /sponsor/i })).not.toBeInTheDocument();
     rerender(<Hero profile={profile} sponsorUrl="https://github.com/sponsors/aristache-labs" />);
     expect(screen.getByRole("link", { name: /sponsor/i })).toBeInTheDocument();

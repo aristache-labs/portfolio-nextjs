@@ -55,7 +55,7 @@ async function expectContent(path, needles) {
 const home = await group("homepage serves its DB-independent identity copy", () =>
   expectContent("/", [
     "Cristache Adrian",
-    "<title>Cristache Adrian - IT Technician &amp; Developer</title>",
+    "<title>Aristache | Adrian Cristache - IT Specialist &amp; Software Developer</title>",
   ]),
 );
 
@@ -114,7 +114,7 @@ await group("robots, sitemap, manifest and llms routes serve valid content", asy
 await group("icons and opengraph image serve real bytes of the right type", async () => {
   for (const [path, type, minBytes] of [
     ["/opengraph-image", "image/png", 10_000],
-    ["/icon.svg", "image/svg+xml", 200],
+    ["/icon.png", "image/png", 200],
     ["/apple-icon.png", "image/png", 1_000],
   ]) {
     const res = await fetch(`${base}${path}`, { redirect: "manual" });

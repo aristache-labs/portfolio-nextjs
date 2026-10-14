@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Heart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -13,6 +14,8 @@ export type HeroProfile = {
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+const HERO_COPY =
+  "I design and build modern digital solutions that combine technology, usability, and long-term thinking. From web and mobile applications to IT systems and automation, every project is crafted with purpose.";
 
 /** Entrance helper: fade-up at a choreographed delay. */
 function fadeUp(reduce: boolean, delay: number) {
@@ -24,8 +27,8 @@ function fadeUp(reduce: boolean, delay: number) {
 }
 
 /**
- * Viewport-scale two-line name rising out of overflow masks, over the page-wide
- * AmbientBackground, with a local scrim guaranteeing text contrast in both themes.
+ * Two-column opening: the headline and actions on the left, the official
+ * monogram on the right. Stacks on small screens. Accents follow the palette.
  */
 export function Hero({
   profile,
@@ -39,13 +42,8 @@ export function Hero({
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 120]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 80]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, reduce ? 1 : 0]);
-
-  const [first, ...rest] = profile.name.split(" ");
-  const last = rest.join(" ");
-  // Duplicated track (x2) so the -50% translate loops seamlessly.
-  const marqueeItems = [...profile.roles, ...profile.roles];
 
   return (
     <section
@@ -53,95 +51,112 @@ export function Hero({
       ref={ref}
       className="relative flex min-h-svh scroll-mt-24 flex-col justify-center overflow-hidden"
     >
-      {/* Text-protection scrim: quiets the gradient under the type only */}
       <div aria-hidden className="hero-scrim pointer-events-none absolute inset-0" />
 
-      <motion.div style={{ y, opacity }} className="site-container relative">
-        {/* Status chip — a glowing brand dot + the tagline (an AI-era signal,
-            not personal data). No label; the pulsing dot reads as "live". */}
-        {heroTagline && (
-          <motion.p {...fadeUp(reduce, 0.35)} className="mb-[2.6vh]">
-            <span className="border-border bg-surface text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[9px] tracking-[0.18em] uppercase backdrop-blur-sm sm:text-[10px]">
-              <span
-                aria-hidden
-                className="size-1.5 animate-pulse rounded-full bg-(image:--gradient-brand) shadow-[0_0_8px_2px_rgb(var(--brand-deep-rgb)/0.6)] motion-reduce:animate-none"
-              />
-              {heroTagline}
-            </span>
+      <motion.div
+        style={{ y, opacity }}
+        className="site-container relative grid items-center gap-12 py-28 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:py-32"
+      >
+        <div>
+          <p className="sr-only">{profile.name}</p>
+          <motion.p
+            {...fadeUp(reduce, 0.2)}
+            className="text-muted font-mono text-[11px] tracking-[0.22em] uppercase"
+          >
+            Independent developer &amp; IT specialist
           </motion.p>
-        )}
 
-        {/* Name: two masked lines, solid + stroke */}
-        <h1 className="leading-[0.92] font-extrabold tracking-tight uppercase select-none">
-          <span className="block overflow-hidden">
-            <motion.span
-              initial={reduce ? false : { y: "110%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.5 }}
-              className="block text-[clamp(44px,16.5vw,90px)] sm:text-[clamp(50px,13.5vw,190px)]"
-            >
-              {first}
-            </motion.span>
-          </span>
-          {last && (
-            <span className="block overflow-hidden">
-              <motion.span
-                initial={reduce ? false : { y: "110%" }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.9, ease: EASE, delay: 0.62 }}
-                className="text-stroke-name block text-[clamp(44px,16.5vw,90px)] sm:text-[clamp(50px,13.5vw,190px)]"
-              >
-                {last}
-              </motion.span>
-            </span>
-          )}
-        </h1>
-
-        {/* Hairline rule drawing in from the left */}
-        <motion.div
-          initial={reduce ? false : { scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1, ease: EASE, delay: 1.05 }}
-          className="bg-border mt-[4.2vh] h-px origin-left"
-        />
-
-        {/* Roles marquee (decorative; roles appear in page copy elsewhere) */}
-        <motion.div
-          {...fadeUp(reduce, 1.25)}
-          aria-hidden="true"
-          data-testid="hero-marquee"
-          className="text-muted mt-[2.6vh] overflow-hidden mask-[linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)] font-mono text-[13px] whitespace-nowrap sm:text-[15px]"
-        >
-          <span className={reduce ? "inline-block" : "hero-marquee-track inline-block"}>
-            {marqueeItems.map((role, i) => (
-              <span key={`${role}-${i}`} className="mx-[1.4em]">
-                {role} <span className="ml-[1.4em] opacity-40">✦</span>
+          {heroTagline && (
+            <motion.p {...fadeUp(reduce, 0.35)} className="mt-4">
+              <span className="border-border bg-surface text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[9px] tracking-[0.18em] uppercase backdrop-blur-sm sm:text-[10px]">
+                <span
+                  aria-hidden
+                  className="size-1.5 animate-pulse rounded-full bg-(image:--gradient-brand) shadow-[0_0_8px_2px_rgb(var(--brand-deep-rgb)/0.6)] motion-reduce:animate-none"
+                />
+                {heroTagline}
               </span>
-            ))}
-          </span>
-        </motion.div>
+            </motion.p>
+          )}
 
-        {/* CTAs */}
-        <motion.div {...fadeUp(reduce, 1.4)} className="mt-[4.4vh] flex flex-wrap gap-4">
-          <Magnetic>
-            <Button variant="primary" size="lg" href="#projects">
-              View work <ArrowRight className="size-4" aria-hidden />
-            </Button>
-          </Magnetic>
-          {sponsorUrl && (
+          <h1 className="mt-5 max-w-xl text-[clamp(40px,6vw,72px)] leading-[0.98] font-semibold tracking-tight">
+            <motion.span
+              initial={reduce ? false : { y: 18, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
+              className="block"
+            >
+              Technology, built with <span className="text-(--brand-mid)">intention.</span>
+            </motion.span>
+          </h1>
+
+          <motion.p
+            {...fadeUp(reduce, 0.7)}
+            className="text-muted mt-6 max-w-xl text-base leading-relaxed sm:text-lg"
+          >
+            {HERO_COPY}
+          </motion.p>
+
+          {profile.roles.length > 0 && (
+            <motion.p
+              {...fadeUp(reduce, 0.85)}
+              className="text-muted mt-4 font-mono text-xs tracking-[0.14em] uppercase"
+            >
+              {profile.roles.join(" / ")}
+            </motion.p>
+          )}
+
+          <motion.div {...fadeUp(reduce, 1)} className="mt-8 flex flex-wrap gap-4">
             <Magnetic>
-              <Button
-                variant="secondary"
-                size="lg"
-                href={sponsorUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                leftIcon={<Heart className="size-4" aria-hidden />}
-              >
-                Sponsor
+              <Button variant="primary" size="lg" href="#projects">
+                Explore Projects <ArrowRight className="size-4" aria-hidden />
               </Button>
             </Magnetic>
-          )}
+            <Magnetic>
+              <Button variant="secondary" size="lg" href="#contact">
+                Get in Touch
+              </Button>
+            </Magnetic>
+            {sponsorUrl && (
+              <Magnetic>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  href={sponsorUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  leftIcon={<Heart className="size-4" aria-hidden />}
+                >
+                  Sponsor
+                </Button>
+              </Magnetic>
+            )}
+          </motion.div>
+        </div>
+
+        <motion.div
+          {...fadeUp(reduce, 0.55)}
+          className="relative mx-auto aspect-square w-full max-w-[440px] rounded-full bg-[#080c0d] dark:bg-transparent"
+        >
+          <div
+            aria-hidden
+            className="absolute inset-[6%] rounded-full border border-(--brand-mid)/25"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-[16%] rounded-full border border-(--brand-mid)/15"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-[26%] rounded-full border border-(--brand-mid)/10"
+          />
+          <Image
+            src="/brand/aristache-monogram.png"
+            alt=""
+            width={1359}
+            height={1157}
+            priority
+            className="relative z-10 h-full w-full object-contain"
+          />
         </motion.div>
       </motion.div>
     </section>

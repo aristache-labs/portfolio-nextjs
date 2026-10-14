@@ -87,7 +87,7 @@ Visitors pick a palette at runtime, so adding one touches four places and the pi
 
 Check both themes: `multiply` on paper accumulates where `lighter` on a dark ground falls off fast, so a value that works in one can wash out the other.
 
-Changing the **default** palette instead means editing `src/lib/brand.ts` plus its `:root`/`.dark` mirror in `globals.css`, and by hand: `src/app/icon.svg` and `assets/logo.svg`, which are static files and cannot follow a runtime choice.
+Changing the **default** palette instead means editing `src/lib/brand.ts` plus its `:root`/`.dark` mirror in `globals.css`. `src/app/icon.png` and `src/app/apple-icon.png` are the official monogram on a dark tile, so a palette change does not recolor them.
 
 ## Commands
 

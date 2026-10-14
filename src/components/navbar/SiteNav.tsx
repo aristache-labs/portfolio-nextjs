@@ -24,9 +24,8 @@ const SECTIONS: MenuSection[] = [
 ];
 
 /**
- * Slim fixed top bar: brand mark (glow hover) / status line / theme toggle +
- * MENU button opening the full-screen MenuOverlay - the sole navigation
- * paradigm at every viewport (no inline section links).
+ * Slim fixed top bar: brand mark, status line, theme toggle, and a MENU
+ * button. The full-screen overlay is the navigation at every viewport.
  */
 export function SiteNav({
   tagline,

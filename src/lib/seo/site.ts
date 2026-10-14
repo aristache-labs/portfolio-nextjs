@@ -6,9 +6,9 @@ export const SITE = {
   // (would crash hydration) since Next inlines the value.
   url: requirePublicEnv("NEXT_PUBLIC_SITE_URL"),
   name: "Cristache Adrian",
-  title: "Cristache Adrian - IT Technician & Developer",
+  title: "Aristache | Adrian Cristache - IT Specialist & Software Developer",
   description:
-    "Cristache Adrian is an IT technician and developer who builds mobile apps with React Native and web apps with Next.js.",
+    "Explore Aristache, the personal portfolio of Adrian Cristache. Modern web and mobile development, IT systems, automation, and thoughtful digital solutions.",
   handle: "@aristache-labs",
   sameAs: ["https://github.com/aristache-labs"],
 } as const;
