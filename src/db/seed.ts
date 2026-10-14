@@ -25,7 +25,7 @@ const taglineRows = [
 // pointing at the bundled asset on whatever site this database serves.
 // NEXT_PUBLIC_SITE_URL is always set (no fallback) — fail loudly if it isn't.
 const SITE_ORIGIN = requireEnv("NEXT_PUBLIC_SITE_URL").replace(/\/$/, "");
-const seededAvatarUrl = `${SITE_ORIGIN}/images/nikhil.png`;
+const seededAvatarUrl = `${SITE_ORIGIN}/images/aristache.png`;
 
 const profileRow = {
   name: "Cristache Adrian",

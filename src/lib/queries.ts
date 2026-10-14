@@ -19,7 +19,7 @@ import { professionalYears } from "@/lib/experience";
 
 // Bundled asset shown when the profile has no avatar set yet (e.g. before the
 // admin uploads one). Served from `public/`, so a relative src is correct here.
-const FALLBACK_AVATAR = "/images/nikhil.png";
+const FALLBACK_AVATAR = "/images/aristache.png";
 
 // GitHub account backing the live stats (same owner as the curated repos).
 const GITHUB_USERNAME = "aristache-labs";

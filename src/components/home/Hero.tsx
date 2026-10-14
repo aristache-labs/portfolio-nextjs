@@ -137,33 +137,39 @@ export function Hero({
 
         <motion.div
           {...fadeUp(reduce, 0.55)}
-          className="relative mx-auto aspect-square w-full max-w-[440px] rounded-full bg-[#080c0d] dark:bg-transparent"
+          className="mx-auto flex w-full max-w-[440px] flex-col items-center lg:max-w-none lg:flex-row lg:justify-center"
         >
-          <div
-            aria-hidden
-            className="absolute inset-[18%] rounded-full bg-[radial-gradient(circle,rgb(var(--brand-mid-rgb)/0.16),transparent_68%)]"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-[6%] rounded-full border border-(--brand-mid)/25"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-[16%] rounded-full border border-(--brand-mid)/15"
-          />
-          <div
-            aria-hidden
-            className="absolute inset-[26%] rounded-full border border-(--brand-mid)/10"
-          />
-          <Image
-            src="/brand/aristache-monogram.png"
-            alt=""
-            width={1359}
-            height={1157}
-            priority
-            className="relative z-10 h-full w-full object-contain"
-          />
-          <ul className="text-muted relative z-10 mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] tracking-[0.18em] uppercase lg:absolute lg:top-1/2 lg:right-0 lg:mt-0 lg:translate-x-[12%] lg:-translate-y-1/2 lg:flex-col lg:gap-2">
+          <div className="relative aspect-square w-full max-w-[400px]">
+            <div
+              aria-hidden
+              className="absolute inset-[18%] rounded-full bg-[radial-gradient(circle,rgb(var(--brand-mid-rgb)/0.16),transparent_68%)]"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-[6%] rounded-full border border-(--brand-mid)/25"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-[16%] rounded-full border border-(--brand-mid)/15"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-[26%] rounded-full border border-(--brand-mid)/10"
+            />
+            {/* The mark is light on a transparent PNG, so light theme needs a disc.
+              Dark theme leaves it off so the mark floats on the page. */}
+            <div className="absolute inset-[8%] flex items-center justify-center rounded-full bg-[#080c0d] p-[6%] dark:inset-0 dark:bg-transparent dark:p-0">
+              <Image
+                src="/brand/aristache-monogram.png"
+                alt=""
+                width={1359}
+                height={1157}
+                priority
+                className="relative z-10 h-full w-full object-contain"
+              />
+            </div>
+          </div>
+          <ul className="text-muted relative z-10 mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] tracking-[0.18em] uppercase lg:mt-0 lg:ml-5 lg:flex-col lg:gap-2">
             {HERO_LABELS.map((label) => (
               <li key={label}>{label}</li>
             ))}
