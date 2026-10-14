@@ -12,6 +12,7 @@ const ALL = "All";
 // block stays compact; everything else falls through to the filterable grid below.
 const MAX_FEATURED = 2;
 const MAX_RECENT = 3;
+const PAGE_SIZE = 9;
 
 // One flex column per side. The grid stretches both columns to the same height, and flex-1
 // splits that height across the cards in the column (2 on the left, 3 on the right).
@@ -29,6 +30,7 @@ function ColumnLabel({ children }: { children: string }) {
  */
 export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const [language, setLanguage] = useState(ALL);
+  const [page, setPage] = useState(0);
   const [quickView, setQuickView] = useState<MergedProject | null>(null);
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
@@ -47,7 +49,11 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
     );
     const latest = byPush.slice(0, MAX_RECENT);
     const latestIds = new Set(latest.map((p) => p.id));
-    const grid = others.filter((p) => !latestIds.has(p.id));
+    // Featured cards lead the grid, left to right. The sort is stable, so the rest keep
+    // their curated order.
+    const grid = others
+      .filter((p) => !latestIds.has(p.id))
+      .sort((a, b) => Number(b.featured) - Number(a.featured));
 
     // Counted over the grid only, so a filter chip's number matches what it reveals.
     const counts = new Map<string, number>();
@@ -63,6 +69,14 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   }, [projects]);
 
   const filtered = language === ALL ? rest : rest.filter((p) => p.language === language);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount - 1);
+  const visible = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+
+  function selectLanguage(name: string) {
+    setLanguage(name);
+    setPage(0);
+  }
 
   return (
     <>
@@ -106,7 +120,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                   <button
                     key={name}
                     type="button"
-                    onClick={() => setLanguage(name)}
+                    onClick={() => selectLanguage(name)}
                     aria-pressed={active}
                     className={
                       active
@@ -123,12 +137,36 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           )}
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((p, i) => (
+            {visible.map((p, i) => (
               <Reveal key={p.id} delay={(i % 3) * 0.05} className="h-full">
                 <ProjectCard project={p} onQuickView={() => setQuickView(p)} />
               </Reveal>
             ))}
           </div>
+
+          {pageCount > 1 && (
+            <nav aria-label="Project pages" className="mt-8 flex items-center justify-center gap-2">
+              {Array.from({ length: pageCount }, (_, i) => {
+                const active = i === safePage;
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={`Page ${i + 1}`}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => setPage(i)}
+                    className={
+                      active
+                        ? "grid size-8 place-items-center rounded-full border border-(--brand-deep)/50 bg-(--chip-surface) text-xs font-semibold text-(--accent-on-chip)"
+                        : "border-border text-muted hover:text-foreground grid size-8 place-items-center rounded-full border text-xs font-medium"
+                    }
+                  >
+                    {i + 1}
+                  </button>
+                );
+              })}
+            </nav>
+          )}
 
           {filtered.length === 0 && (
             <p className="text-muted py-8 text-center text-sm">No projects in {language} yet.</p>

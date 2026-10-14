@@ -42,7 +42,7 @@ export function ProjectCard({
 
         {/* Title + stats row */}
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-lg leading-snug font-bold">{project.title}</h3>
+          <h3 className="min-w-0 text-lg leading-snug font-bold">{project.title}</h3>
           <div className="text-muted flex shrink-0 items-center gap-3 text-sm">
             <span
               className="flex items-center gap-1"
@@ -60,7 +60,9 @@ export function ProjectCard({
         </div>
 
         {/* Description */}
-        {blurb && <p className="text-muted mt-3 flex-1 text-sm text-pretty">{blurb}</p>}
+        {blurb && (
+          <p className="text-muted mt-2 line-clamp-2 flex-1 text-sm text-pretty">{blurb}</p>
+        )}
 
         {/* Tech tags */}
         {(project.language || project.tags.length > 0) && (

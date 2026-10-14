@@ -25,6 +25,20 @@ function Cover({ project, sizes }: { project: MergedProject; sizes: string }) {
   );
 }
 
+function MetaLine({ label, project }: { label: string; project: MergedProject }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span className="text-[0.65rem] font-semibold tracking-wider text-(--accent-on-chip) uppercase">
+        {label}
+      </span>
+      <span aria-hidden className="text-muted text-xs">
+        ·
+      </span>
+      <Stats project={project} />
+    </div>
+  );
+}
+
 function Stats({ project }: { project: MergedProject }) {
   return (
     <div className="text-muted flex shrink-0 items-center gap-3 text-xs">
@@ -117,12 +131,7 @@ export function FeaturedCard({
         <Cover project={project} sizes="(max-width: 1024px) 100vw, 50vw" />
       </div>
       <div className="p-4 sm:p-5">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-[0.65rem] font-semibold tracking-wider text-(--accent-on-chip) uppercase">
-            Featured
-          </span>
-          <Stats project={project} />
-        </div>
+        <MetaLine label="Featured" project={project} />
         <h3 className="mt-1.5 line-clamp-1 text-lg leading-snug font-bold">{project.title}</h3>
         {project.description && (
           <p className="text-muted mt-1 line-clamp-2 text-sm text-pretty">{project.description}</p>
@@ -134,7 +143,7 @@ export function FeaturedCard({
   );
 }
 
-/** Compact card: text on the left, preview on the right, same facts as the featured card. */
+/** Compact card: preview on the left, then the update line, title, description and actions. */
 export function RecentCard({
   project,
   onQuickView,
@@ -144,13 +153,14 @@ export function RecentCard({
 }) {
   return (
     <article className={`${SHELL} flex flex-row items-stretch gap-3 p-3 sm:gap-4 sm:p-4`}>
+      <div className="relative w-24 shrink-0 self-stretch overflow-hidden rounded-xl sm:w-32">
+        <Cover project={project} sizes="128px" />
+      </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[0.65rem] font-semibold tracking-wider text-(--accent-on-chip) uppercase">
-            {project.pushedAt ? `Updated ${formatUpdated(project.pushedAt)}` : "Project"}
-          </span>
-          <Stats project={project} />
-        </div>
+        <MetaLine
+          label={project.pushedAt ? `Updated ${formatUpdated(project.pushedAt)}` : "Project"}
+          project={project}
+        />
         <h3 className="mt-1.5 line-clamp-1 text-base leading-snug font-bold">{project.title}</h3>
         {project.description && (
           <p className="text-muted mt-1 line-clamp-2 text-xs text-pretty sm:text-sm">
@@ -161,9 +171,6 @@ export function RecentCard({
         <div className="mt-auto">
           <Actions project={project} onQuickView={onQuickView} />
         </div>
-      </div>
-      <div className="relative w-24 shrink-0 self-stretch overflow-hidden rounded-xl sm:w-32">
-        <Cover project={project} sizes="128px" />
       </div>
     </article>
   );
