@@ -7,7 +7,7 @@ describe("palette registry", () => {
     expect(DEFAULT_PALETTE).toBe("obsidian");
   });
 
-  it("migrates a stored Magenta choice to Aristache and leaves the other four alone", () => {
+  it("migrates a stored Magenta choice to Obsidian and leaves the other four alone", () => {
     expect(resolveStoredPalette("magenta")).toBe("obsidian");
     expect(resolveStoredPalette(null)).toBe("obsidian");
     expect(resolveStoredPalette("nope")).toBe("obsidian");
