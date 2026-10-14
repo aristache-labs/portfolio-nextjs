@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/aristache-labs/portfolio-nextjs/master/assets/logo.svg" width="76" alt="Cristache Adrian">
+<img src="https://raw.githubusercontent.com/aristache-labs/protofolio-nextjs/refs/heads/master/assets/logo.svg" width="76" alt="Cristache Adrian">
 
 # Cristache Adrian · Portfolio
 
