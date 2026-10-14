@@ -1,0 +1,149 @@
+import { z } from "zod";
+
+// ---------- Table insert/update validators (admin form input) ----------
+
+export const profileInsertSchema = z.object({
+  name: z.string().min(1),
+  bio: z.string().min(1),
+  stats: z.record(z.string(), z.union([z.string(), z.number()])).default({}),
+  roles: z.array(z.string()).default([]),
+  // Full http(s) URLs only — z.httpUrl() rejects javascript:/data: schemes
+  // (the resume renders as <a href>, the avatar as <img src>). Store the
+  // absolute asset URL, not a relative path.
+  resumeUrl: z.httpUrl().nullable().optional(),
+  avatarUrl: z.httpUrl().nullable().optional(),
+  heroTagline: z.string().nullable().optional(),
+  sectionVisibility: z.record(z.string(), z.boolean()).default({}),
+});
+
+export const projectInsertSchema = z.object({
+  repo: z
+    .string()
+    .min(1)
+    .regex(/^[\w.-]+$/, "repo must be a GitHub slug, not a URL"),
+  title: z.string().min(1),
+  customBlurb: z.string().nullable().optional(),
+  tags: z.array(z.string()).default([]),
+  featured: z.boolean().default(false),
+  order: z.number().int().nonnegative().default(0),
+  hidden: z.boolean().default(false),
+  // Quick-view media. httpUrl() not string().url(), matching the fields above: string().url()
+  // accepts javascript: and data:, which these reach an <img src> as. An empty string from a
+  // cleared upload field becomes null rather than failing.
+  coverImage: z
+    .union([z.httpUrl(), z.literal(""), z.null()])
+    .transform((v) => (v === "" ? null : v))
+    .nullable()
+    .optional(),
+  screenshots: z.array(z.httpUrl()).max(6).default([]),
+});
+
+export const experienceInsertSchema = z.object({
+  role: z.string().min(1),
+  org: z.string().min(1),
+  period: z.string().min(1),
+  location: z.string().nullable().optional(),
+  isCurrent: z.boolean().default(false),
+  description: z.array(z.string()).default([]),
+  order: z.number().int().nonnegative().default(0),
+});
+
+export const skillInsertSchema = z.object({
+  name: z.string().min(1),
+  iconPath: z.string().min(1),
+  category: z.string().min(1),
+  level: z.enum(["Expert", "Intermediate", "Beginner"]).nullable().optional(),
+  order: z.number().int().nonnegative().default(0),
+});
+
+export const serviceInsertSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  shortDescription: z.string().nullable().optional(),
+  icon: z.string().nullable().optional(),
+  order: z.number().int().nonnegative().default(0),
+});
+
+export const socialLinkInsertSchema = z.object({
+  platform: z.string().min(1),
+  url: z.httpUrl(),
+  username: z.string().nullable().optional(),
+  order: z.number().int().nonnegative().default(0),
+});
+
+export const fundingLinkInsertSchema = z.object({
+  label: z.string().min(1),
+  url: z.httpUrl(),
+  primary: z.boolean().default(false),
+  order: z.number().int().nonnegative().default(0),
+});
+
+export const taglineInsertSchema = z.object({
+  text: z.string().min(1),
+  active: z.boolean().default(true),
+  order: z.number().int().nonnegative().default(0),
+});
+
+export const faqInsertSchema = z.object({
+  question: z.string().min(1),
+  answer: z.string().min(1),
+  order: z.number().int().nonnegative().default(0),
+});
+
+// Reorder payload shared by all sections
+export const reorderSchema = z.object({
+  items: z.array(z.object({ id: z.number().int(), order: z.number().int() })),
+});
+
+// ---------- GitHub REST API response ----------
+// https://docs.github.com/en/rest/repos/repos#get-a-repository
+export const githubRepoSchema = z.object({
+  name: z.string(),
+  full_name: z.string(),
+  html_url: z.httpUrl(),
+  description: z.string().nullable(),
+  homepage: z.string().nullable(),
+  language: z.string().nullable(),
+  stargazers_count: z.number(),
+  forks_count: z.number(),
+  open_issues_count: z.number(),
+  topics: z.array(z.string()).default([]),
+  fork: z.boolean(),
+  archived: z.boolean(),
+  pushed_at: z.string(),
+});
+
+export const githubRepoListSchema = z.array(githubRepoSchema);
+
+// GitHub GraphQL user stats (single query: followers, owned public non-fork
+// repos + their stars, and the years the user has contributed in).
+export const githubUserStatsSchema = z.object({
+  data: z.object({
+    user: z
+      .object({
+        followers: z.object({ totalCount: z.number() }),
+        repositories: z.object({
+          totalCount: z.number(),
+          nodes: z.array(z.object({ stargazerCount: z.number() })),
+        }),
+        contributionsCollection: z.object({
+          contributionYears: z.array(z.number()),
+        }),
+      })
+      .nullable(),
+  }),
+});
+
+// ---------- Inferred types ----------
+export type ProfileInput = z.infer<typeof profileInsertSchema>;
+export type ProjectInput = z.infer<typeof projectInsertSchema>;
+export type ExperienceInput = z.infer<typeof experienceInsertSchema>;
+export type SkillInput = z.infer<typeof skillInsertSchema>;
+export type ServiceInput = z.infer<typeof serviceInsertSchema>;
+export type SocialLinkInput = z.infer<typeof socialLinkInsertSchema>;
+export type FundingLinkInput = z.infer<typeof fundingLinkInsertSchema>;
+export type TaglineInput = z.infer<typeof taglineInsertSchema>;
+export type FaqInput = z.infer<typeof faqInsertSchema>;
+export type ReorderInput = z.infer<typeof reorderSchema>;
+export type GithubRepo = z.infer<typeof githubRepoSchema>;
+export type GithubUserStatsResponse = z.infer<typeof githubUserStatsSchema>;
