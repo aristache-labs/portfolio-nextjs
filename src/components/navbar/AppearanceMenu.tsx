@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { usePalette } from "@/hooks/usePalette";
-import { PALETTES } from "@/lib/palettes";
+import { DEFAULT_PALETTE, PALETTES } from "@/lib/palettes";
 
 const MODES = [
   { id: "light", label: "Light", Icon: Sun },
@@ -116,7 +116,14 @@ export function AppearanceMenu({ className }: { className?: string }) {
                         <span key={hex} className="h-full flex-1" style={{ background: hex }} />
                       ))}
                     </span>
-                    <span className="flex-1">{label}</span>
+                    <span className="flex-1">
+                      {label}
+                      {id === DEFAULT_PALETTE ? (
+                        <span className="text-muted ml-1.5 text-[0.6rem] font-semibold tracking-wide uppercase">
+                          Default
+                        </span>
+                      ) : null}
+                    </span>
                     {active && <Check className="size-3.5 shrink-0" aria-hidden />}
                   </button>
                 );

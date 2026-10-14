@@ -1,21 +1,22 @@
 // globals.css mirrors these as CSS variables by hand (CSS cannot import TS) and
 // globals.theme.test.ts fails if the two drift. Consumers that cannot read a CSS variable
 // import from here instead: opengraph-image, manifest, notify. See AGENTS.md.
+// Obsidian is the default ramp. Iris, Glacier, Ember, and Verdant override it at runtime.
 
 export const BRAND = {
-  deep: "#3730a3",
-  mid: "#7c3aed",
-  bright: "#c084fc",
+  deep: "#0f6e68",
+  mid: "#58e5d0",
+  bright: "#76f5e1",
 } as const;
 
 export const GROUND = {
-  light: "#f8f7fb",
-  dark: "#0a0813",
+  light: "#f4f8f7",
+  dark: "#080c0d",
 } as const;
 
 export const INK = {
-  light: "#18162b",
-  dark: "#ece9f7",
+  light: "#10181a",
+  dark: "#f5f7f7",
 } as const;
 
 export function hexToRgb(hex: string): [number, number, number] {

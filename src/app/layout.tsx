@@ -97,7 +97,8 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
           dangerouslySetInnerHTML={{
             __html:
               "try{var p=localStorage.getItem('palette');" +
-              "if(p&&['glacier','ember','verdant','magenta'].indexOf(p)>-1)" +
+              "if(p==='magenta'){localStorage.setItem('palette','obsidian');p='obsidian';}" +
+              "if(p&&['iris','glacier','ember','verdant'].indexOf(p)>-1)" +
               "document.documentElement.dataset.palette=p}catch(e){}",
           }}
         />

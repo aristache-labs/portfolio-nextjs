@@ -34,9 +34,9 @@ test("returning to the default palette removes the override attribute", async ({
   await page.getByRole("button", { name: "Verdant", exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("data-palette", "verdant");
 
-  await page.getByRole("button", { name: "Iris", exact: true }).click();
-  // Iris lives in :root, so the default is the ABSENCE of the attribute rather than
-  // data-palette="iris" - a second definition that could drift from the first.
+  await page.getByRole("button", { name: /^Obsidian/ }).click();
+  // Aristache lives in :root, so the default is the ABSENCE of the attribute rather than
+  // data-palette="obsidian" - a second definition that could drift from the first.
   await expect(page.locator("html")).not.toHaveAttribute("data-palette", /.*/);
 });
 

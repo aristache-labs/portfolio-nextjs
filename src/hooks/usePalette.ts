@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { DEFAULT_PALETTE, PALETTE_STORAGE_KEY, isPaletteId, type PaletteId } from "@/lib/palettes";
+import {
+  DEFAULT_PALETTE,
+  PALETTE_STORAGE_KEY,
+  resolveStoredPalette,
+  type PaletteId,
+} from "@/lib/palettes";
 
 /**
  * An external store, not a context provider: getServerSnapshot renders during hydration so
@@ -22,8 +27,7 @@ function subscribe(onStoreChange: () => void): () => void {
 
 function getSnapshot(): PaletteId {
   try {
-    const stored = window.localStorage.getItem(PALETTE_STORAGE_KEY);
-    return isPaletteId(stored) ? stored : DEFAULT_PALETTE;
+    return resolveStoredPalette(window.localStorage.getItem(PALETTE_STORAGE_KEY));
   } catch {
     return DEFAULT_PALETTE;
   }
@@ -45,6 +49,14 @@ export function usePalette(): { palette: PaletteId; setPalette: (next: PaletteId
   // colours on the old palette.
   useEffect(() => {
     applyToDocument(palette);
+    // Rewrite a leftover Magenta key once, so a later read does not depend on the alias.
+    try {
+      if (window.localStorage.getItem(PALETTE_STORAGE_KEY) === "magenta") {
+        window.localStorage.setItem(PALETTE_STORAGE_KEY, DEFAULT_PALETTE);
+      }
+    } catch {
+      // Private browsing can reject the write. The resolved palette still applies.
+    }
   }, [palette]);
 
   const setPalette = useCallback((next: PaletteId) => {

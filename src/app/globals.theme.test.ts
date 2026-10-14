@@ -70,8 +70,8 @@ describe("globals.css mirrors brand.ts", () => {
   it("defines a [data-palette] block for every selectable palette except the default", () => {
     for (const { id } of PALETTES) {
       if (id === DEFAULT_PALETTE) {
-        // Iris is :root/.dark, so an override block would be dead weight that could
-        // silently disagree with the default.
+        // The default lives in :root/.dark, so an override block would be dead weight that
+        // could silently disagree with it.
         expect(css, "the default palette must not have an override block").not.toContain(
           `[data-palette="${id}"]`,
         );
