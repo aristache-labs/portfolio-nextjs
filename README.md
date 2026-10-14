@@ -8,7 +8,7 @@
 
 <br />
 
-[![CI](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/ci.yml/badge.svg)][ci]
+[![CI](https://github.com/aristache-labs/protofolio-nextjs/actions/workflows/ci.yml/badge.svg)][ci]
 [![Lighthouse](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/lighthouse.yml/badge.svg)][lighthouse]
 [![Stars](https://img.shields.io/github/stars/aristache-labs/portfolio-nextjs?color=7C3AED)][repo]
 [![Contributors](https://img.shields.io/github/contributors/aristache-labs/portfolio-nextjs?color=7C3AED)][contributors]
