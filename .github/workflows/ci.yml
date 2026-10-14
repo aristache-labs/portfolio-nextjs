@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master, v2]
+    branches: [master]
   pull_request:
-    branches: [master, v2]
+    branches: [master]
 
 jobs:
   build:
@@ -26,7 +26,7 @@ jobs:
     env:
       DATABASE_URL: postgres://build:build@localhost:5432/portfolio_build
       AUTH_SECRET: ci-dummy-secret
-      NEXT_PUBLIC_SITE_URL: https://nixrajput.com
+      NEXT_PUBLIC_SITE_URL: http://localhost:4000
     steps:
       - uses: actions/checkout@v4
 
@@ -124,14 +124,14 @@ jobs:
         run: bun run db:seed
         env:
           DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
-          NEXT_PUBLIC_SITE_URL: https://nixrajput.com
+          NEXT_PUBLIC_SITE_URL: http://localhost:4000
 
       - name: Build
         run: bun run build
         env:
           DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
           AUTH_SECRET: ci-dummy-secret
-          NEXT_PUBLIC_SITE_URL: https://nixrajput.com
+          NEXT_PUBLIC_SITE_URL: http://localhost:4000
 
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
@@ -141,7 +141,7 @@ jobs:
         env:
           DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
           AUTH_SECRET: ci-dummy-secret
-          NEXT_PUBLIC_SITE_URL: https://nixrajput.com
+          NEXT_PUBLIC_SITE_URL: http://localhost:4000
           CI: true
 
       - name: Upload Playwright report
