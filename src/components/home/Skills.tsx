@@ -29,21 +29,35 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
         <SectionHeading number="03" eyebrow="Skills" title="Tools I work with" />
       </Reveal>
 
-      <div className="grid gap-6 md:grid-cols-2 md:items-stretch">
-        {groups.map(([category, items], i) => (
-          <Reveal key={category} delay={i * 0.06} className="h-full">
-            <Card className="flex h-full flex-col p-6">
-              <h3 className="text-foreground/70 mb-4 text-sm font-semibold tracking-wide uppercase">
-                {category}
-              </h3>
-              <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                {items.map((s) => (
-                  <SkillCard key={s.name} name={s.name} iconPath={s.iconPath} />
-                ))}
-              </ul>
-            </Card>
-          </Reveal>
-        ))}
+      {/* 12-col bento: cards pair up two per row and stretch to equal height;
+          a trailing odd card spans the full width so no row ends ragged. */}
+      <div className="grid gap-4 md:grid-cols-12 md:items-stretch md:gap-6">
+        {groups.map(([category, items], i) => {
+          const isLastOdd = groups.length % 2 === 1 && i === groups.length - 1;
+          return (
+            <Reveal
+              key={category}
+              delay={(i % 2) * 0.06}
+              className={isLastOdd ? "h-full md:col-span-12" : "h-full md:col-span-6"}
+            >
+              <Card className="flex h-full flex-col p-5 sm:p-6">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h3 className="text-foreground/70 font-mono text-xs font-semibold tracking-[0.2em] uppercase">
+                    {category}
+                  </h3>
+                  <span className="text-muted font-mono text-xs">
+                    {String(items.length).padStart(2, "0")}
+                  </span>
+                </div>
+                <ul className="grid grid-cols-3 content-start gap-2.5 sm:grid-cols-4 lg:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
+                  {items.map((s) => (
+                    <SkillCard key={s.name} name={s.name} iconPath={s.iconPath} />
+                  ))}
+                </ul>
+              </Card>
+            </Reveal>
+          );
+        })}
       </div>
     </Section>
   );
