@@ -36,7 +36,7 @@ const profileRow = {
   resumeUrl: null,
   avatarUrl: seededAvatarUrl,
   heroTagline: "Diagnose. Build. Automate.",
-  sectionVisibility: {},
+  sectionVisibility: { testimonials: false },
 };
 
 const featuredSet = new Set(["fitpro-center"]);
@@ -129,74 +129,58 @@ const experienceRows = [
 // running order so the Skills section renders them grouped and in sequence.
 const skillGroups: {
   category: string;
-  items: { name: string; level: string; iconPath: string }[];
+  items: { name: string; level: string | null; iconPath: string }[];
 }[] = [
   {
-    category: "Programming Languages",
+    category: "Languages",
     items: [
-      { name: "JavaScript", level: "Expert", iconPath: "/skills/javascript.svg" },
-      { name: "TypeScript", level: "Intermediate", iconPath: "/skills/typescript.svg" },
-      { name: "Dart", level: "Expert", iconPath: "/skills/dart.svg" },
-      { name: "Ruby", level: "Intermediate", iconPath: "/skills/ruby.png" },
+      { name: "JavaScript", level: null, iconPath: "/skills/brand/javascript.svg" },
+      { name: "TypeScript", level: null, iconPath: "/skills/brand/typescript.svg" },
+      { name: "Dart", level: null, iconPath: "/skills/brand/dart.svg" },
+      { name: "Python", level: null, iconPath: "/skills/brand/python.svg" },
+      { name: "HTML", level: null, iconPath: "/skills/brand/html.svg" },
+      { name: "CSS", level: null, iconPath: "/skills/brand/css.svg" },
+      { name: "PHP", level: null, iconPath: "/skills/brand/php.svg" },
     ],
   },
   {
-    category: "Frontend Development",
+    category: "Frameworks",
     items: [
-      { name: "Next.js", level: "Expert", iconPath: "/skills/nextjs.png" },
-      { name: "React.js", level: "Expert", iconPath: "/skills/react.svg" },
-      { name: "HTML", level: "Expert", iconPath: "/skills/html.svg" },
-      { name: "CSS", level: "Intermediate", iconPath: "/skills/css.svg" },
-      { name: "SASS", level: "Intermediate", iconPath: "/skills/sass.svg" },
-      { name: "Redux Toolkit", level: "Expert", iconPath: "/skills/redux.svg" },
+      { name: "React", level: null, iconPath: "/skills/brand/react.svg" },
+      { name: "React Native", level: null, iconPath: "/skills/brand/react-native.svg" },
+      { name: "Expo", level: null, iconPath: "/skills/brand/expo.svg" },
+      { name: "Flutter", level: null, iconPath: "/skills/brand/flutter.svg" },
+      { name: "Next.js", level: null, iconPath: "/skills/brand/nextjs.svg" },
+      { name: "Node.js", level: null, iconPath: "/skills/brand/nodejs.svg" },
+      { name: "Tailwind", level: null, iconPath: "/skills/brand/tailwind.svg" },
     ],
   },
   {
-    category: "Backend Development",
+    category: "Data",
     items: [
-      { name: "Node.js", level: "Expert", iconPath: "/skills/nodejs.svg" },
-      { name: "Express.js", level: "Expert", iconPath: "/skills/express.svg" },
-      { name: "Ruby on Rails", level: "Intermediate", iconPath: "/skills/rails.png" },
-      { name: "Socket.io", level: "Intermediate", iconPath: "/skills/socket-io.png" },
+      { name: "MySQL", level: null, iconPath: "/skills/brand/mysql.svg" },
+      { name: "PostgreSQL", level: null, iconPath: "/skills/brand/postgresql.svg" },
+      { name: "Supabase", level: null, iconPath: "/skills/brand/supabase.svg" },
+      { name: "Firebase", level: null, iconPath: "/skills/brand/firebase.svg" },
     ],
   },
   {
-    category: "Mobile App Development",
+    category: "Systems",
     items: [
-      { name: "Flutter", level: "Expert", iconPath: "/skills/flutter.svg" },
-      { name: "GetX", level: "Expert", iconPath: "/skills/getx.png" },
-    ],
-  },
-  {
-    category: "Database Management",
-    items: [
-      { name: "MongoDB", level: "Intermediate", iconPath: "/skills/mongodb.svg" },
-      { name: "PostgreSQL", level: "Intermediate", iconPath: "/skills/postgresql.svg" },
-      { name: "MySQL", level: "Beginner", iconPath: "/skills/mysql.svg" },
-    ],
-  },
-  {
-    category: "DevOps/VCS",
-    items: [
-      { name: "Docker", level: "Beginner", iconPath: "/skills/docker.png" },
-      { name: "AWS", level: "Intermediate", iconPath: "/skills/aws.svg" },
-      { name: "Git", level: "Expert", iconPath: "/skills/git.svg" },
-      { name: "GitHub", level: "Expert", iconPath: "/skills/github.svg" },
-    ],
-  },
-  {
-    category: "Miscellaneous",
-    items: [
-      { name: "Firebase", level: "Intermediate", iconPath: "/skills/firebase.svg" },
-      { name: "Ubuntu", level: "Intermediate", iconPath: "/skills/ubuntu.png" },
-    ],
-  },
-  {
-    category: "Nontechnical Skills",
-    items: [
-      { name: "Problem Solving", level: "Expert", iconPath: "/images/logical-thinking.png" },
-      { name: "Collaboration", level: "Expert", iconPath: "/images/collaboration.png" },
-      { name: "Analytical Skills", level: "Expert", iconPath: "/images/analytical-skills.png" },
+      { name: "Docker", level: null, iconPath: "/skills/brand/docker.svg" },
+      { name: "Nginx", level: null, iconPath: "/skills/brand/nginx.svg" },
+      { name: "AWS", level: null, iconPath: "/skills/brand/aws.svg" },
+      { name: "Azure", level: null, iconPath: "/skills/brand/azure.svg" },
+      { name: "Cloudflare", level: null, iconPath: "/skills/brand/cloudflare.svg" },
+      { name: "Windows", level: null, iconPath: "/skills/brand/windows.svg" },
+      { name: "Linux", level: null, iconPath: "/skills/brand/linux.svg" },
+      { name: "Git", level: null, iconPath: "/skills/brand/git.svg" },
+      { name: "GitHub", level: null, iconPath: "/skills/brand/github.svg" },
+      { name: "Bitbucket", level: null, iconPath: "/skills/brand/bitbucket.svg" },
+      { name: "PowerShell", level: null, iconPath: "/skills/brand/powershell.svg" },
+      { name: "Bash", level: null, iconPath: "/skills/brand/bash.svg" },
+      { name: "Ansible", level: null, iconPath: "/skills/brand/ansible.svg" },
+      { name: "AiScript", level: null, iconPath: "/skills/brand/aiscript.svg" },
     ],
   },
 ];
@@ -213,45 +197,41 @@ const skillRows = skillGroups.flatMap((g, gi) =>
 
 const serviceRows = [
   {
-    title: "Mobile App Development",
-    shortDescription: "I create engaging mobile applications for your audience.",
-    description:
-      "I create captivating mobile apps from concept to deployment for iOS and Android. Using cutting-edge technologies, I ensure seamless performance, intuitive interfaces, and robust functionality that align with your business goals. Enjoy a flawless user experience and outstanding results.",
+    title: "Web Applications",
+    shortDescription: "Modern, scalable web apps with great user experiences.",
+    description: "Web applications with Next.js and React, built for clarity and everyday use.",
     order: 0,
   },
   {
-    title: "Web Development",
-    shortDescription: "I build visually stunning and user-friendly websites.",
-    description:
-      "I deliver stunning, user-friendly websites to establish your online presence. From simple sites to complex e-commerce platforms, I provide tailored solutions using the latest frameworks and technologies for a seamless, responsive, and SEO-friendly browsing experience. Enhance your online identity with quality.",
+    title: "Mobile Solutions",
+    shortDescription: "Cross-platform mobile apps with performance in mind.",
+    description: "Mobile apps with React Native and Expo for iOS and Android.",
     order: 1,
   },
   {
-    title: "Backend Development",
-    shortDescription: "I create robust and scalable backend infrastructures.",
+    title: "Systems & Infrastructure",
+    shortDescription: "Reliable systems, clean architecture, and automation.",
     description:
-      "I enhance digital applications with robust, scalable backend infrastructures. I develop efficient database structures, APIs, and configure servers for optimal performance, security, and scalability, ensuring your applications handle high traffic and complex data management seamlessly. Rely on strong backend solutions.",
+      "IT systems, Windows support, troubleshooting, and the services an app depends on.",
     order: 2,
   },
   {
-    title: "Product Strategy",
-    shortDescription: "I define goals, target audiences, and roadmap for success.",
-    description:
-      "I collaborate to define clear goals, target audiences, and a success roadmap. My expertise in product ideation and market analysis ensures your product meets user needs and aligns with your business strategy for long-term growth and full potential realization. Drive your product's success with strategic planning.",
+    title: "Automation & Tools",
+    shortDescription: "Custom tools and workflows that save time and scale.",
+    description: "Scripts and small tools, including PowerShell, that remove repetitive work.",
     order: 3,
   },
   {
-    title: "DevOps",
-    shortDescription: "I streamline development and operations processes.",
-    description:
-      "I streamline development and operations processes through effective DevOps practices. I implement continuous integration and deployment pipelines, manage cloud infrastructure, and use containerization to ensure efficient, reliable, and scalable software delivery. Improve your workflow with DevOps solutions.",
+    title: "Cloud Services",
+    shortDescription: "Firebase, Supabase, APIs, and cloud services.",
+    description: "Apps connected to Firebase, Supabase, APIs, and cloud services.",
     order: 4,
   },
   {
-    title: "Database Management",
-    shortDescription: "I manage and optimize your database systems.",
+    title: "Software Support",
+    shortDescription: "Windows systems, troubleshooting, and software support.",
     description:
-      "I manage and optimize your database systems for performance, reliability, and scalability. With expertise in SQL and NoSQL databases, I design schemas, write complex queries, and implement best practices for data integrity and security. Ensure your data is managed effectively and efficiently.",
+      "Hands-on support for Windows systems, software problems, and the setup around them.",
     order: 5,
   },
 ];

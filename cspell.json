@@ -88,6 +88,7 @@
     ".next/**",
     "drizzle/**",
     "src/db/seed.ts",
+    "scripts/apply-aristache-content.ts",
     "public/**",
     "bun.lockb",
     "package-lock.json",
