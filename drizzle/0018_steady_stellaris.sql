@@ -1,0 +1,1 @@
+ALTER TABLE "github_cache" ADD COLUMN "pushed_at" timestamp with time zone;

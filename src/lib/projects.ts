@@ -11,6 +11,8 @@ export type MergedProject = Project & {
   homepage: string | null;
   htmlUrl: string | null;
   readmeExcerpt: string | null;
+  /** Last push on GitHub, or null when the cache has not recorded one yet. */
+  pushedAt?: Date | null;
 };
 
 /** Pure: merge curation rows with live repos, drop hidden, sort featured-first. */
@@ -26,6 +28,7 @@ export function mergeProjects(
     .map((c) => {
       const live = byName.get(c.repo.toLowerCase());
       const language = live ? live.language : null;
+      const pushed = live ? Date.parse(live.pushed_at) : Number.NaN;
       return {
         ...c,
         // The language is rendered as its own chip, so a tag repeating it is a visible
@@ -39,6 +42,7 @@ export function mergeProjects(
         homepage: live ? live.homepage : null,
         htmlUrl: live ? live.html_url : null,
         readmeExcerpt: readmeExcerpts.get(c.repo.toLowerCase()) ?? null,
+        pushedAt: Number.isNaN(pushed) ? null : new Date(pushed),
       };
     });
 
@@ -80,7 +84,8 @@ export async function getProjects(): Promise<MergedProject[]> {
       topics: [],
       fork: false,
       archived: false,
-      pushed_at: new Date().toISOString(),
+      // Empty when never cached: mergeProjects turns it into null instead of a fake "now".
+      pushed_at: stats?.pushedAt?.toISOString() ?? "",
     };
   });
 

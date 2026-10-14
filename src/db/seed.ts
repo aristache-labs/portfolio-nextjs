@@ -39,25 +39,90 @@ const profileRow = {
   sectionVisibility: { testimonials: false },
 };
 
-const featuredSet = new Set(["fitpro-center"]);
+const featuredSet = new Set(["portfolio-nextjs", "fitpro-center", "ViralCutter"]);
 // Array position IS the `order` (see the .map() below) and order doubles as the showcase
-// ranking, so this sequence is the order they lead with. Language tags are omitted where
-// GitHub reports the language: it renders as its own chip and mergeProjects strips duplicates.
+// ranking, so this sequence is the order they lead with. Most repos are private, so GitHub
+// reports no language or description for them: the blurb and the stack tags carry that here.
 const projectRows: (typeof projects.$inferInsert)[] = [
-  { repo: "fitpro-center", title: "FitPro Center", tags: ["Fitness", "Web"] },
-  { repo: "aristache-labs", title: "aristache-labs", tags: ["Profile"] },
   {
-    repo: "MoneyPrinterTurbo-Extended",
-    title: "MoneyPrinterTurbo Extended",
-    tags: ["Video", "Automation"],
+    repo: "portfolio-nextjs",
+    title: "Aristache Portfolio",
+    customBlurb:
+      "This site: a database-driven portfolio with an admin area, built on Next.js and React 19.",
+    tags: ["Next.js", "React 19", "TypeScript"],
+  },
+  {
+    repo: "fitpro-center",
+    title: "FitPro Center",
+    customBlurb: "Marketing website for FitPro Center, a premium fitness brand.",
+    tags: ["Next.js", "React 18", "Tailwind CSS"],
+  },
+  {
+    repo: "ViralCutter",
+    title: "ViralCutter",
+    customBlurb: "AI tool that turns long videos into viral short clips.",
+    tags: ["Python", "JavaScript", "CSS"],
   },
   {
     repo: "VUZA-Free-AI-Video-Creator-and-Pinterest-Video-Scraper",
     title: "VUZA",
-    tags: ["Video", "Voiceover"],
+    customBlurb: "Free AI video creator with voiceover, subtitles, and a Pinterest video scraper.",
+    tags: ["Python", "AI Video"],
   },
-  { repo: "MoneyPrinterTurbo", title: "MoneyPrinterTurbo", tags: ["Video", "Automation"] },
-  { repo: "ViralCutter", title: "ViralCutter", tags: ["Video", "Clips"] },
+  {
+    repo: "MiVue-Pro",
+    title: "MiVue Pro",
+    customBlurb: "Dashcam website and mobile app for browsing and managing dashcam footage.",
+    tags: ["React Native", "Expo", "TypeScript"],
+  },
+  {
+    repo: "mitugym-app",
+    title: "MITUGYM App",
+    customBlurb: "Production gym management mobile app with check-in, built on Supabase.",
+    tags: ["React Native", "Expo", "Supabase"],
+  },
+  {
+    repo: "mitugym-app-webpanel",
+    title: "MITUGYM Web Panel",
+    customBlurb: "Staff dashboard for the MITUGYM ecosystem, with auth, persistence, and actions.",
+    tags: ["Next.js 16", "React 19", "Tailwind v4", "Supabase"],
+  },
+  {
+    repo: "mitugym_scanner_flutter",
+    title: "MITUGYM Scanner",
+    customBlurb: "Windows desktop QR scanner for gym member check-in and check-out.",
+    tags: ["Flutter", "Dart", "SQLite"],
+  },
+  {
+    repo: "MindMuscle.AI",
+    title: "MindMuscle.AI",
+    customBlurb: "AI-powered fitness coaching and progress tracking, with Sentry monitoring.",
+    tags: ["React Native", "Expo", "Supabase"],
+  },
+  {
+    repo: "MindMuscleWeb",
+    title: "MindMuscle Web",
+    customBlurb: "Web app for AI-powered fitness coaching and progress.",
+    tags: ["Next.js", "TypeScript", "Jest", "Tailwind CSS"],
+  },
+  {
+    repo: "auto-translate",
+    title: "Auto Translate",
+    customBlurb: "Real-time speech translation desktop app built with Tauri.",
+    tags: ["Tauri 2", "Rust", "Python", "TypeScript"],
+  },
+  {
+    repo: "car-detailing",
+    title: "Car Detailing",
+    customBlurb: "Premium car detailing landing page with a luxury carbon and gold UI.",
+    tags: ["Next.js", "TypeScript"],
+  },
+  {
+    repo: "personal-trainer",
+    title: "Personal Trainer",
+    customBlurb: "Modern, production-ready personal trainer website.",
+    tags: ["Next.js", "TypeScript", "Tailwind CSS"],
+  },
 ].map((p, i) => ({
   ...p,
   featured: featuredSet.has(p.repo),

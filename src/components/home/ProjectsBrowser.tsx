@@ -3,41 +3,61 @@
 import { useMemo, useState } from "react";
 import { Reveal } from "@/components/motion/Reveal";
 import { ProjectCard } from "./ProjectCard";
-import { FeaturedProject } from "./FeaturedProject";
+import { FeaturedCard, RecentCard } from "./HighlightCards";
 import { ProjectQuickView } from "./ProjectQuickView";
 import type { MergedProject } from "@/lib/projects";
 
 const ALL = "All";
-// Above this many, the showcase stops being a showcase and becomes a very long page.
-// Featured projects beyond the cut fall into the grid but keep a badge, so the flag
-// still reads instead of silently doing nothing for four of the seven.
-const MAX_SHOWCASE = 3;
+// Featured on the left, most recently pushed on the right. Both columns are capped so the
+// block stays compact; everything else falls through to the filterable grid below.
+const MAX_FEATURED = 2;
+const MAX_RECENT = 3;
+
+// One flex column per side. The grid stretches both columns to the same height, and flex-1
+// splits that height across the cards in the column (2 on the left, 3 on the right).
+const TRACK = "flex flex-1 flex-col gap-4";
+
+function ColumnLabel({ children }: { children: string }) {
+  return (
+    <h3 className="text-muted mb-3 font-mono text-xs tracking-[0.2em] uppercase">{children}</h3>
+  );
+}
 
 /**
- * Interactive half of the Projects section - client-side because the showcase, filter and grid
- * share selection state. Filters the already-loaded list rather than refetching.
+ * Interactive half of the Projects section - client-side because the highlights, filter and grid
+ * share the quick-view state. Filters the already-loaded list rather than refetching.
  */
 export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const [language, setLanguage] = useState(ALL);
   const [quickView, setQuickView] = useState<MergedProject | null>(null);
 
-  // All three derived together and keyed on `projects` alone. Splitting them meant the memo
-  // depended on a `rest` array rebuilt every render, so it never actually memoised anything
-  // while its dependency list read as though it did.
-  const { showcase, rest, languages } = useMemo(() => {
+  // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
+  // a `rest` array rebuilt every render, so it never actually memoised anything.
+  const { featured, recent, rest, languages } = useMemo(() => {
     // projects arrives already sorted featured-first by mergeProjects.
-    const lead = projects.filter((p) => p.featured).slice(0, MAX_SHOWCASE);
+    const lead = projects.filter((p) => p.featured).slice(0, MAX_FEATURED);
     const leadIds = new Set(lead.map((p) => p.id));
     const others = projects.filter((p) => !leadIds.has(p.id));
 
+    // Newest push first. A project with no recorded push date sorts last instead of first, and
+    // the sort is stable, so ties keep the curated order. Featured ones are excluded so the same
+    // project never appears in both columns.
+    const byPush = [...others].sort(
+      (a, b) => (b.pushedAt?.getTime() ?? 0) - (a.pushedAt?.getTime() ?? 0),
+    );
+    const latest = byPush.slice(0, MAX_RECENT);
+    const latestIds = new Set(latest.map((p) => p.id));
+    const grid = others.filter((p) => !latestIds.has(p.id));
+
     // Counted over the grid only, so a filter chip's number matches what it reveals.
     const counts = new Map<string, number>();
-    for (const p of others) {
+    for (const p of grid) {
       if (p.language) counts.set(p.language, (counts.get(p.language) ?? 0) + 1);
     }
     return {
-      showcase: lead,
-      rest: others,
+      featured: lead,
+      recent: latest,
+      rest: grid,
       languages: [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
     };
   }, [projects]);
@@ -46,13 +66,33 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
 
   return (
     <>
-      {showcase.length > 0 && (
-        <div className="mb-14 grid gap-6">
-          {showcase.map((p, i) => (
-            <Reveal key={p.id} delay={i * 0.05}>
-              <FeaturedProject project={p} onQuickView={() => setQuickView(p)} />
-            </Reveal>
-          ))}
+      {(featured.length > 0 || recent.length > 0) && (
+        <div className="mb-10 grid items-stretch gap-8 lg:grid-cols-2">
+          {featured.length > 0 && (
+            <div className="flex flex-col">
+              <ColumnLabel>Featured</ColumnLabel>
+              <div className={TRACK}>
+                {featured.map((p, i) => (
+                  <Reveal key={p.id} delay={i * 0.05} className="flex min-h-0 flex-1">
+                    <FeaturedCard project={p} onQuickView={() => setQuickView(p)} />
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {recent.length > 0 && (
+            <div className="flex flex-col">
+              <ColumnLabel>Recently updated</ColumnLabel>
+              <div className={TRACK}>
+                {recent.map((p, i) => (
+                  <Reveal key={p.id} delay={0.1 + i * 0.05} className="flex min-h-0 flex-1">
+                    <RecentCard project={p} onQuickView={() => setQuickView(p)} />
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

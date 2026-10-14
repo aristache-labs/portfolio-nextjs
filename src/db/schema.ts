@@ -196,6 +196,9 @@ export const githubCache = pgTable("github_cache", {
   // project quick view. Only the excerpt is stored: the full README would be several KB
   // per repo shipped to every visitor, and the quick view never shows more than this.
   readmeExcerpt: text("readme_excerpt"),
+  // GitHub's last push to the repo. Nullable: rows cached before this column existed stay NULL
+  // until their next 24h refresh, and the recent-projects pick treats NULL as oldest.
+  pushedAt: timestamp("pushed_at", { withTimezone: true }),
   fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

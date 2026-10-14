@@ -15,6 +15,8 @@ export type CachedRepoStats = {
   homepage: string | null;
   htmlUrl: string | null;
   readmeExcerpt: string | null;
+  /** Last push to the repo. Optional so callers that predate the field keep compiling. */
+  pushedAt?: Date | null;
 };
 
 function isStale(row: { fetchedAt: Date }): boolean {
@@ -35,6 +37,7 @@ function rowToStats(row: GithubCache, slug: string): CachedRepoStats {
     homepage: row.homepage,
     htmlUrl: `https://github.com/${slug}`,
     readmeExcerpt: row.readmeExcerpt,
+    pushedAt: row.pushedAt,
   };
 }
 
@@ -117,6 +120,7 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
             description: live.description,
             homepage: live.homepage,
             readmeExcerpt,
+            pushedAt: new Date(live.pushed_at),
             fetchedAt: new Date(),
           };
           await db
@@ -131,6 +135,7 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
                 description: upsertRow.description,
                 homepage: upsertRow.homepage,
                 readmeExcerpt: upsertRow.readmeExcerpt,
+                pushedAt: upsertRow.pushedAt,
                 fetchedAt: upsertRow.fetchedAt,
               },
             });
@@ -142,6 +147,7 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
             homepage: live.homepage,
             htmlUrl: live.html_url,
             readmeExcerpt,
+            pushedAt: upsertRow.pushedAt,
           });
         } else {
           // 404: renamed, deleted or made private. Stamp the row so a NULL excerpt cannot keep

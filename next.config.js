@@ -15,6 +15,8 @@ if (siteUrl) {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // LAN device hitting the dev server (HMR /_next/webpack-hmr). Dev-only.
+  allowedDevOrigins: ["192.168.1.108"],
   // sharp is a native addon used server-side (testimonial/avatar image
   // optimization in src/lib/blob.ts). Mark it external so Next loads it via a
   // plain require from node_modules at runtime instead of letting Turbopack
