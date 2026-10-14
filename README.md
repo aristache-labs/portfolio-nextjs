@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/aristache-labs/protofolio-nextjs/refs/heads/master/assets/logo.svg" width="76" alt="Cristache Adrian">
+<img src="https://raw.githubusercontent.com/aristache-labs/portfolio-nextjs/refs/heads/master/assets/logo.svg" width="76" alt="Cristache Adrian">
 
 # Cristache Adrian · Portfolio
 
@@ -8,10 +8,10 @@
 
 <br />
 
-[![CI](https://github.com/aristache-labs/protofolio-nextjs/actions/workflows/ci.yml/badge.svg)][ci]
+[![CI](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/ci.yml/badge.svg)][ci]
 [![Lighthouse](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/lighthouse.yml/badge.svg)][lighthouse]
-[![Stars](https://img.shields.io/github/stars/aristache-labs/protofolio-nextjs?color=7C3AED)][repo]
-[![Contributors](https://img.shields.io/github/contributors/aristache-labs/protofolio-nextjs?color=7C3AED)][contributors]
+[![Stars](https://img.shields.io/github/stars/aristache-labs/portfolio-nextjs?color=7C3AED)][repo]
+[![Contributors](https://img.shields.io/github/contributors/aristache-labs/portfolio-nextjs?color=7C3AED)][contributors]
 [![License: MIT](https://img.shields.io/github/license/aristache-labs/portfolio-nextjs?color=7C3AED)][license]
 [![Last commit](https://img.shields.io/github/last-commit/aristache-labs/portfolio-nextjs?label=last%20commit)][repo]
 [![Issues](https://img.shields.io/github/issues/aristache-labs/portfolio-nextjs?label=issues)][issues]
