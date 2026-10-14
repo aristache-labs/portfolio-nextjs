@@ -52,7 +52,7 @@ describe("About", () => {
 
   it("renders the section heading", () => {
     render(<About profile={mockProfile} />);
-    expect(screen.getByText("A bit about me")).toBeInTheDocument();
+    expect(screen.getByText("Behind Aristache")).toBeInTheDocument();
   });
 
   it("renders the eyebrow label", () => {

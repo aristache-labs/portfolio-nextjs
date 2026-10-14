@@ -1,4 +1,4 @@
-import { Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
+import { ArrowRight, Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import { Reveal } from "@/components/motion/Reveal";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -6,7 +6,7 @@ import { Section, SectionHeading } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { XIcon } from "@/components/brand/XIcon";
 
-// Icons accept a className/size — lucide icons and our custom XIcon both qualify.
+// Icons accept a className/size. Lucide icons and our custom XIcon both qualify.
 export type SocialIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 const ICONS: Record<string, SocialIcon> = {
@@ -35,35 +35,37 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
 
   return (
     <Section id="contact" className="scroll-mt-24">
-      <div className="text-center">
+      <div>
         <Reveal>
-          <SectionHeading
-            number="08"
-            eyebrow="Contact"
-            title="Let's build something"
-            align="center"
-            className="mb-4"
-          />
-          <p className="text-foreground/70 mb-8">
-            Have a project, role, or idea in mind?
-            {email ? " The fastest way to reach me is email." : " Reach me on GitHub."}
-          </p>
+          <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+            <div>
+              <p className="text-muted mb-4 font-mono text-xs tracking-[0.3em] uppercase">
+                Let&apos;s build something great
+              </p>
+              <h2 className="text-4xl font-semibold tracking-tight text-balance md:text-5xl">
+                Ideas into real <span className="text-(--brand-mid)">solutions.</span>
+              </h2>
+            </div>
+            <div className="flex flex-col items-start gap-6 lg:items-end">
+              <p className="text-muted max-w-md text-base leading-relaxed lg:text-right">
+                Whether you have a project in mind, need technical expertise, or just want to chat
+                about technology - I&apos;m always open to new opportunities.
+              </p>
+              {email ? (
+                <Magnetic>
+                  <Button
+                    href={`mailto:${email}`}
+                    variant="secondary"
+                    size="lg"
+                    aria-label={`Get in Touch ${email}`}
+                  >
+                    Get in Touch <ArrowRight className="size-4" aria-hidden />
+                  </Button>
+                </Magnetic>
+              ) : null}
+            </div>
+          </div>
         </Reveal>
-
-        {email ? (
-          <Reveal delay={0.1}>
-            <Magnetic>
-              <Button
-                href={`mailto:${email}`}
-                variant="primary"
-                size="lg"
-                leftIcon={<Mail className="size-4" aria-hidden />}
-              >
-                {email}
-              </Button>
-            </Magnetic>
-          </Reveal>
-        ) : null}
 
         <Reveal delay={0.15}>
           <ul className="mt-10 flex flex-wrap items-center justify-center gap-3">

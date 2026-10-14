@@ -15,7 +15,8 @@ export type HeroProfile = {
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const HERO_COPY =
-  "I design and build modern digital solutions that combine technology, usability, and long-term thinking. From web and mobile applications to IT systems and automation, every project is crafted with purpose.";
+  "I build modern applications, reliable systems, and thoughtful digital experiences that solve real problems and create lasting value.";
+const HERO_LABELS = ["Ideas", "Development", "Automation", "Systems", "People"] as const;
 
 /** Entrance helper: fade-up at a choreographed delay. */
 function fadeUp(reduce: boolean, delay: number) {
@@ -85,7 +86,8 @@ export function Hero({
               transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
               className="block"
             >
-              Technology, built with <span className="text-(--brand-mid)">intention.</span>
+              Technology, <br />
+              built with <span className="text-(--brand-mid)">intention.</span>
             </motion.span>
           </h1>
 
@@ -139,6 +141,10 @@ export function Hero({
         >
           <div
             aria-hidden
+            className="absolute inset-[18%] rounded-full bg-[radial-gradient(circle,rgb(var(--brand-mid-rgb)/0.16),transparent_68%)]"
+          />
+          <div
+            aria-hidden
             className="absolute inset-[6%] rounded-full border border-(--brand-mid)/25"
           />
           <div
@@ -157,6 +163,11 @@ export function Hero({
             priority
             className="relative z-10 h-full w-full object-contain"
           />
+          <ul className="text-muted relative z-10 mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] tracking-[0.18em] uppercase lg:absolute lg:top-1/2 lg:right-0 lg:mt-0 lg:translate-x-[12%] lg:-translate-y-1/2 lg:flex-col lg:gap-2">
+            {HERO_LABELS.map((label) => (
+              <li key={label}>{label}</li>
+            ))}
+          </ul>
         </motion.div>
       </motion.div>
     </section>

@@ -91,7 +91,7 @@ describe("Contact", () => {
 
   it("renders the heading", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    expect(screen.getByText(/Let's build something/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /ideas into real solutions/i })).toBeTruthy();
   });
 
   it("renders all social icons in sorted order", () => {

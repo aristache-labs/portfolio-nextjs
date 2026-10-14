@@ -46,7 +46,7 @@ export function About({ profile }: { profile: AboutProfile }) {
     <Section id="about" className="scroll-mt-24">
       <div>
         <Reveal>
-          <SectionHeading number="02" eyebrow="About" title="A bit about me" />
+          <SectionHeading number="02" eyebrow="About" title="Behind Aristache" />
         </Reveal>
 
         <div className="flex flex-col-reverse items-start gap-10 md:flex-row md:gap-14">
