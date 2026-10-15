@@ -81,7 +81,8 @@ export function SiteNav({
           <Link
             href="/"
             aria-label="Home"
-            className="relative z-10 shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-110 hover:-rotate-4"          >
+            className="relative z-10 shrink-0 translate-y-0.5 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-110 hover:-rotate-4"
+          >
             <Logo />
           </Link>
 

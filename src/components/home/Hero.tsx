@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { BrandMark } from "@/components/brand/Logo";
 import { Heart, ArrowRight } from "lucide-react";
@@ -139,28 +140,60 @@ export function Hero({
           {...fadeUp(reduce, 0.55)}
           className="mx-auto flex w-full max-w-[34rem] flex-col items-center lg:mx-0 lg:w-auto lg:max-w-none lg:flex-row lg:items-center"
         >
-          <div className="relative aspect-square w-[min(100%,22rem)] shrink-0 sm:w-[26rem] lg:w-[28rem] xl:w-[32rem]">
-            <div
-              aria-hidden
-              className="absolute inset-[18%] rounded-full bg-[radial-gradient(circle,rgb(var(--brand-mid-rgb)/0.16),transparent_68%)]"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-[6%] rounded-full border border-(--brand-mid)/25"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-[16%] rounded-full border border-(--brand-mid)/15"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-[26%] rounded-full border border-(--brand-mid)/10"
-            />
-            <div className="absolute inset-[8%] flex items-center justify-center">
-              <BrandMark priority className="h-full w-full object-contain" />
+          <div className="flex flex-col items-center">
+            <div className="relative aspect-square w-[min(100%,22rem)] shrink-0 sm:w-[26rem] lg:w-[28rem] xl:w-[28rem]">
+              {/* Palette glow behind the mark. */}
+              <div
+                aria-hidden
+                className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle,rgb(var(--brand-mid-rgb)/0.22),rgb(var(--brand-deep-rgb)/0.08)_48%,transparent_70%)] blur-2xl"
+              />
+              {/* Hairline ring, static. */}
+              <div
+                aria-hidden
+                className="absolute inset-[4%] rounded-full border border-(--brand-mid)/15"
+              />
+              {/* One bright arc travelling the ring, masked down to a 2px stroke. */}
+              <motion.div
+                aria-hidden
+                animate={reduce ? undefined : { rotate: 360 }}
+                transition={{ duration: 18, ease: "linear", repeat: Infinity }}
+                className="absolute inset-[4%] rounded-full"
+                style={{
+                  background:
+                    "conic-gradient(from 0deg, transparent 0deg, transparent 230deg, rgb(var(--brand-deep-rgb) / 0.6) 290deg, rgb(var(--brand-bright-rgb)) 355deg, transparent 360deg)",
+                  WebkitMask:
+                    "radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px))",
+                  mask: "radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px))",
+                }}
+              />
+              <div className="absolute inset-[16%] flex items-center justify-center">
+                <BrandMark
+                  priority
+                  className="h-full w-full object-contain drop-shadow-[0_18px_32px_rgb(var(--brand-deep-rgb)/0.45)]"
+                />
+              </div>
+            </div>
+            <div className="mt-1 flex items-center gap-4">
+              <span
+                aria-hidden
+                className="h-px w-8 bg-linear-to-r from-transparent to-(--brand-mid)/60"
+              />
+              <Image
+                src="/brand/aristache-text.svg"
+                alt="Aristache"
+                width={1322}
+                height={233}
+                priority
+                unoptimized
+                className="h-9 w-auto sm:h-11"
+              />
+              <span
+                aria-hidden
+                className="h-px w-8 bg-linear-to-l from-transparent to-(--brand-mid)/60"
+              />
             </div>
           </div>
-          <ul className="text-muted relative z-10 mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] tracking-[0.18em] uppercase lg:mt-0 lg:ml-5 lg:flex-col lg:gap-2">
+          <ul className="text-muted relative z-10 mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] tracking-[0.18em] uppercase lg:mt-0 lg:mb-12 lg:ml-5 lg:flex-col lg:gap-2">
             {HERO_LABELS.map((label) => (
               <li key={label}>{label}</li>
             ))}
