@@ -31,6 +31,17 @@ describe("projectInsertSchema media URLs", () => {
     expect(r.success).toBe(true);
   });
 
+  it("accepts a public file path and rejects a private or parent path", () => {
+    const ok = projectInsertSchema.safeParse({ ...base, coverImage: "/brand/poster.jpg" });
+    expect(ok.success && ok.data.coverImage).toBe("/brand/poster.jpg");
+    expect(
+      projectInsertSchema.safeParse({ ...base, coverImage: "//evil.test/a.jpg" }).success,
+    ).toBe(false);
+    expect(
+      projectInsertSchema.safeParse({ ...base, coverImage: "/brand/../../etc/passwd" }).success,
+    ).toBe(false);
+  });
+
   it("treats a cleared upload field as null rather than failing", () => {
     const r = projectInsertSchema.safeParse({ ...base, coverImage: "" });
     expect(r.success).toBe(true);

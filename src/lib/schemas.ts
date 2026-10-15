@@ -29,9 +29,15 @@ export const projectInsertSchema = z.object({
   hidden: z.boolean().default(false),
   // Quick-view media. httpUrl() not string().url(), matching the fields above: string().url()
   // accepts javascript: and data:, which these reach an <img src> as. An empty string from a
-  // cleared upload field becomes null rather than failing.
+  // cleared upload field becomes null rather than failing. A root-relative public path is
+  // allowed because an absolute localhost URL makes next/image fetch a private IP and refuse it.
   coverImage: z
-    .union([z.httpUrl(), z.literal(""), z.null()])
+    .union([
+      z.httpUrl(),
+      z.string().regex(/^\/(?!\/)(?!.*\.\.)[A-Za-z0-9._~/-]+$/),
+      z.literal(""),
+      z.null(),
+    ])
     .transform((v) => (v === "" ? null : v))
     .nullable()
     .optional(),

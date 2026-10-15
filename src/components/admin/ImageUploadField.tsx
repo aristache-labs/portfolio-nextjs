@@ -84,7 +84,7 @@ export function ImageUploadField({
 
         <div className="flex flex-1 flex-col gap-2">
           <input
-            type="url"
+            type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder={placeholder}
