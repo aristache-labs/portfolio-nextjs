@@ -73,6 +73,7 @@ const projectRows: (typeof projects.$inferInsert)[] = [
   {
     repo: "MiVue-Pro",
     title: "MiVue Pro",
+    coverImage: "/brand/portfolio-mivudelaneroy-poster.png",
     customBlurb: "Dashcam website and mobile app for browsing and managing dashcam footage.",
     tags: ["React Native", "Expo", "TypeScript"],
   },

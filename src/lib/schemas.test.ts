@@ -32,8 +32,9 @@ describe("projectInsertSchema media URLs", () => {
   });
 
   it("accepts a public file path and rejects a private or parent path", () => {
-    const ok = projectInsertSchema.safeParse({ ...base, coverImage: "/brand/poster.jpg" });
-    expect(ok.success && ok.data.coverImage).toBe("/brand/poster.jpg");
+    const cover = "/brand/portfolio-nextjs-poster.jpg";
+    const ok = projectInsertSchema.safeParse({ ...base, coverImage: cover });
+    expect(ok.success && ok.data.coverImage).toBe(cover);
     expect(
       projectInsertSchema.safeParse({ ...base, coverImage: "//evil.test/a.jpg" }).success,
     ).toBe(false);

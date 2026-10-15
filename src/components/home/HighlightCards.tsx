@@ -152,8 +152,8 @@ export function RecentCard({
   onQuickView: () => void;
 }) {
   return (
-    <article className={`${SHELL} flex flex-row items-stretch gap-3 p-3 sm:gap-4 sm:p-4`}>
-      <div className="relative w-24 shrink-0 self-stretch overflow-hidden rounded-xl sm:w-32">
+    <article className={`${SHELL} flex flex-row items-stretch gap-3 p-3 sm:gap-4 sm:p-3`}>
+      <div className="relative w-24 shrink-0 self-stretch overflow-hidden rounded-xl sm:w-50">
         <Cover project={project} sizes="128px" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
