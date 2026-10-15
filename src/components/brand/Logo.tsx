@@ -2,8 +2,8 @@ import Image from "next/image";
 import { cn } from "@/utils/cn";
 
 const MARK = {
-  light: { src: "/brand/aristache-monogram-light.png", width: 872, height: 872 },
-  dark: { src: "/brand/aristache-monogram-dark.png", width: 925, height: 789 },
+  light: { src: "/brand/aristache-monogram-light.svg", width: 1306, height: 1306 },
+  dark: { src: "/brand/aristache-monogram-dark.svg", width: 1388, height: 1182 },
 } as const;
 
 /** Light-theme mark, plus the dark-theme mark. The dark one is hidden until `.dark`. */
@@ -22,6 +22,7 @@ export function BrandMark({
         width={MARK.light.width}
         height={MARK.light.height}
         priority={priority}
+        unoptimized
         className={cn("dark:hidden", className)}
       />
       <Image
@@ -30,6 +31,7 @@ export function BrandMark({
         width={MARK.dark.width}
         height={MARK.dark.height}
         priority={priority}
+        unoptimized
         className={cn("hidden dark:block", className)}
       />
     </>
