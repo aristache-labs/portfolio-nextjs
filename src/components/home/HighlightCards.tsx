@@ -11,13 +11,24 @@ export function formatUpdated(date: Date): string {
   return date.toLocaleDateString("en", { month: "short", year: "numeric", timeZone: "UTC" });
 }
 
-function Cover({ project, sizes, fit }: { project: MergedProject; sizes: string; fit: string }) {
+function Cover({
+  project,
+  sizes,
+  fit,
+  priority = false,
+}: {
+  project: MergedProject;
+  sizes: string;
+  fit: string;
+  priority?: boolean;
+}) {
   return project.coverImage ? (
     <Image
       src={project.coverImage}
       alt=""
       fill
       sizes={sizes}
+      priority={priority}
       className={`${fit} transition-transform duration-500 motion-safe:group-hover:scale-105`}
     />
   ) : (
@@ -147,14 +158,21 @@ export function FeaturedCard({
 export function RecentCard({
   project,
   onQuickView,
+  priority = false,
 }: {
   project: MergedProject;
   onQuickView: () => void;
+  priority?: boolean;
 }) {
   return (
-    <article className={`${SHELL} flex flex-row items-stretch gap-3 p-3 sm:gap-4 sm:p-3`}>
-      <div className="relative w-24 shrink-0 self-stretch overflow-hidden rounded-xl sm:w-50">
-        <Cover project={project} sizes="128px" fit="object-fill" />
+    <article className={`${SHELL} flex flex-col gap-3 p-3 sm:flex-row sm:items-stretch sm:gap-4 sm:p-3`}>
+      <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl sm:aspect-auto sm:w-50 sm:self-stretch">
+        <Cover
+          project={project}
+          sizes="(max-width: 640px) 100vw, 200px"
+          fit="object-cover sm:object-fill"
+          priority={priority}
+        />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <MetaLine
