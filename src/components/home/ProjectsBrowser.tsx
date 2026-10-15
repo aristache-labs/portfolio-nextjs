@@ -11,7 +11,7 @@ const ALL = "All";
 // Featured on the left, most recently pushed on the right. Both columns are capped so the
 // block stays compact; everything else falls through to the filterable grid below.
 const MAX_FEATURED = 2;
-const MAX_RECENT = 3;
+const MAX_RECENT = 5;
 const PAGE_SIZE = 9;
 
 // One flex column per side. The grid stretches both columns to the same height, and flex-1
@@ -98,9 +98,9 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           {recent.length > 0 && (
             <div className="flex flex-col">
               <ColumnLabel>Recently updated</ColumnLabel>
-              <div className={TRACK}>
+              <div className={`${TRACK} justify-between`}>
                 {recent.map((p, i) => (
-                  <Reveal key={p.id} delay={0.1 + i * 0.05} className="flex min-h-0 flex-1">
+                  <Reveal key={p.id} delay={0.1 + i * 0.05} className="flex">
                     <RecentCard project={p} onQuickView={() => setQuickView(p)} />
                   </Reveal>
                 ))}
