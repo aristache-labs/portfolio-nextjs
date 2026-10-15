@@ -8,6 +8,10 @@
 
 <br />
 
+<img src="./assets/poster.jpg" width="100%" alt="Aristache portfolio on laptop and phones">
+
+<br />
+
 [![CI](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/ci.yml/badge.svg)][ci]
 [![Lighthouse](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/lighthouse.yml/badge.svg)][lighthouse]
 [![Stars](https://shields.io/github/stars/aristache-labs/portfolio-nextjs?color=7C3AED)][repo]
