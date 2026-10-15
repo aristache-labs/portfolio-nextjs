@@ -30,7 +30,7 @@ try {
       });
 
       try {
-        // Setează tema înainte de încărcarea aplicației
+        // Set the theme before the app loads
         await page.addInitScript((selectedTheme) => {
           localStorage.setItem("theme", selectedTheme);
         }, theme);
@@ -41,7 +41,7 @@ try {
 
         await page.evaluate(() => document.fonts.ready);
 
-        // Ascunde interfața de development Next.js
+        // Hide the Next.js development overlay
         await page.addStyleTag({
           content: `
             nextjs-portal {
@@ -51,10 +51,10 @@ try {
           `,
         });
 
-        // Așteaptă stabilizarea paginii
+        // Wait for the page to settle
         await page.waitForTimeout(2000);
 
-        // Verifică poziția header-ului
+        // Check the header position
         const header = page.locator("header").first();
 
         if (await header.count()) {
@@ -64,7 +64,7 @@ try {
           );
         }
 
-        // Revine la începutul paginii
+        // Return to the top of the page
         await page.evaluate(() => {
           window.scrollTo({
             top: 0,
@@ -81,7 +81,7 @@ try {
           animations: "disabled",
         });
 
-        // Scroll pentru activarea secțiunilor animate
+        // Scroll so animated sections activate
         await page.evaluate(async () => {
           const delay = (ms) =>
             new Promise((resolve) => setTimeout(resolve, ms));
