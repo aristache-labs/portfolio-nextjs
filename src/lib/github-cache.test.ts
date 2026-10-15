@@ -150,16 +150,27 @@ describe("getCachedRepoData", () => {
     expect(mockValues).toHaveBeenCalledWith(expect.objectContaining({ readmeExcerpt: "" }));
   });
 
-  it("stores an empty string when the README fetch throws, so it cannot loop", async () => {
-    // NULL is the refresh trigger, so writing NULL here would refetch every regeneration for
-    // as long as GitHub stayed unavailable.
+  it("leaves the excerpt NULL when the README fetch throws, so the next render retries", async () => {
+    // "" means "checked, no README" and skips refresh for 24h. A 403 is not that, and writing
+    // "" here hid real READMEs until the TTL.
     mockDbSelect([cacheRow("rate-limited", 7, TWENTY_FIVE_HOURS, null)]);
+    mockGetRepo.mockResolvedValue(githubRepo("rate-limited", 7));
+    mockGetReadme.mockRejectedValue(new Error("403 rate limited"));
+
+    const result = await getCachedRepoData(["aristache-labs/rate-limited"]);
+
+    expect(mockValues).toHaveBeenCalledWith(expect.objectContaining({ readmeExcerpt: null }));
+    expect(result.get("aristache-labs/rate-limited")?.readmeExcerpt).toBeNull();
+  });
+
+  it("keeps a previous excerpt when a later README fetch throws", async () => {
+    mockDbSelect([cacheRow("rate-limited", 7, TWENTY_FIVE_HOURS, "kept")]);
     mockGetRepo.mockResolvedValue(githubRepo("rate-limited", 7));
     mockGetReadme.mockRejectedValue(new Error("403 rate limited"));
 
     await getCachedRepoData(["aristache-labs/rate-limited"]);
 
-    expect(mockValues).toHaveBeenCalledWith(expect.objectContaining({ readmeExcerpt: "" }));
+    expect(mockValues).toHaveBeenCalledWith(expect.objectContaining({ readmeExcerpt: "kept" }));
   });
 
   it("stamps a NULL excerpt when the repo 404s, so the backfill cannot loop", async () => {

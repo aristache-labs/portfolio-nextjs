@@ -7,6 +7,7 @@ const ALLOWED_PATTERNS = [
   "**.amazonaws.com",
   "**.public.blob.vercel-storage.com",
   "localhost",
+  "portfolio-nextjs-aristache-projects.vercel.app",
 ] as const;
 
 function hostMatches(hostname: string, pattern: string): boolean {

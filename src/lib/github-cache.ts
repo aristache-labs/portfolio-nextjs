@@ -102,14 +102,15 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
       try {
         const live = await getRepo(slug);
         if (live) {
-          // Never NULL: "" records "checked, no README". Also "" on failure, because NULL is
-          // the refresh trigger above and would refetch on every regeneration.
-          let readmeExcerpt = cached?.readmeExcerpt ?? "";
+          // "" means "checked, this repo has no README". A thrown fetch is not that: writing
+          // "" there hides a real README until the 24h TTL. Leave NULL so the next render
+          // retries. A previous excerpt, including a confirmed "", is kept.
+          let readmeExcerpt: string | null = cached?.readmeExcerpt ?? null;
           try {
             const markdown = await getReadme(slug);
             readmeExcerpt = markdown === null ? "" : toExcerpt(markdown);
           } catch {
-            /* keep whatever we had; the next 24h refresh tries again */
+            /* null when never checked, so needsRefresh stays true */
           }
 
           const upsertRow = {

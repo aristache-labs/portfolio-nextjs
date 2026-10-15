@@ -49,6 +49,8 @@ const nextConfig = {
       { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
       // Seeded avatar is an absolute URL on NEXT_PUBLIC_SITE_URL. Local dev is http://localhost.
       { protocol: "http", hostname: "localhost" },
+      // The same absolute avatar on the deployed site. Without this, next/image returns 400.
+      { protocol: "https", hostname: "portfolio-nextjs-aristache-projects.vercel.app" },
     ],
   },
 };

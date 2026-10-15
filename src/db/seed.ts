@@ -11,8 +11,6 @@ import {
   faqs,
   testimonials,
 } from "./schema";
-import { requireEnv } from "@/lib/env";
-
 // Inserted only on a fresh (empty) database. Later content changes are made in the admin
 // panel, not by re-running the seed.
 
@@ -21,11 +19,9 @@ const taglineRows = [
   { text: "Think, build, and ship", active: true, order: 1 },
 ];
 
-// avatarUrl is validated as a full http(s) URL, so seed it as an absolute URL
-// pointing at the bundled asset on whatever site this database serves.
-// NEXT_PUBLIC_SITE_URL is always set (no fallback) — fail loudly if it isn't.
-const SITE_ORIGIN = requireEnv("NEXT_PUBLIC_SITE_URL").replace(/\/$/, "");
-const seededAvatarUrl = `${SITE_ORIGIN}/images/aristache.png`;
+// Root-relative so next/image serves the bundled file. An absolute URL on the
+// production host is refused unless that host is listed in images.remotePatterns.
+const seededAvatarUrl = "/images/aristache.png";
 
 const profileRow = {
   name: "Cristache Adrian",
@@ -55,12 +51,14 @@ const projectRows: (typeof projects.$inferInsert)[] = [
   {
     repo: "fitpro-center",
     title: "FitPro Center",
+    coverImage: "/brand/fitpro-center-poster.png",
     customBlurb: "Marketing website for FitPro Center, a premium fitness brand.",
     tags: ["Next.js", "React 18", "Tailwind CSS"],
   },
   {
     repo: "ViralCutter",
     title: "ViralCutter",
+    coverImage: "/brand/viralcutter-poster.png",
     customBlurb: "AI tool that turns long videos into viral short clips.",
     tags: ["Python", "JavaScript", "CSS"],
   },
@@ -73,55 +71,63 @@ const projectRows: (typeof projects.$inferInsert)[] = [
   {
     repo: "MiVue-Pro",
     title: "MiVue Pro",
-    coverImage: "/brand/portfolio-mivudelaneroy-poster.png",
+    coverImage: "/brand/mivudelaneroy-poster.png",
     customBlurb: "Dashcam website and mobile app for browsing and managing dashcam footage.",
     tags: ["React Native", "Expo", "TypeScript"],
   },
   {
     repo: "mitugym-app",
     title: "MITUGYM App",
+    coverImage: "/brand/mitugym-app-poster.png",
     customBlurb: "Production gym management mobile app with check-in, built on Supabase.",
     tags: ["React Native", "Expo", "Supabase"],
   },
   {
     repo: "mitugym-app-webpanel",
     title: "MITUGYM Web Panel",
+    coverImage: "/brand/mitugym-web-panel-poster.png",
     customBlurb: "Staff dashboard for the MITUGYM ecosystem, with auth, persistence, and actions.",
     tags: ["Next.js 16", "React 19", "Tailwind v4", "Supabase"],
   },
   {
     repo: "mitugym_scanner_flutter",
     title: "MITUGYM Scanner",
+    coverImage: "/brand/mitugym-checkin-scanner-poster.png",
     customBlurb: "Windows desktop QR scanner for gym member check-in and check-out.",
     tags: ["Flutter", "Dart", "SQLite"],
   },
   {
     repo: "MindMuscle.AI",
     title: "MindMuscle.AI",
+    coverImage: "/brand/mindmuscle-ai-app-poster.png",
     customBlurb: "AI-powered fitness coaching and progress tracking, with Sentry monitoring.",
     tags: ["React Native", "Expo", "Supabase"],
   },
   {
     repo: "MindMuscleWeb",
     title: "MindMuscle Web",
+    coverImage: "/brand/mindmuscle-ai-web-poster.png",
     customBlurb: "Web app for AI-powered fitness coaching and progress.",
     tags: ["Next.js", "TypeScript", "Jest", "Tailwind CSS"],
   },
   {
     repo: "auto-translate",
     title: "Auto Translate",
+    coverImage: "/brand/auto-translate-poster.png",
     customBlurb: "Real-time speech translation desktop app built with Tauri.",
     tags: ["Tauri 2", "Rust", "Python", "TypeScript"],
   },
   {
     repo: "car-detailing",
     title: "Car Detailing",
+    coverImage: "/brand/car-detailing-poster.png",
     customBlurb: "Premium car detailing landing page with a luxury carbon and gold UI.",
     tags: ["Next.js", "TypeScript"],
   },
   {
     repo: "personal-trainer",
     title: "Personal Trainer",
+    coverImage: "/brand/personal-trainer-poster.png",
     customBlurb: "Modern, production-ready personal trainer website.",
     tags: ["Next.js", "TypeScript", "Tailwind CSS"],
   },
