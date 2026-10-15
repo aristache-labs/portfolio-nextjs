@@ -11,14 +11,14 @@ export function formatUpdated(date: Date): string {
   return date.toLocaleDateString("en", { month: "short", year: "numeric", timeZone: "UTC" });
 }
 
-function Cover({ project, sizes }: { project: MergedProject; sizes: string }) {
+function Cover({ project, sizes, fit }: { project: MergedProject; sizes: string; fit: string }) {
   return project.coverImage ? (
     <Image
       src={project.coverImage}
       alt=""
       fill
       sizes={sizes}
-      className="object-cover transition-transform duration-500 motion-safe:group-hover:scale-105"
+      className={`${fit} transition-transform duration-500 motion-safe:group-hover:scale-105`}
     />
   ) : (
     <div className="size-full bg-(image:--gradient-brand) opacity-70" />
@@ -128,7 +128,7 @@ export function FeaturedCard({
   return (
     <article className={`${SHELL} flex flex-col`}>
       <div className="relative aspect-16/9 overflow-hidden lg:aspect-auto lg:h-64 lg:flex-1">
-        <Cover project={project} sizes="(max-width: 1024px) 100vw, 50vw" />
+        <Cover project={project} sizes="(max-width: 1024px) 100vw, 50vw" fit="object-fill" />
       </div>
       <div className="p-4 sm:p-5">
         <MetaLine label="Featured" project={project} />
@@ -154,7 +154,7 @@ export function RecentCard({
   return (
     <article className={`${SHELL} flex flex-row items-stretch gap-3 p-3 sm:gap-4 sm:p-3`}>
       <div className="relative w-24 shrink-0 self-stretch overflow-hidden rounded-xl sm:w-50">
-        <Cover project={project} sizes="128px" />
+        <Cover project={project} sizes="128px" fit="object-fill" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
         <MetaLine
