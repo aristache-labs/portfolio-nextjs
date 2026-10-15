@@ -1,75 +1,92 @@
-"use client";
-
-import React, { useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import * as Icons from "lucide-react";
-import type { LucideProps } from "lucide-react";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { createElement } from "react";
+import {
+  AppWindow,
+  Cloud,
+  Code,
+  Database,
+  Globe,
+  type LucideIcon,
+  Server,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  Workflow,
+  Wrench,
+} from "lucide-react";
 import type { ServiceRow } from "./Services";
 
-function resolveIcon(name: string | null): React.ComponentType<LucideProps> {
-  if (!name) return Icons.Sparkles;
-  const Comp = (Icons as unknown as Record<string, React.ComponentType<LucideProps>>)[name];
-  return Comp ?? Icons.Sparkles;
+/** Names an admin can type in the icon field. A small set keeps the bundle from pulling in
+ *  every lucide icon, which `import * as Icons` did. */
+const ICONS: Record<string, LucideIcon> = {
+  AppWindow,
+  Cloud,
+  Code,
+  Database,
+  Globe,
+  Server,
+  ShieldCheck,
+  Smartphone,
+  Sparkles,
+  Workflow,
+  Wrench,
+};
+
+/** Seeded services carry no icon, so the title picks one. First match wins. */
+const BY_TITLE: [RegExp, LucideIcon][] = [
+  [/mobile|app store|ios|android/i, Smartphone],
+  [/web/i, AppWindow],
+  [/cloud/i, Cloud],
+  [/automation|tool|script/i, Workflow],
+  [/support|troubleshoot|repair/i, Wrench],
+  [/system|infrastructure|server|devops/i, Server],
+  [/data/i, Database],
+  [/security/i, ShieldCheck],
+  [/api|backend/i, Code],
+];
+
+export function resolveServiceIcon(service: Pick<ServiceRow, "icon" | "title">): LucideIcon {
+  if (service.icon && ICONS[service.icon]) return ICONS[service.icon];
+  return BY_TITLE.find(([pattern]) => pattern.test(service.title))?.[1] ?? Sparkles;
 }
 
-export function ServiceCard({ service }: { service: ServiceRow }) {
-  const reduce = useReducedMotion();
-  const ref = useRef<HTMLDivElement>(null);
-  const iconComp = resolveIcon(service.icon);
-  const iconElement = React.createElement(iconComp, { className: "size-5", "aria-hidden": true });
-
-  const mx = useMotionValue(0.5);
-  const my = useMotionValue(0.5);
-
-  const rx = useSpring(useTransform(my, [0, 1], [6, -6]), {
-    stiffness: 150,
-    damping: 15,
+export function ServiceCard({ service, index }: { service: ServiceRow; index: number }) {
+  const icon = createElement(resolveServiceIcon(service), {
+    className: "size-5",
+    strokeWidth: 1.75,
+    "aria-hidden": true,
   });
-  const ry = useSpring(useTransform(mx, [0, 1], [-6, 6]), {
-    stiffness: 150,
-    damping: 15,
-  });
-
-  const glowX = useTransform(mx, (v) => `${v * 100}%`);
-  const glowY = useTransform(my, (v) => `${v * 100}%`);
-
-  const glowBg = useTransform([glowX, glowY] as const, ([x, y]) => {
-    return `radial-gradient(220px circle at ${x} ${y}, color-mix(in oklab, var(--color-brand-deep) 22%, transparent), transparent 70%)`;
-  });
-
-  function onMove(e: React.MouseEvent<HTMLDivElement>) {
-    if (reduce) return;
-    const rect = ref.current!.getBoundingClientRect();
-    mx.set((e.clientX - rect.left) / rect.width);
-    my.set((e.clientY - rect.top) / rect.height);
-  }
-
-  function onLeave() {
-    mx.set(0.5);
-    my.set(0.5);
-  }
 
   return (
-    <motion.div
-      ref={ref}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      style={reduce ? undefined : { rotateX: rx, rotateY: ry, transformPerspective: 800 }}
-      className="group border-border bg-surface relative flex h-full flex-col overflow-hidden rounded-3xl border p-6"
-    >
-      <motion.span
+    <article className="group border-border bg-surface relative flex h-full flex-col overflow-hidden rounded-2xl border p-6 backdrop-blur-sm transition-colors hover:border-(--brand-deep)/40">
+      {/* Brand hairline that draws in along the top edge on hover. */}
+      <span
         aria-hidden
-        className="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:hidden"
-        style={{ background: glowBg }}
+        className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 bg-(image:--gradient-brand) transition-transform duration-500 group-hover:scale-x-100 motion-reduce:transition-none"
       />
-      <div className="relative z-10">
-        <span className="inline-grid size-11 place-items-center rounded-2xl bg-(image:--gradient-brand) text-white">
-          {iconElement}
+
+      <div className="flex items-start justify-between gap-4">
+        <span className="grid size-12 place-items-center rounded-xl border border-(--brand-deep)/40 bg-(--chip-surface) text-(--accent-on-chip) transition-transform duration-300 motion-safe:group-hover:-translate-y-0.5">
+          {icon}
         </span>
-        <h3 className="mt-4 text-lg font-bold">{service.title}</h3>
-        <p className="text-foreground/70 mt-2 text-sm">{service.description}</p>
+        <span className="text-muted font-mono text-xs tracking-[0.2em]">
+          {String(index + 1).padStart(2, "0")}
+        </span>
       </div>
-    </motion.div>
+
+      <h3 className="mt-6 text-lg leading-snug font-bold">{service.title}</h3>
+      <p className="text-muted mt-2 text-sm text-pretty">{service.description}</p>
+
+      {service.shortDescription && (
+        <div className="mt-auto pt-6">
+          <p className="border-border text-foreground/70 flex items-start gap-2 border-t pt-4 text-xs">
+            <span
+              aria-hidden
+              className="mt-1.5 size-1 shrink-0 rounded-full bg-(--accent-on-chip)"
+            />
+            {service.shortDescription}
+          </p>
+        </div>
+      )}
+    </article>
   );
 }

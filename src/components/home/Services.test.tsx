@@ -2,45 +2,12 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Services } from "./Services";
 import type { ServiceRow } from "./Services";
-
-// Mock framer-motion to avoid jsdom animation issues
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({
-      children,
-      className,
-      style,
-      ...props
-    }: React.HTMLAttributes<HTMLDivElement> & { style?: React.CSSProperties }) => (
-      <div className={className} style={style} {...props}>
-        {children}
-      </div>
-    ),
-    span: ({
-      children,
-      className,
-      style,
-      ...props
-    }: React.HTMLAttributes<HTMLSpanElement> & { style?: React.CSSProperties }) => (
-      <span className={className} style={style} {...props}>
-        {children}
-      </span>
-    ),
-  },
-  useMotionValue: (initial: number) => ({ set: vi.fn(), get: () => initial }),
-  useSpring: (val: unknown) => val,
-  useTransform: (_: unknown, fn?: (v: number) => unknown) =>
-    fn ? { get: () => fn(0.5) } : { get: () => 0 },
-}));
+import { resolveServiceIcon } from "./ServiceCard";
+import { AppWindow, Cloud, Server, Smartphone, Sparkles, Workflow, Wrench } from "lucide-react";
 
 // Mock Reveal to render children directly
 vi.mock("@/components/motion/Reveal", () => ({
   Reveal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
-// Mock useReducedMotion
-vi.mock("@/hooks/useReducedMotion", () => ({
-  useReducedMotion: vi.fn(() => false),
 }));
 
 const mockServices: ServiceRow[] = [
@@ -97,5 +64,29 @@ describe("Services", () => {
   it("renders empty state gracefully", () => {
     render(<Services services={[]} />);
     expect(screen.getByText("What I do")).toBeInTheDocument();
+  });
+
+  it("numbers the cards in display order", () => {
+    render(<Services services={mockServices} />);
+    expect(screen.getByText("01")).toBeInTheDocument();
+    expect(screen.getByText("03")).toBeInTheDocument();
+  });
+});
+
+describe("resolveServiceIcon", () => {
+  const byTitle = (title: string) => resolveServiceIcon({ title, icon: null });
+
+  it("picks an icon that represents each seeded service", () => {
+    expect(byTitle("Web Applications")).toBe(AppWindow);
+    expect(byTitle("Mobile Solutions")).toBe(Smartphone);
+    expect(byTitle("Systems & Infrastructure")).toBe(Server);
+    expect(byTitle("Automation & Tools")).toBe(Workflow);
+    expect(byTitle("Cloud Services")).toBe(Cloud);
+    expect(byTitle("Software Support")).toBe(Wrench);
+  });
+
+  it("prefers a known icon set in admin, and falls back for unknown ones", () => {
+    expect(resolveServiceIcon({ title: "Web Applications", icon: "Cloud" })).toBe(Cloud);
+    expect(resolveServiceIcon({ title: "Something else", icon: "/icons/web.svg" })).toBe(Sparkles);
   });
 });

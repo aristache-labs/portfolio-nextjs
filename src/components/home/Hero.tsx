@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { BrandMark } from "@/components/brand/Logo";
 import { Heart, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -156,17 +156,8 @@ export function Hero({
               aria-hidden
               className="absolute inset-[26%] rounded-full border border-(--brand-mid)/10"
             />
-            {/* The mark is light on a transparent PNG, so light theme needs a disc.
-              Dark theme leaves it off so the mark floats on the page. */}
-            <div className="absolute inset-[8%] flex items-center justify-center rounded-full bg-[#080c0d] p-[6%] dark:inset-0 dark:bg-transparent dark:p-0">
-              <Image
-                src="/brand/aristache-monogram.png"
-                alt=""
-                width={1359}
-                height={1157}
-                priority
-                className="relative z-10 h-full w-full object-contain"
-              />
+            <div className="absolute inset-[8%] flex items-center justify-center">
+              <BrandMark priority className="h-full w-full object-contain" />
             </div>
           </div>
           <ul className="text-muted relative z-10 mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] tracking-[0.18em] uppercase lg:mt-0 lg:ml-5 lg:flex-col lg:gap-2">

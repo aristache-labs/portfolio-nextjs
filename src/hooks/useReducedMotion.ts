@@ -1,25 +1,23 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 const QUERY = "(prefers-reduced-motion: reduce)";
 
+function subscribe(onChange: () => void) {
+  const mql = window.matchMedia(QUERY);
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
+}
+
+function getSnapshot() {
+  return window.matchMedia(QUERY).matches;
+}
+
 /**
- * Tracks the user's `prefers-reduced-motion` setting. The canonical hook for
- * gating animations across v2 components.
+ * Tracks `prefers-reduced-motion`. The server snapshot is always false so the
+ * first client render matches the HTML. Reading matchMedia in the initial
+ * state diverges as soon as the browser prefers reduced motion (the screenshot
+ * script sets that), and React throws a hydration mismatch.
  */
 export function useReducedMotion(): boolean {
-  // Lazy initializer reads the current preference once on mount (guarded for
-  // SSR). The effect then only *subscribes* to changes — no synchronous
-  // setState in the effect body (satisfies react-hooks/set-state-in-effect).
-  const [prefersReduced, setPrefersReduced] = useState(() =>
-    typeof window === "undefined" ? false : window.matchMedia(QUERY).matches,
-  );
-
-  useEffect(() => {
-    const mql = window.matchMedia(QUERY);
-    const onChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-
-  return prefersReduced;
+  return useSyncExternalStore(subscribe, getSnapshot, () => false);
 }
