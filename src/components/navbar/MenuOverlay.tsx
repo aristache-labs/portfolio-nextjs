@@ -86,7 +86,7 @@ export function MenuOverlay({
           animate={reduce ? undefined : { opacity: 1 }}
           exit={reduce ? undefined : { opacity: 0 }}
           transition={{ duration: 0.35 }}
-          className="site-container fixed inset-0 z-[60] flex flex-col overflow-hidden bg-(--overlay-bg) pb-6 backdrop-blur-xl sm:pb-10"
+          className="site-container fixed inset-0 z-[60] mx-0! flex max-w-none! flex-col overflow-hidden bg-(--overlay-bg) pb-6 backdrop-blur-xl sm:pb-10"
         >
           {/* Close button sits in an h-16 row matching the nav bar exactly, so
               it lands in the same spot as the Menu open button (no layout

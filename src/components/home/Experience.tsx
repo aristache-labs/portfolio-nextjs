@@ -76,10 +76,10 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
 
   return (
     <Section id="experience" className="scroll-mt-24">
-      {/* Two columns on lg+: a sticky intro fills the left while the timeline
-          scrolls on the right, so the section uses the full width instead of
-          leaving a large blank gutter. Stacks to one column below lg. */}
-      <div className="grid gap-10 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-16">
+      {/* Two columns on lg+: sticky intro on the left, timeline on the right,
+          both inside the shared page width so the block does not drift left
+          on a wide monitor. Stacks to one column below lg. */}
+      <div className="grid w-full gap-10 lg:grid-cols-2 lg:gap-16">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading number="04" eyebrow="Experience" title="Where I've worked" />
           <p className="text-muted -mt-6 max-w-sm text-base leading-relaxed">

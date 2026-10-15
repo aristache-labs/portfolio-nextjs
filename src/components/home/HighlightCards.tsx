@@ -138,8 +138,8 @@ export function FeaturedCard({
 }) {
   return (
     <article className={`${SHELL} flex flex-col`}>
-      <div className="relative aspect-16/9 overflow-hidden lg:aspect-auto lg:h-64 lg:flex-1">
-        <Cover project={project} sizes="(max-width: 1024px) 100vw, 50vw" fit="object-fill" />
+      <div className="relative aspect-video w-full shrink-0 overflow-hidden">
+        <Cover project={project} sizes="(max-width: 1024px) 100vw, 36rem" fit="object-cover" />
       </div>
       <div className="p-4 sm:p-5">
         <MetaLine label="Featured" project={project} />
@@ -165,12 +165,14 @@ export function RecentCard({
   priority?: boolean;
 }) {
   return (
-    <article className={`${SHELL} flex flex-col gap-3 p-3 sm:flex-row sm:items-stretch sm:gap-4 sm:p-3`}>
+    <article
+      className={`${SHELL} flex flex-col gap-3 p-3 sm:flex-row sm:items-stretch sm:gap-4 sm:p-3`}
+    >
       <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl sm:aspect-auto sm:w-50 sm:self-stretch">
         <Cover
           project={project}
           sizes="(max-width: 640px) 100vw, 200px"
-          fit="object-cover sm:object-fill"
+          fit="object-cover"
           priority={priority}
         />
       </div>

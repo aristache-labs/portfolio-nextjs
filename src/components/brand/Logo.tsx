@@ -50,9 +50,9 @@ export function Logo({
       <span
         role="img"
         aria-label="Aristache"
-        className="inline-flex size-10 shrink-0 items-center justify-center"
+        className="inline-flex size-14 shrink-0 items-center justify-center"
       >
-        <BrandMark priority className="h-8 w-auto" />
+        <BrandMark priority className="h-12 w-auto" />
       </span>
       {withWordmark ? (
         <span className="text-foreground font-sans text-lg leading-none font-semibold tracking-tight">

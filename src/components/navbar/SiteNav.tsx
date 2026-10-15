@@ -68,19 +68,16 @@ export function SiteNav({
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: reduce ? 0 : 0.9 }}
         className="fixed inset-x-0 top-0 z-50"
       >
-        {/* Same gutters as the hero/sections so nav edges align with content */}
+        {/* Full-bleed scrim. Content stays in site-container so the mark lines up
+            with the page while the bar still spans the viewport. */}
+        <div
+          aria-hidden
+          className={cn(
+            "bg-background/45 border-border/70 pointer-events-none absolute inset-x-0 top-0 h-16 border-b backdrop-blur-xl transition-opacity duration-300",
+            scrolled ? "opacity-100" : "opacity-0",
+          )}
+        />
         <div className="site-container relative flex h-16 w-full items-center justify-between">
-          {/* One opacity-faded layer: the border is always 1px and the blur always mounted,
-              so scrolling shifts no layout - only this layer's opacity cross-fades. */}
-          <div
-            aria-hidden
-            className={cn(
-              // Low tint + blur so the ambient page shows through and the bar
-              // reads as a subtle scrim, not a distinct block over the sections.
-              "bg-background/45 border-border/70 pointer-events-none absolute inset-x-0 top-0 -bottom-px border-b backdrop-blur-xl transition-opacity duration-300",
-              scrolled ? "opacity-100" : "opacity-0",
-            )}
-          />
           <Link
             href="/"
             aria-label="Home"

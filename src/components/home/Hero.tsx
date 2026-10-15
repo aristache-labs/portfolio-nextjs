@@ -56,7 +56,7 @@ export function Hero({
 
       <motion.div
         style={{ y, opacity }}
-        className="site-container relative grid items-center gap-12 py-28 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:py-32"
+        className="site-container relative grid items-center gap-12 py-28 lg:grid-cols-[minmax(0,1fr)_auto] lg:justify-between lg:py-32"
       >
         <div>
           <p className="sr-only">{profile.name}</p>
@@ -137,9 +137,9 @@ export function Hero({
 
         <motion.div
           {...fadeUp(reduce, 0.55)}
-          className="mx-auto flex w-full max-w-[440px] flex-col items-center lg:max-w-none lg:flex-row lg:justify-center"
+          className="mx-auto flex w-full max-w-[34rem] flex-col items-center lg:mx-0 lg:w-auto lg:max-w-none lg:flex-row lg:items-center"
         >
-          <div className="relative aspect-square w-full max-w-[400px]">
+          <div className="relative aspect-square w-[min(100%,22rem)] shrink-0 sm:w-[26rem] lg:w-[28rem] xl:w-[32rem]">
             <div
               aria-hidden
               className="absolute inset-[18%] rounded-full bg-[radial-gradient(circle,rgb(var(--brand-mid-rgb)/0.16),transparent_68%)]"

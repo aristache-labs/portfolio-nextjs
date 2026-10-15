@@ -78,7 +78,12 @@ export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLD
 DialogHeader.displayName = "DialogHeader";
 
 export function DialogBody({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("flex-1 overflow-y-auto px-6 py-4", className)} {...props} />;
+  return (
+    <div
+      className={cn("min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-6 py-4", className)}
+      {...props}
+    />
+  );
 }
 DialogBody.displayName = "DialogBody";
 

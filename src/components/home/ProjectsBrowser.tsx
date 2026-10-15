@@ -14,8 +14,7 @@ const MAX_FEATURED = 2;
 const MAX_RECENT = 5;
 const PAGE_SIZE = 9;
 
-// One flex column per side. The grid stretches both columns to the same height, and flex-1
-// splits that height across the cards in the column (2 on the left, 3 on the right).
+// One flex column per side. Featured covers keep their own aspect ratio.
 const TRACK = "flex flex-1 flex-col gap-4";
 
 function ColumnLabel({ children }: { children: string }) {
@@ -87,7 +86,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
               <ColumnLabel>Featured</ColumnLabel>
               <div className={TRACK}>
                 {featured.map((p, i) => (
-                  <Reveal key={p.id} delay={i * 0.05} className="flex min-h-0 flex-1">
+                  <Reveal key={p.id} delay={i * 0.05} className="flex">
                     <FeaturedCard project={p} onQuickView={() => setQuickView(p)} />
                   </Reveal>
                 ))}
@@ -101,7 +100,11 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
               <div className={`${TRACK} justify-between`}>
                 {recent.map((p, i) => (
                   <Reveal key={p.id} delay={0.1 + i * 0.05} className="flex">
-                    <RecentCard project={p} onQuickView={() => setQuickView(p)} priority={i === 0} />
+                    <RecentCard
+                      project={p}
+                      onQuickView={() => setQuickView(p)}
+                      priority={i === 0}
+                    />
                   </Reveal>
                 ))}
               </div>
