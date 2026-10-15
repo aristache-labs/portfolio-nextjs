@@ -8,7 +8,7 @@
 
 <br />
 
-<img src="./assets/poster.jpg" width="100%" alt="Aristache portfolio on laptop and phones">
+<img src="./assets/portfolio-nextjs-poster.jpg" width="100%" alt="Aristache portfolio on laptop and phones">
 
 <br />
 

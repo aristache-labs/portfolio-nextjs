@@ -127,7 +127,7 @@ export function FeaturedCard({
 }) {
   return (
     <article className={`${SHELL} flex flex-col`}>
-      <div className="relative aspect-16/9 overflow-hidden lg:aspect-auto lg:h-64 lg:shrink-0">
+      <div className="relative aspect-16/9 overflow-hidden lg:aspect-auto lg:h-64 lg:flex-1">
         <Cover project={project} sizes="(max-width: 1024px) 100vw, 50vw" />
       </div>
       <div className="p-4 sm:p-5">
