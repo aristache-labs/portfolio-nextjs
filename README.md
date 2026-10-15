@@ -12,14 +12,14 @@
 
 <br />
 
-[![CI](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/ci.yml/badge.svg)][ci]
-[![Lighthouse](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/lighthouse.yml/badge.svg)][lighthouse]
-[![Stars](https://shields.io/github/stars/aristache-labs/portfolio-nextjs?color=0f6e68)][repo]
-[![Contributors](https://shields.io/github/contributors/aristache-labs/portfolio-nextjs?color=0f6e68)][contributors]
-[![License: MIT](https://shields.io/github/license/aristache-labs/portfolio-nextjs?color=0f6e68)][license]
-[![Last commit](https://shields.io/github/last-commit/aristache-labs/portfolio-nextjs?label=last%20commit)][repo]
-[![Issues](https://shields.io/github/issues/aristache-labs/portfolio-nextjs?label=issues)][issues]
-[![PRs](https://shields.io/github/issues-pr/aristache-labs/portfolio-nextjs?label=PRs)][pulls]
+![CI](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/ci.yml?branch=master&style=flat-square&label=CI&labelColor=0f6e68)
+![Lighthouse](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/lighthouse.yml?branch=master&style=flat-square&label=Lighthouse&labelColor=0f6e68)
+![Stars](https://shields.io/github/stars/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
+![Contributors](https://shields.io/github/contributors/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
+![License: MIT](https://shields.io/github/license/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
+![Last commit](https://shields.io/github/last-commit/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
+![Issues](https://shields.io/github/issues/aristache-labs/portfolio-nextjs??style=flat-square&labelColor=0f6e68&color=76f5e1)
+![Watchers](https://shields.io/github/watchers/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
 
 <strong>Every section DB-driven &middot; GitHub OAuth admin &middot; light / dark / system &middot; five brand palettes &middot; ISR with on-demand revalidation</strong><br>
 <sub>There is no benchmark here, and a portfolio site does not deserve one. What is checkable instead: <strong>283 unit tests</strong> across 44 files plus <strong>10 Playwright end-to-end tests</strong>; a route check that asserts every page serves the <em>right content</em> rather than a 200, which is the only way to test an <a href="https://github.com/aristache-labs/portfolio-nextjs/blob/master/scripts/check-routes.mjs">admin route that is protected <em>and</em> returns 200</a>; per-route JS payload and TTFB budgets measured against a production build, which <a href="https://github.com/aristache-labs/portfolio-nextjs/blob/master/scripts/check-vitals.mjs">refuse to measure a dev server</a> because unminified bundles read several times heavier; and Lighthouse gating <strong>accessibility, best practices and SEO at &ge; 0.90</strong> on every pull request. <a href="https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/ci.yml">See the runs</a>.</sub>
