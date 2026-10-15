@@ -53,13 +53,13 @@ export const DialogContent = React.forwardRef<
       {children}
       <DialogPrimitive.Close
         className={cn(
-          "absolute top-4 right-4 rounded-sm opacity-70 transition-opacity",
-          "focus:ring-ring hover:opacity-100 focus:ring-2 focus:outline-none",
+          "absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full",
+          "bg-black/80 text-white shadow-sm ring-1 ring-white/50",
+          "transition-colors hover:bg-black focus-visible:ring-2 focus-visible:outline-none",
           "disabled:pointer-events-none",
-          "text-foreground",
         )}
       >
-        <X className="h-4 w-4" aria-hidden />
+        <X className="size-4" aria-hidden />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>

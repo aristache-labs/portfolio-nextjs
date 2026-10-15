@@ -80,7 +80,7 @@ export function ProjectQuickView({
               </span>
             </div>
           </div>
-          {blurb && <DialogDescription>{blurb}</DialogDescription>}
+          {blurb && <DialogDescription className="line-clamp-3">{blurb}</DialogDescription>}
         </DialogHeader>
 
         <DialogBody className="space-y-5">
@@ -89,7 +89,7 @@ export function ProjectQuickView({
               <h4 className="text-muted mb-1.5 text-xs font-semibold tracking-wider uppercase">
                 From the README
               </h4>
-              <p className="text-muted text-sm leading-relaxed text-pretty">{excerpt}</p>
+              <p className="text-muted line-clamp-4 text-sm leading-relaxed text-pretty">{excerpt}</p>
             </div>
           )}
 
