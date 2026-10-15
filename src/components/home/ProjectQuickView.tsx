@@ -42,7 +42,7 @@ export function ProjectQuickView({
       <DialogContent className="max-w-2xl">
         {/* Cover: the uploaded image when there is one, otherwise the brand gradient so
             every project has a header rather than a gap. */}
-        <div className="border-border relative h-40 shrink-0 overflow-hidden rounded-t-2xl border-b sm:h-48">
+        <div className="border-border relative aspect-16/9 w-full shrink-0 overflow-hidden rounded-t-2xl border-b">
           {project.coverImage ? (
             <Image
               src={project.coverImage}

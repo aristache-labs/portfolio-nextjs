@@ -14,9 +14,9 @@
 
 [![CI](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/ci.yml/badge.svg)][ci]
 [![Lighthouse](https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/lighthouse.yml/badge.svg)][lighthouse]
-[![Stars](https://shields.io/github/stars/aristache-labs/portfolio-nextjs?color=7C3AED)][repo]
-[![Contributors](https://shields.io/github/contributors/aristache-labs/portfolio-nextjs?color=7C3AED)][contributors]
-[![License: MIT](https://shields.io/github/license/aristache-labs/portfolio-nextjs?color=7C3AED)][license]
+[![Stars](https://shields.io/github/stars/aristache-labs/portfolio-nextjs?color=0f6e68)][repo]
+[![Contributors](https://shields.io/github/contributors/aristache-labs/portfolio-nextjs?color=0f6e68)][contributors]
+[![License: MIT](https://shields.io/github/license/aristache-labs/portfolio-nextjs?color=0f6e68)][license]
 [![Last commit](https://shields.io/github/last-commit/aristache-labs/portfolio-nextjs?label=last%20commit)][repo]
 [![Issues](https://shields.io/github/issues/aristache-labs/portfolio-nextjs?label=issues)][issues]
 [![PRs](https://shields.io/github/issues-pr/aristache-labs/portfolio-nextjs?label=PRs)][pulls]
