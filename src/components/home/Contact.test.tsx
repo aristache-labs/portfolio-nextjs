@@ -18,11 +18,16 @@ vi.mock("framer-motion", () => {
     "transition",
   ];
   const passthrough = (tag: string) => {
-    return ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => {
+    const MockMotionComponent = ({
+      children,
+      ...props
+    }: React.PropsWithChildren<Record<string, unknown>>) => {
       for (const key of motionProps) delete props[key];
       const Comp = tag as "div";
       return <Comp {...props}>{children}</Comp>;
     };
+    MockMotionComponent.displayName = `motion.${tag}`;
+    return MockMotionComponent;
   };
   return {
     motion: {

@@ -170,8 +170,8 @@ export function Contact({
             className="mt-4 max-w-[475px] text-[16.5px] leading-[1.62] text-white/75 sm:text-[17px]"
           >
             Have a project in mind, a technical challenge to solve, or an opportunity to
-            collaborate? Whether it's IT infrastructure, automation, web, or mobile development, I'd
-            love to hear from you..
+            collaborate? Whether it&apos;s IT infrastructure, automation, web, or mobile
+            development, I&apos;d love to hear from you..
           </motion.p>
 
           {cards.length > 0 && (

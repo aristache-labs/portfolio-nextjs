@@ -10,16 +10,15 @@ describe("llms.txt", () => {
     expect(text).toContain("llms-full.txt");
   });
 
-  it("contains the identity section", async () => {
+  it("follows the llms.txt file-list shape", async () => {
     const res = await GET();
     const text = await res.text();
-    expect(text).toContain("## Identity");
+    expect(text).toContain("> ");
     expect(text).toContain("aristache-labs");
-  });
-
-  it("contains GitHub link", async () => {
-    const res = await GET();
-    const text = await res.text();
-    expect(text).toContain("github.com/aristache-labs");
+    expect(text).toContain("## Profile");
+    expect(text).toContain("## Optional");
+    expect(text).toMatch(/- \[Full profile\]\(https?:\/\/.+\/llms-full\.txt\):/);
+    expect(text).toMatch(/- \[GitHub\]\(https:\/\/github\.com\/aristache-labs\):/);
+    expect(text).not.toContain("## Identity");
   });
 });

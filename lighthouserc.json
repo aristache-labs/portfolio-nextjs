@@ -3,7 +3,7 @@
     "collect": {
       "startServerCommand": "bun run start",
       "startServerReadyPattern": "ready",
-      "url": ["http://localhost:4000/"],
+      "url": ["http://localhost:3000/"],
       "numberOfRuns": 3
     },
     "assert": {

@@ -121,16 +121,17 @@ export function ProjectQuickView({
   onClose: () => void;
 }) {
   const [index, setIndex] = useState(0);
+  const [previousProjectId, setPreviousProjectId] = useState(project?.id ?? null);
   const [ratios, setRatios] = useState<Record<string, number>>({});
   const projectId = project?.id ?? null;
+  if (projectId !== previousProjectId) {
+    setPreviousProjectId(projectId);
+    setIndex(0);
+  }
   const sourceKey = project
     ? [project.coverImage, ...project.screenshots].filter(Boolean).join("\n")
     : "";
   const slideCount = project ? (project.coverImage ? 1 : 0) + project.screenshots.length : 0;
-
-  useEffect(() => {
-    setIndex(0);
-  }, [projectId]);
 
   useEffect(() => {
     if (!sourceKey) return;

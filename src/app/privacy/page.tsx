@@ -15,9 +15,7 @@ export default function PrivacyPage() {
         Privacy
       </h1>
       <div className="text-muted mt-8 max-w-2xl space-y-4 text-base leading-relaxed">
-        <p>
-          This site is the portfolio of {SITE.name}. It does not sell personal information.
-        </p>
+        <p>This site is the portfolio of {SITE.name}. It does not sell personal information.</p>
         <p>
           The contact form collects your name, email, subject, and message so I can reply. Those
           details are sent to me by email and are not added to a public page.

@@ -101,10 +101,7 @@ export function Footer({
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-8 sm:mt-10 sm:grid-cols-2 sm:gap-y-10 lg:mt-12 lg:grid-cols-[3fr_3fr_4fr]">
-          <motion.div
-            {...rise(0.05)}
-            className="flex min-w-0 flex-col items-center sm:items-start"
-          >
+          <motion.div {...rise(0.05)} className="flex min-w-0 flex-col items-center sm:items-start">
             <div className="flex flex-col items-center text-center">
               <Link
                 href="#hero"
