@@ -10,7 +10,6 @@ import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { HashScrollFix } from "@/components/util/HashScrollFix";
 import { AmbientBackground } from "@/components/background/AmbientBackground";
-import { CustomCursor } from "@/components/motion/CustomCursor";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE } from "@/lib/seo/site";
 
@@ -117,7 +116,6 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
           <AmbientBackground />
           <main>{children}</main>
           <ScrollToTop />
-          <CustomCursor />
         </ThemeProvider>
         <HashScrollFix />
         <VercelAnalytics />

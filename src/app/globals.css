@@ -432,12 +432,6 @@ body {
   }
 }
 
-/* Custom cursor active: hide the native cursor everywhere while it renders */
-html.cursor-hidden,
-html.cursor-hidden * {
-  cursor: none !important;
-}
-
 /* ── Dialog motion (Radix data-state driven) ─────────────────────────────
    Scale + fade on the brand ease curve. We animate the standalone `scale`
    property (NOT `transform`) so it composes with Tailwind's

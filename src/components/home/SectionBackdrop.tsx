@@ -40,7 +40,7 @@ export function SectionBackdrop({
     ? "absolute inset-0 hidden h-full w-full  object-cover object-center md:block"
     : "hidden h-full w-full object-cover md:block";
   const still = screen
-    ? "absolute inset-0 h-full w-full origin-[22%_46%] scale-[0.58] object-cover object-center"
+    ? "absolute inset-20 h-full w-full object-cover object-center md:origin-[22%_46%] md:scale-[0.58]"
     : "h-full w-full object-cover";
 
   return (
@@ -72,15 +72,7 @@ export function SectionBackdrop({
             src={poster}
             alt=""
             onError={() => setPosterOk(false)}
-            className={
-              screen
-                ? showVideo
-                  ? "hidden"
-                  : `${still} max-md:hidden`
-                : showVideo
-                  ? `${still} md:hidden`
-                  : still
-            }
+            className={showVideo ? `${still} md:hidden` : still}
           />
         )}
         <div
