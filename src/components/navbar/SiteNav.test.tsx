@@ -13,9 +13,10 @@ const socials = [
 
 describe("SiteNav", () => {
   it("renders the home link, inline sections, and connect CTA", () => {
-    render(<SiteNav name="Cristache Adrian" socials={socials} />);
+    render(<SiteNav socials={socials} />);
     expect(screen.getAllByRole("link", { name: /^home$/i })[0]).toHaveAttribute("href", "#hero");
-    expect(screen.getByText("Cristache Adrian")).toBeInTheDocument();
+    expect(document.querySelector('img[src="/brand/aristache-text.svg"]')).toBeInTheDocument();
+    expect(screen.queryByText("Cristache Adrian")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "#about");
     expect(screen.getByRole("link", { name: "Contact" })).toHaveAttribute("href", "#contact");
     expect(screen.getAllByRole("link", { name: /let's connect/i })[0]).toHaveAttribute(

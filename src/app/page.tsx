@@ -81,7 +81,6 @@ export default async function Home() {
       className={`${inter.variable} ${sora.variable} dark bg-background text-foreground relative min-h-screen`}
     >
       <SiteNav
-        name={profile.name}
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
         hidden={Object.entries(vis)
           .filter(([, v]) => v === false)

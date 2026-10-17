@@ -18,6 +18,9 @@ const HERO_COPY =
   "I build modern applications, reliable systems, and thoughtful digital experiences that solve real problems and create lasting value.";
 const FOCUS = ["Build", "Learn", "Improve", "Repeat"] as const;
 const GREETING = "// HELLO, I'M";
+/** Cover-fit box for the 16:9 hero plate, centered in its size container. */
+const PLATE =
+  "absolute top-1/2 left-1/2 aspect-video w-[max(100cqw,calc(100cqh*16/9))] -translate-x-1/2 -translate-y-1/2";
 
 function useTypewriter(text: string, reduce: boolean) {
   const [out, setOut] = useState("");
@@ -75,8 +78,6 @@ export function Hero({
   const mouseY = useMotionValue(0);
   const sx = useSpring(mouseX, { stiffness: 50, damping: 20 });
   const sy = useSpring(mouseY, { stiffness: 50, damping: 20 });
-  const bgX = useTransform(sx, [-0.5, 0.5], [10, -10]);
-  const bgY = useTransform(sy, [-0.5, 0.5], [8, -8]);
   const spotX = useTransform(sx, [-0.5, 0.5], [30, 70]);
   const spotY = useTransform(sy, [-0.5, 0.5], [25, 65]);
   const spotBg = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
@@ -109,9 +110,23 @@ export function Hero({
       onMouseMove={onMouseMove}
       className="relative flex min-h-svh scroll-mt-24 flex-col justify-center overflow-hidden"
     >
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
-        {showVideo && (
-          <motion.div style={{ x: bgX, y: bgY }} className="absolute -inset-6 hidden md:block">
+      <div
+        className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-hidden"
+        aria-hidden
+      >
+        {posterOk && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/media/hero.webp"
+            alt=""
+            onError={() => setPosterOk(false)}
+            className="absolute inset-0 h-full w-full object-cover md:hidden"
+          />
+        )}
+        {/* Desktop plate: sized exactly like object-cover on a 16:9 picture, so anything placed
+            inside it by percentage stays on the same spot of the picture at any screen size. */}
+        <div className={`${PLATE} hidden md:block`}>
+          {showVideo ? (
             <video
               ref={videoRef}
               className="h-full w-full object-cover"
@@ -125,29 +140,42 @@ export function Hero({
             >
               <source src="/media/hero.mp4" type="video/mp4" />
             </video>
-          </motion.div>
-        )}
-        {posterOk && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src="/media/hero.webp"
-            alt=""
-            onError={() => setPosterOk(false)}
-            className={
-              showVideo
-                ? "absolute inset-0 h-full w-full object-cover md:hidden"
-                : "absolute inset-0 h-full w-full object-cover"
-            }
-          />
-        )}
+          ) : (
+            posterOk && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src="/media/hero.webp" alt="" className="h-full w-full object-cover" />
+            )
+          )}
+        </div>
         <div className="hero-vignette absolute inset-0" />
         {!reduce && (
           <motion.div className="absolute inset-0 hidden md:block" style={{ background: spotBg }} />
         )}
         <div className="hero-noise absolute inset-0" />
         <SectionEdge edge="bottom" />
+        <div className={`${PLATE} hidden lg:block`}>
+          <motion.div
+            {...fadeUp(reduce, 0.85)}
+            initial={{ opacity: 0, y: 20, rotate: -2 }}
+            animate={{ opacity: 1, y: 0, rotate: -2 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="animate-float-slow glass bg-background/70 absolute top-[51%] left-[74.7%] max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md"
+          >
+            <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
+              {"// focus"}
+            </p>
+            <p className="text-foreground/80 mt-2 text-sm leading-relaxed">
+              {FOCUS.map((word, i) => (
+                <span key={word}>
+                  {i > 0 && <span className="text-(--brand-mid)"> · </span>}
+                  {word}
+                </span>
+              ))}
+            </p>
+          </motion.div>
+        </div>
       </div>
-        
+
       {showVideo && (
         <button
           type="button"
@@ -274,22 +302,6 @@ export function Hero({
               })}
             </motion.div>
           )}
-        </div>
-
-        <div className="hidden lg:block" aria-hidden>
-          <div className="animate-float-slow bg-background/70 mr-8 ml-auto max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md motion-reduce:animate-none">
-            <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
-              {"// focus"}
-            </p>
-            <p className="text-foreground/80 mt-2 text-sm leading-relaxed">
-              {FOCUS.map((word, i) => (
-                <span key={word}>
-                  {i > 0 && <span className="text-(--brand-mid)"> · </span>}
-                  {word}
-                </span>
-              ))}
-            </p>
-          </div>
         </div>
       </div>
 

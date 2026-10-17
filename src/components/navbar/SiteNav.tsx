@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -8,6 +9,8 @@ import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
 import type { MenuSection } from "./MenuOverlay";
+
+const WORDMARK = { src: "/brand/aristache-text.svg", width: 992, height: 175 } as const;
 
 const SECTIONS: MenuSection[] = [
   { id: "hero", label: "Home" },
@@ -24,12 +27,10 @@ const SECTIONS: MenuSection[] = [
  * The mobile panel is the same list, not a full-screen overlay.
  */
 export function SiteNav({
-  name,
   socials,
   hidden = [],
   sections = SECTIONS,
 }: {
-  name?: string;
   socials: { platform: string; url: string }[];
   hidden?: string[];
   sections?: MenuSection[];
@@ -79,11 +80,15 @@ export function SiteNav({
       >
         <a href="#hero" aria-label="Home" className="flex items-center gap-2.5">
           <Logo />
-          {name ? (
-            <span className="font-display text-foreground text-xl font-semibold tracking-tight">
-              {name}
-            </span>
-          ) : null}
+          <Image
+            src={WORDMARK.src}
+            alt=""
+            width={WORDMARK.width}
+            height={WORDMARK.height}
+            priority
+            unoptimized
+            className="h-10 w-auto"
+          />
         </a>
 
         <ul className="hidden items-center gap-8 lg:flex">
