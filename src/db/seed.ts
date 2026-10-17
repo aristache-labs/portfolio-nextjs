@@ -271,40 +271,44 @@ const skillRows = skillGroups.flatMap((g, gi) =>
 const serviceRows = [
   {
     title: "Web Applications",
-    shortDescription: "Modern, scalable web apps with great user experiences.",
-    description: "Web applications with Next.js and React, built for clarity and everyday use.",
+    shortDescription: "Fast. Responsive. Scalable.",
+    description:
+      "Responsive websites, dashboards, and modern web applications built with React and Next.js, integrating APIs and backend services.",
     order: 0,
   },
   {
     title: "Mobile Solutions",
-    shortDescription: "Cross-platform mobile apps with performance in mind.",
-    description: "Mobile apps with React Native and Expo for iOS and Android.",
+    shortDescription: "One codebase. Two platforms.",
+    description:
+      "Cross-platform iOS and Android applications using React Native and Expo, with intuitive user experiences and seamless backend integration.",
     order: 1,
   },
   {
     title: "Systems & Infrastructure",
-    shortDescription: "Reliable systems, clean architecture, and automation.",
+    shortDescription: "Stability. Security. Reliability.",
     description:
-      "IT systems, Windows support, troubleshooting, and the services an app depends on.",
+      "Windows Server and Linux administration, virtualization, infrastructure maintenance, and security-focused system operations.",
     order: 2,
   },
   {
     title: "Automation & Tools",
-    shortDescription: "Custom tools and workflows that save time and scale.",
-    description: "Scripts and small tools, including PowerShell, that remove repetitive work.",
+    shortDescription: "Less manual work. More efficiency.",
+    description:
+      "PowerShell scripting, Ansible automation, and enterprise deployment workflows that simplify complex operations and eliminate repetitive tasks.",
     order: 3,
   },
   {
-    title: "Cloud Services",
-    shortDescription: "Firebase, Supabase, APIs, and cloud services.",
-    description: "Apps connected to Firebase, Supabase, APIs, and cloud services.",
+    title: "Cloud & Integrations",
+    shortDescription: "Connected systems. Seamless workflows.",
+    description:
+      "Connecting applications with Firebase, Supabase, databases, APIs, and cloud platforms to enable reliable data and service integrations.",
     order: 4,
   },
   {
-    title: "Software Support",
-    shortDescription: "Windows systems, troubleshooting, and software support.",
+    title: "IT Support & Troubleshooting",
+    shortDescription: "Diagnose. Resolve. Optimize.",
     description:
-      "Hands-on support for Windows systems, software problems, and the setup around them.",
+      "Technical diagnosis, incident resolution, Level 2 support, and system optimization across Windows and enterprise IT environments.",
     order: 5,
   },
 ];

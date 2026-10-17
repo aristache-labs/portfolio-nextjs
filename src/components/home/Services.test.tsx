@@ -1,9 +1,12 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { installMatchMedia } from "@/test/matchMedia";
 import { Services } from "./Services";
 import type { ServiceRow } from "./Services";
 import { resolveServiceIcon } from "./ServiceCard";
 import { AppWindow, Cloud, Server, Smartphone, Sparkles, Workflow, Wrench } from "lucide-react";
+
+beforeEach(() => installMatchMedia());
 
 // Mock Reveal to render children directly
 vi.mock("@/components/motion/Reveal", () => ({
@@ -81,8 +84,8 @@ describe("resolveServiceIcon", () => {
     expect(byTitle("Mobile Solutions")).toBe(Smartphone);
     expect(byTitle("Systems & Infrastructure")).toBe(Server);
     expect(byTitle("Automation & Tools")).toBe(Workflow);
-    expect(byTitle("Cloud Services")).toBe(Cloud);
-    expect(byTitle("Software Support")).toBe(Wrench);
+    expect(byTitle("Cloud & Integrations")).toBe(Cloud);
+    expect(byTitle("IT Support & Troubleshooting")).toBe(Wrench);
   });
 
   it("prefers a known icon set in admin, and falls back for unknown ones", () => {

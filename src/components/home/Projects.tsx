@@ -16,7 +16,12 @@ export function Projects({ projects }: { projects: MergedProject[] }) {
     <Section
       id="projects"
       className="scroll-mt-4 pt-2 md:pt-28"
-      backdrop={<SectionBackdrop video="/media/projects.mp4" poster="/media/projects.webp" />}
+      backdrop={
+        <>
+          <SectionBackdrop video="/media/projects.mp4" poster="/media/projects.webp" />
+          <div aria-hidden className="bg-background/70 pointer-events-none absolute inset-0 z-[1]" />
+        </>
+      }
     >
       <Reveal>
         <SectionHeading number="04" eyebrow="Projects" title="Featured work" className="mb-8" />

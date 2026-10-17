@@ -2,6 +2,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { ServiceCard } from "./ServiceCard";
+import { SectionBackdrop } from "./SectionBackdrop";
 import type { Service } from "@/db/schema";
 
 export type ServiceRow = Service;
@@ -10,9 +11,25 @@ export function Services({ services }: { services: ServiceRow[] }) {
   const sorted = [...services].sort((a, b) => a.order - b.order);
 
   return (
-    <Section id="services" className="scroll-mt-24">
+    <Section
+      id="services"
+      className="scroll-mt-24"
+      backdrop={
+        <>
+          <SectionBackdrop video="/media/services.mp4" poster="/media/services.webp" />
+          <div
+            aria-hidden
+            className="bg-background/70 pointer-events-none absolute inset-0 z-[1]"
+          />
+        </>
+      }
+    >
       <Reveal>
-        <SectionHeading number="06" eyebrow="Services" title="What I do" />
+        <SectionHeading number="05" eyebrow="Services" title="What I do" className="mb-4" />
+        <p className="text-muted mb-10 max-w-2xl text-sm leading-relaxed text-pretty md:text-base">
+          From enterprise infrastructure to modern applications - delivering reliable solutions
+          through engineering, automation, and innovation.
+        </p>
       </Reveal>
 
       {sorted.length === 0 ? (

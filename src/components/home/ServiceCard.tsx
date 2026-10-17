@@ -49,10 +49,12 @@ export function resolveServiceIcon(service: Pick<ServiceRow, "icon" | "title">):
   return BY_TITLE.find(([pattern]) => pattern.test(service.title))?.[1] ?? Sparkles;
 }
 
-/** Each card takes a stop from the active palette ramp (deep, mid, bright) and pairs it with the
- *  next one, so the grid reads as a gradient family instead of one repeated colour. Channel lists
- *  keep it palette- and theme-aware. */
-const RAMP = ["--brand-deep-rgb", "--brand-mid-rgb", "--brand-bright-rgb"] as const;
+/** Every card shares one teal pairing (mid over deep) so icons and glows read as one system.
+ *  Channel lists keep it palette- and theme-aware. */
+const style = {
+  "--c": "var(--brand-mid-rgb)",
+  "--c2": "var(--brand-deep-rgb)",
+} as React.CSSProperties;
 
 export function ServiceCard({ service, index }: { service: ServiceRow; index: number }) {
   const icon = createElement(resolveServiceIcon(service), {
@@ -60,15 +62,11 @@ export function ServiceCard({ service, index }: { service: ServiceRow; index: nu
     strokeWidth: 1.6,
     "aria-hidden": true,
   });
-  const style = {
-    "--c": `var(${RAMP[index % 3]})`,
-    "--c2": `var(${RAMP[(index + 1) % 3]})`,
-  } as React.CSSProperties;
 
   return (
     <article
       style={style}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-(--brand-mid)/25 bg-[linear-gradient(160deg,rgb(var(--c)/0.14),transparent_55%),var(--surface)] p-7 backdrop-blur-md transition-[border-color,transform,box-shadow] duration-300 hover:border-[rgb(var(--c)/0.55)] hover:shadow-[0_24px_60px_-28px_rgb(var(--c)/0.7)] motion-safe:hover:-translate-y-1"
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-(--brand-mid)/25 bg-[linear-gradient(160deg,rgb(var(--c)/0.08),transparent_55%),var(--surface)] p-5 backdrop-blur-md transition-[border-color,transform,box-shadow] duration-300 hover:border-[rgb(var(--c)/0.45)] hover:shadow-[0_18px_44px_-28px_rgb(var(--c)/0.45)] motion-safe:hover:-translate-y-0.5 sm:p-6"
     >
       {/* Dot-grid texture in the card's own colour, fading out from the top-right corner. */}
       <span
@@ -88,7 +86,7 @@ export function ServiceCard({ service, index }: { service: ServiceRow; index: nu
 
       <div className="relative flex items-start justify-between gap-4">
         {/* Gradient ring (p-px) around a tinted tile: the icon shares its card's colours. */}
-        <span className="rounded-2xl bg-[linear-gradient(135deg,rgb(var(--c)/0.9),rgb(var(--c2)/0.35))] p-px shadow-[0_10px_28px_-12px_rgb(var(--c)/0.8)] transition-transform duration-300 motion-safe:group-hover:scale-105 motion-safe:group-hover:-rotate-3">
+        <span className="rounded-2xl bg-[linear-gradient(135deg,rgb(var(--c)/0.9),rgb(var(--c2)/0.35))] p-px shadow-[0_8px_20px_-14px_rgb(var(--c)/0.5)] transition-shadow duration-300 group-hover:shadow-[0_8px_24px_-12px_rgb(var(--c)/0.7)]">
           <span className="grid size-14 place-items-center rounded-[15px] bg-[linear-gradient(135deg,rgb(var(--c)/0.30),rgb(var(--c2)/0.12)),var(--chip-surface)] text-(--accent-on-chip)">
             {icon}
           </span>
@@ -98,7 +96,7 @@ export function ServiceCard({ service, index }: { service: ServiceRow; index: nu
         </span>
       </div>
 
-      <h3 className="relative mt-8 text-xl leading-snug font-bold tracking-tight">
+      <h3 className="relative mt-6 text-xl leading-snug font-bold tracking-tight">
         {service.title}
       </h3>
       <p className="text-muted relative mt-3 text-sm leading-relaxed text-pretty">
@@ -107,7 +105,7 @@ export function ServiceCard({ service, index }: { service: ServiceRow; index: nu
 
       {service.shortDescription && (
         <div className="relative mt-auto pt-6">
-          <p className="text-foreground/75 flex items-start gap-2.5 rounded-xl border border-[rgb(var(--c)/0.25)] bg-[rgb(var(--c)/0.07)] px-3.5 py-3 text-xs">
+          <p className="text-foreground/85 flex items-start gap-2.5 rounded-xl border border-[rgb(var(--c)/0.25)] bg-[rgb(var(--c)/0.07)] px-3.5 py-3 text-xs">
             <span
               aria-hidden
               className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[linear-gradient(135deg,rgb(var(--c)),rgb(var(--c2)))] shadow-[0_0_8px_rgb(var(--c)/0.9)]"
