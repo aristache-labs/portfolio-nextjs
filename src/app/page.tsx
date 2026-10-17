@@ -12,6 +12,7 @@ import {
 import { Hero } from "@/components/home/Hero";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
+import { CaveatFontGate } from "@/components/home/CaveatFontGate";
 
 // ISR: prerendered at build time, so the build needs a reachable database. 12h is a Neon compute
 // budget decision, not a freshness one - admin saves publish immediately. See AGENTS.md.
@@ -86,8 +87,9 @@ export default async function Home() {
   return (
     <div
       data-site="cinematic"
-      className={`${inter.variable} ${sora.variable} ${caveat.variable} dark bg-background text-foreground relative min-h-screen`}
+      className={`${inter.variable} ${sora.variable} dark bg-background text-foreground relative min-h-screen`}
     >
+      <CaveatFontGate className={caveat.variable} />
       <SiteNav
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
         hidden={Object.entries(vis)
