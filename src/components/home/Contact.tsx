@@ -117,7 +117,7 @@ export function Contact({
         <>
           <SectionBackdrop
             video="/media/contact.mp4"
-            poster="/media/contact.webp"
+            poster="/media/experience.webp"
             scrim="bg-background/70 absolute inset-0"
           />
           <div

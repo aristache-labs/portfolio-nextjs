@@ -2,10 +2,49 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+
+type Listener = (visible: boolean) => void;
+const observers = new Map<
+  string,
+  { io: IntersectionObserver; listeners: Map<Element, Listener> }
+>();
+
+/** One shared IntersectionObserver per margin, so many backdrops cost one observer each. */
+function observe(el: Element, rootMargin: string, listener: Listener) {
+  // No IntersectionObserver (very old browsers): treat as visible, so the video still plays.
+  if (typeof IntersectionObserver === "undefined") {
+    listener(true);
+    return () => {};
+  }
+  let entry = observers.get(rootMargin);
+  if (!entry) {
+    const listeners = new Map<Element, Listener>();
+    const io = new IntersectionObserver(
+      (records) => records.forEach((r) => listeners.get(r.target)?.(r.isIntersecting)),
+      { rootMargin, threshold: 0 },
+    );
+    entry = { io, listeners };
+    observers.set(rootMargin, entry);
+  }
+  entry.listeners.set(el, listener);
+  entry.io.observe(el);
+  const { io, listeners } = entry;
+  return () => {
+    io.unobserve(el);
+    listeners.delete(el);
+  };
+}
+
+/** Request video data when the section is this close to the viewport. */
+const LOAD_MARGIN = "200px 0px";
+/** Keep playing until the section is this far away, then pause. */
+const PLAY_MARGIN = "600px 0px";
 
 /**
- * Full-bleed section video. Desktop plays the loop. Mobile and reduced motion
- * show the poster. A missing file hides itself so the teal ground shows through.
+ * Full-bleed section video. Desktop plays the loop, fetched only when the section nears the
+ * viewport and paused when it is far away. Mobile and reduced motion show the poster and never
+ * mount a video. A missing file hides itself so the teal ground shows through.
  *
  * `screen` pins the loop to one viewport height at the top of the section.
  * Stretching it over a tall section with object-cover zooms the frame.
@@ -29,24 +68,40 @@ export function SectionBackdrop({
   focus?: "center" | "left";
 }) {
   const reduce = useReducedMotion();
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoOk, setVideoOk] = useState(Boolean(video));
   const [posterOk, setPosterOk] = useState(Boolean(poster));
+  const [near, setNear] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  const showVideo = Boolean(video) && videoOk && !reduce && isDesktop;
 
   useEffect(() => {
-    const node = videoRef.current;
-    if (!node) return;
-    if (reduce) node.pause();
-  }, [reduce]);
-
-  const showVideo = Boolean(video) && videoOk && !reduce;
+    const root = rootRef.current;
+    if (!showVideo || !root) return;
+    const stopLoad = observe(root, LOAD_MARGIN, (visible) => {
+      if (visible) setNear(true);
+    });
+    const stopPlay = observe(root, PLAY_MARGIN, (visible) => {
+      const node = videoRef.current;
+      if (!node) return;
+      if (visible) node.play().catch(() => {});
+      else node.pause();
+    });
+    return () => {
+      stopLoad();
+      stopPlay();
+    };
+  }, [showVideo]);
 
   const screen = frame === "screen";
   // A portrait phone crops a 16:9 plate on both sides. Left focus keeps a
   // subject that lives on the left of the frame on screen until the lg layout.
   const anchor = focus === "left" ? "object-[-100px_center] lg:object-center" : "object-center";
-  const media = `absolute inset-0 hidden h-full w-full object-cover md:block ${anchor}`;
-  const still = `absolute inset-0 h-full w-full object-cover ${anchor}`;
+  const media = `absolute inset-0 h-full w-full object-cover ${anchor}`;
+  const still = media;
   const scrimClass =
     scrim ??
     (screen
@@ -54,7 +109,11 @@ export function SectionBackdrop({
       : "bg-background/70 absolute inset-0");
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
+    <div
+      ref={rootRef}
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+      aria-hidden
+    >
       <div
         className={
           screen ? "absolute top-0 left-0 h-screen w-full overflow-hidden" : "absolute inset-0"
@@ -68,21 +127,24 @@ export function SectionBackdrop({
             muted
             loop
             playsInline
-            preload="metadata"
+            preload={near ? "auto" : "none"}
+            src={near ? video : undefined}
             poster={poster}
+            onPlaying={() => setReady(true)}
             onError={() => setVideoOk(false)}
-          >
-            <source src={video} type="video/mp4" />
-          </video>
+          />
         )}
         {poster && posterOk && (
           // Decorative poster. next/image 400s a missing local file; a plain img just hides.
+          // Stays on top of the video until it has a frame, so no blank or poster flash.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={poster}
             alt=""
+            loading="lazy"
+            decoding="async"
             onError={() => setPosterOk(false)}
-            className={showVideo ? `${still} md:hidden` : still}
+            className={showVideo && ready ? `${still} hidden` : still}
           />
         )}
         <div className={scrimClass} />

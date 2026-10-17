@@ -6,6 +6,7 @@ import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 export type HeroProfile = {
@@ -70,8 +71,15 @@ export function Hero({
 }) {
   const reduce = useReducedMotion();
   const typed = useTypewriter(GREETING, reduce);
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(!reduce);
+  const playingRef = useRef(playing);
+  useEffect(() => {
+    playingRef.current = playing;
+  }, [playing]);
+  const [posterLoaded, setPosterLoaded] = useState(false);
   const [videoOk, setVideoOk] = useState(true);
   const [posterOk, setPosterOk] = useState(true);
   const mouseX = useMotionValue(0);
@@ -83,6 +91,32 @@ export function Hero({
   const spotBg = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
 
   const showVideo = videoOk && !reduce;
+  // The poster is the LCP image: hold the video request until it has arrived (or failed), so
+  // hero.mp4 never competes with hero.webp. Phones never mount the video.
+  const mountVideo = showVideo && isDesktop && (posterLoaded || !posterOk);
+
+  // The img may finish loading before hydration attaches onLoad.
+  const posterRef = (node: HTMLImageElement | null) => {
+    if (node?.complete && node.naturalWidth > 0) setPosterLoaded(true);
+  };
+
+  // Pause while scrolled away, resume only if the visitor has not paused it themselves.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!mountVideo || !section) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        const node = videoRef.current;
+        if (!node) return;
+        if (entry.isIntersecting) {
+          if (playingRef.current) node.play().catch(() => {});
+        } else node.pause();
+      },
+      { rootMargin: "200px 0px", threshold: 0 },
+    );
+    io.observe(section);
+    return () => io.disconnect();
+  }, [mountVideo]);
   const iconSocials = ["github", "linkedin"].flatMap((id) => {
     const match = socials.find((s) => s.platform.toLowerCase() === id && s.url);
     return match ? [match] : [];
@@ -110,6 +144,7 @@ export function Hero({
   return (
     <section
       id="hero"
+      ref={sectionRef}
       onMouseMove={onMouseMove}
       className="relative flex scroll-mt-24 flex-col justify-start overflow-hidden md:min-h-[min(100svh,56rem)] md:justify-center"
     >
@@ -120,8 +155,11 @@ export function Hero({
         {posterOk && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            ref={posterRef}
             src="/media/hero.webp"
             alt=""
+            fetchPriority="high"
+            onLoad={() => setPosterLoaded(true)}
             onError={() => setPosterOk(false)}
             className="absolute inset-0 h-full w-full object-cover md:hidden"
           />
@@ -130,25 +168,30 @@ export function Hero({
         {/* Desktop plate: sized exactly like object-cover on a 16:9 picture, so anything placed
             inside it by percentage stays on the same spot of the picture at any screen size. */}
         <div className={`${PLATE} hidden md:block`}>
-          {showVideo ? (
+          {/* The poster img is the LCP candidate and stays put: the video mounts above it, so the
+              swap never creates a later, same-size LCP element. */}
+          {posterOk && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src="/media/hero.webp"
+              alt=""
+              fetchPriority="high"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          )}
+          {mountVideo && (
             <video
               ref={videoRef}
-              className="h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
               autoPlay
               muted
               loop
               playsInline
               preload="metadata"
-              poster="/media/hero.webp"
               onError={() => setVideoOk(false)}
             >
               <source src="/media/hero.mp4" type="video/mp4" />
             </video>
-          ) : (
-            posterOk && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src="/media/hero.webp" alt="" className="h-full w-full object-cover" />
-            )
           )}
         </div>
         <div className="hero-vignette absolute inset-0" />
