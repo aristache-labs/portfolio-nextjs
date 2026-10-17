@@ -13,15 +13,10 @@ export function Reveal({
   children,
   delay = 0,
   className,
-  duration = 0.5,
-  eager = true,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
-  duration?: number;
-  /** Default starts ~200px early. Pass false for a visible, deliberate reveal (headings). */
-  eager?: boolean;
 }) {
   const reduced = useReducedMotion();
 
@@ -37,12 +32,8 @@ export function Reveal({
       whileInView="visible"
       // Eager on purpose: the bottom margin starts the reveal ~200px early so content is
       // never perceived as stuck-invisible during a normal scroll.
-      viewport={{
-        once: true,
-        amount: "some",
-        margin: eager ? "0px 0px 200px 0px" : "0px 0px -40px 0px",
-      }}
-      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, amount: "some", margin: "0px 0px 200px 0px" }}
+      transition={{ duration: 0.5, delay, ease: "easeOut" }}
     >
       {children}
     </motion.div>

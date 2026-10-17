@@ -44,7 +44,7 @@ function StatBar({ repos }: { repos: number }) {
   ];
 
   return (
-    <Reveal delay={0.4} duration={0.8} eager={false} className="mt-14">
+    <Reveal delay={0.1} className="mt-14">
       <div
         className={`${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
       >
@@ -93,7 +93,7 @@ export function About({ profile }: { profile: AboutProfile }) {
       }
     >
       <div>
-        <Reveal duration={0.8} eager={false}>
+        <Reveal>
           <div className="mb-8">
             <p className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase">
               <span>
@@ -111,7 +111,7 @@ export function About({ profile }: { profile: AboutProfile }) {
         </Reveal>
 
         <div className="flex flex-col-reverse gap-6 lg:flex-row lg:gap-12">
-          <Reveal delay={0.3} duration={0.7} eager={false} className="min-w-0 flex-1">
+          <Reveal delay={0.08} className="min-w-0 flex-1">
             <div className="space-y-4">
               {profile.bio
                 .split(/\n\s*\n/)
@@ -132,27 +132,20 @@ export function About({ profile }: { profile: AboutProfile }) {
             </div>
 
             <div className="mt-9 grid gap-3 sm:grid-cols-3">
-              {BADGES.map(({ icon: Icon, value, label }, i) => (
-                <Reveal key={label} delay={0.5 + i * 0.12} duration={0.6} eager={false}>
-                  <div className={`${GLASS} h-full rounded-2xl px-4 py-3.5`}>
-                    <IconTile size="md">
-                      <Icon className="size-5" {...ICON_PROPS} />
-                    </IconTile>
-                    <p className="mt-3 text-[15px] leading-tight font-bold text-white">{value}</p>
-                    <p className="mt-1 text-xs leading-snug text-white/50">{label}</p>
-                  </div>
-                </Reveal>
+              {BADGES.map(({ icon: Icon, value, label }) => (
+                <div key={label} className={`${GLASS} rounded-2xl px-4 py-3.5`}>
+                  <IconTile size="md">
+                    <Icon className="size-5" {...ICON_PROPS} />
+                  </IconTile>
+                  <p className="mt-3 text-[15px] leading-tight font-bold text-white">{value}</p>
+                  <p className="mt-1 text-xs leading-snug text-white/50">{label}</p>
+                </div>
               ))}
             </div>
           </Reveal>
 
           {profile.avatarUrl && (
-            <Reveal
-              delay={0.35}
-              duration={0.8}
-              eager={false}
-              className="mx-auto max-w-full shrink-0 lg:mx-0"
-            >
+            <Reveal delay={0.14} className="mx-auto max-w-full shrink-0 lg:mx-0">
               <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? "Cristache Adrian"} />
             </Reveal>
           )}
