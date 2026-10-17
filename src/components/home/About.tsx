@@ -74,7 +74,7 @@ export function About({ profile }: { profile: AboutProfile }) {
           <SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" />
           <div
             aria-hidden
-            className="bg-background/20 pointer-events-none absolute inset-0 z-[1]"
+            className="bg-background/70 pointer-events-none absolute inset-0 z-[1] md:bg-background/50"
           />
         </>
       }
@@ -118,7 +118,7 @@ export function About({ profile }: { profile: AboutProfile }) {
                 ))}
             </div>
 
-            <div className="mt-9 grid gap-3 sm:grid-cols-3">
+            <div className="mt-9 grid gap-3 sm:max-w-[calc(100%-3.5rem)] sm:grid-cols-3">
               {BADGES.map(({ icon: Icon, value, label }) => (
                 <div key={label} className={`${GLASS} rounded-2xl px-4 py-3.5`}>
                   <span className="flex size-9 items-center justify-center rounded-xl bg-white/10 text-white/85">

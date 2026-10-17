@@ -123,6 +123,7 @@ export function Hero({
             className="absolute inset-0 h-full w-full object-cover md:hidden"
           />
         )}
+        <div className="bg-background/70 absolute inset-0 md:hidden" />
         {/* Desktop plate: sized exactly like object-cover on a 16:9 picture, so anything placed
             inside it by percentage stays on the same spot of the picture at any screen size. */}
         <div className={`${PLATE} hidden md:block`}>
@@ -277,9 +278,14 @@ export function Hero({
           {profile.roles.length > 0 && (
             <motion.p
               {...fadeUp(reduce, 0.9)}
-              className="text-muted mt-4 font-mono text-xs tracking-[0.14em] uppercase"
+              className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em]"
             >
-              {profile.roles.join(" / ")}
+              {profile.roles.map((role, i) => (
+                <span key={role}>
+                  {i > 0 && " / "}
+                  <span className="whitespace-nowrap md:whitespace-normal">{role}</span>
+                </span>
+              ))}
             </motion.p>
           )}
 
