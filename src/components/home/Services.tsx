@@ -13,7 +13,7 @@ export function Services({ services }: { services: ServiceRow[] }) {
   return (
     <Section
       id="services"
-      className="scroll-mt-24"
+      className="scroll-mt-24 pt-6 md:pt-12"
       backdrop={
         <>
           <SectionBackdrop video="/media/services.mp4" poster="/media/services.webp" />
