@@ -141,6 +141,13 @@
       "when": 1792212000000,
       "tag": "0019_skill_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792300800000,
+      "tag": "0020_skill_levels",
+      "breakpoints": true
     }
   ]
 }

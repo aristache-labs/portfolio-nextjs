@@ -15,11 +15,11 @@ export function Projects({ projects }: { projects: MergedProject[] }) {
   return (
     <Section
       id="projects"
-      className="scroll-mt-24"
+      className="scroll-mt-4 pt-2 md:pt-28"
       backdrop={<SectionBackdrop video="/media/projects.mp4" poster="/media/projects.webp" />}
     >
       <Reveal>
-        <SectionHeading number="05" eyebrow="Projects" title="Featured work" className="mb-8" />
+        <SectionHeading number="04" eyebrow="Projects" title="Featured work" className="mb-8" />
       </Reveal>
 
       <div id="project-list" className="scroll-mt-24">

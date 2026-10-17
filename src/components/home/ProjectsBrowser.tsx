@@ -97,9 +97,9 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           {recent.length > 0 && (
             <div className="flex flex-col">
               <ColumnLabel>Recently updated</ColumnLabel>
-              <div className={`${TRACK} justify-between`}>
+              <div className={TRACK}>
                 {recent.map((p, i) => (
-                  <Reveal key={p.id} delay={0.1 + i * 0.05} className="flex">
+                  <Reveal key={p.id} delay={0.1 + i * 0.05} className="flex lg:flex-1">
                     <RecentCard
                       project={p}
                       onQuickView={() => setQuickView(p)}

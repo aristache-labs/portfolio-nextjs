@@ -29,7 +29,7 @@ function Cover({
       fill
       sizes={sizes}
       priority={priority}
-      className={`${fit} transition-transform duration-500 motion-safe:group-hover:scale-105`}
+      className={`${fit} transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.02]`}
     />
   ) : (
     <div className="size-full bg-(image:--gradient-brand) opacity-70" />
@@ -39,7 +39,7 @@ function Cover({
 function MetaLine({ label, project }: { label: string; project: MergedProject }) {
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span className="text-[0.65rem] font-semibold tracking-wider text-(--accent-on-chip) uppercase">
+      <span className="text-xs font-semibold tracking-wider text-(--accent-on-chip) uppercase">
         {label}
       </span>
       <span aria-hidden className="text-muted text-xs">
@@ -72,14 +72,14 @@ function Tags({ project }: { project: MergedProject }) {
   return (
     <div className="mt-2.5 flex flex-wrap gap-1.5">
       {project.language && (
-        <span className="rounded-full border border-(--brand-deep)/40 bg-(--chip-surface) px-2 py-0.5 text-[11px] font-semibold text-(--accent-on-chip)">
+        <span className="rounded-full border border-(--brand-deep)/40 bg-(--chip-surface) px-2 py-0.5 text-xs font-semibold text-(--accent-on-chip)">
           {project.language}
         </span>
       )}
       {project.tags.map((tag) => (
         <span
           key={tag}
-          className="border-border text-muted rounded-full border bg-(--chip-surface) px-2 py-0.5 text-[11px]"
+          className="border-border text-muted rounded-full border bg-(--chip-surface) px-2 py-0.5 text-xs"
         >
           {tag}
         </span>
@@ -91,7 +91,7 @@ function Tags({ project }: { project: MergedProject }) {
 function Actions({ project, onQuickView }: { project: MergedProject; onQuickView: () => void }) {
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-2">
+    <div className="mt-4 flex flex-wrap items-center gap-2">
       <Button
         size="sm"
         onClick={onQuickView}
@@ -126,7 +126,7 @@ function Actions({ project, onQuickView }: { project: MergedProject; onQuickView
 }
 
 const SHELL =
-  "border-border bg-surface group relative h-full w-full overflow-hidden rounded-2xl border backdrop-blur-sm transition-colors hover:border-(--brand-deep)/40";
+  "border-border bg-surface group relative h-full w-full overflow-hidden rounded-2xl border backdrop-blur-sm transition-colors duration-300 hover:border-(--brand-mid)/40";
 
 /** Big card: preview on top, then title, a short description, tags and actions. */
 export function FeaturedCard({
@@ -138,17 +138,21 @@ export function FeaturedCard({
 }) {
   return (
     <article className={`${SHELL} flex flex-col`}>
-      <div className="relative aspect-video w-full shrink-0 overflow-hidden">
+      <div className="border-border relative aspect-video w-full shrink-0 overflow-hidden border-b">
         <Cover project={project} sizes="(max-width: 1024px) 100vw, 36rem" fit="object-cover" />
       </div>
-      <div className="p-4 sm:p-5">
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
         <MetaLine label="Featured" project={project} />
-        <h3 className="mt-1.5 line-clamp-1 text-lg leading-snug font-bold">{project.title}</h3>
+        <h3 className="mt-2 line-clamp-1 text-lg leading-snug font-bold">{project.title}</h3>
         {project.description && (
-          <p className="text-muted mt-1 line-clamp-2 text-sm text-pretty">{project.description}</p>
+          <p className="text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty">
+            {project.description}
+          </p>
         )}
         <Tags project={project} />
-        <Actions project={project} onQuickView={onQuickView} />
+        <div className="mt-auto">
+          <Actions project={project} onQuickView={onQuickView} />
+        </div>
       </div>
     </article>
   );
@@ -165,13 +169,11 @@ export function RecentCard({
   priority?: boolean;
 }) {
   return (
-    <article
-      className={`${SHELL} flex flex-col gap-3 p-3 sm:flex-row sm:items-stretch sm:gap-4 sm:p-3`}
-    >
-      <div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl sm:aspect-auto sm:w-50 sm:self-stretch">
+    <article className={`${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4`}>
+      <div className="ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch">
         <Cover
           project={project}
-          sizes="(max-width: 640px) 100vw, 200px"
+          sizes="(max-width: 640px) 100vw, 192px"
           fit="object-cover"
           priority={priority}
         />
@@ -181,9 +183,11 @@ export function RecentCard({
           label={project.pushedAt ? `Updated ${formatUpdated(project.pushedAt)}` : "Project"}
           project={project}
         />
-        <h3 className="mt-1.5 line-clamp-1 text-base leading-snug font-bold">{project.title}</h3>
+        <h3 className="mt-1.5 line-clamp-1 text-[1.0625rem] leading-snug font-bold">
+          {project.title}
+        </h3>
         {project.description && (
-          <p className="text-muted mt-1 line-clamp-2 text-xs text-pretty sm:text-sm">
+          <p className="text-muted mt-1.5 line-clamp-2 text-sm leading-relaxed text-pretty">
             {project.description}
           </p>
         )}

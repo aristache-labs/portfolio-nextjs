@@ -27,7 +27,7 @@ export function ProjectCard({
       as="article"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className="group bg-background/55 relative flex h-full flex-col overflow-hidden border-(--brand-mid)/25 backdrop-blur-md hover:border-(--brand-mid)/50"
+      className="group bg-surface relative flex h-full flex-col overflow-hidden border-(--brand-mid)/30 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-(--brand-mid)/55"
     >
       {hover && <Meteors number={10} />}
 
@@ -43,25 +43,27 @@ export function ProjectCard({
         {/* Title + stats row */}
         <div className="flex items-start justify-between gap-3">
           <h3 className="min-w-0 text-lg leading-snug font-bold">{project.title}</h3>
-          <div className="text-muted flex shrink-0 items-center gap-3 text-sm">
+          <div className="text-muted flex shrink-0 items-center gap-3 text-xs">
             <span
               className="flex items-center gap-1"
               aria-label={pluralize(project.stars ?? 0, "star")}
             >
-              <Star className="size-4" aria-hidden /> {project.stars ?? "—"}
+              <Star className="size-3.5" aria-hidden /> {project.stars ?? "—"}
             </span>
             <span
               className="flex items-center gap-1"
               aria-label={pluralize(project.forks ?? 0, "fork")}
             >
-              <GitFork className="size-4" aria-hidden /> {project.forks ?? "—"}
+              <GitFork className="size-3.5" aria-hidden /> {project.forks ?? "—"}
             </span>
           </div>
         </div>
 
         {/* Description */}
         {blurb && (
-          <p className="text-muted mt-2 line-clamp-2 flex-1 text-sm text-pretty">{blurb}</p>
+          <p className="text-muted mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-pretty">
+            {blurb}
+          </p>
         )}
 
         {/* Tech tags */}
@@ -87,7 +89,7 @@ export function ProjectCard({
         )}
 
         {/* Action links */}
-        <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+        <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
           {onQuickView && (
             <Button
               size="sm"
