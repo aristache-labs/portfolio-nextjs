@@ -93,19 +93,20 @@ describe("Contact", () => {
     expect(link.getAttribute("href")).toBe(`mailto:${email}`);
   });
 
-  it("renders social links with accessible labels", () => {
+  it("renders only the email and linkedin cards", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    expect(screen.getByLabelText("github: aristache-labs")).toBeTruthy();
     expect(screen.getByLabelText("linkedin: aristache-labs")).toBeTruthy();
-    expect(screen.getByLabelText("twitter: aristache-labs")).toBeTruthy();
+    expect(screen.queryByLabelText("github: aristache-labs")).toBeNull();
+    expect(screen.queryByLabelText("twitter: aristache-labs")).toBeNull();
+    expect(screen.queryByText(/other ways to connect/i)).toBeNull();
   });
 
-  it("renders external social links that open in a new tab (target=_blank)", () => {
+  it("opens the linkedin card in a new tab", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    const githubLink = screen.getByLabelText("github: aristache-labs");
-    expect(githubLink.getAttribute("href")).toBe("https://github.com/aristache-labs");
-    expect(githubLink.getAttribute("target")).toBe("_blank");
-    expect(githubLink.getAttribute("rel")).toBe("noopener noreferrer");
+    const linkedin = screen.getByLabelText("linkedin: aristache-labs");
+    expect(linkedin.getAttribute("href")).toBe("https://linkedin.com/in/aristache-labs");
+    expect(linkedin.getAttribute("target")).toBe("_blank");
+    expect(linkedin.getAttribute("rel")).toBe("noopener noreferrer");
   });
 
   it("renders the heading", () => {
@@ -113,35 +114,23 @@ describe("Contact", () => {
     expect(screen.getByRole("heading", { name: /conversation/i })).toBeTruthy();
   });
 
-  it("renders social links in sort order", () => {
-    const unsorted: SocialRow[] = [
-      {
-        platform: "twitter",
-        url: "https://twitter.com/aristache-labs",
-        username: "aristache-labs",
-        order: 3,
-      },
-      {
-        platform: "github",
-        url: "https://github.com/aristache-labs",
-        username: "aristache-labs",
-        order: 1,
-      },
-      {
-        platform: "linkedin",
-        url: "https://linkedin.com/in/aristache-labs",
-        username: "aristache-labs",
-        order: 2,
-      },
-    ];
-    render(<Contact socials={unsorted} email={email} />);
-    const labels = screen.getAllByRole("link").map((link) => link.getAttribute("aria-label"));
-    const github = labels.indexOf("github: aristache-labs");
-    const linkedin = labels.indexOf("linkedin: aristache-labs");
-    const twitter = labels.indexOf("twitter: aristache-labs");
-    expect(github).toBeGreaterThanOrEqual(0);
-    expect(github).toBeLessThan(linkedin);
-    expect(linkedin).toBeLessThan(twitter);
+  it("omits the linkedin card when that profile is not configured", () => {
+    render(
+      <Contact socials={mockSocials.filter((s) => s.platform !== "linkedin")} email={email} />,
+    );
+    expect(screen.queryByLabelText(/linkedin/i)).toBeNull();
+    expect(screen.getByRole("link", { name: new RegExp(email) })).toBeTruthy();
+  });
+
+  it("shows the support link only when a sponsor url is set", () => {
+    const { rerender } = render(<Contact socials={mockSocials} email={email} />);
+    expect(screen.queryByRole("link", { name: /support independent projects/i })).toBeNull();
+    rerender(
+      <Contact socials={mockSocials} email={email} sponsorUrl="https://example.com/sponsor" />,
+    );
+    const support = screen.getByRole("link", { name: /support independent projects/i });
+    expect(support.getAttribute("href")).toBe("https://example.com/sponsor");
+    expect(support.getAttribute("target")).toBe("_blank");
   });
 
   it("renders empty social list gracefully", () => {

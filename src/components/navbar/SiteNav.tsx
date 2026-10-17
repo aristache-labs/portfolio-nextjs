@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, Heart, Menu, X } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -27,13 +27,14 @@ const SECTIONS: MenuSection[] = [
  * The mobile panel is the same list, not a full-screen overlay.
  */
 export function SiteNav({
-  socials,
   hidden = [],
   sections = SECTIONS,
+  sponsorUrl,
 }: {
   socials: { platform: string; url: string }[];
   hidden?: string[];
   sections?: MenuSection[];
+  sponsorUrl?: string | null;
 }) {
   const visibleSections = useMemo(
     () => sections.filter((s) => !hidden.includes(s.id)),
@@ -45,6 +46,12 @@ export function SiteNav({
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const showContact = visibleSections.some((s) => s.id === "contact");
+  const sponsor = sponsorUrl?.trim() || "";
+  const navCta = sponsor
+    ? { href: sponsor, external: true, label: "Support My Work" }
+    : showContact
+      ? { href: "#contact", external: false, label: "Let's Connect" }
+      : null;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -120,13 +127,17 @@ export function SiteNav({
           })}
         </ul>
 
-        {showContact && (
+        {navCta && (
           <a
-            href="#contact"
-            className="group text-foreground hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 lg:inline-flex"
+            href={navCta.href}
+            {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none lg:inline-flex"
           >
-            Let&apos;s Connect
-            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+            {navCta.external && <Heart className="text-brand-bright size-3.5" aria-hidden />}
+            {navCta.label}
+            {!navCta.external && (
+              <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+            )}
           </a>
         )}
 
@@ -168,24 +179,17 @@ export function SiteNav({
                   </a>
                 </li>
               ))}
-              {socials.map((s) => (
-                <li key={s.platform}>
-                  <a
-                    href={s.url}
-                    className="text-foreground/75 hover:text-foreground block rounded-lg px-3 py-2.5 text-[15px]"
-                  >
-                    {s.platform}
-                  </a>
-                </li>
-              ))}
-              {showContact && (
+              {navCta && (
                 <li className="pt-2">
                   <a
-                    href="#contact"
+                    href={navCta.href}
                     onClick={() => setOpen(false)}
-                    className="text-foreground flex items-center justify-center gap-2 rounded-xl bg-(--brand-deep) px-5 py-3 text-sm font-semibold"
+                    {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className="text-foreground focus-visible:ring-brand-bright/70 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-(--brand-deep) px-5 py-3 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none"
                   >
-                    Let&apos;s Connect <ArrowRight className="size-4" />
+                    {navCta.external && <Heart className="size-4" aria-hidden />}
+                    {navCta.label}
+                    {!navCta.external && <ArrowRight className="size-4" />}
                   </a>
                 </li>
               )}

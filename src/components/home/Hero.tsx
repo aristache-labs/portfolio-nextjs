@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { ArrowRight, Heart, Pause, Play } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { platformIcon } from "./social-icons";
+import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 export type HeroProfile = {
   name: string;
@@ -59,13 +59,13 @@ function fadeUp(reduce: boolean, delay: number) {
  */
 export function Hero({
   profile,
-  sponsorUrl,
   heroTagline,
+  resumeUrl,
   socials = [],
 }: {
   profile: HeroProfile;
-  sponsorUrl?: string;
   heroTagline?: string | null;
+  resumeUrl?: string | null;
   socials?: { platform: string; url: string }[];
 }) {
   const reduce = useReducedMotion();
@@ -83,7 +83,10 @@ export function Hero({
   const spotBg = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
 
   const showVideo = videoOk && !reduce;
-  const iconSocials = socials.filter((s) => s.platform.toLowerCase() !== "email").slice(0, 4);
+  const iconSocials = ["github", "linkedin"].flatMap((id) => {
+    const match = socials.find((s) => s.platform.toLowerCase() === id && s.url);
+    return match ? [match] : [];
+  });
 
   const onMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (reduce) return;
@@ -236,48 +239,72 @@ export function Hero({
             </motion.p>
           )}
 
-          <motion.div {...fadeUp(reduce, 0.8)} className="mt-7 flex flex-wrap items-center gap-4">
-            <Magnetic>
+          <motion.div
+            {...fadeUp(reduce, 0.8)}
+            className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
+          >
+            <Magnetic className="max-sm:w-full">
               <Button
                 variant="primary"
                 size="lg"
                 href="#projects"
-                className="rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)]"
+                className="rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] max-sm:w-full"
               >
                 Explore Projects
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Magnetic>
-            <Magnetic>
-              <Button
-                variant="secondary"
-                size="lg"
-                href="#contact"
-                className="border-foreground/20 bg-foreground/3 rounded-2xl px-7 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10"
-              >
-                Get in Touch
-              </Button>
-            </Magnetic>
-            {sponsorUrl && (
-              <Magnetic>
+            <div className="flex gap-3 sm:contents">
+              <Magnetic className="max-sm:min-w-0 max-sm:flex-1">
                 <Button
                   variant="secondary"
                   size="lg"
-                  href={sponsorUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-2xl"
-                  leftIcon={<Heart className="size-4" aria-hidden />}
+                  href="#contact"
+                  className="border-foreground/20 bg-foreground/3 rounded-2xl px-7 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10 max-sm:w-full"
                 >
-                  Sponsor
+                  Get in Touch
                 </Button>
               </Magnetic>
-            )}
+              {resumeUrl && (
+                <Magnetic className="max-sm:min-w-0 max-sm:flex-1">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    href={resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border-foreground/20 bg-foreground/3 rounded-2xl px-7 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10 max-sm:w-full"
+                  >
+                    Resume
+                    <ArrowUpRight className="size-4" aria-hidden />
+                  </Button>
+                </Magnetic>
+              )}
+            </div>
           </motion.div>
+
+          {iconSocials.length > 0 && (
+            <motion.div {...fadeUp(reduce, 0.9)} className="mt-5 flex flex-wrap items-center gap-3">
+              {iconSocials.map((s) => {
+                const external = s.url.startsWith("http");
+                return (
+                  <a
+                    key={s.platform}
+                    href={s.url}
+                    aria-label={s.platform}
+                    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className="border-border bg-foreground/5 text-foreground/80 hover:text-foreground focus-visible:ring-brand-mid/70 grid size-12 place-items-center rounded-2xl border backdrop-blur-md transition-transform duration-300 hover:-translate-y-1 hover:border-(--brand-mid)/50 focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    <SocialGlyph platform={s.platform} className="size-6 object-contain" />
+                  </a>
+                );
+              })}
+            </motion.div>
+          )}
 
           {profile.roles.length > 0 && (
             <motion.p
-              {...fadeUp(reduce, 0.9)}
+              {...fadeUp(reduce, 1)}
               className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em]"
             >
               {profile.roles.map((role, i) => (
@@ -287,26 +314,6 @@ export function Hero({
                 </span>
               ))}
             </motion.p>
-          )}
-
-          {iconSocials.length > 0 && (
-            <motion.div {...fadeUp(reduce, 1)} className="mt-6 flex items-center gap-3">
-              {iconSocials.map((s) => {
-                const Icon = platformIcon(s.platform);
-                const external = s.url.startsWith("http");
-                return (
-                  <a
-                    key={s.platform}
-                    href={s.url}
-                    aria-label={s.platform}
-                    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="border-border bg-foreground/5 text-foreground/80 hover:text-foreground grid size-12 place-items-center rounded-2xl border backdrop-blur-md transition-transform duration-300 hover:-translate-y-1 hover:border-(--brand-mid)/50"
-                  >
-                    <Icon className="size-5" aria-hidden />
-                  </a>
-                );
-              })}
-            </motion.div>
           )}
         </div>
       </div>

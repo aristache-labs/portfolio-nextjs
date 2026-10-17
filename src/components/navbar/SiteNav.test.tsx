@@ -34,12 +34,29 @@ describe("SiteNav", () => {
     expect(screen.getByRole("link", { name: "Projects" })).toBeInTheDocument();
   });
 
-  it("opens the mobile panel with section links and socials", () => {
+  it("uses Support My Work when a sponsor url is set, otherwise Let's Connect", () => {
+    const { rerender } = render(<SiteNav socials={socials} />);
+    expect(screen.getAllByRole("link", { name: /let's connect/i }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("link", { name: /support my work/i })).not.toBeInTheDocument();
+    rerender(<SiteNav socials={socials} sponsorUrl="https://example.com/sponsor" />);
+    const support = screen.getAllByRole("link", { name: /support my work/i });
+    expect(support.length).toBeGreaterThan(0);
+    for (const link of support) {
+      expect(link).toHaveAttribute("href", "https://example.com/sponsor");
+      expect(link).toHaveAttribute("target", "_blank");
+    }
+    expect(screen.queryByRole("link", { name: /let's connect/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+    expect(screen.getAllByRole("link", { name: /support my work/i })).toHaveLength(2);
+  });
+
+  it("opens the mobile panel with section links and no socials", () => {
     render(<SiteNav socials={socials} />);
     expect(screen.queryByTestId("mobile-section-link")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
     expect(screen.getAllByTestId("mobile-section-link")).toHaveLength(7);
-    expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", socials[0].url);
+    expect(screen.queryByRole("link", { name: "GitHub" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "LinkedIn" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /close menu/i })).toHaveAttribute(
       "aria-expanded",
       "true",

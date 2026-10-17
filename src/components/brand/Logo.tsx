@@ -29,13 +29,16 @@ const MONOGRAM = { src: "/brand/logo-no-text.svg", width: 1511, height: 1610 } a
 export function Logo({
   className,
   withWordmark = false,
+  size = "size-12",
 }: {
   className?: string;
   withWordmark?: boolean;
+  /** Tailwind size utility for the mark. Defaults to the nav size. */
+  size?: string;
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <span role="img" aria-label="Aristache" className="relative inline-flex size-12">
+      <span role="img" aria-label="Aristache" className={cn("relative inline-flex", size)}>
         <Image
           src={MONOGRAM.src}
           alt=""
@@ -43,7 +46,7 @@ export function Logo({
           height={MONOGRAM.height}
           priority
           unoptimized
-          className="size-12 object-contain"
+          className={cn(size, "object-contain")}
         />
       </span>
       {withWordmark ? (

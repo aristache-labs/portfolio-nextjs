@@ -90,12 +90,13 @@ export default async function Home() {
         hidden={Object.entries(vis)
           .filter(([, v]) => v === false)
           .map(([k]) => k)}
+        sponsorUrl={sponsorUrl}
       />
 
       <Hero
         profile={{ name: profile.name, roles: profile.roles }}
-        sponsorUrl={sponsorUrl}
         heroTagline={profile.heroTagline}
+        resumeUrl={profile.resumeUrl}
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
       />
 
@@ -118,9 +119,11 @@ export default async function Home() {
 
       {show("services") && <Services services={services} />}
 
-      {show("contact") && <Contact socials={socials} email={contactEmail} />}
+      {show("contact") && (
+        <Contact socials={socials} email={contactEmail} sponsorUrl={sponsorUrl} />
+      )}
 
-      <Footer socials={socials} />
+      <Footer socials={socials} email={profile.email} sponsorUrl={sponsorUrl} />
     </div>
   );
 }

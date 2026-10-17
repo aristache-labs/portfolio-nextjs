@@ -33,16 +33,41 @@ describe("Hero", () => {
     expect(screen.getByText(/full stack developer/i)).toBeInTheDocument();
   });
 
-  it("renders Explore Projects and Get in Touch, and Sponsor only with sponsorUrl", () => {
+  it("renders Explore Projects, Get in Touch, and Resume, with no sponsor action", () => {
     const { rerender } = render(<Hero profile={profile} />);
     expect(screen.getByRole("link", { name: /explore projects/i })).toHaveAttribute(
       "href",
       "#projects",
     );
     expect(screen.getByRole("link", { name: /get in touch/i })).toHaveAttribute("href", "#contact");
-    expect(screen.queryByRole("link", { name: /sponsor/i })).not.toBeInTheDocument();
-    rerender(<Hero profile={profile} sponsorUrl="https://github.com/sponsors/aristache-labs" />);
-    expect(screen.getByRole("link", { name: /sponsor/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^resume$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /support my work/i })).not.toBeInTheDocument();
+    rerender(<Hero profile={profile} resumeUrl="https://example.com/cv.pdf" />);
+    const resume = screen.getByRole("link", { name: /^resume$/i });
+    expect(resume).toHaveAttribute("href", "https://example.com/cv.pdf");
+    expect(resume).toHaveAttribute("target", "_blank");
+  });
+
+  it("renders only github and linkedin icons", () => {
+    render(
+      <Hero
+        profile={profile}
+        socials={[
+          { platform: "GitHub", url: "https://github.com/aristache-labs" },
+          { platform: "Facebook", url: "https://facebook.com/aristache" },
+          { platform: "LinkedIn", url: "https://linkedin.com/in/aristache" },
+        ]}
+      />,
+    );
+    expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute(
+      "href",
+      "https://github.com/aristache-labs",
+    );
+    expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
+      "href",
+      "https://linkedin.com/in/aristache",
+    );
+    expect(screen.queryByRole("link", { name: "Facebook" })).not.toBeInTheDocument();
   });
 
   it("renders a scroll cue and no avatar image", () => {

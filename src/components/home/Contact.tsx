@@ -2,13 +2,13 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowUpRight, ChevronDown, Mail, RadioTower, Send } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, Heart, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { SectionBackdrop } from "./SectionBackdrop";
-import { platformIcon, type SocialIcon, type SocialRow } from "./social-icons";
+import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./social-icons";
 
 export { platformIcon, type SocialIcon, type SocialRow };
 
@@ -28,18 +28,6 @@ type Card = {
 
 function cardsFor(socials: SocialRow[], email: string): Card[] {
   const cards: Card[] = [];
-  for (const social of [...socials].sort((a, b) => a.order - b.order)) {
-    if (social.platform.toLowerCase() === "email") continue;
-    cards.push({
-      key: social.platform,
-      icon: platformIcon(social.platform),
-      title: social.platform,
-      value: social.username || social.url.replace(/^https?:\/\//, ""),
-      href: social.url,
-      external: social.url.startsWith("http"),
-      label: `${social.platform}: ${social.username}`,
-    });
-  }
   if (email) {
     cards.push({
       key: "email",
@@ -51,12 +39,33 @@ function cardsFor(socials: SocialRow[], email: string): Card[] {
       label: `Email ${email}`,
     });
   }
+  const linkedin = [...socials]
+    .sort((a, b) => a.order - b.order)
+    .find((social) => social.platform.toLowerCase() === "linkedin" && social.url);
+  if (linkedin) {
+    cards.push({
+      key: linkedin.platform,
+      icon: platformIcon(linkedin.platform),
+      title: linkedin.platform,
+      value: linkedin.username || linkedin.url.replace(/^https?:\/\//, ""),
+      href: linkedin.url,
+      external: linkedin.url.startsWith("http"),
+      label: `${linkedin.platform}: ${linkedin.username}`,
+    });
+  }
   return cards;
 }
 
-export function Contact({ socials, email }: { socials: SocialRow[]; email: string }) {
+export function Contact({
+  socials,
+  email,
+  sponsorUrl,
+}: {
+  socials: SocialRow[];
+  email: string;
+  sponsorUrl?: string | null;
+}) {
   const cards = cardsFor(socials, email);
-  const pills = cards.filter((card) => card.external);
   const [name, setName] = useState("");
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
@@ -103,7 +112,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
   return (
     <Section
       id="contact"
-      className="scroll-mt-24 pt-4 md:pt-6"
+      className="scroll-mt-24 pt-4 pb-6 md:pt-6 md:pb-8"
       backdrop={
         <>
           <SectionBackdrop
@@ -165,40 +174,49 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             love to hear from you..
           </motion.p>
 
-          <ul className="mt-9 grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
-            {cards.map((card, index) => {
-              const Icon = card.icon;
-              return (
-                <motion.li
-                  key={card.key}
-                  initial={{ opacity: 0, y: 22 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.55, delay: 0.25 + index * 0.1, ease: EASE }}
-                >
-                  <a
-                    href={card.href}
-                    aria-label={card.label}
-                    {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="group hover:border-brand-mid/45 relative flex h-full items-center gap-3 rounded-2xl border border-white/10 bg-(--bg) bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] p-3.5 transition-colors duration-300 sm:gap-3.5 sm:p-4"
+          {cards.length > 0 && (
+            <ul className="mt-9 grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+              {cards.map((card, index) => {
+                const Icon = card.icon;
+                return (
+                  <motion.li
+                    key={card.key}
+                    initial={{ opacity: 0, y: 22 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{ duration: 0.55, delay: 0.25 + index * 0.1, ease: EASE }}
                   >
-                    <IconTile size="sm">
-                      <Icon className="size-[18px]" {...ICON_PROPS} />
-                    </IconTile>
-                    <span className="min-w-0">
-                      <span className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[15px]">
-                        {card.title}
+                    <a
+                      href={card.href}
+                      aria-label={card.label}
+                      {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="group hover:border-brand-mid/45 relative flex h-full items-center gap-3 rounded-2xl border border-white/10 bg-(--bg) bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] p-3.5 transition-colors duration-300 sm:gap-3.5 sm:p-4"
+                    >
+                      <IconTile size="sm">
+                        {card.key === "email" ? (
+                          <Icon className="size-[18px]" {...ICON_PROPS} />
+                        ) : (
+                          <SocialGlyph
+                            platform={card.title}
+                            className="relative z-10 size-[18px] object-contain"
+                          />
+                        )}
+                      </IconTile>
+                      <span className="min-w-0">
+                        <span className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[15px]">
+                          {card.title}
+                        </span>
+                        <span className="mt-0.5 block text-[12px] break-words text-white/55 sm:text-[13px]">
+                          {card.value}
+                        </span>
                       </span>
-                      <span className="mt-0.5 block text-[12px] break-words text-white/55 sm:text-[13px]">
-                        {card.value}
-                      </span>
-                    </span>
-                    <ArrowUpRight className="group-hover:text-brand-bright absolute top-3 right-3 size-4 text-white/40 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
-                </motion.li>
-              );
-            })}
-          </ul>
+                      <ArrowUpRight className="group-hover:text-brand-bright absolute top-3 right-3 size-4 text-white/40 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </a>
+                  </motion.li>
+                );
+              })}
+            </ul>
+          )}
 
           <motion.figure
             initial={{ opacity: 0, y: 18 }}
@@ -214,6 +232,18 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
               - ADRIAN
             </footer>
           </motion.figure>
+          {sponsorUrl?.trim() && (
+            <a
+              href={sponsorUrl.trim()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-mid/80 hover:text-brand-bright focus-visible:ring-brand-mid/70 mt-5 inline-flex items-center gap-2 text-sm underline-offset-4 transition-colors hover:underline focus-visible:ring-2 focus-visible:outline-none"
+            >
+              <Heart className="size-3.5" aria-hidden />
+              Support Independent Projects
+              <ArrowRight className="size-3.5" aria-hidden />
+            </a>
+          )}
         </div>
 
         <motion.div
@@ -341,32 +371,6 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
               </p>
             )}
           </form>
-
-          {pills.length > 0 && (
-            <div className="mx-auto mt-8 w-full max-w-[535px] md:ml-auto">
-              <p className="font-mono text-[11.5px] tracking-[0.3em] text-white/60">
-                OTHER WAYS TO CONNECT
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                {pills.map((pill) => {
-                  const Icon = pill.icon;
-                  return (
-                    <a
-                      key={pill.key}
-                      href={pill.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:border-brand-mid/50 hover:bg-brand-mid/12 bg-background/65 group flex h-[42px] items-center gap-2.5 rounded-full border border-white/10 px-5 text-[14px] font-medium text-white/85 backdrop-blur-md transition-all duration-300 hover:text-white hover:shadow-[0_0_24px_rgb(var(--brand-mid-rgb)/0.25)]"
-                    >
-                      <Icon className="text-brand-bright size-4" aria-hidden />
-                      <span className="capitalize">{pill.title}</span>
-                      <ArrowRight className="size-3.5 text-white/45 transition-transform duration-300 group-hover:translate-x-0.5" />
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </motion.div>
       </div>
     </Section>
