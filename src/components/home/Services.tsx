@@ -13,7 +13,7 @@ export function Services({ services }: { services: ServiceRow[] }) {
   return (
     <Section
       id="services"
-      className="scroll-mt-24 pt-6 md:pt-12"
+      className="scroll-mt-24 pt-6 pb-4 md:pt-12 md:pb-6"
       backdrop={
         <>
           <SectionBackdrop video="/media/services.mp4" poster="/media/services.webp" />
@@ -25,7 +25,13 @@ export function Services({ services }: { services: ServiceRow[] }) {
       }
     >
       <Reveal>
-        <SectionHeading number="05" eyebrow="Services" title="What I do" className="mb-4" />
+        <SectionHeading
+          number="05"
+          eyebrow="Services"
+          title="What I do"
+          accent="do"
+          className="mb-4"
+        />
         <p className="text-muted mb-10 max-w-2xl text-sm leading-relaxed text-pretty md:text-base">
           From enterprise infrastructure to modern applications - delivering reliable solutions
           through engineering, automation, and innovation.

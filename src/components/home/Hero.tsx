@@ -6,7 +6,7 @@ import { ArrowRight, Heart, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { platformIcon } from "./Contact";
+import { platformIcon } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 export type HeroProfile = {
   name: string;

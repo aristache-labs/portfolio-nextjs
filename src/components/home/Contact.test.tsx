@@ -7,15 +7,34 @@ import { Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 
 // Mock framer-motion to avoid jsdom animation issues
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-      <div className={className} {...props}>
-        {children}
-      </div>
-    ),
-  },
-}));
+vi.mock("framer-motion", () => {
+  const motionProps = [
+    "initial",
+    "animate",
+    "exit",
+    "whileInView",
+    "whileHover",
+    "viewport",
+    "transition",
+  ];
+  const passthrough = (tag: string) => {
+    return ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => {
+      for (const key of motionProps) delete props[key];
+      const Comp = tag as "div";
+      return <Comp {...props}>{children}</Comp>;
+    };
+  };
+  return {
+    motion: {
+      a: passthrough("a"),
+      div: passthrough("div"),
+      figure: passthrough("figure"),
+      h2: passthrough("h2"),
+      li: passthrough("li"),
+      p: passthrough("p"),
+    },
+  };
+});
 
 // Mock Reveal to render children directly
 vi.mock("@/components/motion/Reveal", () => ({
@@ -91,10 +110,10 @@ describe("Contact", () => {
 
   it("renders the heading", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    expect(screen.getByRole("heading", { name: /ideas into real solutions/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /let's build/i })).toBeTruthy();
   });
 
-  it("renders all social icons in sorted order", () => {
+  it("renders social links in sort order", () => {
     const unsorted: SocialRow[] = [
       {
         platform: "twitter",
@@ -115,9 +134,14 @@ describe("Contact", () => {
         order: 2,
       },
     ];
-    const { container } = render(<Contact socials={unsorted} email={email} />);
-    const items = container.querySelectorAll("li a");
-    expect(items).toHaveLength(3);
+    render(<Contact socials={unsorted} email={email} />);
+    const labels = screen.getAllByRole("link").map((link) => link.getAttribute("aria-label"));
+    const github = labels.indexOf("github: aristache-labs");
+    const linkedin = labels.indexOf("linkedin: aristache-labs");
+    const twitter = labels.indexOf("twitter: aristache-labs");
+    expect(github).toBeGreaterThanOrEqual(0);
+    expect(github).toBeLessThan(linkedin);
+    expect(linkedin).toBeLessThan(twitter);
   });
 
   it("renders empty social list gracefully", () => {

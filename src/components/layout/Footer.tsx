@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
-import { platformIcon, type SocialRow } from "@/components/home/Contact";
+import { platformIcon, type SocialRow } from "@/components/home/social-icons";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
 
 export function Footer({ socials }: { socials: SocialRow[] }) {

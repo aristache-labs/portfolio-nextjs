@@ -19,12 +19,25 @@ export function Projects({ projects }: { projects: MergedProject[] }) {
       backdrop={
         <>
           <SectionBackdrop video="/media/projects.mp4" poster="/media/projects.webp" />
-          <div aria-hidden className="bg-background/70 pointer-events-none absolute inset-0 z-[1]" />
+          <div
+            aria-hidden
+            className="bg-background/70 pointer-events-none absolute inset-0 z-[1]"
+          />
         </>
       }
     >
       <Reveal>
-        <SectionHeading number="04" eyebrow="Projects" title="Featured work" className="mb-8" />
+        <SectionHeading
+          number="04"
+          eyebrow="Projects"
+          title="Where Ideas Become Reality"
+          accent="Reality"
+          breakAfter="Where Ideas"
+          className="mb-4"
+        />
+        <p className="text-muted mb-10 max-w-2xl text-sm leading-relaxed text-pretty md:text-base">
+          A collection of projects built through creativity, engineering, and purpose.
+        </p>
       </Reveal>
 
       <div id="project-list" className="scroll-mt-24">

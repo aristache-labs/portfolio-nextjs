@@ -22,9 +22,47 @@ export function Section({ id, children, className, backdrop, ...rest }: SectionP
   );
 }
 
+function HeadingTitle({
+  title,
+  accent,
+  breakAfter,
+}: {
+  title: string;
+  accent?: string;
+  breakAfter?: string;
+}) {
+  const head = accent && title.endsWith(accent) ? title.slice(0, -accent.length) : title;
+  const accentNode = accent && title.endsWith(accent) ? accent : null;
+  const split = breakAfter && head.startsWith(breakAfter) ? breakAfter.length : -1;
+
+  if (split < 0) {
+    return (
+      <>
+        {head}
+        {accentNode && <span className="gradient-text">{accentNode}</span>}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {head.slice(0, split)}
+      <br />
+      {head.slice(split).trimStart()}
+      {accentNode && <span className="gradient-text">{accentNode}</span>}
+    </>
+  );
+}
+
 type SectionHeadingProps = {
   eyebrow?: string;
   title: string;
+  /** Trailing words drawn in the brand gradient, as on the Skills heading. */
+  accent?: string;
+  /** Force a line break after this leading phrase. */
+  breakAfter?: string;
+  /** Keep the title on one line. */
+  nowrap?: boolean;
   /** Menu index of the section (e.g. "02") - ties the header to the nav overlay numbering. */
   number?: string;
   /** Centered variant for centered sections (Contact, Support): no fill rule. */
@@ -35,6 +73,9 @@ type SectionHeadingProps = {
 export function SectionHeading({
   eyebrow,
   title,
+  accent,
+  breakAfter,
+  nowrap,
   number,
   align = "left",
   className,
@@ -56,7 +97,18 @@ export function SectionHeading({
           {!centered && <span aria-hidden className="bg-border h-px flex-1" />}
         </p>
       )}
-      <h2 className="text-4xl font-extrabold tracking-tight text-balance md:text-5xl">{title}</h2>
+      <h2
+        className={
+          accent
+            ? cn(
+                "font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight",
+                nowrap && "whitespace-nowrap",
+              )
+            : "text-4xl font-extrabold tracking-tight text-balance md:text-5xl"
+        }
+      >
+        <HeadingTitle title={title} accent={accent} breakAfter={breakAfter} />
+      </h2>
     </div>
   );
 }

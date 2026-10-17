@@ -56,7 +56,7 @@ describe("Services", () => {
 
   it("renders section heading", () => {
     render(<Services services={mockServices} />);
-    expect(screen.getByText("What I do")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What I do" })).toBeInTheDocument();
   });
 
   it("renders the services section with correct id", () => {
@@ -66,7 +66,7 @@ describe("Services", () => {
 
   it("renders empty state gracefully", () => {
     render(<Services services={[]} />);
-    expect(screen.getByText("What I do")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "What I do" })).toBeInTheDocument();
   });
 
   it("numbers the cards in display order", () => {

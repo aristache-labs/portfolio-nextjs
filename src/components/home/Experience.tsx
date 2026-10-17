@@ -104,6 +104,8 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
             number="03"
             eyebrow="Experience"
             title="Where I've worked"
+            accent="worked"
+            nowrap
           />
           <p className="text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
             From hands-on IT support to leading global enterprise deployments, my journey is built
