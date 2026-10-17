@@ -75,7 +75,7 @@ export function Contact({
   const inFlight = useRef(false);
 
   const inputClass =
-    "mt-2 h-10 w-full rounded-lg border border-white/10 bg-black/40 px-3 text-[14px] text-white placeholder:text-white/35 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
+    "mt-2 h-10 w-full rounded-lg border border-white/10 bg-black/40 px-3 text-base text-white placeholder:text-white/35 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
   const labelClass = "block text-[13.5px] font-medium text-white/75";
 
   async function handleSubmit(event: FormEvent) {
@@ -135,8 +135,8 @@ export function Contact({
         </>
       }
     >
-      <div className="flex flex-col gap-y-12 md:flex-row md:items-start md:justify-between md:gap-x-10">
-        <div className="min-w-0 md:w-[47%] lg:w-[38%] lg:max-w-[560px]">
+      <div className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10">
+        <div className="min-w-0 lg:w-[38%] lg:max-w-[560px]">
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -175,7 +175,7 @@ export function Contact({
           </motion.p>
 
           {cards.length > 0 && (
-            <ul className="mt-9 grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
+            <ul className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2">
               {cards.map((card, index) => {
                 const Icon = card.icon;
                 return (
@@ -251,11 +251,11 @@ export function Contact({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
-          className="min-w-0 md:w-[49%] lg:w-[49%] lg:max-w-[725px] lg:pt-9"
+          className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9"
         >
           <form
             onSubmit={handleSubmit}
-            className="border-brand-mid/20 bg-background/75 mx-auto w-full max-w-[535px] rounded-3xl border p-6 shadow-[0_0_70px_-15px_rgb(var(--brand-mid-rgb)/0.4)] backdrop-blur-xl sm:p-8 md:ml-auto"
+            className="border-brand-mid/20 bg-background/75 mx-auto w-full max-w-[535px] rounded-3xl border p-6 shadow-[0_0_70px_-15px_rgb(var(--brand-mid-rgb)/0.4)] backdrop-blur-xl sm:p-8 lg:ml-auto"
           >
             <div className="flex items-center gap-3">
               <IconTile size="sm">
@@ -274,7 +274,7 @@ export function Contact({
             </p>
 
             <div className="mt-6 space-y-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 <div>
                   <label htmlFor="contact-name" className={labelClass}>
                     Your Name

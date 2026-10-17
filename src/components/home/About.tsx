@@ -52,14 +52,19 @@ function StatBar({ repos }: { repos: number }) {
           aria-hidden
           className={`${motionCss.lightning} via-brand-bright absolute top-0 left-0 h-px w-1/4 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_rgb(var(--brand-bright-rgb)/0.9)]`}
         />
-        <div className="grid grid-cols-2 gap-y-5 sm:grid-cols-4 sm:divide-x sm:divide-white/10">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10">
           {items.map(({ icon: Icon, value, label }) => (
-            <div key={label} className="flex min-w-0 items-center gap-3 px-1 sm:px-5 sm:first:pl-0">
+            <div
+              key={label}
+              className="flex min-w-0 items-center gap-3 px-1 lg:px-3 lg:first:pl-0 lg:last:pr-0"
+            >
               <IconTile size="md">
                 <Icon className="size-5" {...ICON_PROPS} />
               </IconTile>
               <span className="min-w-0">
-                <span className="font-display block text-xl leading-tight font-bold text-white sm:text-2xl">
+                <span
+                  className={`font-display block leading-tight text-white ${value === "Web & Mobile" || value === "Windows & Linux" ? "text-base font-semibold xl:text-lg" : "text-xl font-bold sm:text-2xl"}`}
+                >
                   {value}
                 </span>
                 <span className="block text-xs break-words text-white/50">{label}</span>
@@ -105,7 +110,7 @@ export function About({ profile }: { profile: AboutProfile }) {
           </div>
         </Reveal>
 
-        <div className="flex flex-col-reverse gap-6 md:flex-row md:gap-12">
+        <div className="flex flex-col-reverse gap-6 lg:flex-row lg:gap-12">
           <Reveal delay={0.08} className="min-w-0 flex-1">
             <div className="space-y-4">
               {profile.bio
@@ -126,7 +131,7 @@ export function About({ profile }: { profile: AboutProfile }) {
                 ))}
             </div>
 
-            <div className="mt-9 grid gap-3 sm:max-w-[calc(100%-3.5rem)] sm:grid-cols-3">
+            <div className="mt-9 grid gap-3 sm:grid-cols-3">
               {BADGES.map(({ icon: Icon, value, label }) => (
                 <div key={label} className={`${GLASS} rounded-2xl px-4 py-3.5`}>
                   <IconTile size="md">
@@ -140,7 +145,7 @@ export function About({ profile }: { profile: AboutProfile }) {
           </Reveal>
 
           {profile.avatarUrl && (
-            <Reveal delay={0.14} className="mx-auto shrink-0 md:mx-0">
+            <Reveal delay={0.14} className="mx-auto max-w-full shrink-0 lg:mx-0">
               <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? "Cristache Adrian"} />
             </Reveal>
           )}

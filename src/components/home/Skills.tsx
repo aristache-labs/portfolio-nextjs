@@ -249,17 +249,17 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 className={`${motionCss.lightning} via-brand-bright absolute top-0 left-0 h-px w-1/4 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_rgb(var(--brand-bright-rgb)/0.9)]`}
               />
 
-              <span className="grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-4">
+              <span className="grid grid-cols-2 gap-x-4 gap-y-4 2xl:grid-cols-4">
                 {stats.map((stat, index) => (
                   <span
                     key={stat.label}
-                    className={`flex min-w-0 items-center gap-3 ${index !== 0 ? "lg:border-l lg:border-white/10 lg:pl-5" : ""}`}
+                    className={`flex min-w-0 items-center gap-3 ${index !== 0 ? "2xl:border-l 2xl:border-white/10 2xl:pl-4" : ""}`}
                   >
                     <IconTile size="sm">
                       <stat.icon className="size-[18px]" {...ICON_PROPS} />
                     </IconTile>
                     <span className="min-w-0">
-                      <span className="font-display block text-lg leading-tight font-bold">
+                      <span className="font-display block text-base leading-tight font-semibold">
                         {stat.value}
                       </span>
                       <span className="text-foreground/50 block text-[11px] break-words">

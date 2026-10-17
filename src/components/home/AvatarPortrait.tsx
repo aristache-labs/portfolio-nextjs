@@ -21,7 +21,7 @@ export function AvatarPortrait({ src, name }: { src: string; name: string }) {
 
   return (
     <>
-      <div className="group relative flex w-72 sm:w-80 lg:w-96">
+      <div className="group relative flex w-72 max-w-full sm:w-80 lg:w-96">
         <div
           aria-hidden
           className={`absolute -inset-4 bg-(image:--gradient-brand) opacity-30 blur-2xl transition-opacity duration-500 group-hover:opacity-55 ${HALO}`}

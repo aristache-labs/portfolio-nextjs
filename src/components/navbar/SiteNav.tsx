@@ -85,7 +85,7 @@ export function SiteNav({
         aria-label="Primary"
         className="site-container flex h-[72px] items-center justify-between"
       >
-        <a href="#hero" aria-label="Home" className="flex items-center gap-2.5">
+        <a href="#hero" aria-label="Home" className="flex min-w-0 items-center gap-2.5">
           <Logo />
           <Image
             src={WORDMARK.src}
@@ -94,11 +94,11 @@ export function SiteNav({
             height={WORDMARK.height}
             priority
             unoptimized
-            className="h-10 w-auto"
+            className="h-auto w-[min(42vw,14rem)]"
           />
         </a>
 
-        <ul className="hidden items-center gap-8 lg:flex">
+        <ul className="hidden items-center gap-8 xl:flex">
           {visibleSections.map((section) => {
             const isActive = section.id === active;
             return (
@@ -131,7 +131,7 @@ export function SiteNav({
           <a
             href={navCta.href}
             {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none lg:inline-flex"
+            className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
           >
             {navCta.external && <Heart className="text-brand-bright size-3.5" aria-hidden />}
             {navCta.label}
@@ -146,7 +146,7 @@ export function SiteNav({
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
-          className="border-border bg-background/40 text-foreground flex size-11 items-center justify-center rounded-xl border backdrop-blur-md lg:hidden"
+          className="border-border bg-background/40 text-foreground flex size-11 shrink-0 items-center justify-center rounded-xl border backdrop-blur-md xl:hidden"
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
@@ -159,7 +159,7 @@ export function SiteNav({
             animate={{ height: "auto", opacity: 1 }}
             exit={reduce ? undefined : { height: 0, opacity: 0 }}
             transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
-            className="border-border bg-background/80 overflow-hidden border-t backdrop-blur-xl lg:hidden"
+            className="border-border bg-background/80 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden"
           >
             <ul className="site-container space-y-1 py-4">
               {visibleSections.map((section) => (
