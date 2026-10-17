@@ -50,8 +50,8 @@ export function SectionBackdrop({
   const scrimClass =
     scrim ??
     (screen
-      ? "bg-background/70 absolute inset-0 md:bg-background/70"
-      : "bg-background/60 absolute inset-0");
+      ? "bg-background/90 absolute inset-0 md:bg-background/70"
+      : "bg-background/70 absolute inset-0");
 
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
