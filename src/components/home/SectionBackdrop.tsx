@@ -52,12 +52,14 @@ const PLAY_MARGIN = "600px 0px";
 export function SectionBackdrop({
   video,
   poster,
+  fetchPriority,
   frame = "fill",
   scrim,
   focus = "center",
 }: {
   video?: string;
   poster?: string;
+  fetchPriority?: "high" | "low" | "auto";
   frame?: "fill" | "screen";
   /** Overlay tint. Defaults stay with each frame. */
   scrim?: string;
@@ -142,6 +144,7 @@ export function SectionBackdrop({
             src={poster}
             alt=""
             loading="lazy"
+            fetchPriority={fetchPriority}
             decoding="async"
             onError={() => setPosterOk(false)}
             className={showVideo && ready ? `${still} hidden` : still}

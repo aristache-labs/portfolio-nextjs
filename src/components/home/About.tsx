@@ -84,7 +84,11 @@ export function About({ profile }: { profile: AboutProfile }) {
       className="scroll-mt-24 pt-12 pb-6 md:pt-28 md:pb-8"
       backdrop={
         <>
-          <SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" />
+          <SectionBackdrop
+            video="/media/about.mp4"
+            poster="/media/about.webp"
+            fetchPriority="low"
+          />
           <div
             aria-hidden
             className="bg-background/70 md:bg-background/50 pointer-events-none absolute inset-0 z-[1]"
