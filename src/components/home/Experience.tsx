@@ -13,34 +13,37 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
   const reduce = useReducedMotion();
 
   const inner = (
-    <div className="flex gap-6">
+    <div className="flex gap-4 sm:gap-5">
       {/* Rail dot (the connector line is drawn once for the whole list) */}
-      <div className="relative flex w-3 justify-center">
-        <span className="bg-background z-10 mt-1 size-3 shrink-0 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/10" />
+      <div className="relative flex w-3 shrink-0 justify-center">
+        <span className="bg-background z-10 mt-[18px] size-3 shrink-0 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15" />
       </div>
 
       {/* Card content */}
-      <div className={cn("pb-10", last && "pb-0")}>
-        <div className="bg-background/45 rounded-2xl border border-(--brand-mid)/20 px-4 py-4 backdrop-blur-md">
-          <p className="font-mono text-xs tracking-widest text-(--period) uppercase">
+      <div className={cn("min-w-0 flex-1 pb-6 sm:pb-8", last && "pb-0")}>
+        <div className="bg-background/70 w-full rounded-2xl border border-(--brand-mid)/25 px-4 py-4 backdrop-blur-sm sm:px-5">
+          <p className="font-mono text-xs leading-none tracking-[0.18em] text-(--period) uppercase">
             {exp.period}
           </p>
-          <h3 className="mt-1 text-xl font-bold">{exp.role}</h3>
-          <div className="text-muted mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm">
+          <h3 className="mt-1.5 text-lg leading-snug font-bold sm:text-xl">{exp.role}</h3>
+          <div className="text-muted mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm leading-snug">
             <span>{exp.org}</span>
             {exp.location && (
               <span className="flex items-center gap-1">
-                <MapPin className="size-3" aria-hidden />
+                <MapPin className="size-3 shrink-0" aria-hidden />
                 {exp.location}
               </span>
             )}
           </div>
           {exp.description.length > 0 && (
-            <ul className="mt-3 space-y-1.5">
+            <ul className="mt-3.5 space-y-2">
               {exp.description.map((d, i) => (
-                <li key={`${exp.id}-bullet-${i}`} className="text-muted flex gap-2 text-sm">
-                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-(image:--gradient-brand)" />
-                  <span>{d}</span>
+                <li
+                  key={`${exp.id}-bullet-${i}`}
+                  className="text-muted flex gap-2.5 text-sm leading-relaxed"
+                >
+                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-(image:--gradient-brand)" />
+                  <span className="min-w-0 break-words">{d}</span>
                 </li>
               ))}
             </ul>
@@ -82,7 +85,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
   return (
     <Section
       id="experience"
-      className="scroll-mt-24 pt-4 md:pt-28"
+      className="scroll-mt-24 overflow-clip pt-2 md:pt-28"
       backdrop={
         <SectionBackdrop
           video="/media/experience.mp4"
@@ -94,10 +97,15 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
       {/* Two columns on lg+: sticky intro on the left, timeline on the right,
           both inside the shared page width so the block does not drift left
           on a wide monitor. Stacks to one column below lg. */}
-      <div className="grid w-full gap-10 lg:grid-cols-2 lg:gap-16">
-        <div className="lg:sticky lg:top-8 lg:self-start">
-          <SectionHeading number="03" eyebrow="Experience" title="Where I've worked" />
-          <p className="text-muted text-base leading-relaxed text-white/80 sm:text-lg lg:-mt-6">
+      <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14">
+        <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start">
+          <SectionHeading
+            className="mb-5"
+            number="03"
+            eyebrow="Experience"
+            title="Where I've worked"
+          />
+          <p className="text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
             From hands-on IT support to leading global enterprise deployments, my journey is built
             on solving complex challenges, automating workflows, and delivering reliable technology
             solutions.
@@ -109,11 +117,11 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
               Sits under the entry dots (which are z-10). */}
           {sorted.length > 1 && (
             <>
-              <span aria-hidden className="bg-border absolute top-2 bottom-8 left-[5.5px] w-px" />
+              <span aria-hidden className="bg-border absolute top-6 bottom-6 left-[5.5px] w-px" />
               <motion.span
                 aria-hidden
                 style={reduce ? { transform: "scaleY(1)" } : { scaleY }}
-                className="absolute top-2 bottom-8 left-[5.5px] w-px origin-top bg-(image:--gradient-brand)"
+                className="absolute top-6 bottom-6 left-[5.5px] w-px origin-top bg-(image:--gradient-brand)"
               />
             </>
           )}
