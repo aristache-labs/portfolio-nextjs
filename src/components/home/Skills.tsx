@@ -97,7 +97,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
   return (
     <section id="skills" className="relative z-10 scroll-mt-20 overflow-x-clip overflow-y-visible">
       <SectionBackdrop frame="screen" video="/media/skills.mp4" poster="/media/skills.webp" />
-      <div className="relative z-10 mx-auto max-w-7xl px-5 pt-6 pb-10 sm:px-8 md:pt-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 pt-6 pb-8 sm:px-8 md:pt-8">
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
           <div className="min-w-0 text-center">

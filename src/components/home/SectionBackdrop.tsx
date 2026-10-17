@@ -14,10 +14,13 @@ export function SectionBackdrop({
   video,
   poster,
   frame = "fill",
+  scrim,
 }: {
   video?: string;
   poster?: string;
   frame?: "fill" | "screen";
+  /** Overlay tint. Defaults stay with each frame. */
+  scrim?: string;
 }) {
   const reduce = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -36,12 +39,15 @@ export function SectionBackdrop({
   // Skills pins the loop to one viewport and scales it down from the left
   // so the planet stays small and clear of the cards. object-cover on the
   // full section height is what zooms it.
-  const media = screen
-    ? "absolute inset-0 hidden h-full w-full  object-cover object-center md:block"
-    : "hidden h-full w-full object-cover md:block";
+  const media = "absolute inset-0 hidden h-full w-full object-cover object-center md:block";
   const still = screen
     ? "absolute inset-20 h-full w-full object-cover object-center md:origin-[22%_46%] md:scale-[0.58]"
-    : "h-full w-full object-cover";
+    : "absolute inset-0 h-full w-full object-cover object-center";
+  const scrimClass =
+    scrim ??
+    (screen
+      ? "bg-background/80 absolute inset-0 md:bg-background/70"
+      : "bg-background/60 absolute inset-0");
 
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
@@ -75,13 +81,7 @@ export function SectionBackdrop({
             className={showVideo ? `${still} md:hidden` : still}
           />
         )}
-        <div
-          className={
-            screen
-              ? "bg-background/80 absolute inset-0 md:bg-background/55"
-              : "bg-background/60 absolute inset-0"
-          }
-        />
+        <div className={scrimClass} />
         {screen && (
           <div className="to-background/40 absolute inset-0 bg-gradient-to-r from-transparent via-transparent" />
         )}

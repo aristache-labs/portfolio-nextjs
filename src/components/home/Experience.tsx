@@ -5,6 +5,7 @@ import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Section, SectionHeading } from "@/components/ui/Section";
+import { SectionBackdrop } from "./SectionBackdrop";
 import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
 
@@ -79,16 +80,27 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
   const scaleY = useTransform(fill, [0, 1], [0, 1]);
 
   return (
-    <Section id="experience" className="scroll-mt-24">
+    <Section
+      id="experience"
+      className="scroll-mt-24 pt-4 md:pt-28"
+      backdrop={
+        <SectionBackdrop
+          video="/media/experience.mp4"
+          poster="/media/experience.webp"
+          scrim="bg-background/80 absolute inset-0 md:bg-background/70"
+        />
+      }
+    >
       {/* Two columns on lg+: sticky intro on the left, timeline on the right,
           both inside the shared page width so the block does not drift left
           on a wide monitor. Stacks to one column below lg. */}
       <div className="grid w-full gap-10 lg:grid-cols-2 lg:gap-16">
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          <SectionHeading number="04" eyebrow="Experience" title="Where I've worked" />
-          <p className="text-muted -mt-6 max-w-sm text-base leading-relaxed">
-            A track record of shipping across startups and open source - each role a step in
-            building faster, more reliable products.
+        <div className="lg:sticky lg:top-8 lg:self-start">
+          <SectionHeading number="03" eyebrow="Experience" title="Where I've worked" />
+          <p className="text-muted text-base leading-relaxed text-white/80 sm:text-lg lg:-mt-6">
+            From hands-on IT support to leading global enterprise deployments, my journey is built
+            on solving complex challenges, automating workflows, and delivering reliable technology
+            solutions.
           </p>
         </div>
 
