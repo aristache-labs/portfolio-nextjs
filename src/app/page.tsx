@@ -35,6 +35,8 @@ const caveat = Caveat({
   weight: ["600"],
   variable: "--font-hand",
   display: "swap",
+  // Only the Contact quote and skills motion use it, both below the fold.
+  preload: false,
 });
 
 // Below-the-fold sections: lazy-loaded to keep the hero bundle lean.

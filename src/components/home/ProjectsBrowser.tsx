@@ -100,11 +100,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
               <div className={TRACK}>
                 {recent.map((p, i) => (
                   <Reveal key={p.id} delay={0.1 + i * 0.05} className="flex lg:flex-1">
-                    <RecentCard
-                      project={p}
-                      onQuickView={() => setQuickView(p)}
-                      priority={i === 0}
-                    />
+                    <RecentCard project={p} onQuickView={() => setQuickView(p)} />
                   </Reveal>
                 ))}
               </div>
