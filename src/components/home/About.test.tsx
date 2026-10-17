@@ -29,20 +29,16 @@ describe("About", () => {
     render(<About profile={mockProfile} />);
     expect(screen.getByText("Years of experience")).toBeInTheDocument();
     expect(screen.getByText("Public repos")).toBeInTheDocument();
-    expect(screen.getByText("GitHub stars")).toBeInTheDocument();
-    expect(screen.getByText("GitHub followers")).toBeInTheDocument();
+    expect(screen.getByText("Applications")).toBeInTheDocument();
+    expect(screen.getByText("Systems")).toBeInTheDocument();
+    expect(screen.queryByText("GitHub stars")).not.toBeInTheDocument();
+    expect(screen.queryByText("GitHub followers")).not.toBeInTheDocument();
   });
 
-  it("renders stat values with + suffix for values >= 100", () => {
+  it("renders the experience figure and a + suffix for 100 or more repos", () => {
     render(<About profile={mockProfile} />);
-    // years = 4 → no suffix
-    expect(screen.getByText("4")).toBeInTheDocument();
-    // repos = 120 → "120+"
+    expect(screen.getByText("8+")).toBeInTheDocument();
     expect(screen.getByText("120+")).toBeInTheDocument();
-    // stars = 250 → "250+"
-    expect(screen.getByText("250+")).toBeInTheDocument();
-    // followers = 87 → no suffix (< 100)
-    expect(screen.getByText("87")).toBeInTheDocument();
   });
 
   it("renders the section with correct id", () => {
@@ -52,7 +48,9 @@ describe("About", () => {
 
   it("renders the section heading", () => {
     render(<About profile={mockProfile} />);
-    expect(screen.getByText("Behind Aristache")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 2, name: /the mind behind the code/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders the eyebrow label", () => {

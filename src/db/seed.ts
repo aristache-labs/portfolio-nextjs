@@ -25,8 +25,8 @@ const seededAvatarUrl = "/images/aristache.png";
 
 const profileRow = {
   name: "Cristache Adrian",
-  bio: "Cristache Adrian is an IT technician focused on Windows systems, troubleshooting, and software support. He builds mobile apps with React Native and Expo, and web apps with Next.js and React, using Firebase, Supabase, APIs, and cloud services.\n\nHe is interested in automation, scripting, infrastructure, and developer tooling, and treats debugging like detective work.",
-  stats: { years: 4, repos: 6, stars: 0, followers: 0 },
+  bio: "I'm Adrian, a Technical Team Lead and software developer with over 8 years of experience in IT infrastructure, system administration, and automation. I lead enterprise deployments, build reliable systems, and turn complex technical challenges into practical solutions.\n\nBeyond infrastructure, I create modern web and mobile applications, combining engineering, creativity, and a constant drive to learn and improve.",
+  stats: { years: 8, repos: 6, stars: 0, followers: 0 },
   roles: ["IT Technician", "Mobile Developer", "Web Developer"],
   // Resume URL lives in the DB only — set it via the admin panel.
   resumeUrl: null,

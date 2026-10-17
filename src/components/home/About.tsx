@@ -1,10 +1,17 @@
+import {
+  CalendarDays,
+  FolderGit2,
+  Layers,
+  MapPin,
+  Rocket,
+  Server,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
 import { AvatarPortrait } from "./AvatarPortrait";
-import { Section, SectionHeading } from "@/components/ui/Section";
-import { Card } from "@/components/ui/Card";
-import { AnimatedStat } from "./AnimatedStat";
+import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
-import { cn } from "@/utils/cn";
 
 export type AboutProfile = {
   bio: string;
@@ -13,32 +20,47 @@ export type AboutProfile = {
   avatarUrl?: string;
 };
 
-type StatGridProps = {
-  stats: AboutProfile["stats"];
-  className?: string;
-};
+const GLASS =
+  "border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] backdrop-blur-[18px]";
 
-function StatGrid({ stats, className }: StatGridProps) {
-  const items: { value: number; label: string }[] = [
-    { value: stats.years, label: "Years of experience" },
-    { value: stats.repos, label: "Public repos" },
-    { value: stats.stars, label: "GitHub stars" },
-    { value: stats.followers, label: "GitHub followers" },
+const BADGES: { icon: LucideIcon; value: string; label: string }[] = [
+  { icon: MapPin, value: "Romania", label: "Based in" },
+  { icon: Rocket, value: "Aristache Labs", label: "Personal Projects" },
+  { icon: Sparkles, value: "Solve. Build. Improve.", label: "My Philosophy" },
+];
+
+function StatBar({ repos }: { repos: number }) {
+  const items: { icon: LucideIcon; value: string; label: string }[] = [
+    { icon: CalendarDays, value: "8+", label: "Years of experience" },
+    {
+      icon: FolderGit2,
+      value: repos >= 100 ? `${repos}+` : String(repos),
+      label: "Public repos",
+    },
+    { icon: Layers, value: "Web & Mobile", label: "Applications" },
+    { icon: Server, value: "Windows & Linux", label: "Systems" },
   ];
 
   return (
-    // 2x2 on mobile, 4-across from md up. divide-y separates the mobile rows;
-    // the vertical dividers only apply once the grid is a single row (md).
-    <Card
-      className={cn(
-        "divide-border bg-background/45 mt-12 grid grid-cols-2 divide-x divide-y border-(--brand-mid)/20 p-0 backdrop-blur-md md:grid-cols-4 md:divide-y-0",
-        className,
-      )}
+    <div
+      className={`${GLASS} mt-14 rounded-2xl px-5 py-4 shadow-[0_24px_70px_rgb(0_0_0/0.45)] sm:px-6`}
     >
-      {items.map(({ value, label }, i) => (
-        <AnimatedStat key={label} value={value} label={label} delay={0.1 + i * 0.08} />
-      ))}
-    </Card>
+      <div className="grid grid-cols-2 gap-y-5 sm:grid-cols-4 sm:divide-x sm:divide-white/10">
+        {items.map(({ icon: Icon, value, label }) => (
+          <div key={label} className="flex min-w-0 items-center gap-3 px-1 sm:px-5 sm:first:pl-0">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/85">
+              <Icon className="size-[18px]" aria-hidden />
+            </span>
+            <span className="min-w-0">
+              <span className="font-display block text-xl leading-tight font-bold text-white sm:text-2xl">
+                {value}
+              </span>
+              <span className="block text-xs break-words text-white/50">{label}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -47,16 +69,37 @@ export function About({ profile }: { profile: AboutProfile }) {
     <Section
       id="about"
       className="scroll-mt-24"
-      backdrop={<SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" />}
+      backdrop={
+        <>
+          <SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" />
+          <div
+            aria-hidden
+            className="bg-background/20 pointer-events-none absolute inset-0 z-[1]"
+          />
+        </>
+      }
     >
       <div>
         <Reveal>
-          <SectionHeading number="02" eyebrow="About" title="Behind Aristache" />
+          <div className="mb-8">
+            <p className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase">
+              <span>
+                <span className="gradient-text mr-3 font-semibold">01</span>
+                About
+              </span>
+              <span aria-hidden className="bg-border h-px flex-1" />
+            </p>
+            <h2 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
+              The <span className="gradient-text">Mind</span>
+              <br />
+              Behind the <span className="gradient-text">Code.</span>
+            </h2>
+          </div>
         </Reveal>
 
-        <div className="flex flex-col-reverse items-start gap-10 md:flex-row md:gap-14">
+        <div className="flex flex-col-reverse gap-6 md:flex-row md:gap-12">
           <Reveal delay={0.08} className="min-w-0 flex-1">
-            <div className="max-w-2xl space-y-4">
+            <div className="space-y-4">
               {profile.bio
                 .split(/\n\s*\n/)
                 .map((para) => para.trim())
@@ -66,13 +109,25 @@ export function About({ profile }: { profile: AboutProfile }) {
                     key={`bio-${i}`}
                     className={
                       i === 0
-                        ? "text-foreground/90 text-xl leading-relaxed font-medium sm:text-2xl"
-                        : "text-muted text-base leading-relaxed sm:text-lg"
+                        ? "text-base leading-relaxed text-white/100 sm:text-lg"
+                        : "text-muted text-base leading-relaxed text-white/60 sm:text-lg"
                     }
                   >
                     {para}
                   </p>
                 ))}
+            </div>
+
+            <div className="mt-9 grid gap-3 sm:grid-cols-3">
+              {BADGES.map(({ icon: Icon, value, label }) => (
+                <div key={label} className={`${GLASS} rounded-2xl px-4 py-3.5`}>
+                  <span className="flex size-9 items-center justify-center rounded-xl bg-white/10 text-white/85">
+                    <Icon className="size-[18px]" aria-hidden />
+                  </span>
+                  <p className="mt-3 text-[15px] leading-tight font-bold text-white">{value}</p>
+                  <p className="mt-1 text-xs leading-snug text-white/50">{label}</p>
+                </div>
+              ))}
             </div>
           </Reveal>
 
@@ -83,7 +138,7 @@ export function About({ profile }: { profile: AboutProfile }) {
           )}
         </div>
 
-        <StatGrid stats={profile.stats} />
+        <StatBar repos={profile.stats.repos} />
       </div>
     </Section>
   );
