@@ -1,30 +1,54 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { installMatchMedia } from "@/test/matchMedia";
 import { Skills } from "./Skills";
 
-// Mock framer-motion to avoid jsdom animation issues
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-      <div className={className} {...props}>
-        {children}
-      </div>
-    ),
-    li: ({ children, className, ...props }: React.HTMLAttributes<HTMLLIElement>) => (
-      <li className={className} {...props}>
-        {children}
-      </li>
-    ),
-  },
-}));
+vi.mock("framer-motion", () => {
+  const motion = new Proxy(
+    {},
+    {
+      get: (_target, tag: string) => {
+        const Comp = ({
+          children,
+          className,
+          role,
+          onClick,
+          href,
+          type,
+          "aria-selected": ariaSelected,
+        }: {
+          children?: React.ReactNode;
+          className?: string;
+          role?: string;
+          onClick?: () => void;
+          href?: string;
+          type?: "button" | "submit" | "reset";
+          "aria-selected"?: boolean;
+        }) => {
+          const El = tag as "div";
+          return (
+            <El
+              className={className}
+              role={role}
+              onClick={onClick}
+              href={href}
+              type={type}
+              aria-selected={ariaSelected}
+            >
+              {children}
+            </El>
+          );
+        };
+        return Comp;
+      },
+    },
+  );
+  return {
+    motion,
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  };
+});
 
-// Mock Reveal to render children directly
-vi.mock("@/components/motion/Reveal", () => ({
-  Reveal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
-// Mock next/image to a simple img
 vi.mock("next/image", () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
     // eslint-disable-next-line @next/next/no-img-element
@@ -33,7 +57,7 @@ vi.mock("next/image", () => ({
 }));
 
 const mockSkills = [
-  { name: "React", iconPath: "/skills/react.svg", category: "Frontend", order: 1 },
+  { name: "React", iconPath: "/skills/react.svg", category: "Frontend", order: 1, level: "Expert" },
   { name: "TypeScript", iconPath: "/skills/typescript.svg", category: "Frontend", order: 2 },
   { name: "Node.js", iconPath: "/skills/nodejs.svg", category: "Backend", order: 3 },
   { name: "PostgreSQL", iconPath: "/skills/postgresql.svg", category: "Backend", order: 4 },
@@ -50,25 +74,54 @@ describe("Skills", () => {
     expect(screen.getByText("PostgreSQL")).toBeInTheDocument();
   });
 
-  it("renders category headings", () => {
+  it("renders category filters from the skill list", () => {
     render(<Skills skills={mockSkills} />);
-    expect(screen.getByText("Frontend")).toBeInTheDocument();
-    expect(screen.getByText("Backend")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Frontend" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Backend" })).toBeInTheDocument();
   });
 
   it("renders section heading", () => {
     render(<Skills skills={mockSkills} />);
-    expect(screen.getByText("Tools I work with")).toBeInTheDocument();
+    expect(screen.getByText("Skills that build")).toBeInTheDocument();
+    expect(screen.getByText("possibilities")).toBeInTheDocument();
+  });
+
+  it("shows the level as a percent", () => {
+    render(<Skills skills={mockSkills} />);
+    expect(screen.getByText("90%")).toBeInTheDocument();
+  });
+
+  it("filters to the selected category", () => {
+    render(<Skills skills={mockSkills} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Backend" }));
+    expect(screen.queryByText("React")).not.toBeInTheDocument();
+    expect(screen.getByText("Node.js")).toBeInTheDocument();
+    expect(screen.getByText("PostgreSQL")).toBeInTheDocument();
+  });
+
+  it("shows eight skills on All and the rest inside a category", () => {
+    const many = Array.from({ length: 9 }, (_, i) => ({
+      name: `Skill ${i}`,
+      iconPath: "/skills/x.svg",
+      category: i === 8 ? "Extra" : "Frontend",
+      order: i,
+    }));
+    render(<Skills skills={many} />);
+    expect(
+      screen.getByText("Showing 8 of 9 - select a category to explore everything."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Skill 8")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Extra" }));
+    expect(screen.getByText("Skill 8")).toBeInTheDocument();
   });
 
   it("renders the skills section with correct id", () => {
     const { container } = render(<Skills skills={mockSkills} />);
-    const section = container.querySelector("#skills");
-    expect(section).toBeTruthy();
+    expect(container.querySelector("#skills")).toBeTruthy();
   });
 
   it("renders an empty state gracefully", () => {
     render(<Skills skills={[]} />);
-    expect(screen.getByText("Tools I work with")).toBeInTheDocument();
+    expect(screen.getByText("Skills that build")).toBeInTheDocument();
   });
 });

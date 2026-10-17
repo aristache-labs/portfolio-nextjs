@@ -66,7 +66,7 @@ export const skills = pgTable("skills", {
   name: text("name").notNull(),
   iconPath: text("icon_path").notNull(),
   category: text("category").notNull(),
-  level: text("level"), // "Expert" | "Intermediate" | "Beginner"
+  level: text("level"), // percent "0"-"100", or a legacy Expert | Intermediate | Beginner label
   order: integer("order").notNull().default(0),
 });
 

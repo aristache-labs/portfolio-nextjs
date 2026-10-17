@@ -4,41 +4,92 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { cn } from "@/utils/cn";
 
-// Icons that are white/monochrome glyphs — invisible on the light-theme
-// surface. Invert them in light mode so they read as dark.
 const INVERT_IN_LIGHT = /nextjs|next-js|next\.|vercel|express|flask|github|apple/i;
 
-export function SkillCard({ name, iconPath }: { name: string; iconPath: string }) {
+const LEVEL_PERCENT: Record<string, number> = {
+  Expert: 90,
+  Intermediate: 75,
+  Beginner: 55,
+};
+
+/** Old rows stored /skills/brand/*.svg. Files now live in /skills/. */
+export function skillIconSrc(iconPath: string) {
+  return iconPath.replace("/skills/brand/", "/skills/");
+}
+
+export function skillPercent(level?: string | null): number | null {
+  if (!level) return null;
+  if (level in LEVEL_PERCENT) return LEVEL_PERCENT[level];
+  const numeric = Number(level);
+  if (Number.isFinite(numeric) && numeric >= 0 && numeric <= 100) return numeric;
+  return null;
+}
+
+export function SkillCard({
+  name,
+  iconPath,
+  category,
+  level,
+  index,
+}: {
+  name: string;
+  iconPath: string;
+  category: string;
+  level?: string | null;
+  index: number;
+}) {
+  const src = skillIconSrc(iconPath);
+  const percent = skillPercent(level);
   const invertLight =
-    !iconPath.includes("/skills/brand/") &&
-    (INVERT_IN_LIGHT.test(iconPath) || INVERT_IN_LIGHT.test(name));
+    !src.includes("/skills/") && (INVERT_IN_LIGHT.test(src) || INVERT_IN_LIGHT.test(name));
+
   return (
-    <motion.li
-      whileHover={{ y: -2 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="border-border bg-surface hover:border-foreground/20 hover:bg-surface-2 flex h-full flex-col items-center justify-center gap-2 rounded-xl border px-2 py-3 transition motion-reduce:transform-none motion-reduce:transition-none"
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.5, delay: (index % 8) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4 }}
+      className="group bg-background/70 hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/10 p-4 backdrop-blur-xl transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)]"
     >
-      <span className="bg-surface-2 relative flex size-10 items-center justify-center rounded-lg p-1.5">
+      <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
         <Image
-          src={iconPath}
+          src={src}
           alt=""
           fill
-          sizes="40px"
-          // unoptimized: icons are tiny (no optimizer gain) and this serves
-          // static paths, remote raster, and remote/uploaded SVG uniformly
-          // without the next/image SVG restriction.
+          sizes="36px"
           unoptimized
-          className={cn(
-            "object-contain",
-            // Light theme: invert white glyphs to dark; dark theme leaves them.
-            invertLight && "invert dark:invert-0",
-          )}
-          onError={() => {}}
+          className={cn("object-contain", invertLight && "invert dark:invert-0")}
         />
       </span>
-      <span className="text-foreground/80 text-center text-xs leading-snug font-medium">
-        {name}
+
+      <span className="mt-3 flex items-start justify-between gap-2">
+        <span
+          title={name}
+          className="text-foreground min-w-0 flex-1 text-[13px] leading-snug font-semibold [overflow-wrap:anywhere]"
+        >
+          {name}
+        </span>
+        {percent != null && (
+          <span className="text-foreground/60 shrink-0 font-mono text-xs">{percent}%</span>
+        )}
       </span>
-    </motion.li>
+
+      {percent != null && (
+        <span className="mt-2 block h-1 w-full overflow-hidden rounded-full bg-white/10">
+          <motion.span
+            initial={{ width: 0 }}
+            whileInView={{ width: `${percent}%` }}
+            viewport={{ once: true, margin: "-30px" }}
+            transition={{ duration: 1, delay: 0.2 + (index % 8) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+            className="block h-full rounded-full bg-(image:--gradient-brand) shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.6)]"
+          />
+        </span>
+      )}
+
+      <span className="text-foreground/60 mt-2 block text-[11px]">{category}</span>
+    </motion.div>
   );
 }

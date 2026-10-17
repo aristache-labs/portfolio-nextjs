@@ -70,9 +70,10 @@ function FieldControl({ field, record }: { field: AdminField; record?: Record<st
     return <CheckboxField name={field.name} label={field.label} defaultChecked={Boolean(raw)} />;
   }
   if (field.type === "select") {
+    const selected = raw == null || raw === "" ? (field.options[0]?.value ?? "") : String(raw);
     return (
       <Field label={field.label} hint={field.hint}>
-        <Select name={field.name} defaultValue={raw == null ? "" : String(raw)}>
+        <Select name={field.name} defaultValue={selected}>
           {field.options.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}

@@ -1,0 +1,114 @@
+.float {
+  animation: skills-float 6s ease-in-out infinite;
+}
+
+.glow {
+  animation: skills-glow 4s ease-in-out infinite;
+}
+
+.lightning {
+  animation: skills-lightning 3.2s ease-in-out infinite;
+}
+
+.spark {
+  animation: skills-spark 2.6s ease-in-out infinite;
+}
+
+.hand {
+  font-family: var(--font-hand), cursive;
+  animation:
+    skills-flicker 4.5s ease-in-out infinite,
+    skills-hand 5s ease-in-out infinite;
+}
+
+@keyframes skills-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes skills-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes skills-hand {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(-2deg);
+  }
+}
+
+@keyframes skills-flicker {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow:
+      0 0 12px rgb(var(--brand-mid-rgb) / 0.8),
+      0 0 32px rgb(var(--brand-mid-rgb) / 0.45);
+  }
+  45% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.82;
+    text-shadow:
+      0 0 6px rgb(var(--brand-mid-rgb) / 0.6),
+      0 0 18px rgb(var(--brand-mid-rgb) / 0.3);
+  }
+  55% {
+    opacity: 1;
+  }
+}
+
+@keyframes skills-lightning {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(320%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(320%);
+    opacity: 0;
+  }
+}
+
+@keyframes skills-spark {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float,
+  .glow,
+  .lightning,
+  .spark,
+  .hand {
+    animation: none;
+  }
+}

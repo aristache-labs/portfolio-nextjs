@@ -1,5 +1,5 @@
 import nextDynamic from "next/dynamic";
-import { Inter, Sora } from "next/font/google";
+import { Caveat, Inter, Sora } from "next/font/google";
 import {
   getProfile,
   getProjectsMerged,
@@ -27,6 +27,13 @@ const sora = Sora({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   variable: "--font-sora",
+  display: "swap",
+});
+
+const caveat = Caveat({
+  subsets: ["latin"],
+  weight: ["600"],
+  variable: "--font-hand",
   display: "swap",
 });
 
@@ -78,7 +85,7 @@ export default async function Home() {
   return (
     <div
       data-site="cinematic"
-      className={`${inter.variable} ${sora.variable} dark bg-background text-foreground relative min-h-screen`}
+      className={`${inter.variable} ${sora.variable} ${caveat.variable} dark bg-background text-foreground relative min-h-screen`}
     >
       <SiteNav
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}

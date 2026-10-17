@@ -12,9 +12,13 @@ const fields: AdminField[] = [
   {
     name: "category",
     label: "Category",
-    type: "text",
-    placeholder: "Frontend Development",
-    required: true,
+    type: "select",
+    options: [
+      { value: "Development", label: "Development" },
+      { value: "Infrastructure", label: "Infrastructure" },
+      { value: "Automation", label: "Automation" },
+      { value: "Data & Cloud", label: "Data & Cloud" },
+    ],
   },
   {
     name: "iconPath",
@@ -26,22 +30,23 @@ const fields: AdminField[] = [
   },
   {
     name: "level",
-    label: "Level",
-    type: "select",
-    options: [
-      { value: "", label: "No level" },
-      { value: "Expert", label: "Expert" },
-      { value: "Intermediate", label: "Intermediate" },
-      { value: "Beginner", label: "Beginner" },
-    ],
+    label: "Level %",
+    type: "number",
+    placeholder: "90",
+    hint: "Fills the card bar. Use a whole number from 0 to 100.",
   },
   { name: "order", label: "Order", type: "number" },
 ];
 
 function parse(formData: FormData) {
-  const raw = formData.get("level") as string;
-  const level: "Expert" | "Intermediate" | "Beginner" | null =
-    raw === "Expert" || raw === "Intermediate" || raw === "Beginner" ? raw : null;
+  const raw = String(formData.get("level") ?? "").trim();
+  const numeric = Number(raw);
+  const level =
+    raw === "Expert" || raw === "Intermediate" || raw === "Beginner"
+      ? raw
+      : raw !== "" && Number.isInteger(numeric)
+        ? String(Math.min(100, Math.max(0, numeric)))
+        : null;
   return {
     name: String(formData.get("name")),
     iconPath: String(formData.get("iconPath")),
@@ -78,7 +83,7 @@ export default async function SkillsEditor() {
       toRow={(s) => ({
         primary: s.name,
         meta: s.category,
-        badges: s.level ? <Badge>{s.level}</Badge> : null,
+        badges: s.level ? <Badge>{/^\d+$/.test(s.level) ? `${s.level}%` : s.level}</Badge> : null,
       })}
       createAction={create}
       updateAction={update}

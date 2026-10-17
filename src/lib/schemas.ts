@@ -58,7 +58,19 @@ export const skillInsertSchema = z.object({
   name: z.string().min(1),
   iconPath: z.string().min(1),
   category: z.string().min(1),
-  level: z.enum(["Expert", "Intermediate", "Beginner"]).nullable().optional(),
+  level: z
+    .string()
+    .trim()
+    .refine(
+      (value) =>
+        value === "Expert" ||
+        value === "Intermediate" ||
+        value === "Beginner" ||
+        (Number.isInteger(Number(value)) && Number(value) >= 0 && Number(value) <= 100),
+      "Level must be a percent from 0 to 100",
+    )
+    .nullable()
+    .optional(),
   order: z.number().int().nonnegative().default(0),
 });
 

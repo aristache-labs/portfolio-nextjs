@@ -1,70 +1,279 @@
-import { Reveal } from "@/components/motion/Reveal";
-import { Section, SectionHeading } from "@/components/ui/Section";
-import { Card } from "@/components/ui/Card";
+"use client";
+
+import { useMemo, useState, type MouseEvent } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, BarChart3, Code2, Heart, Quote, Zap, type LucideIcon } from "lucide-react";
 import { SkillCard } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
+import motionCss from "./skills-motion.module.css";
 
 export type SkillRow = {
   name: string;
   iconPath: string;
   category: string;
   order: number;
+  level?: string | null;
 };
 
-function groupByCategory(skills: SkillRow[]) {
-  const map = new Map<string, SkillRow[]>();
-  for (const s of [...skills].sort((a, b) => a.order - b.order)) {
-    const list = map.get(s.category) ?? [];
-    list.push(s);
-    map.set(s.category, list);
-  }
-  return [...map.entries()];
+const ALL = "All";
+/** Homepage filter order. Tabs still appear only when a skill uses that category. */
+const CATEGORY_ORDER = ["Development", "Infrastructure", "Automation", "Data & Cloud"];
+/** Default tab keeps the grid to one screen. A category pill reveals that group. */
+const ALL_LIMIT = 8;
+
+function byOrder(skills: SkillRow[]) {
+  return [...skills].sort((a, b) => a.order - b.order);
+}
+
+function techCount(total: number) {
+  if (total <= 0) return "0";
+  if (total < 10) return String(total);
+  return `${Math.floor(total / 5) * 5}+`;
 }
 
 export function Skills({ skills }: { skills: SkillRow[] }) {
-  const groups = groupByCategory(skills);
+  const ordered = useMemo(() => byOrder(skills), [skills]);
+  const categories = useMemo(() => {
+    const present = new Set(ordered.map((skill) => skill.category));
+    const known = CATEGORY_ORDER.filter((category) => present.has(category));
+    const extras: string[] = [];
+    for (const skill of ordered) {
+      if (CATEGORY_ORDER.includes(skill.category) || extras.includes(skill.category)) continue;
+      extras.push(skill.category);
+    }
+    return [...known, ...extras];
+  }, [ordered]);
+
+  const [filter, setFilter] = useState(ALL);
+  const active = filter !== ALL && categories.includes(filter) ? filter : ALL;
+  const visible =
+    active === ALL ? ordered.slice(0, ALL_LIMIT) : ordered.filter((s) => s.category === active);
+
+  const stats: { icon: LucideIcon; value: string; label: string }[] = [
+    { icon: Code2, value: techCount(skills.length), label: "Technologies & Tools" },
+    { icon: Zap, value: "IT + Dev", label: "Dual Expertise" },
+    { icon: BarChart3, value: "Automation", label: "Engineering Mindset" },
+    { icon: Heart, value: "Always", label: "Learning & Improving" },
+  ];
+
+  const scrollToProjects = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
-    <Section
-      id="skills"
-      className="scroll-mt-24"
-      backdrop={<SectionBackdrop video="/media/skills.mp4" poster="/media/skills.webp" />}
-    >
-      <Reveal>
-        <SectionHeading number="03" eyebrow="Skills" title="Tools I work with" />
-      </Reveal>
-
-      {/* 12-col bento: cards pair up two per row and stretch to equal height;
-          a trailing odd card spans the full width so no row ends ragged. */}
-      <div className="grid gap-4 md:grid-cols-12 md:items-stretch md:gap-6">
-        {groups.map(([category, items], i) => {
-          const isLastOdd = groups.length % 2 === 1 && i === groups.length - 1;
-          return (
-            <Reveal
-              key={category}
-              delay={(i % 2) * 0.06}
-              className={isLastOdd ? "h-full md:col-span-12" : "h-full md:col-span-6"}
+    <section id="skills" className="relative z-10 scroll-mt-20 overflow-x-clip overflow-y-visible">
+      <SectionBackdrop frame="screen" video="/media/skills.mp4" poster="/media/skills.webp" />
+      <div className="relative z-10 mx-auto max-w-7xl px-5 pt-24 pb-10 sm:px-8">
+        <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
+          <div aria-hidden className="hidden lg:block" />
+          <div className="min-w-0 text-center">
+            <motion.span
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium"
             >
-              <Card className="bg-background/45 flex h-full flex-col border-(--brand-mid)/20 p-5 backdrop-blur-md sm:p-6">
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h3 className="text-foreground/70 font-mono text-xs font-semibold tracking-[0.2em] uppercase">
-                    {category}
-                  </h3>
-                  <span className="text-muted font-mono text-xs">
-                    {String(items.length).padStart(2, "0")}
+              <Zap className="fill-brand-mid text-brand-mid size-3.5" />
+              My Toolbox
+            </motion.span>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap"
+            >
+              Skills that build <span className="gradient-text">possibilities</span>
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="text-foreground/55 mx-auto mt-2 max-w-2xl text-sm sm:text-base"
+            >
+              A curated set of technologies, tools and skills I use to turn ideas into reality.
+            </motion.p>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.6fr]">
+          <div aria-hidden className="hidden lg:block" />
+
+          <div className="min-w-0">
+            {ordered.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="flex flex-wrap items-center gap-2"
+                role="tablist"
+                aria-label="Filter skills by category"
+              >
+                {[ALL, ...categories].map((value) => {
+                  const selected = active === value;
+                  return (
+                    <motion.button
+                      key={value}
+                      type="button"
+                      role="tab"
+                      aria-selected={selected}
+                      onClick={() => setFilter(value)}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.97 }}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${
+                        selected
+                          ? "border-brand-bright/60 bg-(image:--gradient-brand) text-white"
+                          : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
+                      }`}
+                    >
+                      {value}
+                    </motion.button>
+                  );
+                })}
+              </motion.div>
+            )}
+            {active === ALL && ordered.length > ALL_LIMIT && (
+              <p className="text-foreground/60 mt-2.5 text-xs">
+                Showing {visible.length} of {ordered.length} - select a category to explore
+                everything.
+              </p>
+            )}
+
+            <motion.div
+              layout
+              className="mt-4 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
+            >
+              <AnimatePresence mode="popLayout">
+                {visible.map((skill, index) => (
+                  <motion.div
+                    key={`${skill.category}-${skill.name}`}
+                    layout
+                    initial={{ opacity: 0, y: 40, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.3) }}
+                    className="min-w-0"
+                  >
+                    <SkillCard
+                      name={skill.name}
+                      iconPath={skill.iconPath}
+                      category={skill.category}
+                      level={skill.level}
+                      index={index}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid items-end gap-4 lg:grid-cols-[1fr_280px]">
+          <div className="flex min-w-0 flex-col gap-4">
+            <motion.figure
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="bg-background/40 relative max-w-sm rounded-xl border border-white/10 px-5 pt-6 pb-4 backdrop-blur-xl"
+            >
+              <Quote
+                aria-hidden
+                className={`${motionCss.float} text-brand-bright fill-brand-mid absolute -top-3 left-4 size-6 drop-shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.9)]`}
+              />
+              <blockquote className="text-foreground/85 text-sm leading-relaxed">
+                Tools evolve.
+                <br />
+                Problem-solving endures.
+              </blockquote>
+              <span
+                aria-hidden
+                className="bg-brand-mid mt-2.5 block h-[2px] w-6 rounded-full shadow-[0_0_10px_rgb(var(--brand-mid-rgb)/0.9)]"
+              />
+            </motion.figure>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] backdrop-blur-[18px] sm:px-6"
+            >
+              <span
+                aria-hidden
+                className={`${motionCss.lightning} via-brand-bright absolute top-0 left-0 h-px w-1/4 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_rgb(var(--brand-bright-rgb)/0.9)]`}
+              />
+              <span
+                aria-hidden
+                className={`${motionCss.spark} text-brand-bright absolute top-2.5 right-8`}
+              >
+                <Zap className="fill-brand-bright size-3 drop-shadow-[0_0_8px_rgb(var(--brand-bright-rgb)/1)]" />
+              </span>
+              <span
+                aria-hidden
+                className={`${motionCss.spark} text-brand-mid absolute bottom-2.5 left-10`}
+                style={{ animationDelay: "1.3s" }}
+              >
+                <Zap className="fill-brand-mid size-2.5 drop-shadow-[0_0_8px_rgb(var(--brand-mid-rgb)/1)]" />
+              </span>
+              <span className="grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-4">
+                {stats.map((stat, index) => (
+                  <span
+                    key={stat.label}
+                    className={`flex min-w-0 items-center gap-3 ${index !== 0 ? "lg:border-l lg:border-white/10 lg:pl-5" : ""}`}
+                  >
+                    <span
+                      className={`${motionCss.glow} bg-brand-mid/10 text-brand-bright flex size-9 shrink-0 items-center justify-center rounded-xl shadow-[0_0_18px_rgb(var(--brand-mid-rgb)/0.35)]`}
+                    >
+                      <stat.icon className="size-4 drop-shadow-[0_0_6px_rgb(var(--brand-mid-rgb)/0.8)]" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="font-display block text-lg leading-tight font-bold">
+                        {stat.value}
+                      </span>
+                      <span className="text-foreground/50 block text-[11px] break-words">
+                        {stat.label}
+                      </span>
+                    </span>
                   </span>
-                </div>
-                <ul className="grid grid-cols-3 content-start gap-2.5 sm:grid-cols-4 lg:grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))]">
-                  {items.map((s) => (
-                    <SkillCard key={s.name} name={s.name} iconPath={s.iconPath} />
-                  ))}
-                </ul>
-              </Card>
-            </Reveal>
-          );
-        })}
+                ))}
+              </span>
+            </motion.div>
+          </div>
+
+          <motion.a
+            href="#projects"
+            onClick={scrollToProjects}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            whileHover={{ y: -4 }}
+            className="group border-brand-mid/30 from-brand-deep/25 via-background/80 to-brand-mid/20 hover:border-brand-bright/60 relative flex min-w-0 items-center justify-between gap-4 overflow-hidden rounded-2xl border bg-gradient-to-br p-5 backdrop-blur-xl transition-colors hover:shadow-[0_20px_60px_rgb(var(--brand-mid-rgb)/0.35)]"
+            aria-label="Back to projects"
+          >
+            <span
+              className={`${motionCss.hand} text-brand-bright text-[28px] leading-[1.05] font-semibold`}
+            >
+              Better
+              <br />
+              Projects
+              <br />
+              Ahead...
+            </span>
+            <span className="border-brand-bright/50 group-hover:bg-brand-mid/25 flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300 group-hover:shadow-[0_0_24px_rgb(var(--brand-mid-rgb)/0.6)]">
+              <ArrowRight className="size-5 transition-transform duration-300 group-hover:translate-x-1" />
+            </span>
+          </motion.a>
+        </div>
       </div>
-    </Section>
+    </section>
   );
 }
 
