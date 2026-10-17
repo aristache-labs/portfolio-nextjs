@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { installMatchMedia } from "@/test/matchMedia";
 import { Footer } from "./Footer";
 import type { SocialRow } from "@/components/home/Contact";
 
@@ -49,6 +50,8 @@ const mockSocials: SocialRow[] = [
 ];
 
 describe("Footer", () => {
+  beforeEach(() => installMatchMedia());
+
   it("renders the footer element", () => {
     const { container } = render(<Footer socials={mockSocials} />);
     expect(container.querySelector("footer")).toBeTruthy();

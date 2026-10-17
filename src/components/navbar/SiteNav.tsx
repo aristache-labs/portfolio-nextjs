@@ -1,15 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
-import { AppearanceMenu } from "./AppearanceMenu";
-import { Magnetic } from "@/components/motion/Magnetic";
-import { MenuOverlay, type MenuSection } from "./MenuOverlay";
+import type { MenuSection } from "./MenuOverlay";
 
 const SECTIONS: MenuSection[] = [
   { id: "hero", label: "Home" },
@@ -18,23 +16,20 @@ const SECTIONS: MenuSection[] = [
   { id: "experience", label: "Experience" },
   { id: "projects", label: "Projects" },
   { id: "services", label: "Services" },
-  { id: "testimonials", label: "Testimonials" },
-  { id: "faq", label: "FAQ" },
   { id: "contact", label: "Contact" },
 ];
 
 /**
- * Slim fixed top bar: brand mark, status line, theme toggle, and a MENU
- * button. The full-screen overlay is the navigation at every viewport.
+ * Fixed glass bar: mark, inline section links, and a contact CTA.
+ * The mobile panel is the same list, not a full-screen overlay.
  */
 export function SiteNav({
-  tagline,
+  name,
   socials,
   hidden = [],
   sections = SECTIONS,
 }: {
-  /** Motto shown center-stage in the top bar and menu footer. */
-  tagline?: string;
+  name?: string;
   socials: { platform: string; url: string }[];
   hidden?: string[];
   sections?: MenuSection[];
@@ -43,89 +38,157 @@ export function SiteNav({
     () => sections.filter((s) => !hidden.includes(s.id)),
     [sections, hidden],
   );
-  // Stable identities: useScrollSpy re-subscribes its listeners whenever the
-  // ids array changes, and MenuOverlay's keydown trap re-binds on onClose.
   const ids = useMemo(() => visibleSections.map((s) => s.id), [visibleSections]);
   const active = useScrollSpy(ids);
   const reduce = useReducedMotion();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const showContact = visibleSections.some((s) => s.id === "contact");
 
-  // Blur-on-scroll backdrop, same trigger as the previous navbar.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
-    <>
-      <motion.nav
+    <motion.header
+      initial={reduce ? false : { y: -70, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        scrolled
+          ? "bg-background/70 border-b border-(--brand-mid)/30 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+          : "bg-transparent",
+      )}
+    >
+      <nav
         aria-label="Primary"
-        initial={reduce ? false : { y: -14, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: reduce ? 0 : 0.9 }}
-        className="fixed inset-x-0 top-0 z-50"
+        className="site-container flex h-[72px] items-center justify-between"
       >
-        {/* Full-bleed scrim. Content stays in site-container so the mark lines up
-            with the page while the bar still spans the viewport. */}
-        <div
-          aria-hidden
-          className={cn(
-            "bg-background/45 border-border/70 pointer-events-none absolute inset-x-0 top-0 h-16 border-b backdrop-blur-xl transition-opacity duration-300",
-            scrolled ? "opacity-100" : "opacity-0",
-          )}
-        />
-        <div className="site-container relative flex h-16 w-full items-center justify-between">
-          <Link
-            href="/"
-            aria-label="Home"
-            className="relative z-10 shrink-0 translate-y-0.5 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-110 hover:-rotate-4"
-          >
-            <Logo />
-          </Link>
-
-          {tagline && (
-            <span className="text-muted relative z-10 hidden items-center gap-2.5 font-mono text-xs tracking-[0.18em] uppercase md:flex">
-              <span aria-hidden className="gradient-text">
-                ✦
-              </span>
-              {tagline}
+        <a href="#hero" aria-label="Home" className="flex items-center gap-2.5">
+          <Logo />
+          {name ? (
+            <span className="font-display text-foreground text-xl font-semibold tracking-tight">
+              {name}
             </span>
-          )}
+          ) : null}
+        </a>
 
-          <span className="relative z-10 flex items-center gap-2">
-            <AppearanceMenu />
-            <Magnetic>
-              <button
-                type="button"
-                aria-label={menuOpen ? "Close menu" : "Open menu"}
-                aria-expanded={menuOpen}
-                aria-haspopup="dialog"
-                onClick={() => setMenuOpen((o) => !o)}
-                className="text-foreground group flex items-center gap-2.5 rounded-full px-3 py-2 font-mono text-xs tracking-[0.14em] uppercase"
-              >
-                Menu
-                <span aria-hidden className="flex flex-col gap-1">
-                  <span className="bg-foreground block h-[1.5px] w-[22px]" />
-                  <span className="bg-foreground block h-[1.5px] w-[22px] transition-[width] duration-300 group-hover:w-[14px]" />
-                </span>
-              </button>
-            </Magnetic>
-          </span>
-        </div>
-      </motion.nav>
+        <ul className="hidden items-center gap-8 lg:flex">
+          {visibleSections.map((section) => {
+            const isActive = section.id === active;
+            return (
+              <li key={section.id}>
+                <a
+                  href={`#${section.id}`}
+                  className={cn(
+                    "group relative text-[15px] transition-colors",
+                    isActive
+                      ? "font-medium text-(--brand-bright)"
+                      : "text-foreground/70 hover:text-foreground",
+                  )}
+                >
+                  {section.label}
+                  <span
+                    className={cn(
+                      "absolute -bottom-2 left-0 h-[2px] rounded-full bg-linear-to-r from-(--brand-mid) to-(--brand-bright) transition-all duration-300",
+                      isActive
+                        ? "w-full shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.9)]"
+                        : "w-0 group-hover:w-full",
+                    )}
+                  />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
 
-      <MenuOverlay
-        open={menuOpen}
-        onClose={closeMenu}
-        active={active}
-        sections={visibleSections}
-        socials={socials}
-        statusLine={tagline}
-      />
-    </>
+        {showContact && (
+          <a
+            href="#contact"
+            className="group text-foreground hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 lg:inline-flex"
+          >
+            Let&apos;s Connect
+            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </a>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          className="border-border bg-background/40 text-foreground flex size-11 items-center justify-center rounded-xl border backdrop-blur-md lg:hidden"
+        >
+          {open ? <X className="size-5" /> : <Menu className="size-5" />}
+        </button>
+      </nav>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={reduce ? false : { height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={reduce ? undefined : { height: 0, opacity: 0 }}
+            transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
+            className="border-border bg-background/80 overflow-hidden border-t backdrop-blur-xl lg:hidden"
+          >
+            <ul className="site-container space-y-1 py-4">
+              {visibleSections.map((section) => (
+                <li key={section.id}>
+                  <a
+                    href={`#${section.id}`}
+                    data-testid="mobile-section-link"
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "block rounded-lg px-3 py-2.5 text-[15px] transition-colors",
+                      section.id === active
+                        ? "bg-(--brand-mid)/15 text-(--brand-bright)"
+                        : "text-foreground/75 hover:bg-foreground/5 hover:text-foreground",
+                    )}
+                  >
+                    {section.label}
+                  </a>
+                </li>
+              ))}
+              {socials.map((s) => (
+                <li key={s.platform}>
+                  <a
+                    href={s.url}
+                    className="text-foreground/75 hover:text-foreground block rounded-lg px-3 py-2.5 text-[15px]"
+                  >
+                    {s.platform}
+                  </a>
+                </li>
+              ))}
+              {showContact && (
+                <li className="pt-2">
+                  <a
+                    href="#contact"
+                    onClick={() => setOpen(false)}
+                    className="text-foreground flex items-center justify-center gap-2 rounded-xl bg-(--brand-deep) px-5 py-3 text-sm font-semibold"
+                  >
+                    Let&apos;s Connect <ArrowRight className="size-4" />
+                  </a>
+                </li>
+              )}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }
 

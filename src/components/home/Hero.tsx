@@ -1,14 +1,13 @@
 "use client";
 
-import { useRef } from "react";
-import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { BrandMark } from "@/components/brand/Logo";
-import { Heart, ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { ArrowRight, Heart, Mouse, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-
+import { platformIcon } from "./Contact";
+import { SectionEdge } from "./SectionBackdrop";
 export type HeroProfile = {
   name: string;
   roles: string[];
@@ -17,9 +16,32 @@ export type HeroProfile = {
 const EASE = [0.22, 1, 0.36, 1] as const;
 const HERO_COPY =
   "I build modern applications, reliable systems, and thoughtful digital experiences that solve real problems and create lasting value.";
-const HERO_LABELS = ["Ideas", "Development", "Automation", "Systems", "People"] as const;
+const FOCUS = ["Build", "Learn", "Improve", "Repeat"] as const;
+const GREETING = "// HELLO, I'M";
 
-/** Entrance helper: fade-up at a choreographed delay. */
+function useTypewriter(text: string, reduce: boolean) {
+  const [out, setOut] = useState("");
+
+  useEffect(() => {
+    if (reduce) return;
+    let i = 0;
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const timeout = setTimeout(() => {
+      interval = setInterval(() => {
+        i += 1;
+        setOut(text.slice(0, i));
+        if (i >= text.length && interval) clearInterval(interval);
+      }, 55);
+    }, 400);
+    return () => {
+      clearTimeout(timeout);
+      if (interval) clearInterval(interval);
+    };
+  }, [text, reduce]);
+
+  return reduce ? text : out;
+}
+
 function fadeUp(reduce: boolean, delay: number) {
   return {
     initial: reduce ? false : ({ opacity: 0, y: 22 } as const),
@@ -29,63 +51,137 @@ function fadeUp(reduce: boolean, delay: number) {
 }
 
 /**
- * Two-column opening: the headline and actions on the left, the official
- * monogram on the right. Stacks on small screens. Accents follow the palette.
+ * First screen: looping plate on the right, copy on the left, teal vignette.
+ * Video and poster live in public/media. Accents stay on the Obsidian ramp.
  */
 export function Hero({
   profile,
   sponsorUrl,
   heroTagline,
+  socials = [],
 }: {
   profile: HeroProfile;
   sponsorUrl?: string;
   heroTagline?: string | null;
+  socials?: { platform: string; url: string }[];
 }) {
   const reduce = useReducedMotion();
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 80]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, reduce ? 1 : 0]);
+  const typed = useTypewriter(GREETING, reduce);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(!reduce);
+  const [videoOk, setVideoOk] = useState(true);
+  const [posterOk, setPosterOk] = useState(true);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const sx = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const sy = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  const bgX = useTransform(sx, [-0.5, 0.5], [10, -10]);
+  const bgY = useTransform(sy, [-0.5, 0.5], [8, -8]);
+  const spotX = useTransform(sx, [-0.5, 0.5], [30, 70]);
+  const spotY = useTransform(sy, [-0.5, 0.5], [25, 65]);
+  const spotBg = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
+
+  const showVideo = videoOk && !reduce;
+  const iconSocials = socials.filter((s) => s.platform.toLowerCase() !== "email").slice(0, 4);
+
+  const onMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    if (reduce) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    mouseX.set((e.clientX - r.left) / r.width - 0.5);
+    mouseY.set((e.clientY - r.top) / r.height - 0.5);
+  };
+
+  const toggleVideo = () => {
+    const node = videoRef.current;
+    if (!node) return;
+    if (node.paused) {
+      node.play().catch(() => {});
+      setPlaying(true);
+    } else {
+      node.pause();
+      setPlaying(false);
+    }
+  };
 
   return (
     <section
       id="hero"
-      ref={ref}
+      onMouseMove={onMouseMove}
       className="relative flex min-h-svh scroll-mt-24 flex-col justify-center overflow-hidden"
     >
-      <div aria-hidden className="hero-scrim pointer-events-none absolute inset-0" />
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
+        {showVideo && (
+          <motion.div style={{ x: bgX, y: bgY }} className="absolute -inset-6 hidden md:block">
+            <video
+              ref={videoRef}
+              className="h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster="/media/hero.webp"
+              onError={() => setVideoOk(false)}
+            >
+              <source src="/media/hero.mp4" type="video/mp4" />
+            </video>
+          </motion.div>
+        )}
+        {posterOk && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/media/hero.webp"
+            alt=""
+            onError={() => setPosterOk(false)}
+            className={
+              showVideo
+                ? "absolute inset-0 h-full w-full object-cover md:hidden"
+                : "absolute inset-0 h-full w-full object-cover"
+            }
+          />
+        )}
+        <div className="hero-vignette absolute inset-0" />
+        {!reduce && (
+          <motion.div className="absolute inset-0 hidden md:block" style={{ background: spotBg }} />
+        )}
+        <div className="hero-noise absolute inset-0" />
+        <SectionEdge edge="bottom" />
+      </div>
+        
+      {showVideo && (
+        <button
+          type="button"
+          onClick={toggleVideo}
+          aria-label={playing ? "Pause background video" : "Play background video"}
+          className="border-border bg-background/40 text-foreground/70 hover:text-foreground absolute right-6 bottom-24 z-20 hidden size-10 items-center justify-center rounded-full border backdrop-blur-md md:flex"
+        >
+          {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
+        </button>
+      )}
 
-      <motion.div
-        style={{ y, opacity }}
-        className="site-container relative grid items-center gap-12 py-28 lg:grid-cols-[minmax(0,1fr)_auto] lg:justify-between lg:py-32"
-      >
-        <div>
-          <p className="sr-only">{profile.name}</p>
+      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <div className="max-w-2xl lg:pl-8">
           <motion.p
-            {...fadeUp(reduce, 0.2)}
-            className="text-muted font-mono text-[11px] tracking-[0.22em] uppercase"
+            {...fadeUp(reduce, 0.15)}
+            className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90"
           >
-            Independent developer &amp; IT specialist
+            {typed}
+            <span
+              aria-hidden
+              className="animate-blink ml-1 inline-block h-4 w-[2px] translate-y-[3px] bg-(--brand-bright)"
+            />
           </motion.p>
 
-          {heroTagline && (
-            <motion.p {...fadeUp(reduce, 0.35)} className="mt-4">
-              <span className="border-border bg-surface text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[9px] tracking-[0.18em] uppercase backdrop-blur-sm sm:text-[10px]">
-                <span
-                  aria-hidden
-                  className="size-1.5 animate-pulse rounded-full bg-(image:--gradient-brand) shadow-[0_0_8px_2px_rgb(var(--brand-deep-rgb)/0.6)] motion-reduce:animate-none"
-                />
-                {heroTagline}
-              </span>
-            </motion.p>
-          )}
-
-          <h1 className="mt-5 max-w-xl text-[clamp(40px,6vw,72px)] leading-[0.98] font-semibold tracking-tight">
+          <h1 className="max-w-3xl">
             <motion.span
-              initial={reduce ? false : { y: 18, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
-              className="block"
+              {...fadeUp(reduce, 0.3)}
+              className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(3.5rem,8vw,6.5rem)] leading-[0.95] font-extrabold tracking-tight text-transparent"
+            >
+              {profile.name.replace(/\bCristache\b\s*/i, "").trim()}
+            </motion.span>
+            <motion.span
+              {...fadeUp(reduce, 0.45)}
+              className="font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] leading-[1.08] font-bold tracking-tight"
             >
               Technology, <br />
               built with <span className="text-(--brand-mid)">intention.</span>
@@ -93,29 +189,43 @@ export function Hero({
           </h1>
 
           <motion.p
-            {...fadeUp(reduce, 0.7)}
-            className="text-muted mt-6 max-w-xl text-base leading-relaxed sm:text-lg"
+            {...fadeUp(reduce, 0.6)}
+            className="text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base"
           >
             {HERO_COPY}
           </motion.p>
 
-          {profile.roles.length > 0 && (
-            <motion.p
-              {...fadeUp(reduce, 0.85)}
-              className="text-muted mt-4 font-mono text-xs tracking-[0.14em] uppercase"
-            >
-              {profile.roles.join(" / ")}
+          {heroTagline && (
+            <motion.p {...fadeUp(reduce, 0.7)} className="mt-4">
+              <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
+                <span
+                  aria-hidden
+                  className="size-1.5 animate-pulse rounded-full bg-(image:--gradient-brand) shadow-[0_0_8px_2px_rgb(var(--brand-mid-rgb)/0.6)] motion-reduce:animate-none"
+                />
+                {heroTagline}
+              </span>
             </motion.p>
           )}
 
-          <motion.div {...fadeUp(reduce, 1)} className="mt-8 flex flex-wrap gap-4">
+          <motion.div {...fadeUp(reduce, 0.8)} className="mt-7 flex flex-wrap items-center gap-4">
             <Magnetic>
-              <Button variant="primary" size="lg" href="#projects">
-                Explore Projects <ArrowRight className="size-4" aria-hidden />
+              <Button
+                variant="primary"
+                size="lg"
+                href="#projects"
+                className="rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)]"
+              >
+                Explore Projects
+                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Magnetic>
             <Magnetic>
-              <Button variant="secondary" size="lg" href="#contact">
+              <Button
+                variant="secondary"
+                size="lg"
+                href="#contact"
+                className="border-foreground/20 bg-foreground/3 rounded-2xl px-7 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10"
+              >
                 Get in Touch
               </Button>
             </Magnetic>
@@ -127,6 +237,7 @@ export function Hero({
                   href={sponsorUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="rounded-2xl"
                   leftIcon={<Heart className="size-4" aria-hidden />}
                 >
                   Sponsor
@@ -134,72 +245,67 @@ export function Hero({
               </Magnetic>
             )}
           </motion.div>
+
+          {profile.roles.length > 0 && (
+            <motion.p
+              {...fadeUp(reduce, 0.9)}
+              className="text-muted mt-4 font-mono text-xs tracking-[0.14em] uppercase"
+            >
+              {profile.roles.join(" / ")}
+            </motion.p>
+          )}
+
+          {iconSocials.length > 0 && (
+            <motion.div {...fadeUp(reduce, 1)} className="mt-6 flex items-center gap-3">
+              {iconSocials.map((s) => {
+                const Icon = platformIcon(s.platform);
+                const external = s.url.startsWith("http");
+                return (
+                  <a
+                    key={s.platform}
+                    href={s.url}
+                    aria-label={s.platform}
+                    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className="border-border bg-foreground/5 text-foreground/80 hover:text-foreground grid size-12 place-items-center rounded-2xl border backdrop-blur-md transition-transform duration-300 hover:-translate-y-1 hover:border-(--brand-mid)/50"
+                  >
+                    <Icon className="size-5" aria-hidden />
+                  </a>
+                );
+              })}
+            </motion.div>
+          )}
         </div>
 
-        <motion.div
-          {...fadeUp(reduce, 0.55)}
-          className="mx-auto flex w-full max-w-[34rem] flex-col items-center lg:mx-0 lg:w-auto lg:max-w-none lg:flex-row lg:items-center"
-        >
-          <div className="flex flex-col items-center">
-            <div className="relative aspect-square w-[min(100%,22rem)] shrink-0 sm:w-[26rem] lg:w-[28rem] xl:w-[28rem]">
-              {/* Palette glow behind the mark. */}
-              <div
-                aria-hidden
-                className="absolute inset-[6%] rounded-full bg-[radial-gradient(circle,rgb(var(--brand-mid-rgb)/0.22),rgb(var(--brand-deep-rgb)/0.08)_48%,transparent_70%)] blur-2xl"
-              />
-              {/* Hairline ring, static. */}
-              <div
-                aria-hidden
-                className="absolute inset-[4%] rounded-full border border-(--brand-mid)/15"
-              />
-              {/* One bright arc travelling the ring, masked down to a 2px stroke. */}
-              <motion.div
-                aria-hidden
-                animate={reduce ? undefined : { rotate: 360 }}
-                transition={{ duration: 18, ease: "linear", repeat: Infinity }}
-                className="absolute inset-[4%] rounded-full"
-                style={{
-                  background:
-                    "conic-gradient(from 0deg, transparent 0deg, transparent 230deg, rgb(var(--brand-deep-rgb) / 0.6) 290deg, rgb(var(--brand-bright-rgb)) 355deg, transparent 360deg)",
-                  WebkitMask:
-                    "radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px))",
-                  mask: "radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px))",
-                }}
-              />
-              <div className="absolute inset-[16%] flex items-center justify-center">
-                <BrandMark
-                  priority
-                  className="h-full w-full object-contain drop-shadow-[0_18px_32px_rgb(var(--brand-deep-rgb)/0.45)]"
-                />
-              </div>
-            </div>
-            <div className="mt-1 flex items-center gap-4">
-              <span
-                aria-hidden
-                className="h-px w-8 bg-linear-to-r from-transparent to-(--brand-mid)/60"
-              />
-              <Image
-                src="/brand/aristache-text.svg"
-                alt="Aristache"
-                width={1322}
-                height={233}
-                priority
-                unoptimized
-                className="h-9 w-auto sm:h-11"
-              />
-              <span
-                aria-hidden
-                className="h-px w-8 bg-linear-to-l from-transparent to-(--brand-mid)/60"
-              />
-            </div>
+        <div className="hidden lg:block" aria-hidden>
+          <div className="animate-float-slow bg-background/70 mr-8 ml-auto max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md motion-reduce:animate-none">
+            <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
+              {"// focus"}
+            </p>
+            <p className="text-foreground/80 mt-2 text-sm leading-relaxed">
+              {FOCUS.map((word, i) => (
+                <span key={word}>
+                  {i > 0 && <span className="text-(--brand-mid)"> · </span>}
+                  {word}
+                </span>
+              ))}
+            </p>
           </div>
-          <ul className="text-muted relative z-10 mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 font-mono text-[10px] tracking-[0.18em] uppercase lg:mt-0 lg:mb-12 lg:ml-5 lg:flex-col lg:gap-2">
-            {HERO_LABELS.map((label) => (
-              <li key={label}>{label}</li>
-            ))}
-          </ul>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
+
+      <a
+        href="#projects"
+        className="text-foreground/50 hover:text-foreground absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex"
+        aria-label="Scroll to projects"
+      >
+        <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5">
+          <span className="animate-scroll-dot h-2 w-1 rounded-full bg-(--brand-bright)" />
+        </span>
+        <span className="text-xs tracking-wide">Scroll to explore</span>
+      </a>
+      <div className="text-foreground/60 absolute bottom-6 left-5 z-10 flex items-center gap-2 text-xs md:hidden">
+        <Mouse className="size-4" aria-hidden /> Scroll to explore
+      </div>
     </section>
   );
 }

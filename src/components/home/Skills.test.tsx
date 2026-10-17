@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { installMatchMedia } from "@/test/matchMedia";
 import { Skills } from "./Skills";
 
 // Mock framer-motion to avoid jsdom animation issues
@@ -39,6 +40,8 @@ const mockSkills = [
 ];
 
 describe("Skills", () => {
+  beforeEach(() => installMatchMedia());
+
   it("renders skill names", () => {
     render(<Skills skills={mockSkills} />);
     expect(screen.getByText("React")).toBeInTheDocument();

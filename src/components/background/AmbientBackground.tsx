@@ -228,8 +228,8 @@ export function AmbientBackground() {
     };
   }, [reduced]);
 
-  // The ambient scene is public-site language; admin keeps a plain ground.
-  if (pathname?.startsWith("/admin")) return null;
+  // Admin keeps a plain ground. The homepage plays section videos instead of this canvas.
+  if (pathname?.startsWith("/admin") || pathname === "/") return null;
 
   return (
     <canvas

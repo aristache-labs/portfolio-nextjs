@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import { platformIcon, type SocialRow } from "@/components/home/Contact";
+import { SectionBackdrop } from "@/components/home/SectionBackdrop";
 
 export function Footer({ socials }: { socials: SocialRow[] }) {
   const sorted = [...socials].sort((a, b) => a.order - b.order);
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-border border-t py-12">
-      <div className="site-container flex flex-col items-center gap-8">
+    <footer className="relative overflow-hidden py-16">
+      <SectionBackdrop poster="/media/footer.webp" />
+      <div className="site-container relative z-10 flex flex-col items-center gap-8">
         {/* Row 1: logo + social icons */}
         <div className="flex w-full flex-col items-center gap-6 sm:flex-row sm:justify-between">
           <Link href="#hero" aria-label="Back to top">

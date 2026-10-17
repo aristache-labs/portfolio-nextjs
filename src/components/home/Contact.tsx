@@ -2,8 +2,9 @@ import { ArrowRight, Github, Linkedin, Instagram, Send, Mail, Globe } from "luci
 import type { ComponentType, SVGProps } from "react";
 import { Reveal } from "@/components/motion/Reveal";
 import { Magnetic } from "@/components/motion/Magnetic";
-import { Section, SectionHeading } from "@/components/ui/Section";
+import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
+import { SectionBackdrop } from "./SectionBackdrop";
 import { XIcon } from "@/components/brand/XIcon";
 
 // Icons accept a className/size. Lucide icons and our custom XIcon both qualify.
@@ -34,7 +35,11 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
   const sorted = [...socials].sort((a, b) => a.order - b.order);
 
   return (
-    <Section id="contact" className="scroll-mt-24">
+    <Section
+      id="contact"
+      className="scroll-mt-24"
+      backdrop={<SectionBackdrop video="/media/contact.mp4" poster="/media/contact.webp" />}
+    >
       <div>
         <Reveal>
           <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">

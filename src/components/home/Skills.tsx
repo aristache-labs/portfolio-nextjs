@@ -2,6 +2,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { SkillCard } from "./SkillCard";
+import { SectionBackdrop } from "./SectionBackdrop";
 
 export type SkillRow = {
   name: string;
@@ -24,7 +25,11 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
   const groups = groupByCategory(skills);
 
   return (
-    <Section id="skills" className="scroll-mt-24">
+    <Section
+      id="skills"
+      className="scroll-mt-24"
+      backdrop={<SectionBackdrop video="/media/skills.mp4" poster="/media/skills.webp" />}
+    >
       <Reveal>
         <SectionHeading number="03" eyebrow="Skills" title="Tools I work with" />
       </Reveal>
@@ -40,7 +45,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               delay={(i % 2) * 0.06}
               className={isLastOdd ? "h-full md:col-span-12" : "h-full md:col-span-6"}
             >
-              <Card className="flex h-full flex-col p-5 sm:p-6">
+              <Card className="bg-background/45 flex h-full flex-col border-(--brand-mid)/20 p-5 backdrop-blur-md sm:p-6">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <h3 className="text-foreground/70 font-mono text-xs font-semibold tracking-[0.2em] uppercase">
                     {category}

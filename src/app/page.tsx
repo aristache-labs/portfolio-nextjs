@@ -1,4 +1,5 @@
 import nextDynamic from "next/dynamic";
+import { Inter, Sora } from "next/font/google";
 import {
   getProfile,
   getProjectsMerged,
@@ -7,7 +8,6 @@ import {
   getServices,
   getSocialLinks,
   getFundingLinks,
-  getRandomTagline,
 } from "@/lib/queries";
 import { Hero } from "@/components/home/Hero";
 import { SiteNav } from "@/components/navbar/SiteNav";
@@ -16,6 +16,19 @@ import { Footer } from "@/components/layout/Footer";
 // ISR: prerendered at build time, so the build needs a reachable database. 12h is a Neon compute
 // budget decision, not a freshness one - admin saves publish immediately. See AGENTS.md.
 export const revalidate = 43200;
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const sora = Sora({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-sora",
+  display: "swap",
+});
 
 // Below-the-fold sections: lazy-loaded to keep the hero bundle lean.
 // Note: These are Server Components — next/dynamic with ssr:true (default)
@@ -35,19 +48,8 @@ const Projects = nextDynamic(() =>
 const Services = nextDynamic(() =>
   import("@/components/home/Services").then((m) => ({ default: m.Services })),
 );
-const Support = nextDynamic(() =>
-  import("@/components/home/Support").then((m) => ({ default: m.Support })),
-);
-const TestimonialsSection = nextDynamic(() =>
-  import("@/components/sections/TestimonialsSection").then((m) => ({
-    default: m.TestimonialsSection,
-  })),
-);
 const Contact = nextDynamic(() =>
   import("@/components/home/Contact").then((m) => ({ default: m.Contact })),
-);
-const Faq = nextDynamic(() =>
-  import("@/components/sections/FaqSection").then((m) => ({ default: m.FaqSection })),
 );
 export default async function Home() {
   // Profile gates everything and feeds the always-on Hero, so it loads first.
@@ -59,14 +61,13 @@ export default async function Home() {
   // Fetch only the data for VISIBLE sections - a hidden section runs no query
   // (and its component chunk never loads via the gated dynamic import below).
   // Socials + funding are shared (nav/footer + hero sponsor), so always load.
-  const [projects, experiences, skills, services, socials, funding, tagline] = await Promise.all([
+  const [projects, experiences, skills, services, socials, funding] = await Promise.all([
     show("projects") ? getProjectsMerged() : Promise.resolve([]),
     show("experience") ? getExperiences() : Promise.resolve([]),
     show("skills") ? getSkills() : Promise.resolve([]),
     show("services") ? getServices() : Promise.resolve([]),
     getSocialLinks(),
     getFundingLinks(),
-    getRandomTagline(),
   ]);
 
   const sponsorUrl = funding.find((f) => f.primary)?.url;
@@ -75,9 +76,12 @@ export default async function Home() {
     socials.find((s) => s.platform.toLowerCase() === "email")?.url.replace("mailto:", "") ?? "";
 
   return (
-    <>
+    <div
+      data-site="cinematic"
+      className={`${inter.variable} ${sora.variable} dark bg-background text-foreground relative min-h-screen`}
+    >
       <SiteNav
-        tagline={tagline}
+        name={profile.name}
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
         hidden={Object.entries(vis)
           .filter(([, v]) => v === false)
@@ -88,6 +92,7 @@ export default async function Home() {
         profile={{ name: profile.name, roles: profile.roles }}
         sponsorUrl={sponsorUrl}
         heroTagline={profile.heroTagline}
+        socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
       />
 
       {show("about") && (
@@ -109,15 +114,9 @@ export default async function Home() {
 
       {show("services") && <Services services={services} />}
 
-      {show("testimonials") && <TestimonialsSection />}
-
-      {show("support") && <Support funding={funding} />}
-
-      {show("faq") && <Faq />}
-
       {show("contact") && <Contact socials={socials} email={contactEmail} />}
 
       <Footer socials={socials} />
-    </>
+    </div>
   );
 }

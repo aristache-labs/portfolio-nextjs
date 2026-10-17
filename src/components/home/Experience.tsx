@@ -20,27 +20,31 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
 
       {/* Card content */}
       <div className={cn("pb-10", last && "pb-0")}>
-        <p className="font-mono text-xs tracking-widest text-(--period) uppercase">{exp.period}</p>
-        <h3 className="mt-1 text-xl font-bold">{exp.role}</h3>
-        <div className="text-muted mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm">
-          <span>{exp.org}</span>
-          {exp.location && (
-            <span className="flex items-center gap-1">
-              <MapPin className="size-3" aria-hidden />
-              {exp.location}
-            </span>
+        <div className="bg-background/45 rounded-2xl border border-(--brand-mid)/20 px-4 py-4 backdrop-blur-md">
+          <p className="font-mono text-xs tracking-widest text-(--period) uppercase">
+            {exp.period}
+          </p>
+          <h3 className="mt-1 text-xl font-bold">{exp.role}</h3>
+          <div className="text-muted mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm">
+            <span>{exp.org}</span>
+            {exp.location && (
+              <span className="flex items-center gap-1">
+                <MapPin className="size-3" aria-hidden />
+                {exp.location}
+              </span>
+            )}
+          </div>
+          {exp.description.length > 0 && (
+            <ul className="mt-3 space-y-1.5">
+              {exp.description.map((d, i) => (
+                <li key={`${exp.id}-bullet-${i}`} className="text-muted flex gap-2 text-sm">
+                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-(image:--gradient-brand)" />
+                  <span>{d}</span>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
-        {exp.description.length > 0 && (
-          <ul className="mt-3 space-y-1.5">
-            {exp.description.map((d, i) => (
-              <li key={`${exp.id}-bullet-${i}`} className="text-muted flex gap-2 text-sm">
-                <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-(image:--gradient-brand)" />
-                <span>{d}</span>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </div>
   );

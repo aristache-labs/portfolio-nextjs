@@ -45,9 +45,9 @@ describe("Hero", () => {
     expect(screen.getByRole("link", { name: /sponsor/i })).toBeInTheDocument();
   });
 
-  it("renders no avatar image and no scroll chevron", () => {
+  it("renders a scroll cue and no avatar image", () => {
     render(<Hero profile={profile} />);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/scroll/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/scroll to projects/i)).toHaveAttribute("href", "#projects");
   });
 });

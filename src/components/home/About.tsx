@@ -3,6 +3,7 @@ import { AvatarPortrait } from "./AvatarPortrait";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { AnimatedStat } from "./AnimatedStat";
+import { SectionBackdrop } from "./SectionBackdrop";
 import { cn } from "@/utils/cn";
 
 export type AboutProfile = {
@@ -30,7 +31,7 @@ function StatGrid({ stats, className }: StatGridProps) {
     // the vertical dividers only apply once the grid is a single row (md).
     <Card
       className={cn(
-        "divide-border mt-12 grid grid-cols-2 divide-x divide-y p-0 md:grid-cols-4 md:divide-y-0",
+        "divide-border bg-background/45 mt-12 grid grid-cols-2 divide-x divide-y border-(--brand-mid)/20 p-0 backdrop-blur-md md:grid-cols-4 md:divide-y-0",
         className,
       )}
     >
@@ -43,7 +44,11 @@ function StatGrid({ stats, className }: StatGridProps) {
 
 export function About({ profile }: { profile: AboutProfile }) {
   return (
-    <Section id="about" className="scroll-mt-24">
+    <Section
+      id="about"
+      className="scroll-mt-24"
+      backdrop={<SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" />}
+    >
       <div>
         <Reveal>
           <SectionHeading number="02" eyebrow="About" title="Behind Aristache" />

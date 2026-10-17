@@ -3,8 +3,6 @@ import { describe, it, expect, afterEach, beforeEach } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
 import { SiteNav } from "./SiteNav";
 
-// Reduced motion => AnimatePresence has no exit animation, so close
-// assertions can run synchronously after the event.
 beforeEach(() => installMatchMedia({ "(prefers-reduced-motion: reduce)": true }));
 afterEach(cleanup);
 
@@ -14,53 +12,54 @@ const socials = [
 ];
 
 describe("SiteNav", () => {
-  it("renders logo home link, tagline, and menu button", () => {
-    render(<SiteNav tagline="Rise above limit" socials={socials} />);
-    expect(screen.getByLabelText(/home/i)).toBeInTheDocument();
-    expect(screen.getByText(/rise above limit/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /open menu/i })).toHaveAttribute(
+  it("renders the home link, inline sections, and connect CTA", () => {
+    render(<SiteNav name="Cristache Adrian" socials={socials} />);
+    expect(screen.getAllByRole("link", { name: /^home$/i })[0]).toHaveAttribute("href", "#hero");
+    expect(screen.getByText("Cristache Adrian")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "#about");
+    expect(screen.getByRole("link", { name: "Contact" })).toHaveAttribute("href", "#contact");
+    expect(screen.getAllByRole("link", { name: /let's connect/i })[0]).toHaveAttribute(
+      "href",
+      "#contact",
+    );
+    expect(screen.queryByRole("link", { name: "FAQ" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Testimonials" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /appearance settings/i })).not.toBeInTheDocument();
+  });
+
+  it("omits a hidden section", () => {
+    render(<SiteNav socials={socials} hidden={["skills"]} />);
+    expect(screen.queryByRole("link", { name: "Skills" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Projects" })).toBeInTheDocument();
+  });
+
+  it("opens the mobile panel with section links and socials", () => {
+    render(<SiteNav socials={socials} />);
+    expect(screen.queryByTestId("mobile-section-link")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+    expect(screen.getAllByTestId("mobile-section-link")).toHaveLength(7);
+    expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", socials[0].url);
+    expect(screen.getByRole("button", { name: /close menu/i })).toHaveAttribute(
       "aria-expanded",
-      "false",
+      "true",
     );
   });
 
-  it("omits the tagline when not provided", () => {
-    render(<SiteNav socials={socials} />);
-    expect(screen.queryByText(/rise above limit/i)).not.toBeInTheDocument();
-  });
-
-  it("shows the tagline in the menu footer", () => {
-    render(<SiteNav tagline="Rise above limit" socials={socials} />);
-    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
-    // Tagline appears both in the top bar and the footer once the menu opens.
-    expect(screen.getAllByText(/rise above limit/i).length).toBeGreaterThan(1);
-  });
-
-  it("opens the menu dialog with 9 numbered section links and socials", () => {
-    render(<SiteNav tagline="Rise above limit" socials={socials} />);
-    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
-    const dialog = screen.getByRole("dialog", { name: /navigation/i });
-    expect(dialog).toBeInTheDocument();
-    const sectionLinks = screen.getAllByTestId("menu-section-link");
-    expect(sectionLinks).toHaveLength(9);
-    expect(screen.getByRole("link", { name: /github/i })).toHaveAttribute("href", socials[0].url);
-  });
-
-  it("closes on Escape and returns aria-expanded to false", () => {
+  it("closes on Escape", () => {
     render(<SiteNav socials={socials} />);
     fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
     fireEvent.keyDown(document, { key: "Escape" });
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("mobile-section-link")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /open menu/i })).toHaveAttribute(
       "aria-expanded",
       "false",
     );
   });
 
-  it("closes when a section link is chosen", () => {
+  it("closes when a mobile section link is chosen", () => {
     render(<SiteNav socials={socials} />);
     fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
-    fireEvent.click(screen.getAllByTestId("menu-section-link")[1]);
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    fireEvent.click(screen.getAllByTestId("mobile-section-link")[1]);
+    expect(screen.queryByTestId("mobile-section-link")).not.toBeInTheDocument();
   });
 });

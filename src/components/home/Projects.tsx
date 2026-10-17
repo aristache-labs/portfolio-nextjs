@@ -4,6 +4,7 @@ import { Magnetic } from "@/components/motion/Magnetic";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { ProjectsBrowser } from "./ProjectsBrowser";
+import { SectionBackdrop } from "./SectionBackdrop";
 import type { MergedProject } from "@/lib/projects";
 
 const GITHUB_PROFILE = "https://github.com/aristache-labs";
@@ -12,7 +13,11 @@ const GITHUB_PROFILE = "https://github.com/aristache-labs";
  *  parts that need selection state (categories, showcase, filter, grid, quick view). */
 export function Projects({ projects }: { projects: MergedProject[] }) {
   return (
-    <Section id="projects" className="scroll-mt-24">
+    <Section
+      id="projects"
+      className="scroll-mt-24"
+      backdrop={<SectionBackdrop video="/media/projects.mp4" poster="/media/projects.webp" />}
+    >
       <Reveal>
         <SectionHeading number="05" eyebrow="Projects" title="Featured work" className="mb-8" />
       </Reveal>

@@ -27,7 +27,7 @@ export function ProjectCard({
       as="article"
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className="group relative flex h-full flex-col overflow-hidden hover:border-(--brand-deep)/40"
+      className="group bg-background/55 relative flex h-full flex-col overflow-hidden border-(--brand-mid)/25 backdrop-blur-md hover:border-(--brand-mid)/50"
     >
       {hover && <Meteors number={10} />}
 

@@ -5,12 +5,19 @@ type SectionProps = {
   id?: string;
   children?: ReactNode;
   className?: string;
+  /** Full-bleed layer behind the container, usually a section video. */
+  backdrop?: ReactNode;
 } & Omit<HTMLAttributes<HTMLElement>, "id" | "className">;
 
-export function Section({ id, children, className, ...rest }: SectionProps) {
+export function Section({ id, children, className, backdrop, ...rest }: SectionProps) {
   return (
-    <section id={id} className={cn("py-20 md:py-28", className)} {...rest}>
-      <div className="site-container">{children}</div>
+    <section
+      id={id}
+      className={cn("py-20 md:py-28", backdrop && "relative overflow-hidden", className)}
+      {...rest}
+    >
+      {backdrop}
+      <div className={cn("site-container", backdrop && "relative z-10")}>{children}</div>
     </section>
   );
 }
