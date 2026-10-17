@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { createElement } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { installMatchMedia } from "@/test/matchMedia";
 import { Skills } from "./Skills";
@@ -25,18 +26,10 @@ vi.mock("framer-motion", () => {
           type?: "button" | "submit" | "reset";
           "aria-selected"?: boolean;
         }) => {
-          const El = tag as "div";
-          return (
-            <El
-              className={className}
-              role={role}
-              onClick={onClick}
-              href={href}
-              type={type}
-              aria-selected={ariaSelected}
-            >
-              {children}
-            </El>
+          return createElement(
+            tag,
+            { className, role, onClick, href, type, "aria-selected": ariaSelected },
+            children,
           );
         };
         return Comp;

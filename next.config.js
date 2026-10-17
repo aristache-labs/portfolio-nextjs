@@ -12,6 +12,15 @@ const nextConfig = {
   serverExternalPackages: ["sharp"],
   // Do not redirect www -> apex here. Vercel already redirects aristache.dev to
   // www.aristache.dev. Adding the opposite redirect makes the two hosts loop.
+  async rewrites() {
+    // Existing database rows may still name covers converted to WebP. Real public files win.
+    return {
+      afterFiles: [
+        { source: "/brand/:file.png", destination: "/brand/:file.webp" },
+        { source: "/brand/:file.jpg", destination: "/brand/:file.webp" },
+      ],
+    };
+  },
   images: {
     // 90 for the About portrait: it renders large enough that the default 75 shows artefacts.
     qualities: [75, 90],

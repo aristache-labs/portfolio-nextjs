@@ -49,7 +49,7 @@ describe("About", () => {
   it("renders the section heading", () => {
     render(<About profile={mockProfile} />);
     expect(
-      screen.getByRole("heading", { level: 2, name: /the mind behind the code/i }),
+      screen.getByRole("heading", { level: 2, name: /the mind\s*behind the code/i }),
     ).toBeInTheDocument();
   });
 

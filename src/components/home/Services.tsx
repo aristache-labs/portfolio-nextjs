@@ -33,7 +33,11 @@ export function Services({ services }: { services: ServiceRow[] }) {
       className="scroll-mt-24 pt-6 pb-4 md:pt-12 md:pb-6"
       backdrop={
         <>
-          <SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" />
+          <SectionBackdrop
+            video="/media/about.mp4"
+            poster="/media/about.webp"
+            deferUntilHeroLoaded
+          />
           <div
             aria-hidden
             className="bg-background/70 pointer-events-none absolute inset-0 z-[1]"

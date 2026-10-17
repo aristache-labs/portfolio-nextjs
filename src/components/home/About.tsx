@@ -88,6 +88,7 @@ export function About({ profile }: { profile: AboutProfile }) {
             video="/media/about.mp4"
             poster="/media/about.webp"
             fetchPriority="low"
+            deferUntilHeroLoaded
           />
           <div
             aria-hidden

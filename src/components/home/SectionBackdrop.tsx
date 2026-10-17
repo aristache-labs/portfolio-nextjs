@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -41,6 +41,29 @@ const LOAD_MARGIN = "200px 0px";
 /** Keep playing until the section is this far away, then pause. */
 const PLAY_MARGIN = "600px 0px";
 
+const HERO_POSTER = '#hero img[fetchpriority="high"]';
+
+function isHeroPosterReady() {
+  // complete also covers a failed image. A missing hero must not block other sections.
+  return document.querySelector<HTMLImageElement>(HERO_POSTER)?.complete ?? true;
+}
+
+function subscribeToHeroPoster(onChange: () => void) {
+  const onSettled = (event: Event) => {
+    if (event.target instanceof HTMLImageElement && event.target.matches(HERO_POSTER)) onChange();
+  };
+  // Image load/error events do not bubble, so listen during capture.
+  document.addEventListener("load", onSettled, true);
+  document.addEventListener("error", onSettled, true);
+  return () => {
+    document.removeEventListener("load", onSettled, true);
+    document.removeEventListener("error", onSettled, true);
+  };
+}
+
+const subscribeToNothing = () => () => {};
+const heroPosterServerSnapshot = () => false;
+
 /**
  * Full-bleed section video. Desktop plays the loop, fetched only when the section nears the
  * viewport and paused when it is far away. Mobile and reduced motion show the poster and never
@@ -53,6 +76,7 @@ export function SectionBackdrop({
   video,
   poster,
   fetchPriority,
+  deferUntilHeroLoaded = false,
   frame = "fill",
   scrim,
   focus = "center",
@@ -60,6 +84,8 @@ export function SectionBackdrop({
   video?: string;
   poster?: string;
   fetchPriority?: "high" | "low" | "auto";
+  /** Keep this poster out of the initial HTML until the hero image loads or fails. */
+  deferUntilHeroLoaded?: boolean;
   frame?: "fill" | "screen";
   /** Overlay tint. Defaults stay with each frame. */
   scrim?: string;
@@ -77,6 +103,12 @@ export function SectionBackdrop({
   const [posterOk, setPosterOk] = useState(Boolean(poster));
   const [near, setNear] = useState(false);
   const [ready, setReady] = useState(false);
+  const heroReady = useSyncExternalStore(
+    deferUntilHeroLoaded ? subscribeToHeroPoster : subscribeToNothing,
+    isHeroPosterReady,
+    heroPosterServerSnapshot,
+  );
+  const posterReady = !deferUntilHeroLoaded || heroReady;
 
   const showVideo = Boolean(video) && videoOk && !reduce && isDesktop;
 
@@ -131,12 +163,12 @@ export function SectionBackdrop({
             playsInline
             preload={near ? "auto" : "none"}
             src={near ? video : undefined}
-            poster={poster}
+            poster={posterReady ? poster : undefined}
             onPlaying={() => setReady(true)}
             onError={() => setVideoOk(false)}
           />
         )}
-        {poster && posterOk && (
+        {poster && posterOk && posterReady && (
           // Decorative poster. next/image 400s a missing local file; a plain img just hides.
           // Stays on top of the video until it has a frame, so no blank or poster flash.
           // eslint-disable-next-line @next/next/no-img-element
