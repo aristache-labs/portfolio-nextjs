@@ -15,12 +15,18 @@ export function SectionBackdrop({
   poster,
   frame = "fill",
   scrim,
+  focus = "center",
 }: {
   video?: string;
   poster?: string;
   frame?: "fill" | "screen";
   /** Overlay tint. Defaults stay with each frame. */
   scrim?: string;
+  /**
+   * Where object-cover keeps the subject. "left" holds a left-weighted 16:9
+   * plate inside a portrait phone, then returns to center from the lg layout up.
+   */
+  focus?: "center" | "left";
 }) {
   const reduce = useReducedMotion();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -36,17 +42,15 @@ export function SectionBackdrop({
   const showVideo = Boolean(video) && videoOk && !reduce;
 
   const screen = frame === "screen";
-  // Skills pins the loop to one viewport and scales it down from the left
-  // so the planet stays small and clear of the cards. object-cover on the
-  // full section height is what zooms it.
-  const media = "absolute inset-0 hidden h-full w-full object-cover object-center md:block";
-  const still = screen
-    ? "absolute inset-20 h-full w-full object-cover object-center md:origin-[22%_46%] md:scale-[0.58]"
-    : "absolute inset-0 h-full w-full object-cover object-center";
+  // A portrait phone crops a 16:9 plate on both sides. Left focus keeps a
+  // subject that lives on the left of the frame on screen until the lg layout.
+  const anchor = focus === "left" ? "object-[-100px_center] lg:object-center" : "object-center";
+  const media = `absolute inset-0 hidden h-full w-full object-cover md:block ${anchor}`;
+  const still = `absolute inset-0 h-full w-full object-cover ${anchor}`;
   const scrimClass =
     scrim ??
     (screen
-      ? "bg-background/80 absolute inset-0 md:bg-background/70"
+      ? "bg-background/70 absolute inset-0 md:bg-background/70"
       : "bg-background/60 absolute inset-0");
 
   return (
