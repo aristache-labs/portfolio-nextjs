@@ -21,7 +21,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
 
       {/* Card content */}
       <div className={cn("min-w-0 flex-1 pb-6 sm:pb-8", last && "pb-0")}>
-        <div className="bg-background/70 w-full rounded-2xl border border-(--brand-mid)/25 px-4 py-4 backdrop-blur-sm sm:px-5">
+        <div className="bg-background/100 w-full rounded-2xl border border-(--brand-mid)/25 px-4 py-4 backdrop-blur-sm sm:px-5">
           <p className="font-mono text-xs leading-none tracking-[0.18em] text-(--period) uppercase">
             {exp.period}
           </p>

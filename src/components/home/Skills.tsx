@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type MouseEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { ArrowRight, BarChart3, Code2, Heart, Quote, Zap, type LucideIcon } from "lucide-react";
 import { SkillCard } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
@@ -249,11 +250,9 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                     key={stat.label}
                     className={`flex min-w-0 items-center gap-3 ${index !== 0 ? "lg:border-l lg:border-white/10 lg:pl-5" : ""}`}
                   >
-                    <span
-                      className={`${motionCss.glow} bg-brand-mid/10 text-brand-bright flex size-9 shrink-0 items-center justify-center rounded-xl shadow-[0_0_18px_rgb(var(--brand-mid-rgb)/0.35)]`}
-                    >
-                      <stat.icon className="size-4 drop-shadow-[0_0_6px_rgb(var(--brand-mid-rgb)/0.8)]" />
-                    </span>
+                    <IconTile size="sm">
+                      <stat.icon className="size-[18px]" {...ICON_PROPS} />
+                    </IconTile>
                     <span className="min-w-0">
                       <span className="font-display block text-lg leading-tight font-bold">
                         {stat.value}

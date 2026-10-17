@@ -11,7 +11,9 @@ import {
 import { Reveal } from "@/components/motion/Reveal";
 import { AvatarPortrait } from "./AvatarPortrait";
 import { Section } from "@/components/ui/Section";
+import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { SectionBackdrop } from "./SectionBackdrop";
+import motionCss from "./skills-motion.module.css";
 
 export type AboutProfile = {
   bio: string;
@@ -42,25 +44,31 @@ function StatBar({ repos }: { repos: number }) {
   ];
 
   return (
-    <div
-      className={`${GLASS} mt-14 rounded-2xl px-5 py-4 shadow-[0_24px_70px_rgb(0_0_0/0.45)] sm:px-6`}
-    >
-      <div className="grid grid-cols-2 gap-y-5 sm:grid-cols-4 sm:divide-x sm:divide-white/10">
-        {items.map(({ icon: Icon, value, label }) => (
-          <div key={label} className="flex min-w-0 items-center gap-3 px-1 sm:px-5 sm:first:pl-0">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white/85">
-              <Icon className="size-[18px]" aria-hidden />
-            </span>
-            <span className="min-w-0">
-              <span className="font-display block text-xl leading-tight font-bold text-white sm:text-2xl">
-                {value}
+    <Reveal delay={0.1} className="mt-14">
+      <div
+        className={`${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
+      >
+        <span
+          aria-hidden
+          className={`${motionCss.lightning} via-brand-bright absolute top-0 left-0 h-px w-1/4 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_rgb(var(--brand-bright-rgb)/0.9)]`}
+        />
+        <div className="grid grid-cols-2 gap-y-5 sm:grid-cols-4 sm:divide-x sm:divide-white/10">
+          {items.map(({ icon: Icon, value, label }) => (
+            <div key={label} className="flex min-w-0 items-center gap-3 px-1 sm:px-5 sm:first:pl-0">
+              <IconTile size="md">
+                <Icon className="size-5" {...ICON_PROPS} />
+              </IconTile>
+              <span className="min-w-0">
+                <span className="font-display block text-xl leading-tight font-bold text-white sm:text-2xl">
+                  {value}
+                </span>
+                <span className="block text-xs break-words text-white/50">{label}</span>
               </span>
-              <span className="block text-xs break-words text-white/50">{label}</span>
-            </span>
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </Reveal>
   );
 }
 
@@ -121,9 +129,9 @@ export function About({ profile }: { profile: AboutProfile }) {
             <div className="mt-9 grid gap-3 sm:max-w-[calc(100%-3.5rem)] sm:grid-cols-3">
               {BADGES.map(({ icon: Icon, value, label }) => (
                 <div key={label} className={`${GLASS} rounded-2xl px-4 py-3.5`}>
-                  <span className="flex size-9 items-center justify-center rounded-xl bg-white/10 text-white/85">
-                    <Icon className="size-[18px]" aria-hidden />
-                  </span>
+                  <IconTile size="md">
+                    <Icon className="size-5" {...ICON_PROPS} />
+                  </IconTile>
                   <p className="mt-3 text-[15px] leading-tight font-bold text-white">{value}</p>
                   <p className="mt-1 text-xs leading-snug text-white/50">{label}</p>
                 </div>
