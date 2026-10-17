@@ -16,6 +16,12 @@ vi.mock("framer-motion", () => ({
         {children}
       </li>
     ),
+    p: ({ children, className }: React.HTMLAttributes<HTMLParagraphElement>) => (
+      <p className={className}>{children}</p>
+    ),
+    h2: ({ children, className }: React.HTMLAttributes<HTMLHeadingElement>) => (
+      <h2 className={className}>{children}</h2>
+    ),
     span: ({
       children,
       className,

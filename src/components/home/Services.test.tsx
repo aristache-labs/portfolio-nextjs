@@ -8,10 +8,14 @@ import { AppWindow, Cloud, Server, Smartphone, Sparkles, Workflow, Wrench } from
 
 beforeEach(() => installMatchMedia());
 
-// Mock Reveal to render children directly
-vi.mock("@/components/motion/Reveal", () => ({
-  Reveal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
+// Render motion elements as plain tags (jsdom has no IntersectionObserver)
+vi.mock("framer-motion", () => {
+  const plain = (Tag: "p" | "h2" | "div") =>
+    function Plain({ children, className }: React.HTMLAttributes<HTMLElement>) {
+      return <Tag className={className}>{children}</Tag>;
+    };
+  return { motion: { p: plain("p"), h2: plain("h2"), div: plain("div") } };
+});
 
 const mockServices: ServiceRow[] = [
   {

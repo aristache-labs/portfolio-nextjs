@@ -1,14 +1,31 @@
-import { Reveal } from "@/components/motion/Reveal";
-import { Section, SectionHeading } from "@/components/ui/Section";
+"use client";
+
+import { motion } from "framer-motion";
+import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { ServiceCard } from "./ServiceCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import type { Service } from "@/db/schema";
 
 export type ServiceRow = Service;
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/** Scroll-in props shared with Skills and Contact; empty when motion is reduced. */
+function rise(reduce: boolean, y: number, duration: number, delay = 0) {
+  if (reduce) return {};
+  return {
+    initial: { opacity: 0, y },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration, delay, ease: EASE },
+  };
+}
+
 export function Services({ services }: { services: ServiceRow[] }) {
   const sorted = [...services].sort((a, b) => a.order - b.order);
+  const reduce = useReducedMotion();
 
   return (
     <Section
@@ -24,30 +41,56 @@ export function Services({ services }: { services: ServiceRow[] }) {
         </>
       }
     >
-      <Reveal>
-        <SectionHeading
-          number="05"
-          eyebrow="Services"
-          title="What I do"
-          accent="do"
-          className="mb-4"
-        />
-        <p className="text-muted mb-10 max-w-2xl text-sm leading-relaxed text-pretty md:text-base">
-          From enterprise infrastructure to modern applications - delivering reliable solutions
-          through engineering, automation, and innovation.
-        </p>
-      </Reveal>
+      <div className="mb-4">
+        <motion.p
+          {...rise(reduce, 16, 0.6)}
+          className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
+        >
+          <span>
+            <span className="gradient-text mr-3 font-semibold">05</span>
+            Services
+          </span>
+          <span aria-hidden className="bg-border h-px flex-1" />
+        </motion.p>
+        <motion.h2
+          {...rise(reduce, 28, 0.8, 0.1)}
+          className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight"
+        >
+          What I <span className="gradient-text">do</span>
+        </motion.h2>
+      </div>
+      <motion.p
+        {...rise(reduce, 18, 0.7, 0.18)}
+        className="text-muted mb-10 max-w-2xl text-sm leading-relaxed text-pretty md:text-base"
+      >
+        From enterprise infrastructure to modern applications - delivering reliable solutions
+        through engineering, automation, and innovation.
+      </motion.p>
 
       {sorted.length === 0 ? (
-        <Card className="flex items-center justify-center py-12 text-center">
-          <p className="text-muted text-sm">No services listed yet.</p>
-        </Card>
+        <motion.div {...rise(reduce, 28, 0.55)}>
+          <Card className="flex items-center justify-center py-12 text-center">
+            <p className="text-muted text-sm">No services listed yet.</p>
+          </Card>
+        </motion.div>
       ) : (
         <div className="grid items-stretch gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
           {sorted.map((s, i) => (
-            <Reveal key={s.title} delay={(i % 3) * 0.05} className="h-full">
+            <motion.div
+              key={s.title}
+              {...(reduce
+                ? {}
+                : {
+                    initial: { opacity: 0, y: 28, scale: 0.98 },
+                    whileInView: { opacity: 1, y: 0, scale: 1 },
+                    viewport: { once: true, margin: "-40px" },
+                    transition: { duration: 0.55, delay: Math.min(i * 0.08, 0.4), ease: EASE },
+                    whileHover: { y: -4 },
+                  })}
+              className="h-full"
+            >
               <ServiceCard service={s} index={i} />
-            </Reveal>
+            </motion.div>
           ))}
         </div>
       )}
