@@ -1,14 +1,13 @@
 // Server-only Blob utilities. NOT a "use server" actions module (it exports
 // constants + types alongside the upload fn). It is reached only through
-// server code (the testimonials API route), so it never reaches the client.
+// server code (admin upload routes), so it never reaches the client.
 import { put } from "@vercel/blob";
 import sharp from "sharp";
 
 // Vercel Blob is a flat key/value store; a "folder" is just a key prefix
 // containing "/". Define every folder once here so uploads stay organized as
-// the site grows (testimonial avatars today; hero images and more later).
+// the site grows (avatar, hero, skills, and project media).
 export const BLOB_FOLDERS = {
-  testimonials: "testimonials",
   hero: "hero",
   avatar: "avatar",
   skills: "skills",

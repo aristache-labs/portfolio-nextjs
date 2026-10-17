@@ -7,17 +7,9 @@ import {
   services,
   socialLinks,
   fundingLinks,
-  taglines,
-  faqs,
-  testimonials,
 } from "./schema";
 // Inserted only on a fresh (empty) database. Later content changes are made in the admin
 // panel, not by re-running the seed.
-
-const taglineRows = [
-  { text: "Rise above limits", active: true, order: 0 },
-  { text: "Think, build, and ship", active: true, order: 1 },
-];
 
 // Root-relative so next/image serves the bundled file. An absolute URL on the
 // production host is refused unless that host is listed in images.remotePatterns.
@@ -32,7 +24,6 @@ const profileRow = {
   resumeUrl: null,
   avatarUrl: seededAvatarUrl,
   heroTagline: "Diagnose. Build. Automate.",
-  sectionVisibility: { testimonials: false },
 };
 
 const featuredSet = new Set(["portfolio-nextjs", "fitpro-center", "ViralCutter"]);
@@ -324,136 +315,8 @@ const socialLinkRows = [
 
 const fundingLinkRows: (typeof fundingLinks.$inferInsert)[] = [];
 
-const faqRows = [
-  {
-    question: "Who is Cristache Adrian?",
-    answer:
-      "Cristache Adrian is an IT technician and developer. He focuses on Windows systems, troubleshooting, and software support, and builds mobile and web applications.",
-    order: 0,
-  },
-  {
-    question: "What does Adrian build?",
-    answer:
-      "He builds mobile apps with React Native and Expo, and web apps with Next.js and React, using Firebase, Supabase, APIs, and cloud services.",
-    order: 1,
-  },
-  {
-    question: "What is Adrian's tech stack?",
-    answer:
-      "React Native, Expo, Next.js, React, Firebase, Supabase, Windows, Azure, and PowerShell.",
-    order: 2,
-  },
-  {
-    question: "Is Adrian available for collaboration?",
-    answer:
-      "Yes. Adrian is open to conversations about interesting projects. The fastest way to reach him is through the contact section on this site.",
-    order: 3,
-  },
-  {
-    question: "How can I contact Adrian?",
-    answer:
-      "Use the contact section on this site, or reach him on GitHub at github.com/aristache-labs.",
-    order: 4,
-  },
-];
-
-// Demo testimonials covering every case (pending/approved/rejected, featured,
-// complete vs sparse details, a duplicate email). Seeded ONLY into an empty
-// testimonials table so real user submissions are never wiped.
-const testimonialRows: (typeof testimonials.$inferInsert)[] = [
-  {
-    name: "Aarav Mehta",
-    email: "aarav.mehta@example.com",
-    relationship: "College friend & hackathon teammate",
-    content:
-      "Adrian is the most driven person I studied with. We built our first hackathon project together and he carried the team - clean architecture, calm under pressure, and genuinely fun to work with.",
-    status: "approved",
-    featured: true,
-    order: 0,
-    linkedinUrl: "https://www.linkedin.com/in/aaravmehta",
-    githubUrl: "https://github.com/aaravmehta",
-    websiteUrl: "https://aarav.dev",
-  },
-  {
-    name: "Priya Sharma",
-    email: "priya.sharma@example.com",
-    relationship: "Engineering Manager at Merito",
-    content:
-      "I managed Adrian for over a year. He consistently shipped polished features ahead of schedule and raised the quality bar for the whole team. A rare mix of speed and craft.",
-    status: "approved",
-    featured: true,
-    order: 1,
-    linkedinUrl: "https://www.linkedin.com/in/priyasharma",
-  },
-  {
-    name: "Rahul Verma",
-    email: "rahul.verma@example.com",
-    relationship: "Open-source collaborator",
-    content:
-      "We maintain a Flutter package together. Adrian's reviews are thorough and kind, and his docs are the reason new contributors actually stick around.",
-    status: "approved",
-    featured: false,
-    order: 2,
-    githubUrl: "https://github.com/rahulverma",
-    xUrl: "https://x.com/rahulverma",
-  },
-  {
-    name: "Dr. Anjali Rao",
-    email: "anjali.rao@example.com",
-    relationship: "Professor, Computer Science",
-    content:
-      "Adrian was among the most curious students I taught. He asked the questions the rest of the class was afraid to, and he always followed through with working code.",
-    status: "approved",
-    featured: false,
-    order: 3,
-  },
-  {
-    name: "Sofia Almeida",
-    email: "sofia.almeida@example.com",
-    relationship: "Product designer, freelance project",
-    content:
-      "Handing designs to Adrian felt effortless. He respected the details, asked the right questions, and the final build looked better than the mockups.",
-    status: "pending",
-    featured: false,
-    order: 4,
-    instagramUrl: "https://instagram.com/sofia.designs",
-    websiteUrl: "https://sofiaalmeida.design",
-  },
-  {
-    name: "Karan Singh",
-    email: "karan.singh@example.com",
-    relationship: "Former teammate",
-    content: "Dependable, sharp, and a great teammate. Would work with him again in a heartbeat.",
-    status: "pending",
-    featured: false,
-    order: 5,
-  },
-  {
-    // Duplicate email of Aarav above — exercises the admin duplicate flag.
-    name: "Aarav Mehta",
-    email: "aarav.mehta@example.com",
-    relationship: "College friend",
-    content:
-      "Adding a second note because I forgot to mention - he also mentored three juniors on our team and they all credit him for their growth.",
-    status: "pending",
-    featured: false,
-    order: 6,
-  },
-  {
-    name: "Spammy McSpamface",
-    email: "spam@example.com",
-    relationship: "n/a",
-    content:
-      "Check out my amazing crypto deals at this totally legit link, definitely not spam at all friend.",
-    status: "rejected",
-    featured: false,
-    order: 7,
-  },
-];
-
 // Everything the seed writes, inserted only on a fresh (empty) database.
 const SEED_DATA = {
-  taglines: taglineRows,
   profile: profileRow,
   projects: projectRows,
   experiences: experienceRows,
@@ -461,7 +324,6 @@ const SEED_DATA = {
   services: serviceRows,
   socialLinks: socialLinkRows,
   fundingLinks: fundingLinkRows,
-  faqs: faqRows,
 };
 
 /**
@@ -478,7 +340,6 @@ async function seed() {
   console.log("Empty database; seeding content tables…");
 
   await db.transaction(async (tx) => {
-    await tx.insert(taglines).values(SEED_DATA.taglines);
     await tx.insert(profile).values(SEED_DATA.profile);
     await tx.insert(projects).values(SEED_DATA.projects);
     await tx.insert(experiences).values(SEED_DATA.experiences);
@@ -488,33 +349,12 @@ async function seed() {
     if (SEED_DATA.fundingLinks.length > 0) {
       await tx.insert(fundingLinks).values(SEED_DATA.fundingLinks);
     }
-    await tx.insert(faqs).values(SEED_DATA.faqs);
   });
 
   console.log("Seed complete.");
 }
 
-/**
- * Seed demo testimonials for LOCAL UI testing only. These are fabricated, so
- * they must never reach production — skipped when NODE_ENV is "production".
- * Seeds only when the table is empty so real submissions are never wiped.
- */
-async function seedDemoTestimonials() {
-  if (process.env.NODE_ENV === "production") {
-    console.log("Production environment; skipping demo testimonials.");
-    return;
-  }
-  const existing = await db.select({ id: testimonials.id }).from(testimonials).limit(1);
-  if (existing.length > 0) {
-    console.log("Testimonials already present; skipping demo seed.");
-    return;
-  }
-  await db.insert(testimonials).values(testimonialRows);
-  console.log(`Seeded ${testimonialRows.length} demo testimonials (local only).`);
-}
-
 seed()
-  .then(() => seedDemoTestimonials())
   .then(() => process.exit(0))
   .catch((err) => {
     console.error(err);

@@ -48,12 +48,6 @@ export function createRateLimiter(opts: RateLimiterOptions) {
   };
 }
 
-/** Shared limiter for testimonial submissions: 3 per IP per hour. */
-export const testimonialRateLimit = createRateLimiter({
-  limit: 3,
-  windowMs: 60 * 60 * 1000,
-});
-
 /** Extracts the client IP from request headers (Vercel/standard proxies). */
 export function clientIpFromHeaders(headers: Headers): string {
   const fwd = headers.get("x-forwarded-for");

@@ -68,11 +68,10 @@ describe("Footer", () => {
     expect(container.querySelector("footer")).toBeTruthy();
   });
 
-  it("renders the Logo (icon only, no wordmark text)", () => {
-    render(<Footer socials={mockSocials} />);
-    // Wordmark text removed per design; the logo mark exposes an accessible label.
-    expect(screen.queryByText("aristache")).toBeNull();
-    expect(screen.getByRole("img", { name: /aristache/i })).toBeTruthy();
+  it("renders the brand logo", () => {
+    const { container } = render(<Footer socials={mockSocials} />);
+    expect(container.querySelector('img[src="/brand/logo.svg"]')).toBeTruthy();
+    expect(screen.getByRole("link", { name: /aristache, back to top/i })).toBeTruthy();
   });
 
   it("does not render the social icon group", () => {
@@ -84,7 +83,7 @@ describe("Footer", () => {
     expect(screen.getByText(/Diagnose. Build. Automate./)).toBeTruthy();
   });
 
-  it("renders the sign-off and copyright line", () => {
+  it("renders the tagline and copyright line", () => {
     render(<Footer socials={mockSocials} />);
     expect(screen.getByText(/Diagnose. Build. Automate./)).toBeTruthy();
     expect(screen.getByText(/All rights reserved/)).toBeTruthy();

@@ -18,7 +18,6 @@ async function get(url) {
 // load everywhere). A ceiling to ratchet DOWN, not an endorsement of 1.5MB.
 const BUDGETS = [
   { path: "/", js: 1560, ttfb: 800 },
-  { path: "/testimonials/new", js: 1560, ttfb: 800 },
   { path: "/login", js: 1560, ttfb: 800 },
 ];
 

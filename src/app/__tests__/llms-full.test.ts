@@ -9,7 +9,6 @@ vi.mock("@/lib/queries", () => ({
     roles: ["SDE-1", "Open Source Contributor"],
     avatarUrl: "",
     resumeUrl: "",
-    heroTagline: null,
     sectionVisibility: { skills: false },
     stats: { years: 5, repos: 77, stars: 631, followers: 114 },
   }),
@@ -53,9 +52,6 @@ vi.mock("@/lib/queries", () => ({
     },
   ],
   getSkills: async () => [{ name: "Should not render", category: "Hidden", iconPath: "" }],
-  getFaqs: async () => [
-    { id: 1, question: "Who is Cristache Adrian?", answer: "An engineer.", order: 0 },
-  ],
 }));
 
 import { GET } from "../llms-full.txt/route";
@@ -75,7 +71,6 @@ describe("llms-full.txt", () => {
       "- **Software Development Engineer** - StarApps Studio, Pune, India · Jul 2024 - Present",
     );
     expect(text).toContain("  - Leading AI integration.");
-    expect(text).toContain("### Who is Cristache Adrian?");
   });
 
   it("pluralises the star count on the number, not always", async () => {
@@ -94,7 +89,6 @@ describe("llms-full.txt", () => {
     expect(text).not.toContain("## Tech Stack");
     expect(text).toContain("## Projects");
     expect(text).toContain("## Experience");
-    expect(text).toContain("## FAQ");
   });
 
   it("carries no hand-typed figures or projects", async () => {
@@ -115,19 +109,17 @@ describe("llms-full.txt with every optional section hidden", () => {
         roles: ["SDE-1"],
         avatarUrl: "",
         resumeUrl: "",
-        heroTagline: null,
-        sectionVisibility: { skills: false, projects: false, experience: false, faq: false },
+        sectionVisibility: { skills: false, projects: false, experience: false },
         stats: { years: 5, repos: 77, stars: 631, followers: 114 },
       }),
       getProjectsMerged: async () => [],
       getExperiences: async () => [],
       getSkills: async () => [],
-      getFaqs: async () => [],
     }));
     const { GET: gated } = await import("../llms-full.txt/route");
     const text = await (await gated()).text();
 
-    for (const heading of ["## Tech Stack", "## Projects", "## Experience", "## FAQ"]) {
+    for (const heading of ["## Tech Stack", "## Projects", "## Experience"]) {
       expect(text).not.toContain(heading);
     }
     expect(text).toContain("## By the numbers");

@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { eq } from "drizzle-orm";
 import { db } from "../src/db/client";
-import { experiences, faqs, profile, services, skills, testimonials } from "../src/db/schema";
+import { experiences, profile, services, skills } from "../src/db/schema";
 
 const SERVICE_UPDATES: Record<
   string,
@@ -88,10 +88,6 @@ async function main() {
     experiences: await db.select().from(experiences),
     services: await db.select().from(services),
     skills: await db.select().from(skills),
-    faqs: await db.select().from(faqs),
-    testimonials: await db
-      .select({ id: testimonials.id, name: testimonials.name, email: testimonials.email })
-      .from(testimonials),
   };
 
   mkdirSync("scripts/backups", { recursive: true });
@@ -105,13 +101,8 @@ async function main() {
     return;
   }
 
-  const testimonialsAreDemo =
-    snapshot.testimonials.length > 0 &&
-    snapshot.testimonials.every((item) => item.email?.endsWith("@example.com"));
-
   const visibility = { ...(row.sectionVisibility ?? {}) };
   delete visibility.experience;
-  if (testimonialsAreDemo) visibility.testimonials = false;
 
   await db
     .update(profile)
@@ -154,7 +145,6 @@ async function main() {
   console.log(
     JSON.stringify({
       experienceVisible: visibility.experience !== false,
-      testimonialsHidden: testimonialsAreDemo,
       servicesUpdated,
       skillsReplaced,
     }),

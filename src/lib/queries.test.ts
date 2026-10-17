@@ -13,7 +13,6 @@ const { _getRows, _setRows, _setPeriodRows, selectMock, chainFrom } = vi.hoisted
     return {
       orderBy: vi.fn().mockImplementation(() => Promise.resolve(result())),
       where: vi.fn().mockImplementation(() => ({
-        // getRandomTagline awaits .where() directly
         then: (resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) =>
           Promise.resolve(result()).then(resolve, reject),
       })),
@@ -73,7 +72,6 @@ import {
   getServices,
   getSocialLinks,
   getFundingLinks,
-  getRandomTagline,
 } from "./queries";
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -336,37 +334,6 @@ describe("getServices", () => {
     ]);
     const result = await getServices();
     expect(result[0].title).toBe("Web Dev");
-  });
-});
-
-describe("getRandomTagline", () => {
-  it("returns text of a random active tagline", async () => {
-    _setRows([
-      { id: "abc", text: "Rise above limits", active: true, order: 0, created_at: new Date() },
-    ]);
-    const result = await getRandomTagline();
-    expect(result).toBe("Rise above limits");
-  });
-
-  it("returns fallback when no active taglines exist", async () => {
-    _setRows([]);
-    const result = await getRandomTagline();
-    expect(result).toBe("Rise above limits");
-  });
-
-  it("returns one of the texts when multiple taglines exist", async () => {
-    const taglineTexts = ["Rise above limits", "Think, build, and ship"];
-    _setRows(
-      taglineTexts.map((text, i) => ({
-        id: String(i),
-        text,
-        active: true,
-        order: i,
-        created_at: new Date(),
-      })),
-    );
-    const result = await getRandomTagline();
-    expect(taglineTexts).toContain(result);
   });
 });
 

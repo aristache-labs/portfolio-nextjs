@@ -1,10 +1,8 @@
 import {
   pgTable,
-  pgEnum,
   serial,
   text,
   varchar,
-  uuid,
   integer,
   boolean,
   jsonb,
@@ -25,7 +23,7 @@ export const profile = pgTable("profile", {
   roles: jsonb("roles").$type<string[]>().notNull().default([]),
   resumeUrl: text("resume_url"),
   avatarUrl: text("avatar_url"),
-  // Hero "Currently ·" line above the name (admin-editable, no personal data).
+  // Short line under the hero intro. Empty hides it.
   heroTagline: text("hero_tagline"),
   // Per-section show/hide, keyed by section id. Missing key = visible.
   sectionVisibility: jsonb("section_visibility")
@@ -150,43 +148,6 @@ export const authVerificationTokens = pgTable(
   ],
 );
 
-export const testimonialStatus = pgEnum("testimonial_status", ["pending", "approved", "rejected"]);
-
-export const testimonials = pgTable("testimonials", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: text("name").notNull(),
-  // Soft identifier for the testimonial giver — used in the admin to flag
-  // possible duplicate submissions (not a hard unique constraint).
-  email: text("email"),
-  relationship: text("relationship").notNull(),
-  content: text("content").notNull(),
-  imageUrl: text("image_url"),
-  linkedinUrl: text("linkedin_url"),
-  githubUrl: text("github_url"),
-  xUrl: text("x_url"),
-  instagramUrl: text("instagram_url"),
-  websiteUrl: text("website_url"),
-  status: testimonialStatus("status").notNull().default("pending"),
-  featured: boolean("featured").notNull().default(false),
-  order: integer("order").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const taglines = pgTable("taglines", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  text: text("text").notNull(),
-  active: boolean("active").notNull().default(true),
-  order: integer("order").default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const faqs = pgTable("faqs", {
-  id: serial("id").primaryKey(),
-  question: text("question").notNull(),
-  answer: text("answer").notNull(),
-  order: integer("order").notNull().default(0),
-});
-
 export const githubCache = pgTable("github_cache", {
   repo: varchar("repo", { length: 255 }).primaryKey(),
   stars: integer("stars").notNull().default(0),
@@ -233,12 +194,6 @@ export type SocialLink = typeof socialLinks.$inferSelect;
 export type NewSocialLink = typeof socialLinks.$inferInsert;
 export type FundingLink = typeof fundingLinks.$inferSelect;
 export type NewFundingLink = typeof fundingLinks.$inferInsert;
-export type Testimonial = typeof testimonials.$inferSelect;
-export type NewTestimonial = typeof testimonials.$inferInsert;
-export type Tagline = typeof taglines.$inferSelect;
-export type NewTagline = typeof taglines.$inferInsert;
-export type Faq = typeof faqs.$inferSelect;
-export type NewFaq = typeof faqs.$inferInsert;
 export type GithubCache = typeof githubCache.$inferSelect;
 export type NewGithubCache = typeof githubCache.$inferInsert;
 export type GithubUserCache = typeof githubUserCache.$inferSelect;

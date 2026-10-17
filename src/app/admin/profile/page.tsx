@@ -78,7 +78,7 @@ export default async function ProfileEditor() {
           </Field>
           <Field
             label="Hero tagline"
-            hint="Short phrase shown beside the glowing dot above your name. Leave empty to hide."
+            hint="Short phrase shown beside the glowing dot under the intro. Leave empty to hide."
           >
             <Input
               name="heroTagline"

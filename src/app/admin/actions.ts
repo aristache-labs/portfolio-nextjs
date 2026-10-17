@@ -10,8 +10,6 @@ import {
   services,
   socialLinks,
   fundingLinks,
-  faqs,
-  taglines,
 } from "@/db/schema";
 import {
   profileInsertSchema,
@@ -21,8 +19,6 @@ import {
   serviceInsertSchema,
   socialLinkInsertSchema,
   fundingLinkInsertSchema,
-  faqInsertSchema,
-  taglineInsertSchema,
   reorderSchema,
   type ProfileInput,
   type ProjectInput,
@@ -31,8 +27,6 @@ import {
   type ServiceInput,
   type SocialLinkInput,
   type FundingLinkInput,
-  type FaqInput,
-  type TaglineInput,
   type ReorderInput,
 } from "@/lib/schemas";
 import { auth } from "@/auth";
@@ -285,43 +279,5 @@ export async function reorderFundingLinks(input: ReorderInput): Promise<void> {
       db.update(fundingLinks).set({ order: i.order }).where(eq(fundingLinks.id, i.id)),
     ),
   );
-  revalidatePortfolio();
-}
-
-// ---------- FAQs ----------
-export async function createFaq(input: FaqInput): Promise<void> {
-  await requireAdmin();
-  await db.insert(faqs).values(faqInsertSchema.parse(input));
-  revalidatePortfolio();
-}
-
-export async function updateFaq(id: number, input: FaqInput): Promise<void> {
-  await requireAdmin();
-  await db.update(faqs).set(faqInsertSchema.parse(input)).where(eq(faqs.id, id));
-  revalidatePortfolio();
-}
-
-export async function deleteFaq(id: number): Promise<void> {
-  await requireAdmin();
-  await db.delete(faqs).where(eq(faqs.id, id));
-  revalidatePortfolio();
-}
-
-// ---------- Taglines ----------
-export async function createTagline(input: TaglineInput): Promise<void> {
-  await requireAdmin();
-  await db.insert(taglines).values(taglineInsertSchema.parse(input));
-  revalidatePortfolio();
-}
-
-export async function updateTagline(id: string, input: TaglineInput): Promise<void> {
-  await requireAdmin();
-  await db.update(taglines).set(taglineInsertSchema.parse(input)).where(eq(taglines.id, id));
-  revalidatePortfolio();
-}
-
-export async function deleteTagline(id: string): Promise<void> {
-  await requireAdmin();
-  await db.delete(taglines).where(eq(taglines.id, id));
   revalidatePortfolio();
 }

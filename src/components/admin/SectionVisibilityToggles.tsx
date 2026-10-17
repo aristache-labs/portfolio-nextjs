@@ -7,9 +7,7 @@ import {
   Briefcase,
   FolderGit2,
   Sparkles,
-  MessageSquareQuote,
   HandCoins,
-  HelpCircle,
   Mail,
   type LucideIcon,
 } from "lucide-react";
@@ -24,14 +22,7 @@ const SECTIONS: { id: string; label: string; description: string; icon: LucideIc
   { id: "experience", label: "Experience", description: "Roles and work history", icon: Briefcase },
   { id: "projects", label: "Projects", description: "Featured repos and work", icon: FolderGit2 },
   { id: "services", label: "Services", description: "What you offer clients", icon: Sparkles },
-  {
-    id: "testimonials",
-    label: "Testimonials",
-    description: "What people say about you",
-    icon: MessageSquareQuote,
-  },
   { id: "support", label: "Support", description: "Ways to support your work", icon: HandCoins },
-  { id: "faq", label: "FAQ", description: "Common questions answered", icon: HelpCircle },
   { id: "contact", label: "Contact", description: "How people reach you", icon: Mail },
 ];
 

@@ -1,17 +1,8 @@
-import { asc, eq } from "drizzle-orm";
+import { asc } from "drizzle-orm";
 
 import { db } from "@/db/client";
-import {
-  profile,
-  experiences,
-  skills,
-  services,
-  socialLinks,
-  fundingLinks,
-  taglines,
-  faqs,
-} from "@/db/schema";
-import type { Experience, Skill, Service, Faq } from "@/db/schema";
+import { profile, experiences, skills, services, socialLinks, fundingLinks } from "@/db/schema";
+import type { Experience, Skill, Service } from "@/db/schema";
 import { getProjects } from "@/lib/projects";
 import type { MergedProject } from "@/lib/projects";
 import { getCachedUserStats } from "@/lib/github-cache";
@@ -107,12 +98,6 @@ export async function getServices(): Promise<ServiceRow[]> {
   return db.select().from(services).orderBy(asc(services.order));
 }
 
-export type FaqRow = Faq;
-
-export async function getFaqs(): Promise<FaqRow[]> {
-  return db.select().from(faqs).orderBy(asc(faqs.order));
-}
-
 export async function getSocialLinks(): Promise<SocialRow[]> {
   const rows = await db.select().from(socialLinks).orderBy(asc(socialLinks.order));
   return rows.map((r) => ({
@@ -131,13 +116,4 @@ export async function getFundingLinks(): Promise<FundingRow[]> {
     primary: r.primary,
     order: r.order,
   }));
-}
-
-// The pick happens in JS, so the tagline rotates once per ISR regeneration rather than per
-// visitor - see the revalidate window in app/page.tsx.
-export async function getRandomTagline(): Promise<string> {
-  const rows = await db.select().from(taglines).where(eq(taglines.active, true));
-  if (rows.length === 0) return "Rise above limits";
-  const pick = rows[Math.floor(Math.random() * rows.length)];
-  return pick.text;
 }

@@ -1,10 +1,8 @@
 import { SITE } from "@/lib/seo/site";
-import { getFaqs } from "@/lib/queries";
 
 export const dynamic = "force-static";
 
-export async function GET() {
-  const faqs = await getFaqs();
+export function GET() {
   const body = `# ${SITE.name}
 
 > ${SITE.description}
@@ -18,10 +16,6 @@ export async function GET() {
 
 ${SITE.sameAs.map((u) => `- ${u}`).join("\n")}
 - ${SITE.url}
-
-## FAQ
-
-${faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n")}
 
 See ${SITE.url}/llms-full.txt for the full profile.
 `;

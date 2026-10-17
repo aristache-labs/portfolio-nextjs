@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, Heart, Mail, Sparkle, Workflow } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import type { SocialRow } from "@/components/home/social-icons";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
@@ -103,29 +103,38 @@ export function Footer({
         <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-8 sm:mt-10 sm:grid-cols-2 sm:gap-y-10 lg:mt-12 lg:grid-cols-[3fr_3fr_4fr]">
           <motion.div
             {...rise(0.05)}
-            className="flex min-w-0 flex-col items-center text-center sm:items-start sm:text-left"
+            className="flex min-w-0 flex-col items-center sm:items-start"
           >
-            <Link
-              href="#hero"
-              aria-label="Aristache, back to top"
-              className={`inline-block rounded-lg ${FOCUS}`}
-            >
-              <Logo size="size-26 sm:size-35" />
-            </Link>
-            <p className="mt-3 max-w-[290px] text-[20px] leading-relaxed text-white/70 sm:mt-3.5">
-              Diagnose. Build. Automate.
-            </p>
-            {sponsorUrl?.trim() && (
-              <a
-                href={sponsorUrl.trim()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`border-brand-mid/35 text-brand-mid hover:border-brand-mid/70 hover:bg-brand-mid/10 hover:text-brand-bright mt-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${FOCUS}`}
+            <div className="flex flex-col items-center text-center">
+              <Link
+                href="#hero"
+                aria-label="Aristache, back to top"
+                className={`inline-block rounded-lg ${FOCUS}`}
               >
-                <Heart className="size-3.5" aria-hidden />
-                Fuel Future Projects
-              </a>
-            )}
+                <Image
+                  src="/brand/logo.svg"
+                  alt=""
+                  width={906}
+                  height={939}
+                  unoptimized
+                  className="h-28 w-auto sm:h-36"
+                />
+              </Link>
+              <p className="mt-3 max-w-[290px] text-[20px] leading-relaxed text-white/70 sm:mt-3.5">
+                Diagnose. Build. Automate.
+              </p>
+              {sponsorUrl?.trim() && (
+                <a
+                  href={sponsorUrl.trim()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`border-brand-mid/35 text-brand-mid hover:border-brand-mid/70 hover:bg-brand-mid/10 hover:text-brand-bright mt-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors ${FOCUS}`}
+                >
+                  <Heart className="size-3.5" aria-hidden />
+                  Fuel Future Projects
+                </a>
+              )}
+            </div>
           </motion.div>
 
           <motion.nav

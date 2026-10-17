@@ -1,5 +1,5 @@
 import { SITE } from "@/lib/seo/site";
-import { getProfile, getProjectsMerged, getExperiences, getSkills, getFaqs } from "@/lib/queries";
+import { getProfile, getProjectsMerged, getExperiences, getSkills } from "@/lib/queries";
 import type { SkillRow } from "@/lib/queries";
 import { pluralize } from "@/utils/plural";
 
@@ -22,11 +22,10 @@ export async function GET() {
   // Same source as the homepage, so this file cannot drift from what the site shows.
   const profile = await getProfile();
   const show = (id: string) => profile.sectionVisibility[id] !== false;
-  const [projects, experiences, skills, faqs] = await Promise.all([
+  const [projects, experiences, skills] = await Promise.all([
     show("projects") ? getProjectsMerged() : Promise.resolve([]),
     show("experience") ? getExperiences() : Promise.resolve([]),
     show("skills") ? getSkills() : Promise.resolve([]),
-    show("faq") ? getFaqs() : Promise.resolve([]),
   ]);
   const current = experiences.find((e) => e.isCurrent);
   const { years, repos, stars, followers } = profile.stats;
@@ -47,8 +46,6 @@ export async function GET() {
       return `- **${e.role}** - ${e.org}${where} · ${e.period}${bullets ? `\n${bullets}` : ""}`;
     })
     .join("\n");
-
-  const faqLines = faqs.map((f) => `### ${f.question}\n${f.answer}`).join("\n\n");
 
   const body = `# ${SITE.name} - Full Profile
 
@@ -80,7 +77,7 @@ GitHub: https://github.com/aristache-labs
 
 ${profile.name} is open to conversations about interesting projects.
 
-${section("FAQ", faqLines)}## Contact
+## Contact
 
 - Site: ${SITE.url}
 - Email: via the Contact section at ${SITE.url}/#contact

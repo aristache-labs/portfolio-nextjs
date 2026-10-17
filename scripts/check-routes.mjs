@@ -75,9 +75,8 @@ await group("stylesheets serve with content", async () => {
   }
 });
 
-await group("login and testimonial-submission pages render", async () => {
+await group("login page renders", async () => {
   await expectContent("/login", ["Cristache Adrian"]);
-  await expectContent("/testimonials/new", ["Cristache Adrian"]);
 });
 
 await group("robots, sitemap, manifest and llms routes serve valid content", async () => {

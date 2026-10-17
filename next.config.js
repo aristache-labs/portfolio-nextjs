@@ -4,7 +4,7 @@ const nextConfig = {
   devIndicators: false,
   // LAN device hitting the dev server (HMR /_next/webpack-hmr). Dev-only.
   allowedDevOrigins: ["192.168.1.108"],
-  // sharp is a native addon used server-side (testimonial/avatar image
+  // sharp is a native addon used server-side (avatar and project image
   // optimization in src/lib/blob.ts). Mark it external so Next loads it via a
   // plain require from node_modules at runtime instead of letting Turbopack
   // rewrite it into a hashed external module it cannot dlopen on Vercel
@@ -19,7 +19,7 @@ const nextConfig = {
       { protocol: "https", hostname: "**.githubusercontent.com" },
       { protocol: "https", hostname: "**.github.com" },
       { protocol: "https", hostname: "**.amazonaws.com" },
-      // Avatar + testimonial images uploaded to Vercel Blob.
+      // Avatar and project images uploaded to Vercel Blob.
       { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
       // Seeded avatar is an absolute URL on NEXT_PUBLIC_SITE_URL. Local dev is http://localhost.
       { protocol: "http", hostname: "localhost" },
