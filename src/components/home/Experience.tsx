@@ -4,10 +4,23 @@ import { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { Section, SectionHeading } from "@/components/ui/Section";
+import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
 import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
+
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/** Scroll-in props shared with Skills and Contact; empty when motion is reduced. */
+function rise(reduce: boolean, y: number, duration: number, delay = 0) {
+  if (reduce) return {};
+  return {
+    initial: { opacity: 0, y },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration, delay, ease: EASE },
+  };
+}
 
 function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number; last: boolean }) {
   const reduce = useReducedMotion();
@@ -59,10 +72,11 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
 
   return (
     <motion.li
-      initial={{ opacity: 0, x: 20 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.45, delay: index * 0.07, ease: "easeOut" }}
+      initial={{ opacity: 0, y: 28, scale: 0.98 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.55, delay: Math.min(index * 0.08, 0.4), ease: EASE }}
+      whileHover={{ y: -4 }}
     >
       {inner}
     </motion.li>
@@ -99,19 +113,32 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
           on a wide monitor. Stacks to one column below lg. */}
       <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14">
         <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start">
-          <SectionHeading
-            className="mb-5"
-            number="03"
-            eyebrow="Experience"
-            title="Where I've worked"
-            accent="worked"
-            nowrap
-          />
-          <p className="text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg">
+          <div className="mb-5">
+            <motion.p
+              {...rise(reduce, 16, 0.6)}
+              className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
+            >
+              <span>
+                <span className="gradient-text mr-3 font-semibold">03</span>
+                Experience
+              </span>
+              <span aria-hidden className="bg-border h-px flex-1" />
+            </motion.p>
+            <motion.h2
+              {...rise(reduce, 28, 0.8, 0.1)}
+              className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap"
+            >
+              Where I&apos;ve <span className="gradient-text">worked</span>
+            </motion.h2>
+          </div>
+          <motion.p
+            {...rise(reduce, 18, 0.7, 0.18)}
+            className="text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg"
+          >
             From hands-on IT support to leading global enterprise deployments, my journey is built
             on solving complex challenges, automating workflows, and delivering reliable technology
             solutions.
-          </p>
+          </motion.p>
         </div>
 
         <div ref={listRef} className="relative">
