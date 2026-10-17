@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { ArrowRight, Heart, Mouse, Pause, Play } from "lucide-react";
+import { ArrowRight, Heart, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -108,7 +108,7 @@ export function Hero({
     <section
       id="hero"
       onMouseMove={onMouseMove}
-      className="relative flex min-h-svh scroll-mt-24 flex-col justify-center overflow-hidden"
+      className="relative flex scroll-mt-24 flex-col justify-start overflow-hidden md:min-h-svh md:justify-center"
     >
       <div
         className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-hidden"
@@ -188,7 +188,7 @@ export function Hero({
         </button>
       )}
 
-      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <div className="max-w-2xl lg:pl-8">
           <motion.p
             {...fadeUp(reduce, 0.15)}
@@ -321,9 +321,6 @@ export function Hero({
         </span>
         <span className="text-xs tracking-wide">Scroll to explore</span>
       </a>
-      <div className="text-foreground/60 absolute bottom-6 left-5 z-10 flex items-center gap-2 text-xs md:hidden">
-        <Mouse className="size-4" aria-hidden /> Scroll to explore
-      </div>
     </section>
   );
 }

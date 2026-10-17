@@ -71,7 +71,7 @@ describe("Skills", () => {
     expect(screen.getByText("React")).toBeInTheDocument();
     expect(screen.getByText("TypeScript")).toBeInTheDocument();
     expect(screen.getByText("Node.js")).toBeInTheDocument();
-    expect(screen.getByText("PostgreSQL")).toBeInTheDocument();
+    expect(screen.getByText("SQL")).toBeInTheDocument();
   });
 
   it("renders category filters from the skill list", () => {

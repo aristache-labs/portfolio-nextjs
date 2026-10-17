@@ -68,13 +68,13 @@ export function About({ profile }: { profile: AboutProfile }) {
   return (
     <Section
       id="about"
-      className="scroll-mt-24"
+      className="scroll-mt-24 pt-12 pb-6 md:pt-28 md:pb-8"
       backdrop={
         <>
           <SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" />
           <div
             aria-hidden
-            className="bg-background/70 pointer-events-none absolute inset-0 z-[1] md:bg-background/50"
+            className="bg-background/70 md:bg-background/50 pointer-events-none absolute inset-0 z-[1]"
           />
         </>
       }

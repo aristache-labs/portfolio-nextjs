@@ -25,6 +25,39 @@ function byOrder(skills: SkillRow[]) {
   return [...skills].sort((a, b) => a.order - b.order);
 }
 
+/** All shows this set first. Aliases cover the stored names. */
+const ALL_FIRST: { aliases: string[]; label: string }[] = [
+  { aliases: ["powershell"], label: "PowerShell" },
+  { aliases: ["windows server", "windows"], label: "Windows Server" },
+  { aliases: ["linux"], label: "Linux" },
+  { aliases: ["typescript"], label: "TypeScript" },
+  { aliases: ["react"], label: "React" },
+  { aliases: ["next.js", "nextjs"], label: "Next.js" },
+  { aliases: ["react native"], label: "React Native" },
+  { aliases: ["sql", "postgresql", "mysql"], label: "SQL" },
+];
+
+function allTabSkills(ordered: SkillRow[]) {
+  const remaining = [...ordered];
+  const picked: SkillRow[] = [];
+  for (const slot of ALL_FIRST) {
+    let index = -1;
+    for (const alias of slot.aliases) {
+      index = remaining.findIndex((skill) => skill.name.trim().toLowerCase() === alias);
+      if (index >= 0) break;
+    }
+    if (index < 0) continue;
+    const [skill] = remaining.splice(index, 1);
+    picked.push({ ...skill, name: slot.label });
+  }
+  if (picked.length === 0) return ordered.slice(0, ALL_LIMIT);
+  for (const skill of remaining) {
+    if (picked.length >= ALL_LIMIT) break;
+    picked.push(skill);
+  }
+  return picked;
+}
+
 function techCount(total: number) {
   if (total <= 0) return "0";
   if (total < 10) return String(total);
@@ -47,7 +80,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
   const [filter, setFilter] = useState(ALL);
   const active = filter !== ALL && categories.includes(filter) ? filter : ALL;
   const visible =
-    active === ALL ? ordered.slice(0, ALL_LIMIT) : ordered.filter((s) => s.category === active);
+    active === ALL ? allTabSkills(ordered) : ordered.filter((s) => s.category === active);
 
   const stats: { icon: LucideIcon; value: string; label: string }[] = [
     { icon: Code2, value: techCount(skills.length), label: "Technologies & Tools" },
@@ -64,7 +97,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
   return (
     <section id="skills" className="relative z-10 scroll-mt-20 overflow-x-clip overflow-y-visible">
       <SectionBackdrop frame="screen" video="/media/skills.mp4" poster="/media/skills.webp" />
-      <div className="relative z-10 mx-auto max-w-7xl px-5 pt-24 pb-10 sm:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 pt-6 pb-10 sm:px-8 md:pt-8">
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
           <div className="min-w-0 text-center">
@@ -174,30 +207,30 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           </div>
         </div>
 
-        <div className="mt-6 grid items-end gap-4 lg:grid-cols-[1fr_280px]">
-          <div className="flex min-w-0 flex-col gap-4">
-            <motion.figure
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-background/40 relative max-w-sm rounded-xl border border-white/10 px-5 pt-6 pb-4 backdrop-blur-xl"
-            >
-              <Quote
-                aria-hidden
-                className={`${motionCss.float} text-brand-bright fill-brand-mid absolute -top-3 left-4 size-6 drop-shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.9)]`}
-              />
-              <blockquote className="text-foreground/85 text-sm leading-relaxed">
-                Tools evolve.
-                <br />
-                Problem-solving endures.
-              </blockquote>
-              <span
-                aria-hidden
-                className="bg-brand-mid mt-2.5 block h-[2px] w-6 rounded-full shadow-[0_0_10px_rgb(var(--brand-mid-rgb)/0.9)]"
-              />
-            </motion.figure>
+        <motion.figure
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="bg-background/40 relative mx-auto mt-12 max-w-sm rounded-xl border border-white/10 px-8 pt-6 pb-4 backdrop-blur-xl"
+        >
+          <Quote
+            aria-hidden
+            className={`${motionCss.float} text-brand-bright fill-brand-mid absolute -top-3 left-4 size-6 drop-shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.9)]`}
+          />
+          <blockquote className="text-foreground/85 text-sm leading-relaxed">
+            Tools evolve.
+            <br />
+            Problem-solving endures.
+          </blockquote>
+          <span
+            aria-hidden
+            className="bg-brand-mid mx-auto mt-2.5 block h-[2px] w-10 rounded-full shadow-[0_0_10px_rgb(var(--brand-mid-rgb)/0.9)]"
+          />
+        </motion.figure>
 
+        <div className="mt-6 grid items-end gap-4 lg:-mt-10 lg:grid-cols-[1fr_280px]">
+          <div className="flex min-w-0 flex-col gap-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -209,19 +242,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 aria-hidden
                 className={`${motionCss.lightning} via-brand-bright absolute top-0 left-0 h-px w-1/4 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_rgb(var(--brand-bright-rgb)/0.9)]`}
               />
-              <span
-                aria-hidden
-                className={`${motionCss.spark} text-brand-bright absolute top-2.5 right-8`}
-              >
-                <Zap className="fill-brand-bright size-3 drop-shadow-[0_0_8px_rgb(var(--brand-bright-rgb)/1)]" />
-              </span>
-              <span
-                aria-hidden
-                className={`${motionCss.spark} text-brand-mid absolute bottom-2.5 left-10`}
-                style={{ animationDelay: "1.3s" }}
-              >
-                <Zap className="fill-brand-mid size-2.5 drop-shadow-[0_0_8px_rgb(var(--brand-mid-rgb)/1)]" />
-              </span>
+
               <span className="grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-4">
                 {stats.map((stat, index) => (
                   <span
