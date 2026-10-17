@@ -110,7 +110,7 @@ describe("Contact", () => {
 
   it("renders the heading", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    expect(screen.getByRole("heading", { name: /let's build/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /conversation/i })).toBeTruthy();
   });
 
   it("renders social links in sort order", () => {

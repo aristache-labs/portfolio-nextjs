@@ -148,6 +148,13 @@
       "when": 1792300800000,
       "tag": "0020_skill_levels",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792304400000,
+      "tag": "0021_profile_email",
+      "breakpoints": true
     }
   ]
 }

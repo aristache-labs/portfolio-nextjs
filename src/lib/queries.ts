@@ -53,6 +53,7 @@ export { getProjects as getProjectsMerged };
 
 export async function getProfile(): Promise<{
   name: string;
+  email: string | null;
   bio: string;
   roles: string[];
   avatarUrl: string;
@@ -83,6 +84,7 @@ export async function getProfile(): Promise<{
 
   return {
     name: row.name,
+    email: row.email ?? null,
     bio: row.bio,
     avatarUrl: (row.avatarUrl as string) || FALLBACK_AVATAR,
     resumeUrl: (row.resumeUrl as string) ?? "",

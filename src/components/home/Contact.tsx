@@ -2,15 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  ChevronDown,
-  Mail,
-  MapPin,
-  RadioTower,
-  Send,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
@@ -36,17 +28,6 @@ type Card = {
 
 function cardsFor(socials: SocialRow[], email: string): Card[] {
   const cards: Card[] = [];
-  if (email) {
-    cards.push({
-      key: "email",
-      icon: Mail,
-      title: "Email",
-      value: email,
-      href: `mailto:${email}`,
-      external: false,
-      label: `Email ${email}`,
-    });
-  }
   for (const social of [...socials].sort((a, b) => a.order - b.order)) {
     if (social.platform.toLowerCase() === "email") continue;
     cards.push({
@@ -59,21 +40,23 @@ function cardsFor(socials: SocialRow[], email: string): Card[] {
       label: `${social.platform}: ${social.username}`,
     });
   }
-  cards.push({
-    key: "location",
-    icon: MapPin,
-    title: "Location",
-    value: "Romania",
-    href: "https://www.google.com/maps/place/Romania",
-    external: true,
-    label: "Location: Romania",
-  });
+  if (email) {
+    cards.push({
+      key: "email",
+      icon: Mail,
+      title: "Email",
+      value: email,
+      href: `mailto:${email}`,
+      external: false,
+      label: `Email ${email}`,
+    });
+  }
   return cards;
 }
 
 export function Contact({ socials, email }: { socials: SocialRow[]; email: string }) {
   const cards = cardsFor(socials, email);
-  const pills = cards.filter((card) => card.external && card.key !== "location");
+  const pills = cards.filter((card) => card.external);
   const [name, setName] = useState("");
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
@@ -166,11 +149,8 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
             className="font-display mt-6 text-[clamp(2rem,3.5vw,3.1rem)] leading-[1.08] font-extrabold tracking-tight text-white"
           >
-            Let&apos;s Build
+            Great&apos; Ideas Start with a <span className="gradient-text">Conversation.</span>
             <br />
-            Something
-            <br />
-            Amazing <span className="gradient-text">Together.</span>
           </motion.h2>
 
           <motion.p
@@ -180,8 +160,9 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             transition={{ duration: 0.7, delay: 0.18 }}
             className="mt-4 max-w-[475px] text-[16.5px] leading-[1.62] text-white/75 sm:text-[17px]"
           >
-            Have a project, a role, or a system that needs a careful pair of hands? I work across
-            IT, web, and mobile. Send a note and I&apos;ll reply.
+            Have a project in mind, a technical challenge to solve, or an opportunity to
+            collaborate? Whether it's IT infrastructure, automation, web, or mobile development, I'd
+            love to hear from you..
           </motion.p>
 
           <ul className="mt-9 grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5">
@@ -226,10 +207,10 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
             className="mt-8 lg:mt-10"
           >
-            <blockquote className="[font-family:var(--font-hand),cursive] text-[28px] leading-tight text-white drop-shadow-[0_2px_14px_rgb(0_0_0/0.65)] sm:text-[32px] lg:text-[34px]">
-              &ldquo;Let&apos;s turn ideas into reality.&rdquo;
+            <blockquote className="[font-family:var(--font-hand),cursive] text-[28px] leading-tight text-white drop-shadow-[0_2px_14px_rgb(0_0_0/0.65)] sm:text-[26px] lg:text-[28px]">
+              &ldquo;Every great solution starts with a conversation.&rdquo;
             </blockquote>
-            <footer className="mt-2 font-mono text-[11px] tracking-[0.3em] text-white/55">
+            <footer className="mt-2 font-mono text-[14px] tracking-[0.3em] text-white/55">
               - ADRIAN
             </footer>
           </motion.figure>

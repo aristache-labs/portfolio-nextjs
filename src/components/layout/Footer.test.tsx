@@ -18,15 +18,24 @@ vi.mock("next/link", () => ({
 }));
 
 // Mock framer-motion to avoid jsdom animation issues
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-      <div className={className} {...props}>
-        {children}
-      </div>
-    ),
-  },
-}));
+vi.mock("framer-motion", () => {
+  const motionProps = ["initial", "animate", "whileInView", "viewport", "transition"];
+  const passthrough = (tag: string) => {
+    return ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => {
+      for (const key of motionProps) delete props[key];
+      const Comp = tag as "div";
+      return <Comp {...props}>{children}</Comp>;
+    };
+  };
+  return {
+    motion: {
+      div: passthrough("div"),
+      h2: passthrough("h2"),
+      p: passthrough("p"),
+      span: passthrough("span"),
+    },
+  };
+});
 
 const mockSocials: SocialRow[] = [
   {

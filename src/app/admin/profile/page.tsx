@@ -24,6 +24,7 @@ export default async function ProfileEditor() {
     // Zod drops the absent optional, so Drizzle leaves the column alone rather than nulling it.
     await updateProfile({
       name: String(formData.get("name")),
+      email: String(formData.get("email") ?? "").trim() || null,
       bio: String(formData.get("bio")),
       stats: row?.stats ?? {},
       roles,
@@ -44,6 +45,17 @@ export default async function ProfileEditor() {
 
           <Field label="Name">
             <Input name="name" defaultValue={row?.name} placeholder="Name" />
+          </Field>
+          <Field
+            label="Email"
+            hint="Shown on the contact Email card. Leave empty to hide the card."
+          >
+            <Input
+              name="email"
+              type="email"
+              defaultValue={row?.email ?? ""}
+              placeholder="you@example.com"
+            />
           </Field>
           <Field label="Bio">
             <Textarea name="bio" defaultValue={row?.bio} rows={4} placeholder="Bio" />

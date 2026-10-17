@@ -17,6 +17,8 @@ import type { AdapterAccountType } from "@auth/core/adapters";
 export const profile = pgTable("profile", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  // Public contact address. Empty hides the contact Email card.
+  email: text("email"),
   bio: text("bio").notNull(),
   // arbitrary stat blocks e.g. { years: 4, repos: 60, stars: 1200 }
   stats: jsonb("stats").$type<Record<string, string | number>>().notNull().default({}),

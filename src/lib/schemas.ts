@@ -4,6 +4,10 @@ import { z } from "zod";
 
 export const profileInsertSchema = z.object({
   name: z.string().min(1),
+  email: z
+    .union([z.email(), z.literal(""), z.null()])
+    .optional()
+    .transform((value) => value || null),
   bio: z.string().min(1),
   stats: z.record(z.string(), z.union([z.string(), z.number()])).default({}),
   roles: z.array(z.string()).default([]),
