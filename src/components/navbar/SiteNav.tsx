@@ -178,15 +178,14 @@ export function SiteNav({
               transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
               className="border-border bg-background/80 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden"
             >
-              <ul className="site-container space-y-1 py-4 [@media(max-height:500px)]:py-2">
-                {visibleSections.map((section) => (
+                  <ul className="site-container space-y-1 py-4 [@media(max-height:500px)]:py-2">                {visibleSections.map((section) => (
                   <li key={section.id}>
                     <a
                       href={`#${section.id}`}
                       data-testid="mobile-section-link"
                       onClick={() => setOpen(false)}
                       className={cn(
-                        "block rounded-lg px-3 py-2.5 text-[15px] transition-colors [@media(max-height:500px)]:py-1.5",
+                        "block rounded-lg px-3 py-2.5 text-[15px] transition-colors [@media(max-height:500px)]:py-0.5 [@media(max-height:500px)]:text-sm/[1.8]",
                         section.id === active
                           ? "bg-(--brand-mid)/15 text-(--brand-bright)"
                           : "text-foreground/75 hover:bg-foreground/5 hover:text-foreground",

@@ -1,5 +1,5 @@
 import nextDynamic from "next/dynamic";
-import { Caveat, Inter, Sora } from "next/font/google";
+import { Caveat, Sora } from "next/font/google";
 import {
   getProfile,
   getProjectsMerged,
@@ -17,13 +17,6 @@ import { CaveatFontGate } from "@/components/home/CaveatFontGate";
 // ISR: prerendered at build time, so the build needs a reachable database. 12h is a Neon compute
 // budget decision, not a freshness one - admin saves publish immediately. See AGENTS.md.
 export const revalidate = 43200;
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-  preload: false,
-});
 
 const sora = Sora({
   subsets: ["latin"],
@@ -87,7 +80,7 @@ export default async function Home() {
   return (
     <div
       data-site="cinematic"
-      className={`${inter.variable} ${sora.variable} dark bg-background text-foreground relative min-h-screen`}
+      className={`${sora.variable} dark bg-background text-foreground relative min-h-screen`}
     >
       <CaveatFontGate className={caveat.variable} />
       <SiteNav

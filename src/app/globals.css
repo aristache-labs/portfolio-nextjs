@@ -142,8 +142,8 @@
   --gradient-brand: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
   --gradient-ink: linear-gradient(135deg, #76f5e1 0%, #d7fbf6 100%);
   --nav-pill-opacity: 0.2;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-sora), var(--font-inter), sans-serif;
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), sans-serif;
   background-color: var(--bg);
   color: var(--fg);
 }
