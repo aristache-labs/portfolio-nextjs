@@ -36,9 +36,7 @@ const caveat = Caveat({
   subsets: ["latin"],
   weight: ["600"],
   variable: "--font-hand",
-  // optional: if Caveat arrives after first paint, keep the fallback instead of swapping. A late
-  // swap re-lays out the whole page (font metrics change), which delayed LCP in the trace.
-  display: "optional",
+  display: "swap",
   // Only the Contact quote and skills motion use it, both below the fold.
   preload: false,
 });
