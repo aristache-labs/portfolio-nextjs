@@ -1,8 +1,8 @@
-import "./globals.css";
+﻿import "./globals.css";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { ReactNode } from "react";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -69,6 +69,10 @@ export const metadata: Metadata = {
       }
     : {}),
 };
+
+// viewport-fit=cover lets the page draw under the notch in landscape. Without it, iOS
+// letterboxes the page and leaves a black strip. site-container pads for the safe area.
+export const viewport: Viewport = { viewportFit: "cover" };
 
 const ScrollToTop = dynamic(() => import("@/components/common/ScrollToTop"));
 

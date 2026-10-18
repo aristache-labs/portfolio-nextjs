@@ -146,10 +146,10 @@ export function Hero({
       id="hero"
       ref={sectionRef}
       onMouseMove={onMouseMove}
-      className="relative flex scroll-mt-24 flex-col justify-start overflow-hidden md:min-h-[min(100svh,56rem)] md:justify-center"
+      className="relative flex scroll-mt-24 flex-col justify-start overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center"
     >
       <div
-        className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-hidden"
+        className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-clip"
         aria-hidden
       >
         {posterOk && (
@@ -234,7 +234,7 @@ export function Hero({
         </button>
       )}
 
-      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 [@media(max-height:500px)]:pt-20 [@media(max-height:500px)]:md:pb-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <div className="max-w-2xl min-w-0 lg:pl-8">
           <motion.p
             {...fadeUp(reduce, 0.15)}
@@ -250,13 +250,13 @@ export function Hero({
           <h1 className="max-w-3xl">
             <motion.span
               {...fadeUp(reduce, 0.3)}
-              className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(3.5rem,8vw,6.5rem)] leading-[0.95] font-extrabold tracking-tight text-transparent"
+              className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(3.5rem,8vw,6.5rem)] [@media(max-height:500px)]:text-[clamp(2.5rem,6vw,4rem)] leading-[0.95] font-extrabold tracking-tight text-transparent"
             >
               {profile.name.replace(/\bCristache\b\s*/i, "").trim()}
             </motion.span>
             <motion.span
               {...fadeUp(reduce, 0.45)}
-              className="font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] leading-[1.08] font-bold tracking-tight"
+              className="font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] [@media(max-height:500px)]:text-[1.25rem] leading-[1.08] font-bold tracking-tight"
             >
               Technology, <br />
               built with <span className="text-(--brand-mid)">intention.</span>
@@ -327,7 +327,7 @@ export function Hero({
           </motion.div>
 
           {iconSocials.length > 0 && (
-            <motion.div {...fadeUp(reduce, 0.9)} className="mt-5 flex flex-wrap items-center gap-3">
+            <motion.div {...fadeUp(reduce, 0.9)} className="mt-5 flex flex-wrap items-center gap-3 [@media(max-height:500px)]:hidden">
               {iconSocials.map((s) => {
                 const external = s.url.startsWith("http");
                 return (
@@ -348,7 +348,7 @@ export function Hero({
           {profile.roles.length > 0 && (
             <motion.p
               {...fadeUp(reduce, 1)}
-              className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em]"
+              className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase [@media(max-height:500px)]:hidden md:text-xs md:tracking-[0.14em]"
             >
               {profile.roles.map((role, i) => (
                 <span key={role}>
@@ -363,7 +363,7 @@ export function Hero({
 
       <a
         href="#projects"
-        className="text-foreground/50 hover:text-foreground absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex"
+        className="text-foreground/50 hover:text-foreground absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 [@media(max-height:500px)]:hidden md:flex"
         aria-label="Scroll to projects"
       >
         <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5">

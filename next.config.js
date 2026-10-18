@@ -22,7 +22,7 @@ const nextConfig = {
     };
   },
   images: {
-    // 90 for the About portrait: it renders large enough that the default 75 shows artefacts.
+    // 75 is the default for the About portrait; 90 cost ~52 KB more with no visible gain at 2x.
     qualities: [75, 90],
     remotePatterns: [
       { protocol: "https", hostname: "**.githubusercontent.com" },

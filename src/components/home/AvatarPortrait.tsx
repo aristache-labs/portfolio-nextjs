@@ -44,7 +44,7 @@ export function AvatarPortrait({ src, name }: { src: string; name: string }) {
                 src={src}
                 alt={`Portrait of ${name}`}
                 fill
-                quality={90}
+                quality={75}
                 sizes="(max-width: 640px) 288px, (max-width: 1024px) 320px, 384px"
                 className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
               />
