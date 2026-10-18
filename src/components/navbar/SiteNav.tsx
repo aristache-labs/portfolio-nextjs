@@ -70,134 +70,152 @@ export function SiteNav({
   }, [open]);
 
   return (
-    <motion.header
-      initial={reduce ? false : { y: -70, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        scrolled
-          ? "bg-background/70 border-b border-(--brand-mid)/30 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
-          : "bg-transparent",
-      )}
-    >
-      <nav
-        aria-label="Primary"
-        className="site-container flex h-[72px] items-center justify-between"
-      >
-        <a href="#hero" aria-label="Home" className="flex min-w-0 items-center gap-2.5">
-          <Logo />
-          <Image
-            src={WORDMARK.src}
-            alt=""
-            width={WORDMARK.width}
-            height={WORDMARK.height}
-            priority
-            unoptimized
-            className="h-auto w-[min(42vw,14rem)]"
-          />
-        </a>
-
-        <ul className="hidden items-center gap-8 xl:flex">
-          {visibleSections.map((section) => {
-            const isActive = section.id === active;
-            return (
-              <li key={section.id}>
-                <a
-                  href={`#${section.id}`}
-                  className={cn(
-                    "group relative text-[15px] transition-colors",
-                    isActive
-                      ? "font-medium text-(--brand-bright)"
-                      : "text-foreground/70 hover:text-foreground",
-                  )}
-                >
-                  {section.label}
-                  <span
-                    className={cn(
-                      "absolute -bottom-2 left-0 h-[2px] rounded-full bg-linear-to-r from-(--brand-mid) to-(--brand-bright) transition-all duration-300",
-                      isActive
-                        ? "w-full shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.9)]"
-                        : "w-0 group-hover:w-full",
-                    )}
-                  />
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-
-        {navCta && (
-          <a
-            href={navCta.href}
-            {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-            className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
-          >
-            {navCta.external && <Heart className="text-brand-bright size-3.5" aria-hidden />}
-            {navCta.label}
-            {!navCta.external && (
-              <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-            )}
-          </a>
-        )}
-
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          className="border-border bg-background/40 text-foreground flex size-11 shrink-0 items-center justify-center rounded-xl border backdrop-blur-md xl:hidden"
-        >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
-      </nav>
-
+    <>
+      {/* Blurred backdrop behind the mobile menu. Sits outside the header: the header's
+          transform would otherwise make this fixed layer position relative to the header. */}
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={reduce ? false : { height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={reduce ? undefined : { height: 0, opacity: 0 }}
-            transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
-            className="border-border bg-background/80 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden"
-          >
-            <ul className="site-container space-y-1 py-4">
-              {visibleSections.map((section) => (
+            key="menu-backdrop"
+            aria-hidden
+            onClick={() => setOpen(false)}
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reduce ? undefined : { opacity: 0 }}
+            transition={{ duration: reduce ? 0 : 0.3 }}
+            className="bg-background/40 fixed inset-x-0 top-[72px] bottom-0 z-40 backdrop-blur-md xl:hidden"
+          />
+        )}
+      </AnimatePresence>
+      <motion.header
+        initial={reduce ? false : { y: -70, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+          scrolled || open
+            ? "bg-background/70 border-b border-(--brand-mid)/30 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            : "bg-transparent",
+        )}
+      >
+        <nav
+          aria-label="Primary"
+          className="site-container flex h-[72px] items-center justify-between"
+        >
+          <a href="#hero" aria-label="Home" className="flex min-w-0 items-center gap-2.5">
+            <Logo />
+            <Image
+              src={WORDMARK.src}
+              alt=""
+              width={WORDMARK.width}
+              height={WORDMARK.height}
+              priority
+              unoptimized
+              className="h-auto w-[min(42vw,14rem)]"
+            />
+          </a>
+
+          <ul className="hidden items-center gap-8 xl:flex">
+            {visibleSections.map((section) => {
+              const isActive = section.id === active;
+              return (
                 <li key={section.id}>
                   <a
                     href={`#${section.id}`}
-                    data-testid="mobile-section-link"
-                    onClick={() => setOpen(false)}
                     className={cn(
-                      "block rounded-lg px-3 py-2.5 text-[15px] transition-colors",
-                      section.id === active
-                        ? "bg-(--brand-mid)/15 text-(--brand-bright)"
-                        : "text-foreground/75 hover:bg-foreground/5 hover:text-foreground",
+                      "group relative text-[15px] transition-colors",
+                      isActive
+                        ? "font-medium text-(--brand-bright)"
+                        : "text-foreground/70 hover:text-foreground",
                     )}
                   >
                     {section.label}
+                    <span
+                      className={cn(
+                        "absolute -bottom-2 left-0 h-[2px] rounded-full bg-linear-to-r from-(--brand-mid) to-(--brand-bright) transition-all duration-300",
+                        isActive
+                          ? "w-full shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.9)]"
+                          : "w-0 group-hover:w-full",
+                      )}
+                    />
                   </a>
                 </li>
-              ))}
-              {navCta && (
-                <li className="pt-2">
-                  <a
-                    href={navCta.href}
-                    onClick={() => setOpen(false)}
-                    {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="text-foreground focus-visible:ring-brand-bright/70 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-(--brand-deep) px-5 py-3 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none"
-                  >
-                    {navCta.external && <Heart className="size-4" aria-hidden />}
-                    {navCta.label}
-                    {!navCta.external && <ArrowRight className="size-4" />}
-                  </a>
-                </li>
+              );
+            })}
+          </ul>
+
+          {navCta && (
+            <a
+              href={navCta.href}
+              {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
+            >
+              {navCta.external && <Heart className="text-brand-bright size-3.5" aria-hidden />}
+              {navCta.label}
+              {!navCta.external && (
+                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               )}
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+            </a>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            className="border-border bg-background/40 text-foreground flex size-11 shrink-0 items-center justify-center rounded-xl border backdrop-blur-md xl:hidden"
+          >
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </nav>
+
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={reduce ? false : { height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={reduce ? undefined : { height: 0, opacity: 0 }}
+              transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
+              className="border-border bg-background/80 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden"
+            >
+              <ul className="site-container space-y-1 py-4 [@media(max-height:500px)]:py-2">
+                {visibleSections.map((section) => (
+                  <li key={section.id}>
+                    <a
+                      href={`#${section.id}`}
+                      data-testid="mobile-section-link"
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "block rounded-lg px-3 py-2.5 text-[15px] transition-colors [@media(max-height:500px)]:py-1.5",
+                        section.id === active
+                          ? "bg-(--brand-mid)/15 text-(--brand-bright)"
+                          : "text-foreground/75 hover:bg-foreground/5 hover:text-foreground",
+                      )}
+                    >
+                      {section.label}
+                    </a>
+                  </li>
+                ))}
+                {navCta && (
+                  <li className="pt-2">
+                    <a
+                      href={navCta.href}
+                      onClick={() => setOpen(false)}
+                      {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="text-foreground focus-visible:ring-brand-bright/70 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-(--brand-deep) px-5 py-3 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none"
+                    >
+                      {navCta.external && <Heart className="size-4" aria-hidden />}
+                      {navCta.label}
+                      {!navCta.external && <ArrowRight className="size-4" />}
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.header>
+    </>
   );
 }
 
