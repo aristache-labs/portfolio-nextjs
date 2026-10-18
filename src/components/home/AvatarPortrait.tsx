@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Expand } from "lucide-react";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
+import { useHeroPosterReady } from "@/hooks/useHeroPosterReady";
 
 // Leaf silhouette: two large corners opposite two small ones. The halo sits 1rem outside the ring,
 // so it carries its own larger radii or its blur clips square against the frame. Scaled-down twins
@@ -18,6 +19,7 @@ const HALO = "rounded-[7rem_2.5rem_7rem_2.5rem]";
  */
 export function AvatarPortrait({ src, name }: { src: string; name: string }) {
   const [open, setOpen] = useState(false);
+  const heroReady = useHeroPosterReady();
 
   return (
     <>
@@ -33,17 +35,20 @@ export function AvatarPortrait({ src, name }: { src: string; name: string }) {
           <button
             type="button"
             onClick={() => setOpen(true)}
+            disabled={!heroReady}
             aria-label={`View portrait of ${name} full size`}
             className={`focus-visible:ring-ring relative flex-1 cursor-zoom-in overflow-hidden focus-visible:ring-2 focus-visible:outline-none ${SHAPE}`}
           >
-            <Image
-              src={src}
-              alt={`Portrait of ${name}`}
-              fill
-              quality={90}
-              sizes="(max-width: 640px) 288px, (max-width: 1024px) 320px, 384px"
-              className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
-            />
+            {heroReady && (
+              <Image
+                src={src}
+                alt={`Portrait of ${name}`}
+                fill
+                quality={90}
+                sizes="(max-width: 640px) 288px, (max-width: 1024px) 320px, 384px"
+                className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
+              />
+            )}
             <span
               aria-hidden
               className={`absolute inset-0 ring-1 ring-white/20 ring-inset ${SHAPE}`}

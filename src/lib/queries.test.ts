@@ -233,7 +233,7 @@ describe("getProfile", () => {
     const result = await getProfile();
     expect(result.roles).toEqual([]);
     // A missing avatar falls back to the bundled asset so the hero never breaks.
-    expect(result.avatarUrl).toBe("/images/aristache.png");
+    expect(result.avatarUrl).toBe("/images/aristache.webp");
     expect(result.resumeUrl).toBe("");
     expect(result.stats).toEqual({ years: 4, repos: 9, stars: 11, followers: 5 });
   });

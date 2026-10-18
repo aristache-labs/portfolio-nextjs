@@ -1,4 +1,3 @@
-
 import { chromium, devices } from "playwright";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -139,7 +138,8 @@ function getDeviceOptions(name) {
 
   // Chrome is used for every capture.
   // Remove browser-specific recommendations.
-  const { defaultBrowserType, ...context } = preset;
+  const context = { ...preset };
+  delete context.defaultBrowserType;
 
   return context;
 }
@@ -183,12 +183,7 @@ function addPlaywrightPresets(targets, names, category) {
     const context = getDeviceOptions(name);
     if (!context) continue;
 
-    addOrientations(
-      targets,
-      `device-${slug(name)}`,
-      context,
-      category,
-    );
+    addOrientations(targets, `device-${slug(name)}`, context, category);
   }
 }
 
@@ -201,10 +196,7 @@ function getAllDeviceNames(category) {
     }
 
     return (
-      /iPhone|Pixel|Galaxy|Nexus|Moto|Lumia|BlackBerry/i.test(
-        name,
-      ) &&
-      !/Galaxy Tab/i.test(name)
+      /iPhone|Pixel|Galaxy|Nexus|Moto|Lumia|BlackBerry/i.test(name) && !/Galaxy Tab/i.test(name)
     );
   });
 }
@@ -251,10 +243,7 @@ function buildTargets() {
   if (CONFIG.phones) {
     addManualSizes(targets, phoneSizes, "phones");
 
-    const names =
-      CONFIG.mode === "all"
-        ? getAllDeviceNames("phones")
-        : recommendedPhones;
+    const names = CONFIG.mode === "all" ? getAllDeviceNames("phones") : recommendedPhones;
 
     addPlaywrightPresets(targets, names, "phones");
   }
@@ -262,10 +251,7 @@ function buildTargets() {
   if (CONFIG.tablets) {
     addManualSizes(targets, tabletSizes, "tablets");
 
-    const names =
-      CONFIG.mode === "all"
-        ? getAllDeviceNames("tablets")
-        : recommendedTablets;
+    const names = CONFIG.mode === "all" ? getAllDeviceNames("tablets") : recommendedTablets;
 
     addPlaywrightPresets(targets, names, "tablets");
   }
@@ -279,13 +265,9 @@ function buildTargets() {
 
 async function prepareFullPage(page) {
   await page.evaluate(async (scrollDelay) => {
-    const delay = (ms) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const step = Math.max(
-      250,
-      Math.floor(window.innerHeight * 0.8),
-    );
+    const step = Math.max(250, Math.floor(window.innerHeight * 0.8));
 
     let position = 0;
 
@@ -339,18 +321,18 @@ async function prepareFullPage(page) {
 async function captureTarget(browser, target) {
   const context = await browser.newContext({
     ...target.context,
-  
+
     // Always use Dark Mode
     colorScheme: "dark",
-  
+
     // Preserve stable animations for screenshots
     reducedMotion: "reduce",
   });
-  
+
   // Set the theme BEFORE loading the website
   await context.addInitScript(() => {
     localStorage.setItem("theme", "dark");
-  
+
     // Default Aristache Obsidian palette
     localStorage.removeItem("palette");
   });
@@ -363,30 +345,26 @@ async function captureTarget(browser, target) {
       timeout: 60000,
     });
 
-        // Wait until next-themes applies Dark Mode
-    await page.waitForFunction(
-      () => document.documentElement.classList.contains("dark"),
-      null,
-      { timeout: 10000 },
-    );
+    // Wait until next-themes applies Dark Mode
+    await page.waitForFunction(() => document.documentElement.classList.contains("dark"), null, {
+      timeout: 10000,
+    });
 
     // Debug theme configuration
     const themeInfo = await page.evaluate(() => ({
       theme: localStorage.getItem("theme"),
       rootClass: document.documentElement.className,
-      background: getComputedStyle(
-        document.documentElement,
-      ).getPropertyValue("--bg").trim(),
-      prefersDark: matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches,
+      background: getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
+      prefersDark: matchMedia("(prefers-color-scheme: dark)").matches,
     }));
 
     console.log(`[${target.name}] Theme:`, themeInfo);
-    
-    await page.waitForLoadState("load", {
-      timeout: 15000,
-    }).catch(() => {});
+
+    await page
+      .waitForLoadState("load", {
+        timeout: 15000,
+      })
+      .catch(() => {});
 
     // Hide the Next.js development overlay and
     // disable smooth scrolling during capture.
@@ -405,10 +383,7 @@ async function captureTarget(browser, target) {
 
     await prepareFullPage(page);
 
-    const directory = path.join(
-      CONFIG.output,
-      target.category,
-    );
+    const directory = path.join(CONFIG.output, target.category);
 
     await mkdir(directory, { recursive: true });
 
@@ -426,9 +401,7 @@ async function captureTarget(browser, target) {
 
     const viewport = page.viewportSize();
 
-    console.log(
-      `✓ ${target.name} (${viewport?.width}x${viewport?.height})`,
-    );
+    console.log(`✓ ${target.name} (${viewport?.width}x${viewport?.height})`);
 
     return { name: target.name, success: true };
   } catch (error) {
@@ -464,9 +437,7 @@ async function main() {
 
   try {
     for (const [index, target] of targets.entries()) {
-      console.log(
-        `[${index + 1}/${targets.length}] ${target.name}`,
-      );
+      console.log(`[${index + 1}/${targets.length}] ${target.name}`);
 
       results.push(await captureTarget(browser, target));
     }

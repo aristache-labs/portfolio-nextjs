@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { useHeroPosterReady } from "@/hooks/useHeroPosterReady";
 
 type Listener = (visible: boolean) => void;
 const observers = new Map<
@@ -40,29 +41,6 @@ function observe(el: Element, rootMargin: string, listener: Listener) {
 const LOAD_MARGIN = "200px 0px";
 /** Keep playing until the section is this far away, then pause. */
 const PLAY_MARGIN = "600px 0px";
-
-const HERO_POSTER = '#hero img[fetchpriority="high"]';
-
-function isHeroPosterReady() {
-  // complete also covers a failed image. A missing hero must not block other sections.
-  return document.querySelector<HTMLImageElement>(HERO_POSTER)?.complete ?? true;
-}
-
-function subscribeToHeroPoster(onChange: () => void) {
-  const onSettled = (event: Event) => {
-    if (event.target instanceof HTMLImageElement && event.target.matches(HERO_POSTER)) onChange();
-  };
-  // Image load/error events do not bubble, so listen during capture.
-  document.addEventListener("load", onSettled, true);
-  document.addEventListener("error", onSettled, true);
-  return () => {
-    document.removeEventListener("load", onSettled, true);
-    document.removeEventListener("error", onSettled, true);
-  };
-}
-
-const subscribeToNothing = () => () => {};
-const heroPosterServerSnapshot = () => false;
 
 /**
  * Full-bleed section video. Desktop plays the loop, fetched only when the section nears the
@@ -103,12 +81,7 @@ export function SectionBackdrop({
   const [posterOk, setPosterOk] = useState(Boolean(poster));
   const [near, setNear] = useState(false);
   const [ready, setReady] = useState(false);
-  const heroReady = useSyncExternalStore(
-    deferUntilHeroLoaded ? subscribeToHeroPoster : subscribeToNothing,
-    isHeroPosterReady,
-    heroPosterServerSnapshot,
-  );
-  const posterReady = !deferUntilHeroLoaded || heroReady;
+  const posterReady = useHeroPosterReady(deferUntilHeroLoaded);
 
   const showVideo = Boolean(video) && videoOk && !reduce && isDesktop;
 

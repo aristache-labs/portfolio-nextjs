@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { cn } from "@/utils/cn";
-import { IconTile } from "@/components/ui/IconTile";
 
 const INVERT_IN_LIGHT = /nextjs|next-js|next\.|vercel|express|flask|github|apple/i;
 
