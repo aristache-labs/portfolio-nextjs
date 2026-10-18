@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import Script from "next/script";
 import { motion } from "framer-motion";
+import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ArrowRight, ArrowUpRight, ChevronDown, Heart, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
@@ -75,6 +76,7 @@ export function Contact({
   sponsorUrl?: string | null;
 }) {
   const cards = cardsFor(socials, email);
+  const reducedMotionProps = useReducedMotionProps();
   const [name, setName] = useState("");
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
@@ -155,6 +157,7 @@ export function Contact({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            {...reducedMotionProps}
             className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
           >
             <span>
@@ -169,6 +172,7 @@ export function Contact({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
+            {...reducedMotionProps}
             className="font-display mt-6 text-[clamp(2rem,3.5vw,3.1rem)] leading-[1.08] font-extrabold tracking-tight text-white"
           >
             Great&apos; Ideas Start with a <span className="gradient-text">Conversation.</span>
@@ -180,6 +184,7 @@ export function Contact({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.18 }}
+            {...reducedMotionProps}
             className="mt-4 max-w-[475px] text-[16.5px] leading-[1.62] text-white/75 sm:text-[17px]"
           >
             Have a project in mind, a technical challenge to solve, or an opportunity to
@@ -198,6 +203,7 @@ export function Contact({
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}
                     transition={{ duration: 0.55, delay: 0.25 + index * 0.1, ease: EASE }}
+                    {...reducedMotionProps}
                   >
                     <a
                       href={card.href}
@@ -236,6 +242,7 @@ export function Contact({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
+            {...reducedMotionProps}
             className="mt-8 lg:mt-10"
           >
             <blockquote className="[font-family:var(--font-hand),cursive] text-[28px] leading-tight text-white drop-shadow-[0_2px_14px_rgb(0_0_0/0.65)] sm:text-[26px] lg:text-[28px]">
@@ -264,6 +271,7 @@ export function Contact({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
+          {...reducedMotionProps}
           className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9"
         >
           <form

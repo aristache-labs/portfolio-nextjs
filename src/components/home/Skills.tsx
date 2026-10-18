@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type MouseEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { ArrowRight, BarChart3, Code2, Heart, Quote, Zap, type LucideIcon } from "lucide-react";
 import { SkillCard } from "./SkillCard";
@@ -66,6 +67,7 @@ function techCount(total: number) {
 }
 
 export function Skills({ skills }: { skills: SkillRow[] }) {
+  const reducedMotionProps = useReducedMotionProps();
   const ordered = useMemo(() => byOrder(skills), [skills]);
   const categories = useMemo(() => {
     const present = new Set(ordered.map((skill) => skill.category));
@@ -116,6 +118,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
+              {...reducedMotionProps}
               className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium"
             >
               <Zap className="fill-brand-mid text-brand-mid size-3.5" />
@@ -127,6 +130,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.1 }}
+              {...reducedMotionProps}
               className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap"
             >
               Skills that build <span className="gradient-text">possibilities</span>
@@ -137,6 +141,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.2 }}
+              {...reducedMotionProps}
               className="text-foreground/55 mx-auto mt-2 max-w-2xl text-sm sm:text-base"
             >
               A curated set of technologies, tools and skills I use to turn ideas into reality.
@@ -154,6 +159,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
+                {...reducedMotionProps}
                 className="flex flex-wrap items-center gap-2"
                 role="tablist"
                 aria-label="Filter skills by category"
@@ -169,6 +175,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                       onClick={() => setFilter(value)}
                       whileHover={{ y: -2 }}
                       whileTap={{ scale: 0.97 }}
+                      {...reducedMotionProps}
                       className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${
                         selected
                           ? "border-brand-bright/60 bg-(image:--gradient-brand) text-white"
@@ -190,6 +197,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
 
             <motion.div
               layout
+              {...reducedMotionProps}
               className="mt-4 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
             >
               <AnimatePresence mode="popLayout">
@@ -201,6 +209,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.3) }}
+                    {...reducedMotionProps}
                     className="min-w-0"
                   >
                     <SkillCard
@@ -222,6 +231,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
+          {...reducedMotionProps}
           className="bg-background/40 relative mx-auto mt-12 max-w-sm rounded-xl border border-white/10 px-8 pt-6 pb-4 backdrop-blur-xl"
         >
           <Quote
@@ -246,6 +256,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
+              {...reducedMotionProps}
               className="relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] backdrop-blur-[18px] sm:px-6"
             >
               <span
@@ -284,6 +295,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.15 }}
             whileHover={{ y: -4 }}
+            {...reducedMotionProps}
             className="group border-brand-mid/30 from-brand-deep/25 via-background/80 to-brand-mid/20 hover:border-brand-bright/60 relative flex min-w-0 items-center justify-between gap-4 overflow-hidden rounded-2xl border bg-gradient-to-br p-5 backdrop-blur-xl transition-colors hover:shadow-[0_20px_60px_rgb(var(--brand-mid-rgb)/0.35)]"
             aria-label="Back to projects"
           >

@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { MapPin } from "lucide-react";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
 import { cn } from "@/utils/cn";
@@ -11,9 +11,9 @@ import type { ExperienceRow } from "@/lib/queries";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-/** Scroll-in props shared with Skills and Contact; empty when motion is reduced. */
+/** Scroll-in props shared with Skills and Contact; immediately visible when motion is reduced. */
 function rise(reduce: boolean, y: number, duration: number, delay = 0) {
-  if (reduce) return {};
+  if (reduce) return REDUCED_MOTION_PROPS;
   return {
     initial: { opacity: 0, y },
     whileInView: { opacity: 1, y: 0 },

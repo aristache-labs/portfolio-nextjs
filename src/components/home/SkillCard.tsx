@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { cn } from "@/utils/cn";
 
 const INVERT_IN_LIGHT = /nextjs|next-js|next\.|vercel|express|flask|github|apple/i;
@@ -38,6 +39,7 @@ export function SkillCard({
   level?: string | null;
   index: number;
 }) {
+  const reducedMotionProps = useReducedMotionProps();
   const src = skillIconSrc(iconPath);
   const percent = skillPercent(level);
   const invertLight =
@@ -52,6 +54,7 @@ export function SkillCard({
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.5, delay: (index % 8) * 0.06, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -4 }}
+      {...reducedMotionProps}
       className="group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-4 py-3.5 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)]"
     >
       <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
@@ -84,6 +87,7 @@ export function SkillCard({
             whileInView={{ width: `${percent}%` }}
             viewport={{ once: true, margin: "-30px" }}
             transition={{ duration: 1, delay: 0.2 + (index % 8) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+            {...reducedMotionProps}
             className="block h-full rounded-full bg-(image:--gradient-brand) shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.6)]"
           />
         </span>
