@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import Script from "next/script";
 import { motion } from "framer-motion";
+import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ArrowRight, ArrowUpRight, ChevronDown, Heart, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
@@ -15,6 +17,14 @@ export { platformIcon, type SocialIcon, type SocialRow };
 const SUBJECTS = ["Project Collaboration", "Job Opportunity", "Freelance Work", "General Question"];
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+type TurnstileApi = { reset: () => void };
+
+function resetTurnstile() {
+  (window as unknown as { turnstile?: TurnstileApi }).turnstile?.reset();
+}
 
 type Card = {
   key: string;
@@ -66,6 +76,7 @@ export function Contact({
   sponsorUrl?: string | null;
 }) {
   const cards = cardsFor(socials, email);
+  const reducedMotionProps = useReducedMotionProps();
   const [name, setName] = useState("");
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
@@ -78,17 +89,20 @@ export function Contact({
     "mt-2 h-10 w-full rounded-lg border border-white/10 bg-black/40 px-3 text-base text-white placeholder:text-white/35 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
   const labelClass = "block text-[13.5px] font-medium text-white/75";
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (inFlight.current) return;
     inFlight.current = true;
     setStatus("submitting");
     setError("");
+    const turnstileToken = String(
+      new FormData(event.currentTarget).get("cf-turnstile-response") ?? "",
+    );
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email: from, subject, message }),
+        body: JSON.stringify({ name, email: from, subject, message, turnstileToken }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -106,6 +120,7 @@ export function Contact({
       setStatus("error");
     } finally {
       inFlight.current = false;
+      resetTurnstile();
     }
   }
 
@@ -142,6 +157,7 @@ export function Contact({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            {...reducedMotionProps}
             className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
           >
             <span>
@@ -156,6 +172,7 @@ export function Contact({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
+            {...reducedMotionProps}
             className="font-display mt-6 text-[clamp(2rem,3.5vw,3.1rem)] leading-[1.08] font-extrabold tracking-tight text-white"
           >
             Great&apos; Ideas Start with a <span className="gradient-text">Conversation.</span>
@@ -167,6 +184,7 @@ export function Contact({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.18 }}
+            {...reducedMotionProps}
             className="mt-4 max-w-[475px] text-[16.5px] leading-[1.62] text-white/75 sm:text-[17px]"
           >
             Have a project in mind, a technical challenge to solve, or an opportunity to
@@ -185,6 +203,7 @@ export function Contact({
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-40px" }}
                     transition={{ duration: 0.55, delay: 0.25 + index * 0.1, ease: EASE }}
+                    {...reducedMotionProps}
                   >
                     <a
                       href={card.href}
@@ -223,6 +242,7 @@ export function Contact({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
+            {...reducedMotionProps}
             className="mt-8 lg:mt-10"
           >
             <blockquote className="[font-family:var(--font-hand),cursive] text-[28px] leading-tight text-white drop-shadow-[0_2px_14px_rgb(0_0_0/0.65)] sm:text-[26px] lg:text-[28px]">
@@ -251,6 +271,7 @@ export function Contact({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
+          {...reducedMotionProps}
           className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9"
         >
           <form
@@ -345,6 +366,20 @@ export function Contact({
                 />
               </div>
             </div>
+
+            {TURNSTILE_SITE_KEY && (
+              <>
+                <Script
+                  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                  strategy="afterInteractive"
+                />
+                <div
+                  className="cf-turnstile mt-5"
+                  data-sitekey={TURNSTILE_SITE_KEY}
+                  data-theme="dark"
+                />
+              </>
+            )}
 
             <Magnetic className="mt-5 block w-full">
               <Button

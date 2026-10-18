@@ -100,7 +100,7 @@ export function Footer({
           </motion.div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-8 sm:mt-10 sm:grid-cols-2 sm:gap-y-10 lg:mt-12 lg:grid-cols-[3fr_3fr_4fr]">
+        <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-8 sm:mt-10 sm:grid-cols-2 sm:gap-y-10 lg:mt-12 lg:grid-cols-[3fr_3fr_4fr] [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto_1fr] [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-6">
           <motion.div {...rise(0.05)} className="flex min-w-0 flex-col items-center sm:items-start">
             <div className="flex flex-col items-center text-center">
               <Link
@@ -114,10 +114,10 @@ export function Footer({
                   width={906}
                   height={939}
                   unoptimized
-                  className="h-28 w-auto sm:h-36"
+                  className="h-28 w-auto sm:h-36 [@media(orientation:landscape)_and_(max-width:1024px)]:h-26"
                 />
               </Link>
-              <p className="mt-3 max-w-[290px] text-[20px] leading-relaxed text-white/70 sm:mt-3.5">
+              <p className="mt-3 max-w-[290px] text-[20px] leading-relaxed text-white/70 sm:mt-3.5 [@media(orientation:landscape)_and_(max-width:1024px)]:text-[14px]">
                 Diagnose. Build. Automate.
               </p>
               {sponsorUrl?.trim() && (
@@ -137,7 +137,7 @@ export function Footer({
           <motion.nav
             {...rise(0.12)}
             aria-label="Explore"
-            className={`${DIVIDER} max-sm:bg-background/40 max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5`}
+            className={`${DIVIDER} max-sm:bg-background/40 max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
           >
             <h3 className={HEADING}>Explore</h3>
             <ul className="mt-3 grid grid-cols-1 gap-y-0 sm:mt-4 sm:gap-y-1">
@@ -158,7 +158,10 @@ export function Footer({
             </ul>
           </motion.nav>
 
-          <motion.div {...rise(0.19)} className={`${DIVIDER} sm:col-span-2 lg:col-span-1`}>
+          <motion.div
+            {...rise(0.19)}
+            className={`${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-stretch [@media(orientation:landscape)_and_(max-width:1024px)]:text-center`}
+          >
             <h3 className={HEADING}>Let&apos;s Connect</h3>
             <p className="mt-3 max-w-[340px] text-[15px] leading-relaxed text-white/70">
               Have something in mind? I&apos;d love to hear about it.
@@ -167,7 +170,7 @@ export function Footer({
               href="#contact"
               variant="primary"
               size="lg"
-              className={`group mt-5 rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] ${FOCUS}`}
+              className={`group mt-5 rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] [@media(orientation:landscape)_and_(max-width:1024px)]:self-center ${FOCUS}`}
             >
               <Mail className="size-4" aria-hidden />
               Send a Message
@@ -184,7 +187,7 @@ export function Footer({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, delay: 0.3, ease: EASE }}
-          className="bg-background/80 mt-8 grid items-center gap-3 rounded-xl border border-white/10 px-5 py-3.5 text-center sm:mt-10 md:grid-cols-[1fr_auto_1fr] md:gap-4 lg:mt-12"
+          className="bg-background/80 mt-8 grid items-center gap-3 rounded-xl border border-white/10 px-5 py-3.5 text-center sm:mt-10 md:grid-cols-[1fr_auto_1fr] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]"
         >
           <p className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px]">
             <span className="max-md:block">
@@ -198,7 +201,7 @@ export function Footer({
               Privacy
             </Link>
           </p>
-          <div className="hidden items-center justify-center gap-2.5 md:flex">
+          <div className="hidden items-center justify-center gap-2.5 md:flex [@media(orientation:landscape)_and_(max-width:1024px)]:hidden">
             <Workflow className="text-brand-mid size-5.5" aria-hidden />
             <span className="font-mono text-[11.5px] tracking-[0.28em] text-white/65">
               DIAGNOSE <span className="text-white/30">&times;</span> BUILD{" "}

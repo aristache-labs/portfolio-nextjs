@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion";
 import { ServiceCard } from "./ServiceCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import type { Service } from "@/db/schema";
@@ -12,9 +12,9 @@ export type ServiceRow = Service;
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-/** Scroll-in props shared with Skills and Contact; empty when motion is reduced. */
+/** Scroll-in props shared with Skills and Contact; immediately visible when motion is reduced. */
 function rise(reduce: boolean, y: number, duration: number, delay = 0) {
-  if (reduce) return {};
+  if (reduce) return REDUCED_MOTION_PROPS;
   return {
     initial: { opacity: 0, y },
     whileInView: { opacity: 1, y: 0 },
@@ -83,7 +83,7 @@ export function Services({ services }: { services: ServiceRow[] }) {
             <motion.div
               key={s.title}
               {...(reduce
-                ? {}
+                ? REDUCED_MOTION_PROPS
                 : {
                     initial: { opacity: 0, y: 28, scale: 0.98 },
                     whileInView: { opacity: 1, y: 0, scale: 1 },

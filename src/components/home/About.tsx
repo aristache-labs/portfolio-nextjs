@@ -81,7 +81,7 @@ export function About({ profile }: { profile: AboutProfile }) {
   return (
     <Section
       id="about"
-      className="scroll-mt-24 pt-12 pb-6 md:pt-28 md:pb-8"
+      className="scroll-mt-24 pt-12 pb-6 md:scroll-mt-2 md:pt-28 md:pb-8"
       backdrop={
         <>
           <SectionBackdrop

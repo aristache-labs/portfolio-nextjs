@@ -142,8 +142,8 @@
   --gradient-brand: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
   --gradient-ink: linear-gradient(135deg, #76f5e1 0%, #d7fbf6 100%);
   --nav-pill-opacity: 0.2;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-sora), var(--font-inter), sans-serif;
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sora), sans-serif;
   background-color: var(--bg);
   color: var(--fg);
 }
@@ -339,10 +339,14 @@ html:not(.theme-ready) *::before,
 html:not(.theme-ready) *::after {
   transition: none !important;
 }
+/* clip, not hidden + 100vw. The hero plate is wider than the screen and
+   centered with translate. On a phone in landscape, 100vw stays at the
+   smaller layout width, so the page stops short and a blank strip shows
+   on the right. */
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  max-width: 100%;
+  overflow-x: clip;
 }
 body {
   background-color: var(--background);
@@ -355,6 +359,12 @@ body {
  * CSS beats layered utilities regardless of specificity, which silently broke button and link
  * colors app-wide. Preflight already resets both inside its layer, so utilities win. */
 @layer base {
+  /* iOS Safari enlarges text on rotation to landscape. Pin it so the page keeps its
+     portrait scale. Layered, so it cannot override utilities. */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
   a {
     text-decoration: none;
   }
@@ -396,7 +406,8 @@ body {
   width: 100%;
   max-width: 86rem;
   margin-inline: auto;
-  padding-inline: clamp(1.5rem, 2.5vw, 2.75rem);
+  padding-left: max(clamp(1.5rem, 2.5vw, 2.75rem), env(safe-area-inset-left));
+  padding-right: max(clamp(1.5rem, 2.5vw, 2.75rem), env(safe-area-inset-right));
 }
 
 /* Hero display: transparent fill with a theme-aware stroke */

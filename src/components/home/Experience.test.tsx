@@ -40,7 +40,8 @@ vi.mock("framer-motion", () => ({
 }));
 
 // Mock useReducedMotion — default: no reduced motion
-vi.mock("@/hooks/useReducedMotion", () => ({
+vi.mock("@/hooks/useReducedMotion", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/hooks/useReducedMotion")>()),
   useReducedMotion: vi.fn(() => false),
 }));
 
