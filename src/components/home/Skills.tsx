@@ -96,7 +96,10 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
   };
 
   return (
-    <section id="skills" className="relative z-10 scroll-mt-20 overflow-x-clip overflow-y-visible">
+    <section
+      id="skills"
+      className="relative z-10 scroll-mt-20 overflow-x-clip overflow-y-visible md:scroll-mt-12"
+    >
       <SectionBackdrop
         frame="screen"
         focus="left"
