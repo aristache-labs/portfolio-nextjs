@@ -15,7 +15,7 @@ export function Projects({ projects }: { projects: MergedProject[] }) {
   return (
     <Section
       id="projects"
-      className="scroll-mt-4 pt-2 pb-6 md:pt-28 md:pb-12"
+      className="scroll-mt-18 pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12"
       backdrop={
         <>
           <SectionBackdrop video="/media/projects.mp4" poster="/media/projects.webp" />
