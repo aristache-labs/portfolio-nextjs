@@ -20,6 +20,22 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return false;
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret, response: token, remoteip: ip }),
+    });
+    const result = (await res.json()) as { success?: boolean };
+    return result.success === true;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
   if (!limit(clientIpFromHeaders(req.headers)).success) {
     return NextResponse.json({ error: "Too many messages. Try again later." }, { status: 429 });
@@ -56,6 +72,14 @@ export async function POST(req: NextRequest) {
       { error: "Message should be 10 to 2000 characters." },
       { status: 400 },
     );
+  }
+
+  const turnstileToken = typeof data.turnstileToken === "string" ? data.turnstileToken : "";
+  if (
+    !turnstileToken ||
+    !(await verifyTurnstile(turnstileToken, clientIpFromHeaders(req.headers)))
+  ) {
+    return NextResponse.json({ error: "Verification failed. Please try again." }, { status: 403 });
   }
 
   const apiKey = process.env.RESEND_API_KEY;

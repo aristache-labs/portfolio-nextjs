@@ -160,7 +160,7 @@ export function Footer({
 
           <motion.div
             {...rise(0.19)}
-            className={`${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-end [@media(orientation:landscape)_and_(max-width:1024px)]:text-right`}
+            className={`${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-stretch [@media(orientation:landscape)_and_(max-width:1024px)]:text-center`}
           >
             <h3 className={HEADING}>Let&apos;s Connect</h3>
             <p className="mt-3 max-w-[340px] text-[15px] leading-relaxed text-white/70">
@@ -170,7 +170,7 @@ export function Footer({
               href="#contact"
               variant="primary"
               size="lg"
-              className={`group mt-5 rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] ${FOCUS}`}
+              className={`group mt-5 rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] [@media(orientation:landscape)_and_(max-width:1024px)]:self-center ${FOCUS}`}
             >
               <Mail className="size-4" aria-hidden />
               Send a Message

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import Script from "next/script";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight, ChevronDown, Heart, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +16,14 @@ export { platformIcon, type SocialIcon, type SocialRow };
 const SUBJECTS = ["Project Collaboration", "Job Opportunity", "Freelance Work", "General Question"];
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+type TurnstileApi = { reset: () => void };
+
+function resetTurnstile() {
+  (window as unknown as { turnstile?: TurnstileApi }).turnstile?.reset();
+}
 
 type Card = {
   key: string;
@@ -78,17 +87,20 @@ export function Contact({
     "mt-2 h-10 w-full rounded-lg border border-white/10 bg-black/40 px-3 text-base text-white placeholder:text-white/35 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
   const labelClass = "block text-[13.5px] font-medium text-white/75";
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (inFlight.current) return;
     inFlight.current = true;
     setStatus("submitting");
     setError("");
+    const turnstileToken = String(
+      new FormData(event.currentTarget).get("cf-turnstile-response") ?? "",
+    );
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email: from, subject, message }),
+        body: JSON.stringify({ name, email: from, subject, message, turnstileToken }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -106,6 +118,7 @@ export function Contact({
       setStatus("error");
     } finally {
       inFlight.current = false;
+      resetTurnstile();
     }
   }
 
@@ -345,6 +358,20 @@ export function Contact({
                 />
               </div>
             </div>
+
+            {TURNSTILE_SITE_KEY && (
+              <>
+                <Script
+                  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                  strategy="afterInteractive"
+                />
+                <div
+                  className="cf-turnstile mt-5"
+                  data-sitekey={TURNSTILE_SITE_KEY}
+                  data-theme="dark"
+                />
+              </>
+            )}
 
             <Magnetic className="mt-5 block w-full">
               <Button
