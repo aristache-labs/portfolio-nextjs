@@ -623,14 +623,14 @@ body {
   animation: scroll-dot 1.8s ease-in-out infinite;
 }
 
-/* Hero entrance runs in CSS so the text paints before hydration (it is the LCP). */
+/* Hero entrance runs in CSS so the text paints before hydration (it is the LCP). It animates
+   transform only: an opacity animation is compositor-driven, so Chrome does not report the text
+   as an LCP candidate until some later paint (measured ~1.2 s instead of ~0.3 s). */
 @keyframes hero-rise {
   from {
-    opacity: 0;
     transform: translateY(22px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
