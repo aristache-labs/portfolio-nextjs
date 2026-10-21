@@ -623,7 +623,23 @@ body {
   animation: scroll-dot 1.8s ease-in-out infinite;
 }
 
+/* Hero entrance runs in CSS so the text paints before hydration (it is the LCP). */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hero-rise {
+  animation: hero-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .hero-rise,
   .animate-float-slow,
   .animate-blink,
   .animate-scroll-dot {
