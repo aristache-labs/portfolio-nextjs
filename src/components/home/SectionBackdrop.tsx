@@ -106,13 +106,18 @@ export function SectionBackdrop({
   const screen = frame === "screen";
   // A portrait phone crops a 16:9 plate on both sides. Left focus keeps a
   // subject that lives on the left of the frame on screen until the lg layout.
-  const anchor = focus === "left" ? "object-[-100px_center] lg:object-center" : "object-center";
+  // Phone landscape: the globe sits behind the headline. Scale up and slide the plate toward the
+  // top-left so the globe clears the text column instead of sitting under it.
+  const anchor =
+    focus === "left"
+      ? "object-[-100px_right] lg:object-center [@media(orientation:landscape)_and_(max-height:500px)]:origin-center [@media(orientation:landscape)_and_(max-height:500px)]:-translate-x-[14%] [@media(orientation:landscape)_and_(max-height:500px)]:-translate-y-[14%] [@media(orientation:landscape)_and_(max-height:500px)]:scale-[1.3]"
+      : "object-center";
   const media = `absolute inset-0 h-full w-full object-cover ${anchor}`;
   const still = media;
   const scrimClass =
     scrim ??
     (screen
-      ? "bg-background/95 absolute inset-0 md:bg-background/95"
+      ? "bg-background/95 absolute inset-0 md:bg-background/45 [@media(orientation:landscape)_and_(max-height:500px)]:bg-background/80"
       : "bg-background/70 absolute inset-0");
 
   return (

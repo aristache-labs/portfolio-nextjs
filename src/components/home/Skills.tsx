@@ -160,7 +160,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
                 {...reducedMotionProps}
-                className="flex flex-wrap items-center gap-2"
+                className="flex flex-wrap items-center gap-2 max-lg:justify-center"
                 role="tablist"
                 aria-label="Filter skills by category"
               >
@@ -189,7 +189,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               </m.div>
             )}
             {active === ALL && ordered.length > ALL_LIMIT && (
-              <p className="text-foreground/60 mt-2.5 text-xs">
+              <p className="text-foreground/60 mt-2.5 text-xs max-lg:text-center">
                 Showing {visible.length} of {ordered.length} - select a category to explore
                 everything.
               </p>
