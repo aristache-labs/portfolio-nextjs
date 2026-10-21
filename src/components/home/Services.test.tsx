@@ -14,7 +14,7 @@ vi.mock("framer-motion", () => {
     function Plain({ children, className }: React.HTMLAttributes<HTMLElement>) {
       return <Tag className={className}>{children}</Tag>;
     };
-  return { motion: { p: plain("p"), h2: plain("h2"), div: plain("div") } };
+  return { m: { p: plain("p"), h2: plain("h2"), div: plain("div") } };
 });
 
 const mockServices: ServiceRow[] = [

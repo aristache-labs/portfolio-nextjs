@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { m, useInView } from "framer-motion";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
@@ -28,7 +28,7 @@ export function AnimatedStat({
   const display = value >= 100 ? `${count}+` : `${count}`;
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       initial={reduce ? false : { opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : undefined}
@@ -40,6 +40,6 @@ export function AnimatedStat({
         {display}
       </span>
       <span className="text-muted text-xs sm:text-sm">{label}</span>
-    </motion.div>
+    </m.div>
   );
 }

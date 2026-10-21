@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Script from "next/script";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ArrowRight, ArrowUpRight, ChevronDown, Heart, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -177,7 +177,7 @@ export function Contact({
     >
       <div className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10">
         <div className="min-w-0 lg:w-[38%] lg:max-w-[560px]">
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -190,9 +190,9 @@ export function Contact({
               Contact
             </span>
             <span aria-hidden className="bg-border h-px flex-1" />
-          </motion.p>
+          </m.p>
 
-          <motion.h2
+          <m.h2
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -202,9 +202,9 @@ export function Contact({
           >
             Great&apos; Ideas Start with a <span className="gradient-text">Conversation.</span>
             <br />
-          </motion.h2>
+          </m.h2>
 
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -215,14 +215,14 @@ export function Contact({
             Have a project in mind, a technical challenge to solve, or an opportunity to
             collaborate? Whether it&apos;s IT infrastructure, automation, web, or mobile
             development, I&apos;d love to hear from you..
-          </motion.p>
+          </m.p>
 
           {cards.length > 0 && (
             <ul className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2">
               {cards.map((card, index) => {
                 const Icon = card.icon;
                 return (
-                  <motion.li
+                  <m.li
                     key={card.key}
                     initial={{ opacity: 0, y: 22 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -256,13 +256,13 @@ export function Contact({
                       </span>
                       <ArrowUpRight className="group-hover:text-brand-bright absolute top-3 right-3 size-4 text-white/40 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </a>
-                  </motion.li>
+                  </m.li>
                 );
               })}
             </ul>
           )}
 
-          <motion.figure
+          <m.figure
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
@@ -276,7 +276,7 @@ export function Contact({
             <footer className="mt-2 font-mono text-[14px] tracking-[0.3em] text-white/55">
               - ADRIAN
             </footer>
-          </motion.figure>
+          </m.figure>
           {sponsorUrl?.trim() && (
             <a
               href={sponsorUrl.trim()}
@@ -291,7 +291,7 @@ export function Contact({
           )}
         </div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 34 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
@@ -435,7 +435,7 @@ export function Contact({
               </p>
             )}
           </form>
-        </motion.div>
+        </m.div>
       </div>
     </Section>
   );

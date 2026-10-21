@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { m, useScroll, useSpring, useTransform } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion";
 import { Section } from "@/components/ui/Section";
@@ -71,7 +71,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
   }
 
   return (
-    <motion.li
+    <m.li
       initial={{ opacity: 0, y: 28, scale: 0.98 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-40px" }}
@@ -79,7 +79,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
       whileHover={{ y: -4 }}
     >
       {inner}
-    </motion.li>
+    </m.li>
   );
 }
 
@@ -114,7 +114,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
       <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14">
         <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start">
           <div className="mb-5">
-            <motion.p
+            <m.p
               {...rise(reduce, 16, 0.6)}
               className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
             >
@@ -123,22 +123,22 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
                 Experience
               </span>
               <span aria-hidden className="bg-border h-px flex-1" />
-            </motion.p>
-            <motion.h2
+            </m.p>
+            <m.h2
               {...rise(reduce, 28, 0.8, 0.1)}
               className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap"
             >
               Where I&apos;ve <span className="gradient-text">worked</span>
-            </motion.h2>
+            </m.h2>
           </div>
-          <motion.p
+          <m.p
             {...rise(reduce, 18, 0.7, 0.18)}
             className="text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg"
           >
             From hands-on IT support to leading global enterprise deployments, my journey is built
             on solving complex challenges, automating workflows, and delivering reliable technology
             solutions.
-          </motion.p>
+          </m.p>
         </div>
 
         <div ref={listRef} className="relative">
@@ -147,7 +147,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
           {sorted.length > 1 && (
             <>
               <span aria-hidden className="bg-border absolute top-6 bottom-6 left-[5.5px] w-px" />
-              <motion.span
+              <m.span
                 aria-hidden
                 style={reduce ? { transform: "scaleY(1)" } : { scaleY }}
                 className="absolute top-6 bottom-6 left-[5.5px] w-px origin-top bg-(image:--gradient-brand)"

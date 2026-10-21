@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -196,12 +196,12 @@ export function Hero({
         </div>
         <div className="hero-vignette absolute inset-0" />
         {!reduce && (
-          <motion.div className="absolute inset-0 hidden md:block" style={{ background: spotBg }} />
+          <m.div className="absolute inset-0 hidden md:block" style={{ background: spotBg }} />
         )}
         <div className="hero-noise absolute inset-0" />
         <SectionEdge edge="bottom" />
         <div className={`${PLATE} hidden lg:block`}>
-          <motion.div
+          <m.div
             {...fadeUp(reduce, 0.85)}
             initial={{ opacity: 0, y: 20, rotate: -2 }}
             animate={{ opacity: 1, y: 0, rotate: -2 }}
@@ -219,7 +219,7 @@ export function Hero({
                 </span>
               ))}
             </p>
-          </motion.div>
+          </m.div>
         </div>
       </div>
 
@@ -236,7 +236,7 @@ export function Hero({
 
       <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:pt-20 [@media(max-height:500px)]:md:pb-6">
         <div className="max-w-2xl min-w-0 lg:pl-8">
-          <motion.p
+          <m.p
             {...fadeUp(reduce, 0.15)}
             className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90"
           >
@@ -245,33 +245,33 @@ export function Hero({
               aria-hidden
               className="animate-blink ml-1 inline-block h-4 w-[2px] translate-y-[3px] bg-(--brand-bright)"
             />
-          </motion.p>
+          </m.p>
 
           <h1 className="max-w-3xl">
-            <motion.span
+            <m.span
               {...fadeUp(reduce, 0.3)}
               className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(3.5rem,8vw,6.5rem)] leading-[0.95] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(2.5rem,6vw,4rem)]"
             >
               {profile.name.replace(/\bCristache\b\s*/i, "").trim()}
-            </motion.span>
-            <motion.span
+            </m.span>
+            <m.span
               {...fadeUp(reduce, 0.45)}
               className="font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] leading-[1.08] font-bold tracking-tight [@media(max-height:500px)]:text-[1.25rem]"
             >
               Technology, <br />
               built with <span className="text-(--brand-mid)">intention.</span>
-            </motion.span>
+            </m.span>
           </h1>
 
-          <motion.p
+          <m.p
             {...fadeUp(reduce, 0.6)}
             className="text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base"
           >
             {HERO_COPY}
-          </motion.p>
+          </m.p>
 
           {heroTagline && (
-            <motion.p {...fadeUp(reduce, 0.7)} className="mt-4">
+            <m.p {...fadeUp(reduce, 0.7)} className="mt-4">
               <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
                 <span
                   aria-hidden
@@ -279,10 +279,10 @@ export function Hero({
                 />
                 {heroTagline}
               </span>
-            </motion.p>
+            </m.p>
           )}
 
-          <motion.div
+          <m.div
             {...fadeUp(reduce, 0.8)}
             className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
           >
@@ -324,10 +324,10 @@ export function Hero({
                 </Magnetic>
               )}
             </div>
-          </motion.div>
+          </m.div>
 
           {iconSocials.length > 0 && (
-            <motion.div
+            <m.div
               {...fadeUp(reduce, 0.9)}
               className="mt-5 flex flex-wrap items-center gap-3 [@media(max-height:500px)]:hidden"
             >
@@ -345,11 +345,11 @@ export function Hero({
                   </a>
                 );
               })}
-            </motion.div>
+            </m.div>
           )}
 
           {profile.roles.length > 0 && (
-            <motion.p
+            <m.p
               {...fadeUp(reduce, 1)}
               className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:hidden"
             >
@@ -359,7 +359,7 @@ export function Hero({
                   <span className="whitespace-nowrap md:whitespace-normal">{role}</span>
                 </span>
               ))}
-            </motion.p>
+            </m.p>
           )}
         </div>
       </div>

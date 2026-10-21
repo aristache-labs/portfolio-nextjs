@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowRight, ChevronRight, Heart, Mail, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -57,7 +57,7 @@ export function Footer({
 
       <div className="site-container relative z-10 pt-6 pb-24 sm:pb-8 lg:pt-8">
         <div className="flex flex-col items-center text-center">
-          <motion.span
+          <m.span
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -65,9 +65,9 @@ export function Footer({
             className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center rounded-full border px-5 py-2 font-mono text-[11px] tracking-[0.32em] backdrop-blur-md"
           >
             END OF THE PAGE
-          </motion.span>
+          </m.span>
 
-          <motion.h2
+          <m.h2
             initial={{ opacity: 0, y: 26 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -75,9 +75,9 @@ export function Footer({
             className="font-display mt-6 text-[clamp(2.2rem,4.4vw,3.6rem)] leading-[1.08] font-extrabold tracking-tight text-white"
           >
             Thanks for <span className="gradient-text">visiting.</span>
-          </motion.h2>
+          </m.h2>
 
-          <motion.p
+          <m.p
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -85,9 +85,9 @@ export function Footer({
             className="mt-3.5 max-w-[580px] text-[16px] leading-[1.6] text-white/75 sm:mt-4 sm:text-[17px]"
           >
             Open to projects, collaborations, and problems worth solving.
-          </motion.p>
+          </m.p>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scaleX: 0.85 }}
             whileInView={{ opacity: 1, scaleX: 1 }}
             viewport={{ once: true }}
@@ -97,11 +97,11 @@ export function Footer({
             <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/25" />
             <Sparkle className="fill-brand-mid text-brand-bright size-4 shrink-0 drop-shadow-[0_0_8px_rgb(var(--brand-mid-rgb)/0.8)]" />
             <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/25" />
-          </motion.div>
+          </m.div>
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-x-10 gap-y-8 sm:mt-10 sm:grid-cols-2 sm:gap-y-10 lg:mt-12 lg:grid-cols-[3fr_3fr_4fr] [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto_1fr] [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-6">
-          <motion.div {...rise(0.05)} className="flex min-w-0 flex-col items-center sm:items-start">
+          <m.div {...rise(0.05)} className="flex min-w-0 flex-col items-center sm:items-start">
             <div className="flex flex-col items-center text-center">
               <Link
                 href="#hero"
@@ -132,9 +132,9 @@ export function Footer({
                 </a>
               )}
             </div>
-          </motion.div>
+          </m.div>
 
-          <motion.nav
+          <m.nav
             {...rise(0.12)}
             aria-label="Explore"
             className={`${DIVIDER} max-sm:bg-background/40 max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
@@ -156,9 +156,9 @@ export function Footer({
                 </li>
               ))}
             </ul>
-          </motion.nav>
+          </m.nav>
 
-          <motion.div
+          <m.div
             {...rise(0.19)}
             className={`${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-stretch [@media(orientation:landscape)_and_(max-width:1024px)]:text-center`}
           >
@@ -179,10 +179,10 @@ export function Footer({
                 aria-hidden
               />
             </Button>
-          </motion.div>
+          </m.div>
         </div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -211,7 +211,7 @@ export function Footer({
           <p className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right">
             <span className="text-brand-bright">Crafted</span> with Purpose.
           </p>
-        </motion.div>
+        </m.div>
       </div>
     </footer>
   );

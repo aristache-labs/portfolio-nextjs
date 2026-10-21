@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
@@ -21,7 +21,7 @@ const ScrollToTop = () => {
   return (
     <AnimatePresence>
       {show && (
-        <motion.button
+        <m.button
           type="button"
           onClick={goToTop}
           aria-label="Scroll to top"
@@ -43,7 +43,7 @@ const ScrollToTop = () => {
             className="text-foreground relative size-5 transition-[transform,color] duration-300 group-hover:-translate-y-0.5 group-hover:text-white motion-reduce:transform-none"
             aria-hidden
           />
-        </motion.button>
+        </m.button>
       )}
     </AnimatePresence>
   );

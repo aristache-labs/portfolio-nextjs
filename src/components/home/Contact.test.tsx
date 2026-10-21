@@ -30,7 +30,7 @@ vi.mock("framer-motion", () => {
     return MockMotionComponent;
   };
   return {
-    motion: {
+    m: {
       a: passthrough("a"),
       div: passthrough("div"),
       figure: passthrough("figure"),

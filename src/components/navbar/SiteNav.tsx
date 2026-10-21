@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { ArrowRight, Heart, Menu, X } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
@@ -75,7 +75,7 @@ export function SiteNav({
           transform would otherwise make this fixed layer position relative to the header. */}
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             key="menu-backdrop"
             aria-hidden
             onClick={() => setOpen(false)}
@@ -87,7 +87,7 @@ export function SiteNav({
           />
         )}
       </AnimatePresence>
-      <motion.header
+      <m.header
         initial={reduce ? false : { y: -70, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
@@ -171,7 +171,7 @@ export function SiteNav({
 
         <AnimatePresence>
           {open && (
-            <motion.div
+            <m.div
               initial={reduce ? false : { height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={reduce ? undefined : { height: 0, opacity: 0 }}
@@ -211,10 +211,10 @@ export function SiteNav({
                   </li>
                 )}
               </ul>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
-      </motion.header>
+      </m.header>
     </>
   );
 }

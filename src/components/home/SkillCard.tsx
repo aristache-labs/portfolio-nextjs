@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { cn } from "@/utils/cn";
 
@@ -46,7 +46,7 @@ export function SkillCard({
     !src.includes("/skills/") && (INVERT_IN_LIGHT.test(src) || INVERT_IN_LIGHT.test(name));
 
   return (
-    <motion.div
+    <m.div
       layout
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -82,7 +82,7 @@ export function SkillCard({
 
       {percent != null && (
         <span className="mt-2 block h-1 w-full overflow-hidden rounded-full bg-white/10">
-          <motion.span
+          <m.span
             initial={{ width: 0 }}
             whileInView={{ width: `${percent}%` }}
             viewport={{ once: true, margin: "-30px" }}
@@ -94,6 +94,6 @@ export function SkillCard({
       )}
 
       <span className="text-foreground/60 mt-2 block text-[11px]">{category}</span>
-    </motion.div>
+    </m.div>
   );
 }

@@ -29,7 +29,7 @@ vi.mock("framer-motion", () => {
     return Passthrough;
   };
   return {
-    motion: {
+    m: {
       div: passthrough("div"),
       nav: passthrough("nav"),
       h2: passthrough("h2"),

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { m, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
@@ -25,7 +25,7 @@ export function Reveal({
   }
 
   return (
-    <motion.div
+    <m.div
       className={className}
       variants={fadeUpVariants}
       initial="hidden"
@@ -36,6 +36,6 @@ export function Reveal({
       transition={{ duration: 0.5, delay, ease: "easeOut" }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

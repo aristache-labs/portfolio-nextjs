@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -77,7 +77,7 @@ export function MenuOverlay({
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           ref={panelRef}
           role="dialog"
           aria-modal="true"
@@ -111,7 +111,7 @@ export function MenuOverlay({
             <ul className="flex flex-col gap-[clamp(6px,1.6vh,24px)]">
               {sections.map((s, i) => (
                 <li key={s.id}>
-                  <motion.span
+                  <m.span
                     initial={reduce ? false : { opacity: 0, y: 26 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: EASE, delay: reduce ? 0 : 0.08 + i * 0.05 }}
@@ -147,7 +147,7 @@ export function MenuOverlay({
                       </span>
                       <span className="min-w-0 truncate">{s.label}</span>
                     </Link>
-                  </motion.span>
+                  </m.span>
                 </li>
               ))}
             </ul>
@@ -169,7 +169,7 @@ export function MenuOverlay({
             </span>
             {statusLine && <span>{statusLine}</span>}
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

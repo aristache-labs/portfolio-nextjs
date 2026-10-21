@@ -8,6 +8,7 @@ import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import { HashScrollFix } from "@/components/util/HashScrollFix";
 import { AmbientBackground } from "@/components/background/AmbientBackground";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
@@ -109,18 +110,20 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
       <body className={GeistSans.className}>
         <PersonJsonLd />
         <WebSiteJsonLd />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode.
-              The palette needs no provider - usePalette is an external-store hook. */}
-          <AmbientBackground />
-          <main>{children}</main>
-          <ScrollToTop />
-        </ThemeProvider>
+        <MotionProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode.
+                The palette needs no provider - usePalette is an external-store hook. */}
+            <AmbientBackground />
+            <main>{children}</main>
+            <ScrollToTop />
+          </ThemeProvider>
+        </MotionProvider>
         <HashScrollFix />
         <VercelAnalytics />
         <SpeedInsights />

@@ -3,7 +3,7 @@ import { vi, describe, it, expect, beforeEach } from "vitest";
 
 // Mock framer-motion to avoid jsdom animation/scroll issues
 vi.mock("framer-motion", () => ({
-  motion: {
+  m: {
     div: ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
       <div className={className} {...props}>
         {children}

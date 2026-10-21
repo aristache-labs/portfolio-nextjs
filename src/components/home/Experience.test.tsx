@@ -5,7 +5,7 @@ import type { ExperienceRow } from "@/lib/queries";
 
 // Mock framer-motion to avoid jsdom animation issues
 vi.mock("framer-motion", () => ({
-  motion: {
+  m: {
     li: ({
       children,
       className,

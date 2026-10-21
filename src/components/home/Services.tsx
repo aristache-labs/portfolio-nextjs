@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion";
@@ -46,7 +46,7 @@ export function Services({ services }: { services: ServiceRow[] }) {
       }
     >
       <div className="mb-4">
-        <motion.p
+        <m.p
           {...rise(reduce, 16, 0.6)}
           className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
         >
@@ -55,32 +55,32 @@ export function Services({ services }: { services: ServiceRow[] }) {
             Services
           </span>
           <span aria-hidden className="bg-border h-px flex-1" />
-        </motion.p>
-        <motion.h2
+        </m.p>
+        <m.h2
           {...rise(reduce, 28, 0.8, 0.1)}
           className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight"
         >
           What I <span className="gradient-text">do</span>
-        </motion.h2>
+        </m.h2>
       </div>
-      <motion.p
+      <m.p
         {...rise(reduce, 18, 0.7, 0.18)}
         className="text-muted mb-10 max-w-2xl text-sm leading-relaxed text-pretty md:text-base"
       >
         From enterprise infrastructure to modern applications - delivering reliable solutions
         through engineering, automation, and innovation.
-      </motion.p>
+      </m.p>
 
       {sorted.length === 0 ? (
-        <motion.div {...rise(reduce, 28, 0.55)}>
+        <m.div {...rise(reduce, 28, 0.55)}>
           <Card className="flex items-center justify-center py-12 text-center">
             <p className="text-muted text-sm">No services listed yet.</p>
           </Card>
-        </motion.div>
+        </m.div>
       ) : (
         <div className="grid items-stretch gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
           {sorted.map((s, i) => (
-            <motion.div
+            <m.div
               key={s.title}
               {...(reduce
                 ? REDUCED_MOTION_PROPS
@@ -94,7 +94,7 @@ export function Services({ services }: { services: ServiceRow[] }) {
               className="h-full"
             >
               <ServiceCard service={s} index={i} />
-            </motion.div>
+            </m.div>
           ))}
         </div>
       )}

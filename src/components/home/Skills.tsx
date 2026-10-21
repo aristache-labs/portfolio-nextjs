@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type MouseEvent } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { ArrowRight, BarChart3, Code2, Heart, Quote, Zap, type LucideIcon } from "lucide-react";
@@ -113,7 +113,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
           <div className="min-w-0 text-center">
-            <motion.span
+            <m.span
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -123,9 +123,9 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
             >
               <Zap className="fill-brand-mid text-brand-mid size-3.5" />
               My Toolbox
-            </motion.span>
+            </m.span>
 
-            <motion.h2
+            <m.h2
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -134,9 +134,9 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap"
             >
               Skills that build <span className="gradient-text">possibilities</span>
-            </motion.h2>
+            </m.h2>
 
-            <motion.p
+            <m.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -145,7 +145,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               className="text-foreground/55 mx-auto mt-2 max-w-2xl text-sm sm:text-base"
             >
               A curated set of technologies, tools and skills I use to turn ideas into reality.
-            </motion.p>
+            </m.p>
           </div>
         </div>
 
@@ -154,7 +154,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
 
           <div className="min-w-0">
             {ordered.length > 0 && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -167,7 +167,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 {[ALL, ...categories].map((value) => {
                   const selected = active === value;
                   return (
-                    <motion.button
+                    <m.button
                       key={value}
                       type="button"
                       role="tab"
@@ -183,10 +183,10 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                       }`}
                     >
                       {value}
-                    </motion.button>
+                    </m.button>
                   );
                 })}
-              </motion.div>
+              </m.div>
             )}
             {active === ALL && ordered.length > ALL_LIMIT && (
               <p className="text-foreground/60 mt-2.5 text-xs">
@@ -195,14 +195,14 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               </p>
             )}
 
-            <motion.div
+            <m.div
               layout
               {...reducedMotionProps}
               className="mt-4 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
             >
               <AnimatePresence mode="popLayout">
                 {visible.map((skill, index) => (
-                  <motion.div
+                  <m.div
                     key={`${skill.category}-${skill.name}`}
                     layout
                     initial={{ opacity: 0, y: 40, scale: 0.96 }}
@@ -219,14 +219,14 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                       level={skill.level}
                       index={index}
                     />
-                  </motion.div>
+                  </m.div>
                 ))}
               </AnimatePresence>
-            </motion.div>
+            </m.div>
           </div>
         </div>
 
-        <motion.figure
+        <m.figure
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -247,11 +247,11 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
             aria-hidden
             className="bg-brand-mid mx-auto mt-2.5 block h-[2px] w-10 rounded-full shadow-[0_0_10px_rgb(var(--brand-mid-rgb)/0.9)]"
           />
-        </motion.figure>
+        </m.figure>
 
         <div className="mt-6 grid items-end gap-4 lg:grid-cols-[1fr_280px]">
           <div className="flex min-w-0 flex-col gap-4">
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -284,10 +284,10 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                   </span>
                 ))}
               </span>
-            </motion.div>
+            </m.div>
           </div>
 
-          <motion.a
+          <m.a
             href="#projects"
             onClick={scrollToProjects}
             initial={{ opacity: 0, y: 20 }}
@@ -311,7 +311,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
             <span className="border-brand-bright/50 group-hover:bg-brand-mid/25 flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300 group-hover:shadow-[0_0_24px_rgb(var(--brand-mid-rgb)/0.6)]">
               <ArrowRight className="size-5 transition-transform duration-300 group-hover:translate-x-1" />
             </span>
-          </motion.a>
+          </m.a>
         </div>
       </div>
     </section>
