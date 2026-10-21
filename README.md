@@ -13,7 +13,7 @@
 <br />
 
 ![CI](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/ci.yml?branch=master&style=flat-square&label=CI&labelColor=0f6e68)
-![Lighthouse](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/lighthouse.yml?branch=master&style=flat-square&label=Lighthouse&labelColor=0f6e68)
+![Lighthouse](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/lighthouse.yml?style=flat-square&label=Lighthouse&labelColor=0f6e68)
 ![Stars](https://shields.io/github/stars/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
 ![Contributors](https://shields.io/github/contributors/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
 ![License: MIT](https://shields.io/github/license/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
