@@ -268,10 +268,9 @@ export function Hero({
             </span>
           </h1>
 
-          <p
-            style={rise(0.15)}
-            className="hero-rise text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base"
-          >
+          {/* No entrance animation: this is the largest text, so it must paint with the first frame to
+              count as the LCP (an animated element is reported only after its animation ends). */}
+          <p className="text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base">
             {HERO_COPY}
           </p>
 
