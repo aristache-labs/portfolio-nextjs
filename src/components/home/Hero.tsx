@@ -234,7 +234,7 @@ export function Hero({
         </button>
       )}
 
-      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] max-md:portrait:pb-24 [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-16 [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10">
+      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] max-md:portrait:pb-24 [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10">
         <div className="max-w-2xl min-w-0 lg:pl-8">
           <m.p
             {...fadeUp(reduce, 0.15)}
@@ -364,7 +364,7 @@ export function Hero({
 
           <m.div
             {...fadeUp(reduce, 1.1)}
-            className="glass bg-background/70 mx-auto mt-6 max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md lg:hidden [@media(max-height:500px)]:hidden"
+            className="glass bg-background/70 mx-auto mt-6 max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md lg:hidden portrait:hidden [@media(max-height:500px)]:hidden"
           >
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
               {"// focus"}

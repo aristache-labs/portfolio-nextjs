@@ -44,7 +44,10 @@ function StatBar({ repos }: { repos: number }) {
   ];
 
   return (
-    <Reveal delay={0.1} className="mt-14">
+    <Reveal
+      delay={0.1}
+      className="mt-14 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2"
+    >
       <div
         className={`${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
       >
@@ -97,8 +100,8 @@ export function About({ profile }: { profile: AboutProfile }) {
         </>
       }
     >
-      <div>
-        <Reveal>
+      <div className="[@media(orientation:landscape)_and_(max-height:500px)]:grid [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,1fr)_auto] [@media(orientation:landscape)_and_(max-height:500px)]:gap-x-8">
+        <Reveal className="[@media(orientation:landscape)_and_(max-height:500px)]:col-start-1">
           <div className="mb-8">
             <p className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase">
               <span>
@@ -115,8 +118,11 @@ export function About({ profile }: { profile: AboutProfile }) {
           </div>
         </Reveal>
 
-        <div className="flex flex-col-reverse gap-6 lg:flex-row lg:gap-12 [@media(orientation:landscape)_and_(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-height:500px)]:items-center [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
-          <Reveal delay={0.08} className="min-w-0 flex-1">
+        <div className="flex flex-col-reverse gap-6 lg:flex-row lg:gap-12 [@media(orientation:landscape)_and_(max-height:500px)]:contents">
+          <Reveal
+            delay={0.08}
+            className="min-w-0 flex-1 [@media(orientation:landscape)_and_(max-height:500px)]:col-start-1 [@media(orientation:landscape)_and_(max-height:500px)]:row-start-2"
+          >
             <div className="space-y-4">
               {profile.bio
                 .split(/\n\s*\n/)
@@ -150,7 +156,10 @@ export function About({ profile }: { profile: AboutProfile }) {
           </Reveal>
 
           {profile.avatarUrl && (
-            <Reveal delay={0.14} className="mx-auto max-w-full shrink-0 lg:mx-0">
+            <Reveal
+              delay={0.14}
+              className="mx-auto max-w-full shrink-0 lg:mx-0 [@media(orientation:landscape)_and_(max-height:500px)]:col-start-2 [@media(orientation:landscape)_and_(max-height:500px)]:row-span-2 [@media(orientation:landscape)_and_(max-height:500px)]:row-start-1 [@media(orientation:landscape)_and_(max-height:500px)]:self-start"
+            >
               <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? "Cristache Adrian"} />
             </Reveal>
           )}
