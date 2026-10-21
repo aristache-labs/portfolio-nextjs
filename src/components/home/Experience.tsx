@@ -104,15 +104,15 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
         <SectionBackdrop
           video="/media/experience.mp4"
           poster="/media/experience.webp"
-          scrim="bg-background/80 absolute inset-0 md:bg-background/70"
+          scrim="bg-background/80 absolute inset-0 md:bg-background/90"
         />
       }
     >
       {/* Two columns on lg+: sticky intro on the left, timeline on the right,
           both inside the shared page width so the block does not drift left
           on a wide monitor. Stacks to one column below lg. */}
-      <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14">
-        <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start">
+      <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
+        <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start">
           <div className="mb-5">
             <m.p
               {...rise(reduce, 16, 0.6)}

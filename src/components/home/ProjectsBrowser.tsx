@@ -80,7 +80,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   return (
     <>
       {(featured.length > 0 || recent.length > 0) && (
-        <div className="mb-10 grid items-stretch gap-8 lg:grid-cols-2">
+        <div className="mb-10 grid items-stretch gap-8 lg:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:gap-4">
           {featured.length > 0 && (
             <div className="flex flex-col">
               <ColumnLabel>Featured</ColumnLabel>

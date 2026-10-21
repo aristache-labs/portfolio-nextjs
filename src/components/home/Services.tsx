@@ -40,7 +40,7 @@ export function Services({ services }: { services: ServiceRow[] }) {
           />
           <div
             aria-hidden
-            className="bg-background/70 pointer-events-none absolute inset-0 z-[1]"
+            className="bg-background/70 md:bg-background/80 pointer-events-none absolute inset-0 z-[1]"
           />
         </>
       }

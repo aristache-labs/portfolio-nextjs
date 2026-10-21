@@ -332,6 +332,15 @@
 html {
   scroll-behavior: smooth;
 }
+/* Phone in landscape: the viewport is only ~360px tall, so rem-based spacing and type fill it
+   with one section at a time. Every Tailwind size is rem, so shrinking the root zooms the whole
+   page out. Coarse pointer keeps short desktop windows untouched. Only font-size is set here, so
+   no utility is overridden. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  html {
+    font-size: 78.75%;
+  }
+}
 /* Without this the initial system-theme flip cross-fades through each element's own
  * transition-*, reading as a flicker. `!important` beats utility transitions. */
 html:not(.theme-ready) *,

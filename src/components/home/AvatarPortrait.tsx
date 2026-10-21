@@ -18,7 +18,7 @@ export function AvatarPortrait({ src, name }: { src: string; name: string }) {
   const heroReady = useHeroPosterReady();
 
   return (
-    <div className="relative flex w-72 max-w-full sm:w-80 lg:w-96">
+    <div className="relative flex w-72 max-w-full sm:w-80 lg:w-96 [@media(orientation:landscape)_and_(max-height:500px)]:w-64">
       <div
         aria-hidden
         className={`absolute -inset-4 bg-(image:--gradient-brand) opacity-30 blur-2xl ${HALO}`}

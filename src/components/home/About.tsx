@@ -92,7 +92,7 @@ export function About({ profile }: { profile: AboutProfile }) {
           />
           <div
             aria-hidden
-            className="bg-background/70 md:bg-background/50 pointer-events-none absolute inset-0 z-[1]"
+            className="bg-background/70 md:bg-background/80 pointer-events-none absolute inset-0 z-[1]"
           />
         </>
       }
@@ -115,7 +115,7 @@ export function About({ profile }: { profile: AboutProfile }) {
           </div>
         </Reveal>
 
-        <div className="flex flex-col-reverse gap-6 lg:flex-row lg:gap-12">
+        <div className="flex flex-col-reverse gap-6 lg:flex-row lg:gap-12 [@media(orientation:landscape)_and_(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-height:500px)]:items-center [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
           <Reveal delay={0.08} className="min-w-0 flex-1">
             <div className="space-y-4">
               {profile.bio

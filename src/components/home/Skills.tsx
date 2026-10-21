@@ -109,7 +109,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
         poster="/media/skills.webp"
         fetchPriority="low"
       />
-      <div className="relative z-10 mx-auto max-w-7xl px-5 pt-6 pb-10 sm:px-8 md:pt-8">
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col px-5 pt-6 pb-10 sm:px-8 md:pt-8 lg:block">
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
           <div className="min-w-0 text-center">
@@ -232,7 +232,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           {...reducedMotionProps}
-          className="bg-background/40 relative mx-auto mt-12 max-w-sm rounded-xl border border-white/10 px-8 pt-6 pb-4 backdrop-blur-xl"
+          className="bg-background/40 relative order-last mx-auto mt-8 w-full max-w-sm rounded-xl border border-white/10 px-8 pt-6 pb-4 backdrop-blur-xl lg:order-none lg:mt-12"
         >
           <Quote
             aria-hidden
@@ -249,7 +249,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           />
         </m.figure>
 
-        <div className="mt-6 grid items-end gap-4 lg:grid-cols-[1fr_280px]">
+        <div className="mt-6 grid items-end gap-4 lg:grid-cols-[1fr_280px] [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[1fr_240px]">
           <div className="flex min-w-0 flex-col gap-4">
             <m.div
               initial={{ opacity: 0, y: 20 }}

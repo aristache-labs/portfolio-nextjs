@@ -158,7 +158,7 @@ export function Contact({
           <SectionBackdrop
             video="/media/contact.mp4"
             poster="/media/experience.webp"
-            scrim="bg-background/70 absolute inset-0"
+            scrim="bg-background/70 absolute inset-0 md:bg-background/90"
           />
           <div
             aria-hidden
@@ -175,8 +175,8 @@ export function Contact({
         </>
       }
     >
-      <div className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10">
-        <div className="min-w-0 lg:w-[38%] lg:max-w-[560px]">
+      <div className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10 [@media(orientation:landscape)_and_(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-height:500px)]:items-start [@media(orientation:landscape)_and_(max-height:500px)]:justify-between [@media(orientation:landscape)_and_(max-height:500px)]:gap-x-8 [@media(orientation:landscape)_and_(max-height:500px)]:gap-y-0">
+        <div className="min-w-0 lg:w-[38%] lg:max-w-[560px] [@media(orientation:landscape)_and_(max-height:500px)]:w-[42%]">
           <m.p
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -218,7 +218,7 @@ export function Contact({
           </m.p>
 
           {cards.length > 0 && (
-            <ul className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2">
+            <ul className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-1 [@media(orientation:landscape)_and_(max-height:500px)]:gap-3">
               {cards.map((card, index) => {
                 const Icon = card.icon;
                 return (
@@ -297,7 +297,7 @@ export function Contact({
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
           {...reducedMotionProps}
-          className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9"
+          className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9 [@media(orientation:landscape)_and_(max-height:500px)]:w-[52%] [@media(orientation:landscape)_and_(max-height:500px)]:pt-0"
         >
           <form
             onSubmit={handleSubmit}

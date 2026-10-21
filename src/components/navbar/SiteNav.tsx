@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import { AnimatePresence, m } from "framer-motion";
 import { ArrowRight, Heart, Menu, X } from "lucide-react";
@@ -53,6 +53,25 @@ export function SiteNav({
       ? { href: "#contact", external: false, label: "Let's Connect" }
       : null;
 
+  // Mobile menu links scroll explicitly, and only after the panel has finished collapsing.
+  // Framer Motion measures the height auto -> 0 exit with window.scrollTo(0, 0), which cancels
+  // any scroll already in flight, so a scroll started on click never gets anywhere on a phone.
+  const pendingId = useRef<string | null>(null);
+  const goToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    const target = document.getElementById(id);
+    if (target) {
+      event.preventDefault();
+      pendingId.current = id;
+    }
+    setOpen(false);
+  };
+  const scrollToPending = () => {
+    const id = pendingId.current;
+    pendingId.current = null;
+    document
+      .getElementById(id ?? "")
+      ?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  };
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -169,7 +188,7 @@ export function SiteNav({
           </button>
         </nav>
 
-        <AnimatePresence>
+        <AnimatePresence onExitComplete={scrollToPending}>
           {open && (
             <m.div
               initial={reduce ? false : { height: 0, opacity: 0 }}
@@ -184,7 +203,7 @@ export function SiteNav({
                     <a
                       href={`#${section.id}`}
                       data-testid="mobile-section-link"
-                      onClick={() => setOpen(false)}
+                      onClick={(e) => goToSection(e, section.id)}
                       className={cn(
                         "block rounded-lg px-3 py-2.5 text-[15px] transition-colors [@media(max-height:500px)]:py-0.5 [@media(max-height:500px)]:text-sm/[1.8]",
                         section.id === active

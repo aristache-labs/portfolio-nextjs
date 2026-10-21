@@ -46,11 +46,6 @@ function useTypewriter(text: string, reduce: boolean) {
   return reduce ? text : out;
 }
 
-
-
-
-
-
 function fadeUp(reduce: boolean, delay: number) {
   return {
     initial: reduce ? false : ({ opacity: 0, y: 22 } as const),
@@ -151,7 +146,7 @@ export function Hero({
       id="hero"
       ref={sectionRef}
       onMouseMove={onMouseMove}
-      className="relative flex scroll-mt-24 flex-col justify-start overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center"
+      className="relative flex min-h-svh scroll-mt-24 flex-col justify-center overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center"
     >
       <div
         className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-clip"
@@ -239,11 +234,11 @@ export function Hero({
         </button>
       )}
 
-      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:pt-20 [@media(max-height:500px)]:md:pb-6">
+      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] max-md:portrait:pb-24 [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-16 [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10">
         <div className="max-w-2xl min-w-0 lg:pl-8">
           <m.p
             {...fadeUp(reduce, 0.15)}
-            className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90"
+            className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90 [@media(max-height:500px)]:mb-1 [@media(max-height:500px)]:text-[11px]"
           >
             {typed}
             <span
@@ -261,7 +256,7 @@ export function Hero({
             </m.span>
             <m.span
               {...fadeUp(reduce, 0.45)}
-              className="font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] leading-[1.08] font-bold tracking-tight [@media(max-height:500px)]:text-[1.25rem]"
+              className="font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] leading-[1.08] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[1.05rem]"
             >
               Technology, <br />
               built with <span className="text-(--brand-mid)">intention.</span>
@@ -270,13 +265,13 @@ export function Hero({
 
           <m.p
             {...fadeUp(reduce, 0.6)}
-            className="text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base"
+            className="text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug"
           >
             {HERO_COPY}
           </m.p>
 
           {heroTagline && (
-            <m.p {...fadeUp(reduce, 0.7)} className="mt-4">
+            <m.p {...fadeUp(reduce, 0.7)} className="mt-4 [@media(max-height:500px)]:mt-2">
               <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
                 <span
                   aria-hidden
@@ -289,14 +284,14 @@ export function Hero({
 
           <m.div
             {...fadeUp(reduce, 0.8)}
-            className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
+            className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2"
           >
             <Magnetic className="max-sm:w-full">
               <Button
                 variant="primary"
                 size="lg"
                 href="#projects"
-                className="rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] max-sm:w-full"
+                className="rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] max-sm:w-full [@media(max-height:500px)]:py-2"
               >
                 Explore Projects
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -308,7 +303,7 @@ export function Hero({
                   variant="secondary"
                   size="lg"
                   href="#contact"
-                  className="border-foreground/20 bg-foreground/3 rounded-2xl px-4 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10 max-sm:w-full sm:px-7"
+                  className="border-foreground/20 bg-foreground/3 rounded-2xl px-4 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10 max-sm:w-full sm:px-7 [@media(max-height:500px)]:py-2"
                 >
                   Get in Touch
                 </Button>
@@ -321,7 +316,7 @@ export function Hero({
                     href={resumeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="border-foreground/20 bg-foreground/3 rounded-2xl px-4 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10 max-sm:w-full sm:px-7"
+                    className="border-foreground/20 bg-foreground/3 rounded-2xl px-4 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10 max-sm:w-full sm:px-7 [@media(max-height:500px)]:py-2"
                   >
                     Resume
                     <ArrowUpRight className="size-4" aria-hidden />
@@ -334,7 +329,7 @@ export function Hero({
           {iconSocials.length > 0 && (
             <m.div
               {...fadeUp(reduce, 0.9)}
-              className="mt-5 flex flex-wrap items-center gap-3 [@media(max-height:500px)]:hidden"
+              className="mt-5 flex flex-wrap items-center gap-3 [@media(max-height:500px)]:mt-2"
             >
               {iconSocials.map((s) => {
                 const external = s.url.startsWith("http");
@@ -344,7 +339,7 @@ export function Hero({
                     href={s.url}
                     aria-label={s.platform}
                     {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="border-border bg-foreground/5 text-foreground/80 hover:text-foreground focus-visible:ring-brand-mid/70 grid size-12 place-items-center rounded-2xl border backdrop-blur-md transition-transform duration-300 hover:-translate-y-1 hover:border-(--brand-mid)/50 focus-visible:ring-2 focus-visible:outline-none"
+                    className="border-border bg-foreground/5 text-foreground/80 hover:text-foreground focus-visible:ring-brand-mid/70 grid size-12 place-items-center rounded-2xl border backdrop-blur-md transition-transform duration-300 hover:-translate-y-1 hover:border-(--brand-mid)/50 focus-visible:ring-2 focus-visible:outline-none [@media(max-height:500px)]:size-9"
                   >
                     <SocialGlyph platform={s.platform} className="size-6 object-contain" />
                   </a>
@@ -356,7 +351,7 @@ export function Hero({
           {profile.roles.length > 0 && (
             <m.p
               {...fadeUp(reduce, 1)}
-              className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:hidden"
+              className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[10px]"
             >
               {profile.roles.map((role, i) => (
                 <span key={role}>
@@ -366,15 +361,32 @@ export function Hero({
               ))}
             </m.p>
           )}
+
+          <m.div
+            {...fadeUp(reduce, 1.1)}
+            className="glass bg-background/70 mx-auto mt-6 max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md lg:hidden [@media(max-height:500px)]:hidden"
+          >
+            <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
+              {"// focus"}
+            </p>
+            <p className="text-foreground/80 mt-2 text-sm leading-relaxed">
+              {FOCUS.map((word, i) => (
+                <span key={word}>
+                  {i > 0 && <span className="text-(--brand-mid)"> · </span>}
+                  {word}
+                </span>
+              ))}
+            </p>
+          </m.div>
         </div>
       </div>
 
       <a
         href="#projects"
-        className="text-foreground/50 hover:text-foreground absolute bottom-6 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 md:flex [@media(max-height:500px)]:hidden"
+        className="text-foreground/50 hover:text-foreground absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 [@media(max-height:500px)]:bottom-2 [@media(max-height:500px)]:flex-row"
         aria-label="Scroll to projects"
       >
-        <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5">
+        <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">
           <span className="animate-scroll-dot h-2 w-1 rounded-full bg-(--brand-bright)" />
         </span>
         <span className="text-xs tracking-wide">Scroll to explore</span>

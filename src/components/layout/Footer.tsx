@@ -137,7 +137,7 @@ export function Footer({
           <m.nav
             {...rise(0.12)}
             aria-label="Explore"
-            className={`${DIVIDER} max-sm:bg-background/40 max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
+            className={`${DIVIDER} max-sm:bg-background/40 max-sm:flex max-sm:flex-col max-sm:items-center max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
           >
             <h3 className={HEADING}>Explore</h3>
             <ul className="mt-3 grid grid-cols-1 gap-y-0 sm:mt-4 sm:gap-y-1">
