@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it } from "vitest";
 import { AvatarPortrait } from "./AvatarPortrait";
@@ -35,11 +35,9 @@ describe("AvatarPortrait", () => {
     const image = installHero(false);
     render(<AvatarPortrait src={SOURCE} name={NAME} />);
     expect(screen.queryByAltText(`Portrait of ${NAME}`)).not.toBeInTheDocument();
-    expect(screen.getByRole("button")).toBeDisabled();
     Object.defineProperty(image, "complete", { value: true });
     fireEvent(image, new Event(event));
     expect(screen.getByAltText(`Portrait of ${NAME}`)).toHaveAttribute("src", SOURCE);
-    expect(screen.getByRole("button")).toBeEnabled();
   });
 
   it("shows the portrait when the hero finished before hydration", () => {
@@ -53,17 +51,10 @@ describe("AvatarPortrait", () => {
     expect(screen.getByAltText(`Portrait of ${NAME}`)).toHaveAttribute("src", SOURCE);
   });
 
-  it("keeps zoom unavailable until the hero finishes, then opens the original source", () => {
-    const image = installHero(false);
+  it("is not interactive", () => {
     render(<AvatarPortrait src={SOURCE} name={NAME} />);
-    fireEvent.click(screen.getByRole("button"));
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByAltText(`Portrait of ${NAME}`));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    Object.defineProperty(image, "complete", { value: true });
-    fireEvent.load(image);
-    fireEvent.click(screen.getByRole("button"));
-    expect(within(screen.getByRole("dialog")).getByAltText(`Portrait of ${NAME}`)).toHaveAttribute(
-      "src",
-      SOURCE,
-    );
   });
 });

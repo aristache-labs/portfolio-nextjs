@@ -28,6 +28,7 @@ function Cover({
       alt=""
       fill
       sizes={sizes}
+      quality={90}
       priority={priority}
       className={`${fit} transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.02]`}
     />
@@ -139,7 +140,7 @@ export function FeaturedCard({
   return (
     <article className={`${SHELL} flex flex-col`}>
       <div className="border-border relative aspect-video w-full shrink-0 overflow-hidden border-b">
-        <Cover project={project} sizes="(max-width: 1024px) 100vw, 36rem" fit="object-cover" />
+        <Cover project={project} sizes="(max-width: 1024px) 100vw, 48rem" fit="object-cover" />
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <MetaLine label="Featured" project={project} />

@@ -74,7 +74,8 @@ function PosterCarousel({
         src={slide.src}
         alt={slide.poster ? `${title} poster` : `${title} screenshot ${index}`}
         fill
-        sizes="(max-width: 640px) 100vw, 42rem"
+        sizes="(max-width: 640px) 100vw, 1344px"
+        quality={90}
         className="object-contain"
         priority={index === 0}
       />
