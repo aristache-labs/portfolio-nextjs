@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import Script from "next/script";
 import { motion } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
@@ -84,6 +84,31 @@ export function Contact({
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState("");
   const inFlight = useRef(false);
+
+  // Turnstile's ~600 KB script waits until the widget nears the viewport. Latches true once
+  // reached, so it is never removed; with no IntersectionObserver it loads immediately.
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const [turnstileNear, setTurnstileNear] = useState(false);
+  useEffect(() => {
+    if (turnstileNear) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const t = setTimeout(() => setTurnstileNear(true), 0);
+      return () => clearTimeout(t);
+    }
+    const el = turnstileRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setTurnstileNear(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "600px 0px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [turnstileNear]);
 
   const inputClass =
     "mt-2 h-10 w-full rounded-lg border border-white/10 bg-black/40 px-3 text-base text-white placeholder:text-white/35 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
@@ -369,13 +394,17 @@ export function Contact({
 
             {TURNSTILE_SITE_KEY && (
               <>
-                <Script
-                  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-                  strategy="afterInteractive"
-                />
+                {turnstileNear && (
+                  <Script
+                    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                    strategy="afterInteractive"
+                  />
+                )}
                 <div
+                  ref={turnstileRef}
                   className="cf-turnstile mt-5"
                   data-sitekey={TURNSTILE_SITE_KEY}
+                  data-action="contact"
                   data-theme="dark"
                 />
               </>

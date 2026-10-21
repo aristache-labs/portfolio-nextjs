@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { BRAND } from "@/lib/brand";
+import { SITE } from "@/lib/seo/site";
 import { clientIpFromHeaders, createRateLimiter } from "@/lib/rate-limit";
 
 const limit = createRateLimiter({ limit: 5, windowMs: 60 * 60 * 1000 });
+
+// Must match data-action on the widget in Contact.tsx.
+const TURNSTILE_ACTION = "contact";
+// The frontend host Turnstile must report. Derived from the site URL, so production
+// (www.aristache.dev) never accepts localhost.
+const TURNSTILE_HOSTNAME = new URL(SITE.url).hostname;
 
 const SUBJECTS = new Set([
   "Project Collaboration",
@@ -27,10 +34,15 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(10_000),
       body: JSON.stringify({ secret, response: token, remoteip: ip }),
     });
-    const result = (await res.json()) as { success?: boolean };
-    return result.success === true;
+    const result = (await res.json()) as { success?: boolean; action?: string; hostname?: string };
+    return (
+      result.success === true &&
+      result.action === TURNSTILE_ACTION &&
+      result.hostname === TURNSTILE_HOSTNAME
+    );
   } catch {
     return false;
   }
