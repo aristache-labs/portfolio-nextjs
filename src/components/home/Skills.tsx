@@ -131,7 +131,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.1 }}
               {...reducedMotionProps}
-              className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap"
+              className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap"
             >
               Skills that build <span className="gradient-text">possibilities</span>
             </motion.h2>
@@ -249,7 +249,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           />
         </motion.figure>
 
-        <div className="mt-6 grid items-end gap-4 lg:-mt-10 lg:grid-cols-[1fr_280px]">
+        <div className="mt-6 grid items-end gap-4 lg:grid-cols-[1fr_280px]">
           <div className="flex min-w-0 flex-col gap-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

@@ -43,19 +43,19 @@ jobs:
         run: bun run db:seed
         env:
           DATABASE_URL: postgres://lh:lh@localhost:5432/portfolio_lh
-          NEXT_PUBLIC_SITE_URL: http://localhost:4000/
+          NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
 
       - name: Build
         run: bun run build
         env:
           DATABASE_URL: postgres://lh:lh@localhost:5432/portfolio_lh
           AUTH_SECRET: ci-dummy-secret
-          NEXT_PUBLIC_SITE_URL: http://localhost:4000/
+          NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
 
       - name: Run Lighthouse CI
         run: bunx @lhci/cli@latest autorun
         env:
           DATABASE_URL: postgres://lh:lh@localhost:5432/portfolio_lh
           AUTH_SECRET: ci-dummy-secret
-          NEXT_PUBLIC_SITE_URL: http://localhost:4000/
+          NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

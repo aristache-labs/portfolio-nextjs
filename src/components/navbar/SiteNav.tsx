@@ -178,7 +178,8 @@ export function SiteNav({
               transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
               className="border-border bg-background/80 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden"
             >
-                  <ul className="site-container space-y-1 py-4 [@media(max-height:500px)]:py-2">                {visibleSections.map((section) => (
+              <ul className="site-container space-y-1 py-4 [@media(max-height:500px)]:py-2">
+                {visibleSections.map((section) => (
                   <li key={section.id}>
                     <a
                       href={`#${section.id}`}
