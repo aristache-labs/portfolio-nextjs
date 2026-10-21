@@ -46,10 +46,10 @@ function useTypewriter(text: string, reduce: boolean) {
   return reduce ? text : out;
 }
 
-/** Per-element delay for the CSS entrance (.hero-rise in globals.css). */
-function rise(delay: number) {
-  return { animationDelay: `${delay}s` };
-}
+
+
+
+
 
 function fadeUp(reduce: boolean, delay: number) {
   return {
@@ -241,41 +241,42 @@ export function Hero({
 
       <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:pt-20 [@media(max-height:500px)]:md:pb-6">
         <div className="max-w-2xl min-w-0 lg:pl-8">
-          <p
-            style={rise(0)}
-            className="hero-rise mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90"
+          <m.p
+            {...fadeUp(reduce, 0.15)}
+            className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90"
           >
             {typed}
             <span
               aria-hidden
               className="animate-blink ml-1 inline-block h-4 w-[2px] translate-y-[3px] bg-(--brand-bright)"
             />
-          </p>
+          </m.p>
 
           <h1 className="max-w-3xl">
-            <span
-              style={rise(0.05)}
-              className="hero-rise font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(3.5rem,8vw,6.5rem)] leading-[0.95] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(2.5rem,6vw,4rem)]"
+            <m.span
+              {...fadeUp(reduce, 0.3)}
+              className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(3.5rem,8vw,6.5rem)] leading-[0.95] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(2.5rem,6vw,4rem)]"
             >
               {profile.name.replace(/\bCristache\b\s*/i, "").trim()}
-            </span>
-            <span
-              style={rise(0.1)}
-              className="hero-rise font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] leading-[1.08] font-bold tracking-tight [@media(max-height:500px)]:text-[1.25rem]"
+            </m.span>
+            <m.span
+              {...fadeUp(reduce, 0.45)}
+              className="font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] leading-[1.08] font-bold tracking-tight [@media(max-height:500px)]:text-[1.25rem]"
             >
               Technology, <br />
               built with <span className="text-(--brand-mid)">intention.</span>
-            </span>
+            </m.span>
           </h1>
 
-          {/* No entrance animation: this is the largest text, so it must paint with the first frame to
-              count as the LCP (an animated element is reported only after its animation ends). */}
-          <p className="text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base">
+          <m.p
+            {...fadeUp(reduce, 0.6)}
+            className="text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base"
+          >
             {HERO_COPY}
-          </p>
+          </m.p>
 
           {heroTagline && (
-            <p style={rise(0.2)} className="hero-rise mt-4">
+            <m.p {...fadeUp(reduce, 0.7)} className="mt-4">
               <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
                 <span
                   aria-hidden
@@ -283,12 +284,12 @@ export function Hero({
                 />
                 {heroTagline}
               </span>
-            </p>
+            </m.p>
           )}
 
-          <div
-            style={rise(0.25)}
-            className="hero-rise mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
+          <m.div
+            {...fadeUp(reduce, 0.8)}
+            className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
           >
             <Magnetic className="max-sm:w-full">
               <Button
@@ -328,12 +329,12 @@ export function Hero({
                 </Magnetic>
               )}
             </div>
-          </div>
+          </m.div>
 
           {iconSocials.length > 0 && (
-            <div
-              style={rise(0.3)}
-              className="hero-rise mt-5 flex flex-wrap items-center gap-3 [@media(max-height:500px)]:hidden"
+            <m.div
+              {...fadeUp(reduce, 0.9)}
+              className="mt-5 flex flex-wrap items-center gap-3 [@media(max-height:500px)]:hidden"
             >
               {iconSocials.map((s) => {
                 const external = s.url.startsWith("http");
@@ -349,13 +350,13 @@ export function Hero({
                   </a>
                 );
               })}
-            </div>
+            </m.div>
           )}
 
           {profile.roles.length > 0 && (
-            <p
-              style={rise(0.35)}
-              className="hero-rise text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:hidden"
+            <m.p
+              {...fadeUp(reduce, 1)}
+              className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:hidden"
             >
               {profile.roles.map((role, i) => (
                 <span key={role}>
@@ -363,7 +364,7 @@ export function Hero({
                   <span className="whitespace-nowrap md:whitespace-normal">{role}</span>
                 </span>
               ))}
-            </p>
+            </m.p>
           )}
         </div>
       </div>
