@@ -24,7 +24,7 @@ function rise(reduce: boolean, y: number, duration: number, delay = 0) {
 }
 
 export function Services({ services }: { services: ServiceRow[] }) {
-  const sorted = [...services].sort((a, b) => a.order - b.order);
+  const sorted = [...services].sort((a, b) => a.order - b.order || a.id - b.id).slice(0, 3);
   const reduce = useReducedMotion();
 
   return (
@@ -45,10 +45,10 @@ export function Services({ services }: { services: ServiceRow[] }) {
         </>
       }
     >
-      <div className="mb-4">
+      <div className="mb-5">
         <m.p
           {...rise(reduce, 16, 0.6)}
-          className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
+          className="text-muted mb-3 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
         >
           <span>
             <span className="gradient-text mr-3 font-semibold">05</span>
@@ -58,19 +58,11 @@ export function Services({ services }: { services: ServiceRow[] }) {
         </m.p>
         <m.h2
           {...rise(reduce, 28, 0.8, 0.1)}
-          className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight"
+          className="font-display text-[clamp(1.65rem,2.8vw,2.5rem)] leading-[1.05] font-extrabold tracking-tight"
         >
           What I <span className="gradient-text">do</span>
         </m.h2>
       </div>
-      <m.p
-        {...rise(reduce, 18, 0.7, 0.18)}
-        className="text-muted mb-10 max-w-2xl text-sm leading-relaxed text-pretty md:text-base"
-      >
-        From enterprise infrastructure to modern applications - delivering reliable solutions
-        through engineering, automation, and innovation.
-      </m.p>
-
       {sorted.length === 0 ? (
         <m.div {...rise(reduce, 28, 0.55)}>
           <Card className="flex items-center justify-center py-12 text-center">
@@ -78,22 +70,21 @@ export function Services({ services }: { services: ServiceRow[] }) {
           </Card>
         </m.div>
       ) : (
-        <div className="grid items-stretch gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+        <div className="grid items-stretch gap-3 lg:grid-cols-3">
           {sorted.map((s, i) => (
             <m.div
-              key={s.title}
+              key={s.id}
               {...(reduce
                 ? REDUCED_MOTION_PROPS
                 : {
-                    initial: { opacity: 0, y: 28, scale: 0.98 },
-                    whileInView: { opacity: 1, y: 0, scale: 1 },
+                    initial: { opacity: 0, y: 12 },
+                    whileInView: { opacity: 1, y: 0 },
                     viewport: { once: true, margin: "-40px" },
                     transition: { duration: 0.55, delay: Math.min(i * 0.08, 0.4), ease: EASE },
-                    whileHover: { y: -4 },
                   })}
               className="h-full"
             >
-              <ServiceCard service={s} index={i} />
+              <ServiceCard service={s} />
             </m.div>
           ))}
         </div>

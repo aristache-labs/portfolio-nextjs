@@ -73,10 +73,28 @@ describe("Services", () => {
     expect(screen.getByRole("heading", { name: "What I do" })).toBeInTheDocument();
   });
 
-  it("numbers the cards in display order", () => {
-    render(<Services services={mockServices} />);
-    expect(screen.getByText("01")).toBeInTheDocument();
-    expect(screen.getByText("03")).toBeInTheDocument();
+  it("shows only the first three services by admin order", () => {
+    render(
+      <Services
+        services={[
+          { ...mockServices[0], id: 4, title: "Later service", order: 10 },
+          ...mockServices.toReversed(),
+        ]}
+      />,
+    );
+    expect(screen.getAllByRole("article")).toHaveLength(3);
+    expect(screen.getAllByRole("heading", { level: 3 }).map((node) => node.textContent)).toEqual([
+      "Web Development",
+      "Mobile Apps",
+      "API Design",
+    ]);
+    expect(screen.queryByText("Later service")).not.toBeInTheDocument();
+  });
+
+  it("uses the short summary instead of a second description block", () => {
+    render(<Services services={[{ ...mockServices[0], shortDescription: "Faster workflows." }]} />);
+    expect(screen.getByText("Faster workflows.")).toBeInTheDocument();
+    expect(screen.queryByText(mockServices[0].description)).not.toBeInTheDocument();
   });
 });
 
@@ -92,8 +110,8 @@ describe("resolveServiceIcon", () => {
     expect(byTitle("IT Support & Troubleshooting")).toBe(Wrench);
   });
 
-  it("prefers a known icon set in admin, and falls back for unknown ones", () => {
+  it("prefers a known Lucide icon name set in admin, and falls back for unknown names", () => {
     expect(resolveServiceIcon({ title: "Web Applications", icon: "Cloud" })).toBe(Cloud);
-    expect(resolveServiceIcon({ title: "Something else", icon: "/icons/web.svg" })).toBe(Sparkles);
+    expect(resolveServiceIcon({ title: "Something else", icon: "UnknownIcon" })).toBe(Sparkles);
   });
 });
