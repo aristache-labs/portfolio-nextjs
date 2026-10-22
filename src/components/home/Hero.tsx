@@ -146,7 +146,7 @@ export function Hero({
       id="hero"
       ref={sectionRef}
       onMouseMove={onMouseMove}
-      className="relative flex min-h-dvh scroll-mt-24 flex-col justify-center overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center"
+      className="relative flex min-h-lvh scroll-mt-24 flex-col justify-center overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center"
     >
       <div
         className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-clip"
@@ -383,7 +383,7 @@ export function Hero({
 
       <a
         href="#projects"
-        className="text-foreground/50 hover:text-foreground absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 [@media(max-height:500px)]:bottom-2 [@media(max-height:500px)]:flex-row"
+        className="text-foreground/50 hover:text-foreground absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 max-md:portrait:bottom-14 [@media(max-height:500px)]:bottom-2 [@media(max-height:500px)]:flex-row"
         aria-label="Scroll to projects"
       >
         <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">

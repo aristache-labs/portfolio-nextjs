@@ -68,9 +68,12 @@ export function SiteNav({
   const scrollToPending = () => {
     const id = pendingId.current;
     pendingId.current = null;
-    document
-      .getElementById(id ?? "")
-      ?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    const target = document.getElementById(id ?? "");
+    if (!id || !target) return;
+    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    // After the panel has collapsed, so Framer's scroll reset cannot cancel the scroll. Keeps
+    // Next's own history state so its router stays in sync.
+    window.history.replaceState(window.history.state, "", `#${id}`);
   };
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
