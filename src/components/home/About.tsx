@@ -1,19 +1,10 @@
-import {
-  CalendarDays,
-  FolderGit2,
-  Layers,
-  MapPin,
-  Rocket,
-  Server,
-  Sparkles,
-  type LucideIcon,
-} from "lucide-react";
+import { CalendarDays, FolderGit2, Layers, Server, type LucideIcon } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
 import { AvatarPortrait } from "./AvatarPortrait";
 import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { SectionBackdrop } from "./SectionBackdrop";
-import motionCss from "./skills-motion.module.css";
+import statsCss from "./about-stats.module.css";
 
 export type AboutProfile = {
   bio: string;
@@ -24,12 +15,6 @@ export type AboutProfile = {
 
 const GLASS =
   "border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] backdrop-blur-[18px]";
-
-const BADGES: { icon: LucideIcon; value: string; label: string }[] = [
-  { icon: MapPin, value: "Romania", label: "Based in" },
-  { icon: Rocket, value: "Aristache Labs", label: "Personal Projects" },
-  { icon: Sparkles, value: "Solve. Build. Improve.", label: "My Philosophy" },
-];
 
 function StatBar({ repos }: { repos: number }) {
   const items: { icon: LucideIcon; value: string; label: string }[] = [
@@ -45,32 +30,38 @@ function StatBar({ repos }: { repos: number }) {
 
   return (
     <Reveal
+      distance={12}
+      duration={0.4}
       delay={0.1}
-      className="mt-14 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2"
+      className="mt-14 lg:col-span-2 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2"
     >
       <div
-        className={`${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
+        className={`${statsCss.panel} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
       >
         <span
           aria-hidden
-          className={`${motionCss.lightning} via-brand-bright absolute top-0 left-0 h-px w-1/4 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_rgb(var(--brand-bright-rgb)/0.9)]`}
+          className="via-brand-mid/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
         />
-        <div className="grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10">
+        <div
+          className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10`}
+        >
           {items.map(({ icon: Icon, value, label }) => (
             <div
               key={label}
-              className="flex min-w-0 items-center gap-3 px-1 lg:px-3 lg:first:pl-0 lg:last:pr-0"
+              className={`${statsCss.item} flex min-w-0 items-center gap-3 px-1 lg:px-3 lg:first:pl-0 lg:last:pr-0`}
             >
               <IconTile size="md">
                 <Icon className="size-5" {...ICON_PROPS} />
               </IconTile>
               <span className="min-w-0">
                 <span
-                  className={`font-display block leading-tight text-white ${value === "Web & Mobile" || value === "Windows & Linux" ? "text-base font-semibold xl:text-lg" : "text-xl font-bold sm:text-2xl"}`}
+                  className={`font-display block leading-tight text-white ${value === "Web & Mobile" || value === "Windows & Linux" ? `${statsCss.textValue} text-base font-semibold xl:text-lg` : `${statsCss.numberValue} text-xl font-bold sm:text-2xl`}`}
                 >
                   {value}
                 </span>
-                <span className="block text-xs break-words text-white/50">{label}</span>
+                <span className={`${statsCss.label} block text-xs break-words text-white/50`}>
+                  {label}
+                </span>
               </span>
             </div>
           ))}
@@ -95,13 +86,18 @@ export function About({ profile }: { profile: AboutProfile }) {
           />
           <div
             aria-hidden
-            className="bg-background/70 md:bg-background/80 pointer-events-none absolute inset-0 z-[1]"
+            className="bg-background/80 pointer-events-none absolute inset-0 z-[1]"
           />
         </>
       }
     >
-      <div className="[@media(orientation:landscape)_and_(max-height:500px)]:grid [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,1fr)_auto] [@media(orientation:landscape)_and_(max-height:500px)]:gap-x-8">
-        <Reveal className="[@media(orientation:landscape)_and_(max-height:500px)]:col-start-1">
+      <Reveal distance={12} duration={0.4} className={statsCss.biography}>
+        {profile.avatarUrl && (
+          <div className={statsCss.portrait}>
+            <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? "Cristache Adrian"} />
+          </div>
+        )}
+        <div className={statsCss.heading}>
           <div className="mb-8">
             <p className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase">
               <span>
@@ -116,55 +112,29 @@ export function About({ profile }: { profile: AboutProfile }) {
               Behind the <span className="gradient-text">Code.</span>
             </h2>
           </div>
-        </Reveal>
-
-        <div className="flex flex-col-reverse gap-6 lg:flex-row lg:gap-12 [@media(orientation:landscape)_and_(max-height:500px)]:contents">
-          <Reveal
-            delay={0.08}
-            className="min-w-0 flex-1 [@media(orientation:landscape)_and_(max-height:500px)]:col-start-1 [@media(orientation:landscape)_and_(max-height:500px)]:row-start-2"
-          >
-            <div className="space-y-4">
-              {profile.bio
-                .split(/\n\s*\n/)
-                .map((para) => para.trim())
-                .filter(Boolean)
-                .map((para, i) => (
-                  <p
-                    key={`bio-${i}`}
-                    className={
-                      i === 0
-                        ? "text-base leading-relaxed text-white/100 sm:text-lg"
-                        : "text-muted text-base leading-relaxed text-white/60 sm:text-lg"
-                    }
-                  >
-                    {para}
-                  </p>
-                ))}
-            </div>
-
-            <div className="mt-9 grid gap-3 sm:grid-cols-3">
-              {BADGES.map(({ icon: Icon, value, label }) => (
-                <div key={label} className={`${GLASS} rounded-2xl px-4 py-3.5`}>
-                  <IconTile size="md">
-                    <Icon className="size-5" {...ICON_PROPS} />
-                  </IconTile>
-                  <p className="mt-3 text-[15px] leading-tight font-bold text-white">{value}</p>
-                  <p className="mt-1 text-xs leading-snug text-white/50">{label}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-
-          {profile.avatarUrl && (
-            <Reveal
-              delay={0.14}
-              className="mx-auto max-w-full shrink-0 lg:mx-0 [@media(orientation:landscape)_and_(max-height:500px)]:col-start-2 [@media(orientation:landscape)_and_(max-height:500px)]:row-span-2 [@media(orientation:landscape)_and_(max-height:500px)]:row-start-1 [@media(orientation:landscape)_and_(max-height:500px)]:self-start"
-            >
-              <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? "Cristache Adrian"} />
-            </Reveal>
-          )}
         </div>
-
+        <div className={statsCss.copy}>
+          <div className="space-y-4">
+            {profile.bio
+              .split(/\n\s*\n/)
+              .map((para) => para.trim())
+              .filter(Boolean)
+              .map((para, i) => (
+                <p
+                  key={`bio-${i}`}
+                  className={
+                    i === 0
+                      ? "text-base leading-relaxed text-white/100 sm:text-lg"
+                      : "text-muted text-base leading-relaxed text-white/60 sm:text-lg"
+                  }
+                >
+                  {para}
+                </p>
+              ))}
+          </div>
+        </div>
+      </Reveal>
+      <div>
         <StatBar repos={profile.stats.repos} />
       </div>
     </Section>

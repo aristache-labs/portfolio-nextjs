@@ -13,10 +13,14 @@ export function Reveal({
   children,
   delay = 0,
   className,
+  distance = 24,
+  duration = 0.5,
 }: {
   children: ReactNode;
   delay?: number;
   className?: string;
+  distance?: number;
+  duration?: number;
 }) {
   const reduced = useReducedMotion();
 
@@ -27,13 +31,13 @@ export function Reveal({
   return (
     <m.div
       className={className}
-      variants={fadeUpVariants}
+      variants={{ hidden: { opacity: 0, y: distance }, visible: { opacity: 1, y: 0 } }}
       initial="hidden"
       whileInView="visible"
       // Eager on purpose: the bottom margin starts the reveal ~200px early so content is
       // never perceived as stuck-invisible during a normal scroll.
       viewport={{ once: true, amount: "some", margin: "0px 0px 200px 0px" }}
-      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+      transition={{ duration, delay, ease: "easeOut" }}
     >
       {children}
     </m.div>

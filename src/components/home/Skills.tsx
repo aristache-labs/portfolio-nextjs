@@ -1,13 +1,14 @@
 "use client";
 
-import { useMemo, useState, type MouseEvent } from "react";
+import { useMemo, useState } from "react";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
-import { ArrowRight, BarChart3, Code2, Heart, Quote, Zap, type LucideIcon } from "lucide-react";
+import { BarChart3, Code2, Heart, Quote, Zap, type LucideIcon } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
-import motionCss from "./skills-motion.module.css";
+import statsCss from "./about-stats.module.css";
+import quoteCss from "./skills-quote.module.css";
 
 export type SkillRow = {
   name: string;
@@ -68,11 +69,6 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
     { icon: Heart, value: "Always", label: "Learning & Improving" },
   ];
 
-  const scrollToProjects = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section
       id="skills"
@@ -93,7 +89,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4 }}
               {...reducedMotionProps}
               className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium"
             >
@@ -102,10 +98,10 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
             </m.span>
 
             <m.h2
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: 0.1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
               {...reducedMotionProps}
               className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap"
             >
@@ -116,7 +112,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: 0.2 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
               {...reducedMotionProps}
               className="text-foreground/55 mx-auto mt-2 max-w-2xl text-sm sm:text-base"
             >
@@ -131,10 +127,10 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           <div className="min-w-0">
             {ordered.length > 0 && (
               <m.div
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.4 }}
                 {...reducedMotionProps}
                 className="flex flex-wrap items-center gap-2 max-lg:justify-center"
                 role="tablist"
@@ -174,9 +170,9 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               key={active}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
               {...reducedMotionProps}
-              className="mt-4 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
+              className="mt-4 grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4 [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:mx-auto [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:max-w-[640px]"
             >
               {/* Replace the whole group so rapid selections cannot retain exiting cards
                   or stale layout transforms from an earlier category. */}
@@ -196,16 +192,16 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
         </div>
 
         <m.figure
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
           {...reducedMotionProps}
-          className="bg-background/40 relative order-last mx-auto mt-8 w-full max-w-sm rounded-xl border border-white/10 px-8 pt-6 pb-4 backdrop-blur-xl lg:order-none lg:mt-12"
+          className={`${quoteCss.quoteCard} bg-background/40 relative order-last mx-auto mt-8 w-full max-w-sm rounded-xl border border-white/10 px-8 pt-6 pb-4 backdrop-blur-xl lg:order-none lg:mt-12`}
         >
           <Quote
             aria-hidden
-            className={`${motionCss.float} text-brand-bright fill-brand-mid absolute -top-3 left-4 size-6 drop-shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.9)]`}
+            className="text-brand-bright fill-brand-mid absolute -top-3 left-4 size-6"
           />
           <blockquote className="text-foreground/85 text-sm leading-relaxed">
             Tools evolve.
@@ -218,35 +214,39 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           />
         </m.figure>
 
-        <div className="mt-6 grid items-end gap-4 lg:grid-cols-[1fr_280px] [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[1fr_240px]">
+        <div className="mt-6">
           <div className="flex min-w-0 flex-col gap-4">
             <m.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
               {...reducedMotionProps}
-              className="relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] backdrop-blur-[18px] sm:px-6"
+              className={`${statsCss.panel} relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] backdrop-blur-[18px] sm:px-6`}
             >
               <span
                 aria-hidden
-                className={`${motionCss.lightning} via-brand-bright absolute top-0 left-0 h-px w-1/4 bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_rgb(var(--brand-bright-rgb)/0.9)]`}
+                className="via-brand-mid/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
               />
 
-              <span className="grid grid-cols-2 gap-x-4 gap-y-4 2xl:grid-cols-4">
+              <span className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-4`}>
                 {stats.map((stat, index) => (
                   <span
                     key={stat.label}
-                    className={`flex min-w-0 items-center gap-3 ${index !== 0 ? "2xl:border-l 2xl:border-white/10 2xl:pl-4" : ""}`}
+                    className={`${statsCss.item} flex min-w-0 items-center gap-3 ${index !== 0 ? "lg:border-l lg:border-white/10 lg:pl-4" : ""}`}
                   >
                     <IconTile size="sm">
                       <stat.icon className="size-[18px]" {...ICON_PROPS} />
                     </IconTile>
                     <span className="min-w-0">
-                      <span className="font-display block text-base leading-tight font-semibold">
+                      <span
+                        className={`${stat.value === techCount(skills.length) ? statsCss.numberValue : statsCss.textValue} font-display block text-base leading-tight font-semibold`}
+                      >
                         {stat.value}
                       </span>
-                      <span className="text-foreground/50 block text-[11px] break-words">
+                      <span
+                        className={`${statsCss.label} text-foreground/50 block text-[11px] break-words`}
+                      >
                         {stat.label}
                       </span>
                     </span>
@@ -255,33 +255,11 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               </span>
             </m.div>
           </div>
-
-          <m.a
-            href="#projects"
-            onClick={scrollToProjects}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            whileHover={{ y: -4 }}
-            {...reducedMotionProps}
-            className="group border-brand-mid/30 from-brand-deep/25 via-background/80 to-brand-mid/20 hover:border-brand-bright/60 relative flex min-w-0 items-center justify-between gap-4 overflow-hidden rounded-2xl border bg-gradient-to-br p-5 backdrop-blur-xl transition-colors hover:shadow-[0_20px_60px_rgb(var(--brand-mid-rgb)/0.35)]"
-            aria-label="Back to projects"
-          >
-            <span
-              className={`${motionCss.hand} text-brand-bright text-[28px] leading-[1.05] font-semibold`}
-            >
-              Better
-              <br />
-              Projects
-              <br />
-              Ahead...
-            </span>
-            <span className="border-brand-bright/50 group-hover:bg-brand-mid/25 flex size-12 shrink-0 items-center justify-center rounded-full border transition-all duration-300 group-hover:shadow-[0_0_24px_rgb(var(--brand-mid-rgb)/0.6)]">
-              <ArrowRight className="size-5 transition-transform duration-300 group-hover:translate-x-1" />
-            </span>
-          </m.a>
         </div>
+        <figure className={quoteCss.landscapeQuote}>
+          <blockquote>&ldquo;Tools evolve. Problem-solving endures.&rdquo;</blockquote>
+          <figcaption>- ADRIAN</figcaption>
+        </figure>
       </div>
     </section>
   );
