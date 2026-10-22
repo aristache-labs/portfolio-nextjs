@@ -224,13 +224,15 @@ export function Hero({
         )}
         <div className="hero-noise absolute inset-0" />
         <SectionEdge edge="bottom" />
-        <div className={`${PLATE} hidden lg:block`}>
+        <div
+          className={`${PLATE} hidden lg:block [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:block`}
+        >
           <m.div
             {...fadeUp(reduce, 0.85)}
             initial={{ opacity: 0, y: 20, rotate: -2 }}
             animate={{ opacity: 1, y: 0, rotate: -2 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="animate-float-slow glass bg-background/70 absolute top-[51%] left-[74.7%] max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md"
+            className="animate-float-slow glass bg-background/70 absolute top-[51%] left-[74.7%] max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:top-[37%] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:left-[71.5%]"
           >
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
               {"// focus"}
@@ -350,49 +352,51 @@ export function Hero({
             </div>
           </m.div>
 
-          {iconSocials.length > 0 && (
-            <m.div
-              {...fadeUp(reduce, 0.9)}
-              className="mt-5 flex flex-wrap items-center gap-3 [@media(max-height:500px)]:mt-2"
-            >
-              {iconSocials.map((s) => {
-                const external = s.url.startsWith("http");
-                return (
-                  <a
-                    key={s.platform}
-                    href={s.url}
-                    aria-label={s.platform}
-                    {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="group focus-visible:ring-brand-mid/70 rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
-                  >
-                    <IconTile
-                      size="lg"
-                      className="max-sm:[&>span]:size-12 [@media(max-height:500px)]:[&>span]:size-10"
+          <div className="[@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-5 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:items-center [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:gap-5">
+            {iconSocials.length > 0 && (
+              <m.div
+                {...fadeUp(reduce, 0.9)}
+                className="mt-5 flex shrink-0 flex-wrap items-center gap-3 [@media(max-height:500px)]:mt-2 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0"
+              >
+                {iconSocials.map((s) => {
+                  const external = s.url.startsWith("http");
+                  return (
+                    <a
+                      key={s.platform}
+                      href={s.url}
+                      aria-label={s.platform}
+                      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="animate-float-slow group focus-visible:ring-brand-mid/70 rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      <SocialGlyph
-                        platform={s.platform}
-                        className="size-9 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)] max-sm:size-8 [@media(max-height:500px)]:size-7"
-                      />
-                    </IconTile>
-                  </a>
-                );
-              })}
-            </m.div>
-          )}
+                      <IconTile
+                        size="md"
+                        className="max-sm:[&>span]:size-12 [@media(max-height:500px)]:[&>span]:size-10 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:rounded-xl [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:[&>span]:rounded-[11px]"
+                      >
+                        <SocialGlyph
+                          platform={s.platform}
+                          className="size-9 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)] max-sm:size-8 [@media(max-height:500px)]:size-7"
+                        />
+                      </IconTile>
+                    </a>
+                  );
+                })}
+              </m.div>
+            )}
 
-          {profile.roles.length > 0 && (
-            <m.p
-              {...fadeUp(reduce, 1)}
-              className="text-muted mt-4 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[10px]"
-            >
-              {profile.roles.map((role, i) => (
-                <span key={role}>
-                  {i > 0 && " / "}
-                  <span className="whitespace-nowrap md:whitespace-normal">{role}</span>
-                </span>
-              ))}
-            </m.p>
-          )}
+            {profile.roles.length > 0 && (
+              <m.p
+                {...fadeUp(reduce, 1)}
+                className="text-muted mt-6 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[8px] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:relative [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-top-1 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0"
+              >
+                {profile.roles.map((role, i) => (
+                  <span key={role}>
+                    {i > 0 && " / "}
+                    <span className="whitespace-nowrap md:whitespace-normal">{role}</span>
+                  </span>
+                ))}
+              </m.p>
+            )}
+          </div>
 
           <m.div
             {...fadeUp(reduce, 1.1)}
@@ -415,7 +419,7 @@ export function Hero({
 
       <a
         href="#projects"
-        className="text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:md:bottom-2"
+        className="text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:translate-y-3"
         aria-label="Scroll to projects"
       >
         <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">

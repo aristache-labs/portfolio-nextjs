@@ -9,6 +9,7 @@ import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
 import type { MenuSection } from "./MenuOverlay";
+import motionCss from "./support-motion.module.css";
 
 const WORDMARK = { src: "/brand/aristache-text.svg", width: 992, height: 175 } as const;
 
@@ -178,7 +179,7 @@ export function SiteNav({
                   src="/icons/heart.svg"
                   alt=""
                   aria-hidden
-                  className="size-4 shrink-0 object-contain"
+                  className={`${motionCss.heart} size-4 shrink-0 object-contain`}
                 />
               )}
               {navCta.label}
@@ -240,7 +241,7 @@ export function SiteNav({
                           src="/icons/heart.svg"
                           alt=""
                           aria-hidden
-                          className="size-4 shrink-0 object-contain"
+                          className={`${motionCss.heart} size-4 shrink-0 object-contain`}
                         />
                       )}
                       {navCta.label}
