@@ -128,7 +128,9 @@ export function SectionBackdrop({
     >
       <div
         className={
-          screen ? "absolute top-0 left-0 h-screen w-full overflow-hidden" : "absolute inset-0"
+          screen
+            ? "absolute top-0 left-0 h-screen max-h-full w-full overflow-hidden"
+            : "absolute inset-0"
         }
       >
         {showVideo && (
@@ -174,7 +176,13 @@ export function SectionBackdrop({
 export function SectionEdge({ edge }: { edge: "top" | "bottom" }) {
   const bottom = edge === "bottom";
   return (
-    <div className={bottom ? "absolute inset-x-0 bottom-0 h-18" : "absolute inset-x-0 top-0 h-18"}>
+    <div
+      className={
+        bottom
+          ? "absolute inset-x-0 bottom-0 h-40 md:h-56"
+          : "absolute inset-x-0 top-0 h-40 md:h-56"
+      }
+    >
       <div
         className={
           bottom
@@ -185,8 +193,8 @@ export function SectionEdge({ edge }: { edge: "top" | "bottom" }) {
       <div
         className={
           bottom
-            ? "absolute inset-0 bg-[linear-gradient(to_top,var(--bg)_0%,var(--bg)_2%,transparent_100%)]"
-            : "absolute inset-0 bg-[linear-gradient(to_bottom,var(--bg)_0%,var(--bg)_2%,transparent_100%)]"
+            ? "absolute inset-0 bg-[linear-gradient(to_top,var(--bg)_0%,var(--bg)_4%,color-mix(in_srgb,var(--bg)_88%,transparent)_16%,color-mix(in_srgb,var(--bg)_68%,transparent)_30%,color-mix(in_srgb,var(--bg)_45%,transparent)_46%,color-mix(in_srgb,var(--bg)_24%,transparent)_62%,color-mix(in_srgb,var(--bg)_9%,transparent)_80%,transparent_100%)]"
+            : "absolute inset-0 bg-[linear-gradient(to_bottom,var(--bg)_0%,var(--bg)_4%,color-mix(in_srgb,var(--bg)_88%,transparent)_16%,color-mix(in_srgb,var(--bg)_68%,transparent)_30%,color-mix(in_srgb,var(--bg)_45%,transparent)_46%,color-mix(in_srgb,var(--bg)_24%,transparent)_62%,color-mix(in_srgb,var(--bg)_9%,transparent)_80%,transparent_100%)]"
         }
       />
     </div>
