@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { m, useScroll, useSpring, useTransform } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion";
@@ -8,6 +8,8 @@ import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
 import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
+import styles from "./experience-layout.module.css";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -24,6 +26,8 @@ function rise(reduce: boolean, y: number, duration: number, delay = 0) {
 
 function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number; last: boolean }) {
   const reduce = useReducedMotion();
+  const desktop = useMediaQuery("(min-width: 1024px)");
+  const [expanded, setExpanded] = useState(false);
 
   const inner = (
     <div className="flex gap-4 sm:gap-5">
@@ -39,7 +43,9 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
             {exp.period}
           </p>
           <h3 className="mt-1.5 text-lg leading-snug font-bold sm:text-xl">{exp.role}</h3>
-          <div className="text-muted mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm leading-snug">
+          <div
+            className={`${styles.metadata} text-muted mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm leading-snug`}
+          >
             <span>{exp.org}</span>
             {exp.location && (
               <span className="flex items-center gap-1">
@@ -50,7 +56,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
           </div>
           {exp.description.length > 0 && (
             <ul className="mt-3.5 space-y-2">
-              {exp.description.map((d, i) => (
+              {exp.description.slice(0, 2).map((d, i) => (
                 <li
                   key={`${exp.id}-bullet-${i}`}
                   className="text-muted flex gap-2.5 text-sm leading-relaxed"
@@ -60,6 +66,42 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
                 </li>
               ))}
             </ul>
+          )}
+          {exp.description.length > 2 && (
+            <details
+              className="group mt-2"
+              open={desktop || expanded}
+              onToggle={(event) => {
+                if (!desktop) setExpanded(event.currentTarget.open);
+              }}
+            >
+              <summary
+                className={`${styles.disclosure} text-brand-bright focus-visible:ring-brand-mid/70 flex min-h-[44px] cursor-pointer list-none items-center gap-2 rounded-lg text-sm font-medium focus-visible:ring-2 focus-visible:outline-none lg:hidden [&::-webkit-details-marker]:hidden`}
+              >
+                <span className="group-open:hidden">More details</span>
+                <span className="hidden group-open:inline">Fewer details</span>
+                <span
+                  aria-hidden
+                  className="transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+                >
+                  ⌄
+                </span>
+              </summary>
+              <ul className="mt-1 space-y-2">
+                {exp.description.slice(2).map((d, i) => (
+                  <li
+                    key={`${exp.id}-more-${i}`}
+                    className="text-muted flex gap-2.5 text-sm leading-relaxed"
+                  >
+                    <span
+                      aria-hidden
+                      className="mt-2 size-1.5 shrink-0 rounded-full bg-(image:--gradient-brand)"
+                    />
+                    <span className="min-w-0 break-words">{d}</span>
+                  </li>
+                ))}
+              </ul>
+            </details>
           )}
         </div>
       </div>
@@ -72,11 +114,10 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
 
   return (
     <m.li
-      initial={{ opacity: 0, y: 28, scale: 0.98 }}
+      initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.55, delay: Math.min(index * 0.08, 0.4), ease: EASE }}
-      whileHover={{ y: -4 }}
+      transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.12), ease: EASE }}
     >
       {inner}
     </m.li>
@@ -99,12 +140,12 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
   return (
     <Section
       id="experience"
-      className="scroll-mt-24 overflow-clip pt-2 md:scroll-mt-1 md:pt-28"
+      className={`${styles.section} scroll-mt-24 overflow-clip pt-2 md:scroll-mt-1 md:pt-28`}
       backdrop={
         <SectionBackdrop
           video="/media/experience.mp4"
           poster="/media/experience.webp"
-          scrim="bg-background/80 absolute inset-0 md:bg-background/90"
+          scrim="bg-background/90 absolute inset-0"
         />
       }
     >
@@ -133,7 +174,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
           </div>
           <m.p
             {...rise(reduce, 18, 0.7, 0.18)}
-            className="text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg"
+            className={`${styles.intro} text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg`}
           >
             From hands-on IT support to leading global enterprise deployments, my journey is built
             on solving complex challenges, automating workflows, and delivering reliable technology

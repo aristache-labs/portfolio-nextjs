@@ -1,0 +1,17 @@
+@media (orientation: landscape) and (max-width: 1023px) and (max-height: 500px) {
+  .section li li,
+  .intro {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .section h3 {
+    font-size: 18px;
+  }
+  .metadata {
+    font-size: 12px;
+  }
+  .disclosure {
+    font-size: 13px;
+  }
+}
