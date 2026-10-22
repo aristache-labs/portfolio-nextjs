@@ -83,7 +83,12 @@ export default async function SkillsEditor() {
       toRow={(s) => ({
         primary: s.name,
         meta: s.category,
-        badges: s.level ? <Badge>{/^\d+$/.test(s.level) ? `${s.level}%` : s.level}</Badge> : null,
+        badges: (
+          <>
+            {s.level && <Badge>{/^\d+$/.test(s.level) ? `${s.level}%` : s.level}</Badge>}
+            <Badge>Order: {s.order}</Badge>
+          </>
+        ),
       })}
       createAction={create}
       updateAction={update}

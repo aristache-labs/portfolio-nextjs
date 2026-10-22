@@ -9,7 +9,14 @@ export default defineConfig({
     baseURL: "http://localhost:4000",
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    ...(["chromium", "webkit"] as const).map((browserName) => ({
+      name: `mobile-${browserName}`,
+      testMatch: "mobile-layout.spec.ts",
+      use: { ...devices["iPhone 15 Pro Max"], browserName },
+    })),
+  ],
   webServer: {
     command: "bun run dev",
     url: "http://localhost:4000",

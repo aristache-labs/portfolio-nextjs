@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import { AnimatePresence, m } from "framer-motion";
-import { ArrowRight, Heart, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -172,7 +172,15 @@ export function SiteNav({
               {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
             >
-              {navCta.external && <Heart className="text-brand-bright size-3.5" aria-hidden />}
+              {navCta.external && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src="/icons/heart.svg"
+                  alt=""
+                  aria-hidden
+                  className="size-4 shrink-0 object-contain"
+                />
+              )}
               {navCta.label}
               {!navCta.external && (
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -226,7 +234,15 @@ export function SiteNav({
                       {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className="text-foreground focus-visible:ring-brand-bright/70 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-(--brand-deep) px-5 py-3 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      {navCta.external && <Heart className="size-4" aria-hidden />}
+                      {navCta.external && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src="/icons/heart.svg"
+                          alt=""
+                          aria-hidden
+                          className="size-4 shrink-0 object-contain"
+                        />
+                      )}
                       {navCta.label}
                       {!navCta.external && <ArrowRight className="size-4" />}
                     </a>

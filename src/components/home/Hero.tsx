@@ -8,6 +8,7 @@ import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
+import { IconTile } from "@/components/ui/IconTile";
 import { SectionEdge } from "./SectionBackdrop";
 export type HeroProfile = {
   name: string;
@@ -17,7 +18,7 @@ export type HeroProfile = {
 const EASE = [0.22, 1, 0.36, 1] as const;
 const HERO_COPY =
   "I build modern applications, reliable systems, and thoughtful digital experiences that solve real problems and create lasting value.";
-const FOCUS = ["Build", "Learn", "Improve", "Repeat"] as const;
+const FOCUS = ["Think", "Build", "Evolve", "Repeat"] as const;
 const GREETING = "// HELLO, I'M";
 /** Cover-fit box for the 16:9 hero plate, centered in its size container. */
 const PLATE =
@@ -73,6 +74,29 @@ export function Hero({
   const typed = useTypewriter(GREETING, reduce);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    // Some iPhone browsers paint below their reported large viewport. Reserve the
+    // physical screen height in portrait, without resizing when toolbars move.
+    const section = sectionRef.current;
+    const phone = window.matchMedia(
+      "(pointer: coarse) and (max-width: 767px) and (orientation: portrait)",
+    );
+    const sync = () => {
+      if (phone.matches) {
+        section?.style.setProperty("--portrait-screen-height", `${screen.height}px`);
+      } else {
+        section?.style.removeProperty("--portrait-screen-height");
+      }
+    };
+    sync();
+    phone.addEventListener("change", sync);
+    window.addEventListener("resize", sync);
+    return () => {
+      phone.removeEventListener("change", sync);
+      window.removeEventListener("resize", sync);
+      section?.style.removeProperty("--portrait-screen-height");
+    };
+  }, []);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(!reduce);
   const playingRef = useRef(playing);
@@ -146,7 +170,7 @@ export function Hero({
       id="hero"
       ref={sectionRef}
       onMouseMove={onMouseMove}
-      className="relative flex min-h-lvh scroll-mt-24 flex-col justify-center overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center"
+      className="relative flex scroll-mt-24 flex-col overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center max-md:portrait:min-h-[max(100lvh,var(--portrait-screen-height,0px))]"
     >
       <div
         className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-clip"
@@ -234,7 +258,7 @@ export function Hero({
         </button>
       )}
 
-      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] max-md:portrait:pb-24 [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10">
+      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10">
         <div className="max-w-2xl min-w-0 lg:pl-8">
           <m.p
             {...fadeUp(reduce, 0.15)}
@@ -339,9 +363,17 @@ export function Hero({
                     href={s.url}
                     aria-label={s.platform}
                     {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="border-border bg-foreground/5 text-foreground/80 hover:text-foreground focus-visible:ring-brand-mid/70 grid size-12 place-items-center rounded-2xl border backdrop-blur-md transition-transform duration-300 hover:-translate-y-1 hover:border-(--brand-mid)/50 focus-visible:ring-2 focus-visible:outline-none [@media(max-height:500px)]:size-9"
+                    className="group focus-visible:ring-brand-mid/70 rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
                   >
-                    <SocialGlyph platform={s.platform} className="size-6 object-contain" />
+                    <IconTile
+                      size="lg"
+                      className="max-sm:[&>span]:size-12 [@media(max-height:500px)]:[&>span]:size-10"
+                    >
+                      <SocialGlyph
+                        platform={s.platform}
+                        className="size-9 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)] max-sm:size-8 [@media(max-height:500px)]:size-7"
+                      />
+                    </IconTile>
                   </a>
                 );
               })}
@@ -383,7 +415,7 @@ export function Hero({
 
       <a
         href="#projects"
-        className="text-foreground/50 hover:text-foreground absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2 max-md:portrait:bottom-14 [@media(max-height:500px)]:bottom-2 [@media(max-height:500px)]:flex-row"
+        className="text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(max-height:500px)]:md:bottom-2"
         aria-label="Scroll to projects"
       >
         <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">

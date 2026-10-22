@@ -1,11 +1,11 @@
 "use client";
 
 import { useMemo, useState, type MouseEvent } from "react";
-import { AnimatePresence, m } from "framer-motion";
+import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { ArrowRight, BarChart3, Code2, Heart, Quote, Zap, type LucideIcon } from "lucide-react";
-import { SkillCard } from "./SkillCard";
+import { SkillCard, skillPercent } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import motionCss from "./skills-motion.module.css";
 
@@ -17,47 +17,23 @@ export type SkillRow = {
   level?: string | null;
 };
 
-const ALL = "All";
+const MOST_USED = "Most Used";
 /** Homepage filter order. Tabs still appear only when a skill uses that category. */
 const CATEGORY_ORDER = ["Development", "Infrastructure", "Automation", "Data & Cloud"];
 /** Default tab keeps the grid to one screen. A category pill reveals that group. */
-const ALL_LIMIT = 8;
+const MOST_USED_LIMIT = 8;
 
 function byOrder(skills: SkillRow[]) {
   return [...skills].sort((a, b) => a.order - b.order);
 }
 
-/** All shows this set first. Aliases cover the stored names. */
-const ALL_FIRST: { aliases: string[]; label: string }[] = [
-  { aliases: ["powershell"], label: "PowerShell" },
-  { aliases: ["windows server", "windows"], label: "Windows Server" },
-  { aliases: ["linux"], label: "Linux" },
-  { aliases: ["typescript"], label: "TypeScript" },
-  { aliases: ["react"], label: "React" },
-  { aliases: ["next.js", "nextjs"], label: "Next.js" },
-  { aliases: ["react native"], label: "React Native" },
-  { aliases: ["sql", "postgresql", "mysql"], label: "SQL" },
-];
-
-function allTabSkills(ordered: SkillRow[]) {
-  const remaining = [...ordered];
-  const picked: SkillRow[] = [];
-  for (const slot of ALL_FIRST) {
-    let index = -1;
-    for (const alias of slot.aliases) {
-      index = remaining.findIndex((skill) => skill.name.trim().toLowerCase() === alias);
-      if (index >= 0) break;
-    }
-    if (index < 0) continue;
-    const [skill] = remaining.splice(index, 1);
-    picked.push({ ...skill, name: slot.label });
-  }
-  if (picked.length === 0) return ordered.slice(0, ALL_LIMIT);
-  for (const skill of remaining) {
-    if (picked.length >= ALL_LIMIT) break;
-    picked.push(skill);
-  }
-  return picked;
+/** Highest levels first; admin order breaks ties. Missing levels follow rated skills. */
+function mostUsedSkills(skills: SkillRow[]) {
+  return [...skills]
+    .sort(
+      (a, b) => (skillPercent(b.level) ?? -1) - (skillPercent(a.level) ?? -1) || a.order - b.order,
+    )
+    .slice(0, MOST_USED_LIMIT);
 }
 
 function techCount(total: number) {
@@ -80,10 +56,10 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
     return [...known, ...extras];
   }, [ordered]);
 
-  const [filter, setFilter] = useState(ALL);
-  const active = filter !== ALL && categories.includes(filter) ? filter : ALL;
+  const [filter, setFilter] = useState(MOST_USED);
+  const active = filter !== MOST_USED && categories.includes(filter) ? filter : MOST_USED;
   const visible =
-    active === ALL ? allTabSkills(ordered) : ordered.filter((s) => s.category === active);
+    active === MOST_USED ? mostUsedSkills(ordered) : ordered.filter((s) => s.category === active);
 
   const stats: { icon: LucideIcon; value: string; label: string }[] = [
     { icon: Code2, value: techCount(skills.length), label: "Technologies & Tools" },
@@ -164,7 +140,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 role="tablist"
                 aria-label="Filter skills by category"
               >
-                {[ALL, ...categories].map((value) => {
+                {[MOST_USED, ...categories].map((value) => {
                   const selected = active === value;
                   return (
                     <m.button
@@ -176,7 +152,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                       whileHover={{ y: -2 }}
                       whileTap={{ scale: 0.97 }}
                       {...reducedMotionProps}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300 ${
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
                         selected
                           ? "border-brand-bright/60 bg-(image:--gradient-brand) text-white"
                           : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
@@ -188,40 +164,33 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 })}
               </m.div>
             )}
-            {active === ALL && ordered.length > ALL_LIMIT && (
+            {active === MOST_USED && ordered.length > MOST_USED_LIMIT && (
               <p className="text-foreground/60 mt-2.5 text-xs max-lg:text-center">
-                Showing {visible.length} of {ordered.length} - select a category to explore
-                everything.
+                My {visible.length} most-used skills - explore all {ordered.length} by category.
               </p>
             )}
 
             <m.div
-              layout
+              key={active}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
               {...reducedMotionProps}
               className="mt-4 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
             >
-              <AnimatePresence mode="popLayout">
-                {visible.map((skill, index) => (
-                  <m.div
-                    key={`${skill.category}-${skill.name}`}
-                    layout
-                    initial={{ opacity: 0, y: 40, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.3) }}
-                    {...reducedMotionProps}
-                    className="min-w-0"
-                  >
-                    <SkillCard
-                      name={skill.name}
-                      iconPath={skill.iconPath}
-                      category={skill.category}
-                      level={skill.level}
-                      index={index}
-                    />
-                  </m.div>
-                ))}
-              </AnimatePresence>
+              {/* Replace the whole group so rapid selections cannot retain exiting cards
+                  or stale layout transforms from an earlier category. */}
+              {visible.map((skill, index) => (
+                <div key={`${skill.category}-${skill.name}`} className="min-w-0">
+                  <SkillCard
+                    name={skill.name}
+                    iconPath={skill.iconPath}
+                    category={skill.category}
+                    level={skill.level}
+                    index={index}
+                  />
+                </div>
+              ))}
             </m.div>
           </div>
         </div>

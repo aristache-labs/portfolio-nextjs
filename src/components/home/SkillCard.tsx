@@ -47,12 +47,7 @@ export function SkillCard({
 
   return (
     <m.div
-      layout
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96 }}
-      viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.5, delay: (index % 8) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.2 }}
       whileHover={{ y: -4 }}
       {...reducedMotionProps}
       className="group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-4 py-3.5 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)]"

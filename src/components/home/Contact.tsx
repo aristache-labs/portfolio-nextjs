@@ -220,7 +220,6 @@ export function Contact({
           {cards.length > 0 && (
             <ul className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-1 [@media(orientation:landscape)_and_(max-height:500px)]:gap-3">
               {cards.map((card, index) => {
-                const Icon = card.icon;
                 return (
                   <m.li
                     key={card.key}
@@ -236,16 +235,21 @@ export function Contact({
                       {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className="group hover:border-brand-mid/45 relative flex h-full items-center gap-3 rounded-2xl border border-white/10 bg-(--bg) bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] p-3.5 transition-colors duration-300 sm:gap-3.5 sm:p-4"
                     >
-                      <IconTile size="sm">
-                        {card.key === "email" ? (
-                          <Icon className="size-[18px]" {...ICON_PROPS} />
-                        ) : (
+                      {card.key === "email" ? (
+                        <IconTile size="md">
+                          <SocialGlyph
+                            platform="gmail"
+                            className="size-7 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)]"
+                          />
+                        </IconTile>
+                      ) : (
+                        <span className="grid size-[46px] shrink-0 place-items-center">
                           <SocialGlyph
                             platform={card.title}
-                            className="relative z-10 size-[18px] object-contain"
+                            className="size-9 object-contain drop-shadow-[0_4px_10px_rgb(0_0_0/0.4)]"
                           />
-                        )}
-                      </IconTile>
+                        </span>
+                      )}
                       <span className="min-w-0">
                         <span className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[15px]">
                           {card.title}

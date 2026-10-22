@@ -85,6 +85,14 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
       className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
       <head>
+        {/* Match the portrait hero's screen floor before its first paint, so hydration
+            does not resize the cover image and visibly change its crop. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "if(matchMedia('(pointer: coarse) and (max-width: 767px) and (orientation: portrait)').matches){document.documentElement.style.setProperty('--portrait-screen-height',screen.height+'px')}",
+          }}
+        />
         {/* Without this, the initial system-theme flip animates through every element's own
             transition-* and reads as a flicker. globals.css suppresses transitions until
             `theme-ready`; blocking and in <head> so no unguarded frame exists. */}
