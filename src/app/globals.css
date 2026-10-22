@@ -338,7 +338,7 @@ html {
    no utility is overridden. */
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   html {
-    font-size: 78.75%;
+    font-size: 68.75%;
   }
 }
 /* Without this the initial system-theme flip cross-fades through each element's own

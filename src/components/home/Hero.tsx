@@ -146,7 +146,7 @@ export function Hero({
       id="hero"
       ref={sectionRef}
       onMouseMove={onMouseMove}
-      className="relative flex min-h-svh scroll-mt-24 flex-col justify-center overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center"
+      className="relative flex min-h-dvh scroll-mt-24 flex-col justify-center overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center"
     >
       <div
         className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-clip"
