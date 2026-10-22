@@ -10,6 +10,7 @@ import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { IconTile } from "@/components/ui/IconTile";
 import { SectionEdge } from "./SectionBackdrop";
+import styles from "./hero-motion.module.css";
 export type HeroProfile = {
   name: string;
   roles: string[];
@@ -49,9 +50,9 @@ function useTypewriter(text: string, reduce: boolean) {
 
 function fadeUp(reduce: boolean, delay: number) {
   return {
-    initial: reduce ? false : ({ opacity: 0, y: 22 } as const),
+    initial: reduce ? false : ({ opacity: 0, y: 12 } as const),
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.8, ease: EASE, delay },
+    transition: { duration: reduce ? 0 : 0.45, ease: EASE, delay: reduce ? 0 : delay * 0.14 },
   };
 }
 
@@ -170,7 +171,7 @@ export function Hero({
       id="hero"
       ref={sectionRef}
       onMouseMove={onMouseMove}
-      className="relative flex scroll-mt-24 flex-col overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center max-md:portrait:min-h-[max(100lvh,var(--portrait-screen-height,0px))]"
+      className={`${styles.hero} relative flex scroll-mt-24 flex-col overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center max-md:portrait:min-h-[max(100lvh,var(--portrait-screen-height,0px))]`}
     >
       <div
         className="[container-type:size] pointer-events-none absolute inset-0 z-0 overflow-clip"
@@ -229,10 +230,7 @@ export function Hero({
         >
           <m.div
             {...fadeUp(reduce, 0.85)}
-            initial={{ opacity: 0, y: 20, rotate: -2 }}
-            animate={{ opacity: 1, y: 0, rotate: -2 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-            className="animate-float-slow glass bg-background/70 absolute top-[51%] left-[74.7%] max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:top-[37%] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:left-[71.5%]"
+            className={`${styles.focus} glass bg-background/70 absolute top-[45%] left-[73%] max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:top-[37%] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:left-[71.5%]`}
           >
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
               {"// focus"}
@@ -260,17 +258,21 @@ export function Hero({
         </button>
       )}
 
-      <div className="site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10">
+      <div
+        className={`${styles.content} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
+      >
         <div className="max-w-2xl min-w-0 lg:pl-8">
           <m.p
             {...fadeUp(reduce, 0.15)}
             className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90 [@media(max-height:500px)]:mb-1 [@media(max-height:500px)]:text-[11px]"
           >
             {typed}
-            <span
-              aria-hidden
-              className="animate-blink ml-1 inline-block h-4 w-[2px] translate-y-[3px] bg-(--brand-bright)"
-            />
+            {typed !== GREETING && !reduce && (
+              <span
+                aria-hidden
+                className="animate-blink ml-1 inline-block h-4 w-[2px] translate-y-[3px] bg-(--brand-bright)"
+              />
+            )}
           </m.p>
 
           <h1 className="max-w-3xl">
@@ -291,7 +293,7 @@ export function Hero({
 
           <m.p
             {...fadeUp(reduce, 0.6)}
-            className="text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug"
+            className={`${styles.copy} text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
           >
             {HERO_COPY}
           </m.p>
@@ -352,7 +354,9 @@ export function Hero({
             </div>
           </m.div>
 
-          <div className="[@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-5 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:items-center [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:gap-5">
+          <div
+            className={`${styles.socialRow} [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-5 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:items-center [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:gap-5`}
+          >
             {iconSocials.length > 0 && (
               <m.div
                 {...fadeUp(reduce, 0.9)}
@@ -366,7 +370,7 @@ export function Hero({
                       href={s.url}
                       aria-label={s.platform}
                       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                      className="animate-float-slow group focus-visible:ring-brand-mid/70 rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
+                      className="group focus-visible:ring-brand-mid/70 rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
                     >
                       <IconTile
                         size="md"
@@ -386,7 +390,7 @@ export function Hero({
             {profile.roles.length > 0 && (
               <m.p
                 {...fadeUp(reduce, 1)}
-                className="text-muted mt-6 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[8px] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:relative [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-top-1 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0"
+                className={`${styles.roles} text-muted mt-6 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[8px] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:relative [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-top-1 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
               >
                 {profile.roles.map((role, i) => (
                   <span key={role}>
@@ -420,7 +424,7 @@ export function Hero({
       <a
         href="#projects"
         className="text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:translate-y-3"
-        aria-label="Scroll to projects"
+        aria-label="Scroll to explore, jump to projects"
       >
         <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">
           <span className="animate-scroll-dot h-2 w-1 rounded-full bg-(--brand-bright)" />

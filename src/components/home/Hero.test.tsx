@@ -73,6 +73,6 @@ describe("Hero", () => {
   it("renders a scroll cue and no avatar image", () => {
     render(<Hero profile={profile} />);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/scroll to projects/i)).toHaveAttribute("href", "#projects");
+    expect(screen.getByLabelText(/scroll to explore/i)).toHaveAttribute("href", "#projects");
   });
 });

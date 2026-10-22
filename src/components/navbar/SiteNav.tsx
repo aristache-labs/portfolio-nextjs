@@ -10,6 +10,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
 import type { MenuSection } from "./MenuOverlay";
 import motionCss from "./support-motion.module.css";
+import navStyles from "./nav-landscape.module.css";
 
 const WORDMARK = { src: "/brand/aristache-text.svg", width: 992, height: 175 } as const;
 
@@ -47,11 +48,11 @@ export function SiteNav({
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const showContact = visibleSections.some((s) => s.id === "contact");
-  const sponsor = sponsorUrl?.trim() || "";
+  const sponsor = sponsorUrl?.trim();
   const navCta = sponsor
     ? { href: sponsor, external: true, label: "Support My Work" }
     : showContact
-      ? { href: "#contact", external: false, label: "Let's Connect" }
+      ? { href: "#contact", external: false, label: "Let's Talk" }
       : null;
 
   // Mobile menu links scroll explicitly, and only after the panel has finished collapsing.
@@ -174,11 +175,11 @@ export function SiteNav({
               className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
             >
               {navCta.external && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src="/icons/heart.svg"
                   alt=""
-                  aria-hidden
+                  width={16}
+                  height={16}
                   className={`${motionCss.heart} size-4 shrink-0 object-contain`}
                 />
               )}
@@ -194,7 +195,7 @@ export function SiteNav({
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            className="border-border bg-background/40 text-foreground flex size-11 shrink-0 items-center justify-center rounded-xl border backdrop-blur-md xl:hidden"
+            className={`${navStyles.menu} border-border bg-background/40 text-foreground flex size-11 shrink-0 items-center justify-center rounded-xl border backdrop-blur-md xl:hidden`}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -236,11 +237,11 @@ export function SiteNav({
                       className="text-foreground focus-visible:ring-brand-bright/70 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-(--brand-deep) px-5 py-3 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none"
                     >
                       {navCta.external && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
+                        <Image
                           src="/icons/heart.svg"
                           alt=""
-                          aria-hidden
+                          width={16}
+                          height={16}
                           className={`${motionCss.heart} size-4 shrink-0 object-contain`}
                         />
                       )}

@@ -1,0 +1,17 @@
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .menu {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    color: var(--foreground);
+    background: var(--surface);
+    border-color: rgb(var(--brand-mid-rgb) / 0.55);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 0.25);
+  }
+
+  .menu svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+  }
+}

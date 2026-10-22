@@ -19,7 +19,7 @@ describe("SiteNav", () => {
     expect(screen.queryByText("Cristache Adrian")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "#about");
     expect(screen.getByRole("link", { name: "Contact" })).toHaveAttribute("href", "#contact");
-    expect(screen.getAllByRole("link", { name: /let's connect/i })[0]).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: /let's talk/i })[0]).toHaveAttribute(
       "href",
       "#contact",
     );
@@ -34,20 +34,20 @@ describe("SiteNav", () => {
     expect(screen.getByRole("link", { name: "Projects" })).toBeInTheDocument();
   });
 
-  it("uses Support My Work when a sponsor url is set, otherwise Let's Connect", () => {
-    const { rerender } = render(<SiteNav socials={socials} />);
-    expect(screen.getAllByRole("link", { name: /let's connect/i }).length).toBeGreaterThan(0);
-    expect(screen.queryByRole("link", { name: /support my work/i })).not.toBeInTheDocument();
-    rerender(<SiteNav socials={socials} sponsorUrl="https://example.com/sponsor" />);
-    const support = screen.getAllByRole("link", { name: /support my work/i });
-    expect(support.length).toBeGreaterThan(0);
-    for (const link of support) {
-      expect(link).toHaveAttribute("href", "https://example.com/sponsor");
-      expect(link).toHaveAttribute("target", "_blank");
-    }
-    expect(screen.queryByRole("link", { name: /let's connect/i })).not.toBeInTheDocument();
+  it("shows the sponsor action on desktop and mobile when configured", () => {
+    render(<SiteNav socials={socials} sponsorUrl="https://example.com/sponsor" />);
+    expect(screen.getByRole("link", { name: "Support My Work" })).toHaveAttribute(
+      "href",
+      "https://example.com/sponsor",
+    );
+    expect(screen.queryByRole("link", { name: "Let's Talk" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
-    expect(screen.getAllByRole("link", { name: /support my work/i })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "Support My Work" })).toHaveLength(2);
+  });
+
+  it("omits the CTA when contact is hidden", () => {
+    render(<SiteNav socials={socials} hidden={["contact"]} />);
+    expect(screen.queryByRole("link", { name: "Let's Talk" })).not.toBeInTheDocument();
   });
 
   it("opens the mobile panel with section links and no socials", () => {
