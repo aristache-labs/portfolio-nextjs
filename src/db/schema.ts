@@ -40,6 +40,7 @@ export const projects = pgTable("projects", {
   repo: varchar("repo", { length: 255 }).notNull().unique(),
   title: text("title").notNull(),
   customBlurb: text("custom_blurb"),
+  category: text("category"),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
   featured: boolean("featured").notNull().default(false),
   order: integer("order").notNull().default(0),

@@ -5,6 +5,9 @@ import { AdminCrudPage } from "@/components/admin/AdminCrudPage";
 import { Badge } from "@/components/admin/ui";
 import { type AdminField } from "@/components/admin/RecordFormDialog";
 
+import { projectInsertSchema } from "@/lib/schemas";
+import { PROJECT_CATEGORIES } from "@/lib/project-categories";
+
 export const dynamic = "force-dynamic";
 
 const fields: AdminField[] = [
@@ -16,6 +19,16 @@ const fields: AdminField[] = [
     type: "textarea",
     rows: 2,
     hint: "Optional — overrides the GitHub description.",
+  },
+  {
+    name: "category",
+    label: "Category",
+    type: "select",
+    options: [
+      { value: "", label: "Not assigned" },
+      ...PROJECT_CATEGORIES.map((value) => ({ value, label: value })),
+    ],
+    hint: "Used by the public project filters. Projects without a category appear under All.",
   },
   {
     name: "tags",
@@ -69,6 +82,9 @@ function parse(formData: FormData) {
   return {
     repo: String(formData.get("repo")),
     title: String(formData.get("title")),
+    category: projectInsertSchema.shape.category.parse(
+      String(formData.get("category") || "") || null,
+    ),
     customBlurb: (formData.get("customBlurb") as string) || null,
     tags: String(formData.get("tags") || "")
       .split(",")
@@ -111,6 +127,7 @@ export default async function ProjectsEditor() {
         meta: p.repo,
         badges: (
           <>
+            {p.category ? <Badge>{p.category}</Badge> : <Badge tone="muted">No category</Badge>}
             {p.featured ? <Badge tone="brand">Featured</Badge> : null}
             {p.hidden ? <Badge tone="warning">Hidden</Badge> : null}
           </>

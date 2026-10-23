@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PROJECT_CATEGORIES } from "./project-categories";
 
 // ---------- Table insert/update validators (admin form input) ----------
 
@@ -26,6 +27,7 @@ export const projectInsertSchema = z.object({
     .min(1)
     .regex(/^[\w.-]+$/, "repo must be a GitHub slug, not a URL"),
   title: z.string().min(1),
+  category: z.enum(PROJECT_CATEGORIES).nullable().optional(),
   customBlurb: z.string().nullable().optional(),
   tags: z.array(z.string()).default([]),
   featured: z.boolean().default(false),

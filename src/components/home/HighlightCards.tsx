@@ -100,7 +100,7 @@ function Actions({
   const compactClass = compact ? COMPACT_PROJECT_ACTION : undefined;
   return (
     <div
-      className={`${actionStyles.actions} ${compact ? "mt-2" : "mt-4"} flex flex-wrap items-center gap-2`}
+      className={`${actionStyles.actions} ${compact ? `${actionStyles.recent} mt-2` : `${actionStyles.featured} mt-4`} flex flex-wrap items-center gap-2`}
     >
       <Button
         className={compactClass}
@@ -169,7 +169,9 @@ export function FeaturedCard({
         <Cover project={project} sizes="(max-width: 1024px) 100vw, 48rem" fit="object-cover" />
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <div
+          className={`${actionStyles.featuredHeading} flex flex-wrap items-center justify-between gap-x-3 gap-y-2`}
+        >
           <h3 className="max-w-full min-w-0 text-lg leading-snug font-bold break-words">
             {project.title}
           </h3>
@@ -181,7 +183,9 @@ export function FeaturedCard({
           </div>
         )}
         {project.description && (
-          <p className="text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty">
+          <p
+            className={`${actionStyles.featuredDescription} text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty lg:line-clamp-3`}
+          >
             {project.description}
           </p>
         )}
@@ -205,9 +209,11 @@ export function RecentCard({
 }) {
   return (
     <article
-      className={`${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
+      className={`${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
     >
-      <div className="ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full">
+      <div
+        className={`${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}
+      >
         <Cover
           project={project}
           sizes="(max-width: 640px) 100vw, 192px"
@@ -215,25 +221,46 @@ export function RecentCard({
           priority={priority}
         />
       </div>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <div className="flex min-w-0 items-baseline justify-between gap-2">
-          <h3
-            title={project.title}
-            className="min-w-0 truncate text-[15px] leading-snug font-semibold"
-          >
-            {project.title}
-          </h3>
-          {(project.language || project.tags[0]) && (
-            <span className={PRIMARY_TAG}>{project.language || project.tags[0]}</span>
+      <div className={`${actionStyles.recentContent} flex min-w-0 flex-1 flex-col`}>
+        <div className={actionStyles.recentText}>
+          <div className="flex min-w-0 items-baseline justify-between gap-2">
+            <h3
+              title={project.title}
+              className="min-w-0 truncate text-[15px] leading-snug font-semibold"
+            >
+              {project.title}
+            </h3>
+            {(project.language || project.tags[0]) && (
+              <div className="flex shrink-0 items-center gap-1">
+                <span className={PRIMARY_TAG}>{project.language || project.tags[0]}</span>
+                {(project.language
+                  ? project.tags.find(
+                      (tag) => tag.toLowerCase() !== project.language?.toLowerCase(),
+                    )
+                  : project.tags[1]) && (
+                  <span
+                    className={`${actionStyles.recentExtraTag} border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[10px] leading-tight`}
+                  >
+                    {project.language
+                      ? project.tags.find(
+                          (tag) => tag.toLowerCase() !== project.language?.toLowerCase(),
+                        )
+                      : project.tags[1]}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+          {((project.stars ?? 0) > 0 || (project.forks ?? 0) > 0) && <Stats project={project} />}
+          {project.description && (
+            <p
+              className={`${actionStyles.recentDescription} text-muted mt-1.5 line-clamp-2 text-sm leading-relaxed text-pretty`}
+            >
+              {project.description}
+            </p>
           )}
         </div>
-        {((project.stars ?? 0) > 0 || (project.forks ?? 0) > 0) && <Stats project={project} />}
-        {project.description && (
-          <p className="text-muted mt-1.5 line-clamp-2 text-sm leading-relaxed text-pretty">
-            {project.description}
-          </p>
-        )}
-        <div className="mt-auto">
+        <div className={`${actionStyles.recentFooter} mt-auto`}>
           <Actions project={project} onQuickView={onQuickView} compact />
         </div>
       </div>

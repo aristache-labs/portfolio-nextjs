@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { installMatchMedia } from "@/test/matchMedia";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import type { MergedProject } from "@/lib/projects";
@@ -14,6 +14,7 @@ function project(id: number, over: Partial<MergedProject> = {}): MergedProject {
     repo: `repo-${id}`,
     title: `Project ${id}`,
     customBlurb: null,
+    category: null,
     tags: [],
     featured: false,
     order: id,
@@ -32,40 +33,44 @@ function project(id: number, over: Partial<MergedProject> = {}): MergedProject {
   };
 }
 
-describe("ProjectsBrowser responsive limits", () => {
+describe("ProjectsBrowser categories and responsive limits", () => {
   const list = [
     project(1, { featured: true }),
     project(2, { featured: true }),
-    ...Array.from({ length: 8 }, (_, i) => project(i + 3, { pushedAt: new Date(2026, 9, 20 - i) })),
     ...Array.from({ length: 8 }, (_, i) =>
-      project(i + 11, { language: i === 7 ? "Dart" : "TypeScript" }),
+      project(i + 3, { pushedAt: new Date(2026, 9, 20 - i), category: "Web Apps" }),
+    ),
+    ...Array.from({ length: 12 }, (_, i) =>
+      project(i + 11, { category: i < 8 ? "Websites" : "Desktop Apps" }),
     ),
   ];
-  it("shows eight recent cards on desktop", () => {
+  it("shows eight recent and six lower cards on desktop without duplicates", () => {
     render(<ProjectsBrowser projects={list} />);
-    const heading = screen.getByRole("heading", { name: "Recently updated" });
-    expect(within(heading.parentElement as HTMLElement).getAllByRole("article")).toHaveLength(8);
-    expect(screen.getAllByRole("article")).toHaveLength(14);
-    expect(
-      screen.queryByRole("button", { name: "Show more recently updated" }),
-    ).not.toBeInTheDocument();
-  });
-  it("limits only mobile landscape to four recent cards", () => {
-    installMatchMedia({
-      "(orientation: landscape) and (max-width: 1023px) and (max-height: 500px) and (pointer: coarse)": true,
-    });
-    render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(10);
-    fireEvent.click(screen.getByRole("button", { name: "Show more recently updated" }));
-    expect(screen.getAllByRole("article")).toHaveLength(14);
-  });
-  it("reveals lower cards independently and resets their filter limit", () => {
-    render(<ProjectsBrowser projects={list} />);
+    expect(screen.getAllByRole("article")).toHaveLength(16);
+    expect(screen.queryByText("Show more recently updated")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
+    expect(screen.getAllByRole("article")).toHaveLength(16);
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getAllByRole("article")).toHaveLength(18);
-    fireEvent.click(screen.getByRole("button", { name: /^Dart/ }));
-    expect(screen.getByRole("heading", { name: "Project 18" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /^All/ }));
+    fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
     expect(screen.getAllByRole("article")).toHaveLength(14);
+  });
+  it("shows three lower cards in portrait and keeps undisplayed recent projects accessible", () => {
+    installMatchMedia({ "(max-width: 1023px)": true });
+    render(<ProjectsBrowser projects={list} />);
+    expect(screen.getAllByRole("article")).toHaveLength(9);
+    fireEvent.click(screen.getByRole("button", { name: /^Web Apps/ }));
+    expect(screen.getByRole("heading", { name: "Project 7" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Project 10" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
+    expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
+  });
+  it("shows four lower cards in landscape and an empty state for an empty category", () => {
+    installMatchMedia({ "(max-width: 1023px)": true, "(orientation: landscape)": true });
+    render(<ProjectsBrowser projects={list} />);
+    expect(screen.getAllByRole("article")).toHaveLength(10);
+    fireEvent.click(screen.getByRole("button", { name: /^Automation & Tools/ }));
+    expect(screen.getByText("No projects in Automation & Tools yet.")).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(6);
   });
 });

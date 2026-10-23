@@ -9,6 +9,7 @@ vi.mock("@/components/ui/Meteors", () => ({
 }));
 
 const base: MergedProject = {
+  category: null,
   id: 1,
   repo: "rippl",
   title: "Rippl",

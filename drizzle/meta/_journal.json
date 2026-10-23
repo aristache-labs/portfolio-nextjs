@@ -162,6 +162,13 @@
       "when": 1792390800000,
       "tag": "0022_drop_testimonials_faqs_taglines",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792718275805,
+      "tag": "0023_project_categories",
+      "breakpoints": true
     }
   ]
 }

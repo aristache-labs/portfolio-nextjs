@@ -6,6 +6,7 @@ import { ProjectCard } from "./ProjectCard";
 import { FeaturedCard, RecentCard } from "./HighlightCards";
 import { ProjectQuickView } from "./ProjectQuickView";
 import type { MergedProject } from "@/lib/projects";
+import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ALL = "All";
@@ -13,14 +14,15 @@ const ALL = "All";
 // block stays compact; everything else falls through to the filterable grid below.
 const MAX_FEATURED = 2;
 const MAX_RECENT = 8;
-const PAGE_SIZE = 4;
 
 // One flex column per side. Featured covers keep their own aspect ratio.
 const TRACK = "flex flex-1 flex-col gap-4";
 
 function ColumnLabel({ children }: { children: string }) {
   return (
-    <h3 className="text-muted mb-3 font-mono text-xs tracking-[0.2em] uppercase">{children}</h3>
+    <h3 className="text-brand-bright border-brand-mid/60 mb-4 border-l-2 pl-3 font-mono text-[14px] font-semibold tracking-[0.16em] uppercase lg:text-[16px]">
+      {children}
+    </h3>
   );
 }
 
@@ -29,18 +31,18 @@ function ColumnLabel({ children }: { children: string }) {
  * share the quick-view state. Filters the already-loaded list rather than refetching.
  */
 export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
-  const [language, setLanguage] = useState(ALL);
-  const [limit, setLimit] = useState(PAGE_SIZE);
-  const [landscapeLimit, setLandscapeLimit] = useState(4);
-  const mobileLandscape = useMediaQuery(
-    "(orientation: landscape) and (max-width: 1023px) and (max-height: 500px) and (pointer: coarse)",
-  );
-  const recentLimit = mobileLandscape ? landscapeLimit : MAX_RECENT;
+  const [category, setCategory] = useState(ALL);
+  const [extra, setExtra] = useState(0);
+  const mobileViewport = useMediaQuery("(max-width: 1023px)");
+  const recentLimit = mobileViewport ? 4 : MAX_RECENT;
   const [quickView, setQuickView] = useState<MergedProject | null>(null);
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
   // a `rest` array rebuilt every render, so it never actually memoised anything.
-  const { featured, recent, rest, languages } = useMemo(() => {
+  const landscape = useMediaQuery("(orientation: landscape)");
+  const pageSize = mobileViewport ? (landscape ? 4 : 3) : 6;
+  const limit = pageSize + extra;
+  const { featured, recent, rest, categories } = useMemo(() => {
     // projects arrives already sorted featured-first by mergeProjects.
     const lead = projects.filter((p) => p.featured).slice(0, MAX_FEATURED);
     const leadIds = new Set(lead.map((p) => p.id));
@@ -52,7 +54,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
     const byPush = [...others].sort(
       (a, b) => (b.pushedAt?.getTime() ?? 0) - (a.pushedAt?.getTime() ?? 0),
     );
-    const latest = byPush.slice(0, MAX_RECENT);
+    const latest = byPush.slice(0, recentLimit);
     const latestIds = new Set(latest.map((p) => p.id));
     // Featured cards lead the grid, left to right. The sort is stable, so the rest keep
     // their curated order.
@@ -60,25 +62,21 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
       .filter((p) => !latestIds.has(p.id))
       .sort((a, b) => Number(b.featured) - Number(a.featured));
 
-    // Counted over the grid only, so a filter chip's number matches what it reveals.
     const counts = new Map<string, number>();
-    for (const p of grid) {
-      if (p.language) counts.set(p.language, (counts.get(p.language) ?? 0) + 1);
-    }
+    for (const p of grid) if (p.category) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
     return {
       featured: lead,
       recent: latest,
       rest: grid,
-      languages: [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])),
+      categories: PROJECT_CATEGORIES.map((name) => [name, counts.get(name) ?? 0] as const),
     };
-  }, [projects]);
+  }, [projects, recentLimit]);
 
-  const filtered = language === ALL ? rest : rest.filter((p) => p.language === language);
+  const filtered = category === ALL ? rest : rest.filter((p) => p.category === category);
   const visible = filtered.slice(0, limit);
-
-  function selectLanguage(name: string) {
-    setLanguage(name);
-    setLimit(PAGE_SIZE);
+  function selectCategory(name: string) {
+    setCategory(name);
+    setExtra(0);
   }
 
   return (
@@ -114,17 +112,6 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                   </Reveal>
                 ))}
               </div>
-              {recent.length > recentLimit && (
-                <div className="mt-4 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setLandscapeLimit((n) => n + 4)}
-                    className="border-border text-foreground hover:border-brand-mid/50 min-h-[44px] rounded-xl border px-5 py-3 text-sm font-medium transition-colors"
-                  >
-                    Show more recently updated
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -132,15 +119,16 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
 
       {rest.length > 0 && (
         <>
-          {languages.length > 1 && (
+          <ColumnLabel>Categories</ColumnLabel>
+          {categories.length > 0 && (
             <div className="mb-6 flex flex-wrap items-center gap-2">
-              {[[ALL, rest.length] as const, ...languages].map(([name, count]) => {
-                const active = language === name;
+              {[[ALL, rest.length] as const, ...categories].map(([name, count]) => {
+                const active = category === name;
                 return (
                   <button
                     key={name}
                     type="button"
-                    onClick={() => selectLanguage(name)}
+                    onClick={() => selectCategory(name)}
                     aria-pressed={active}
                     className={
                       active
@@ -156,7 +144,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             </div>
           )}
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2">
             {visible.map((p, i) => (
               <Reveal key={p.id} delay={(i % 3) * 0.05} className="h-full">
                 <ProjectCard project={p} onQuickView={() => setQuickView(p)} />
@@ -168,7 +156,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             <div className="mt-8 text-center">
               <button
                 type="button"
-                onClick={() => setLimit((n) => n + PAGE_SIZE)}
+                onClick={() => setExtra((n) => n + pageSize)}
                 className="border-border text-foreground hover:border-brand-mid/50 min-h-[44px] rounded-xl border px-5 py-3 text-sm font-medium transition-colors"
               >
                 Show more projects
@@ -177,7 +165,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           )}
 
           {filtered.length === 0 && (
-            <p className="text-muted py-8 text-center text-sm">No projects in {language} yet.</p>
+            <p className="text-muted py-8 text-center text-sm">No projects in {category} yet.</p>
           )}
         </>
       )}

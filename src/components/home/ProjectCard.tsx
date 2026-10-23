@@ -60,7 +60,7 @@ export function ProjectCard({
 
         {/* Description */}
         {blurb && (
-          <p className="text-muted mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-pretty">
+          <p className="text-muted mt-2 line-clamp-2 flex-1 text-sm leading-relaxed text-pretty lg:line-clamp-3">
             {blurb}
           </p>
         )}
