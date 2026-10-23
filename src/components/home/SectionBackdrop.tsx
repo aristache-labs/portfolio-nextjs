@@ -75,7 +75,6 @@ export function SectionBackdrop({
 }) {
   const reduce = useReducedMotion();
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
-  const isTouch = useMediaQuery("(pointer: coarse)");
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoOk, setVideoOk] = useState(Boolean(video));
@@ -84,7 +83,7 @@ export function SectionBackdrop({
   const [ready, setReady] = useState(false);
   const posterReady = useHeroPosterReady(deferUntilHeroLoaded);
 
-  const showVideo = Boolean(video) && videoOk && !reduce && isDesktop && !isTouch;
+  const showVideo = Boolean(video) && videoOk && !reduce && isDesktop;
 
   useEffect(() => {
     const root = rootRef.current;

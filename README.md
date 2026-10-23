@@ -83,6 +83,7 @@ Aristache is the personal portfolio of Cristache Adrian, an IT specialist and so
 | Auth            | [Auth.js v5](https://authjs.dev/) - GitHub OAuth                    |
 | File storage    | [Vercel Blob](https://vercel.com/docs/storage/vercel-blob)          |
 | Email           | [Resend](https://resend.com/)                                       |
+| Bot check       | [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) |
 | Analytics       | [Vercel Analytics](https://vercel.com/analytics) + Google Analytics |
 | Package manager | [Bun](https://bun.sh/)                                              |
 | Unit tests      | [Vitest](https://vitest.dev/) + Testing Library                     |
@@ -101,7 +102,7 @@ Aristache is the personal portfolio of Cristache Adrian, an IT specialist and so
 4. **Experience** - roles with expandable detail.
 5. **Projects** - featured showcase, category filter, grid, and a quick view (cover, screenshots, stars, forks, GitHub and live links).
 6. **Services** - what is on offer.
-7. **Contact** - subject, message, email via Resend. An empty profile email hides the email card.
+7. **Contact** - subject, message, Turnstile, email via Resend. An empty profile email hides the email card.
 
 Each section can be hidden in admin. A hidden section runs no query and never loads its chunk. Nav and footer follow the same visibility map. A primary funding link can show as the sponsor in the nav.
 
@@ -113,7 +114,7 @@ Each section can be hidden in admin. A hidden section runs no query and never lo
 - **Image uploads** - the profile avatar, skill icons, and project media (cover plus up to six quick-view screenshots) go from admin to Vercel Blob. Icons fit inside a 128px box, SVG stored raw. The avatar is 1024px. Project media fits inside 1600×1000. Every image field also accepts a plain URL.
 - **GitHub cache** - stars, forks, languages, descriptions, and a README excerpt per repo, plus account-level followers, stars, and repo counts, are cached in Postgres with a **24-hour TTL**. A GitHub outage falls back to the last good row. Only repos listed in the database are enriched.
 - **Look** - dark only, one brand (the default ramp in `src/lib/brand.ts`, mirrored in `globals.css`). Open Graph, the PWA manifest, and notification email use that same ramp. There is no light mode and no palette picker on the site.
-- **Contact** - the form posts to `/api/contact`. Server validation checks the fields, a rate limit caps repeats, and Resend emails `CONTACT_EMAIL`.
+- **Contact** - the form posts to `/api/contact`. Turnstile checks the token, a rate limit caps repeats, and Resend emails `CONTACT_EMAIL`.
 - **Admin panel** - GitHub OAuth (`AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET`). Only the login in `ADMIN_GITHUB_LOGIN` (this site: `aristache-labs`) can sign in. CRUD covers every content type above. Settings toggles section visibility.
 - **SEO** - metadata, Open Graph, Twitter cards, JSON-LD, `robots.txt`, and `/llms.txt` come from the profile row and `src/lib/seo/site.ts`. The canonical origin is `NEXT_PUBLIC_SITE_URL` (`https://www.aristache.dev` in production).
 - **Freshness** - the homepage is ISR (`revalidate = 43200`, 12h). That timer is a database compute budget, not how fast edits show up. Admin saves call `revalidatePortfolio()` and publish immediately.
@@ -158,6 +159,8 @@ cp .env.example .env.local
 | `RESEND_API_KEY`                        | Yes (prod)  | Resend API key for contact notifications                                                      |
 | `RESEND_FROM_EMAIL`                     | Yes (prod)  | From address, e.g. `Aristache <noreply@aristache.dev>` (verified domain)                      |
 | `CONTACT_EMAIL`                         | Yes (prod)  | Inbox that receives contact-form mail                                                         |
+| `TURNSTILE_SECRET_KEY`                  | Yes (prod)  | Cloudflare Turnstile secret for `/api/contact`                                                |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`        | Yes (prod)  | Cloudflare Turnstile site key rendered on the contact form                                    |
 | `REVALIDATE_SECRET`                     | Yes (prod)  | Secret for the `/api/revalidate` on-demand revalidation endpoint                              |
 | `NEXT_PUBLIC_SITE_URL`                  | Yes         | Canonical site URL. Local: `http://localhost:4000`. Production: `https://www.aristache.dev`   |
 | `NEXT_PUBLIC_GTAG_ID`                   | Optional    | Google Analytics measurement ID (e.g. `G-XXXXXXXXXX`)                                         |

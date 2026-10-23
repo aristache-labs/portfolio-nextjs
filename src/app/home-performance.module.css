@@ -1,7 +1,0 @@
-/* Reduce compositing work during long section jumps on landscape phones. */
-@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
-  .page :global([class*="backdrop-blur"]) {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}

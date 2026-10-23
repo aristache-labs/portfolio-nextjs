@@ -74,7 +74,6 @@ export function Hero({
   const reduce = useReducedMotion();
   const typed = useTypewriter(GREETING, reduce);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
-  const isTouch = useMediaQuery("(pointer: coarse)");
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     // Some iPhone browsers paint below their reported large viewport. Reserve the
@@ -116,7 +115,7 @@ export function Hero({
   const spotY = useTransform(sy, [-0.5, 0.5], [25, 65]);
   const spotBg = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
 
-  const showVideo = videoOk && !reduce && !isTouch;
+  const showVideo = videoOk && !reduce;
   // The poster is the LCP image: hold the video request until it has arrived (or failed), so
   // hero.mp4 never competes with hero.webp. Phones never mount the video.
   const mountVideo = showVideo && isDesktop && (posterLoaded || !posterOk);

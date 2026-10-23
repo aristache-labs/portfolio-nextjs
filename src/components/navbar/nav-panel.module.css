@@ -9,24 +9,6 @@
   filter: blur(1.5px);
 }
 
-/* Avoid full-viewport filtered surfaces on short touch viewports. */
-@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
-  .backdrop {
-    background: rgb(0 0 0 / 0.72);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
-  .panel {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
-  .dimmedLogo {
-    filter: none;
-  }
-}
-
 .content {
   display: grid;
   gap: 24px;

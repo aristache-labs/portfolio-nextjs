@@ -12,12 +12,6 @@ const profile = {
 };
 
 describe("Hero", () => {
-  it("does not mount a background video on a landscape phone", () => {
-    installMatchMedia({ "(min-width: 768px)": true, "(pointer: coarse)": true });
-    const { container } = render(<Hero profile={profile} />);
-    expect(container.querySelector("video")).toBeNull();
-    expect(screen.queryByRole("button", { name: /background video/i })).not.toBeInTheDocument();
-  });
   it("renders the headline as the h1", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
