@@ -3,7 +3,20 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import { AnimatePresence, m } from "framer-motion";
-import { ArrowRight, ArrowUpRight, Menu, X } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Menu,
+  X,
+  House,
+  UserRound,
+  CodeXml,
+  BriefcaseBusiness,
+  FolderCode,
+  Layers,
+  Send,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -12,6 +25,16 @@ import type { MenuSection } from "./MenuOverlay";
 import motionCss from "./support-motion.module.css";
 import navStyles from "./nav-landscape.module.css";
 import panelStyles from "./nav-panel.module.css";
+
+const SECTION_ICONS: Record<string, LucideIcon> = {
+  hero: House,
+  about: UserRound,
+  skills: CodeXml,
+  experience: BriefcaseBusiness,
+  projects: FolderCode,
+  services: Layers,
+  contact: Send,
+};
 
 const WORDMARK = { src: "/brand/aristache-text.svg", width: 992, height: 175 } as const;
 
@@ -112,7 +135,7 @@ export function SiteNav({
             animate={{ opacity: 1 }}
             exit={reduce ? undefined : { opacity: 0 }}
             transition={{ duration: reduce ? 0 : 0.3 }}
-            className="bg-background/40 fixed inset-x-0 top-[72px] bottom-0 z-40 backdrop-blur-md xl:hidden"
+            className={`${panelStyles.backdrop} fixed inset-0 z-40 xl:hidden`}
           />
         )}
       </AnimatePresence>
@@ -122,16 +145,22 @@ export function SiteNav({
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-          scrolled || open
-            ? "bg-background/70 border-b border-(--brand-mid)/30 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
-            : "bg-transparent",
+          open
+            ? "bg-transparent"
+            : scrolled
+              ? "bg-background/70 border-b border-(--brand-mid)/30 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+              : "bg-transparent",
         )}
       >
         <nav
           aria-label="Primary"
           className="site-container flex h-[72px] items-center justify-between"
         >
-          <a href="#hero" aria-label="Home" className="flex min-w-0 items-center gap-2.5">
+          <a
+            href="#hero"
+            aria-label="Home"
+            className={cn("flex min-w-0 items-center gap-2.5", open && panelStyles.dimmedLogo)}
+          >
             <Logo />
             <Image
               src={WORDMARK.src}
@@ -216,38 +245,44 @@ export function SiteNav({
               animate={{ height: "auto", opacity: 1 }}
               exit={reduce ? undefined : { height: 0, opacity: 0 }}
               transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
-              className="border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden"
+              className={`${panelStyles.panel} border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden`}
             >
               <div className={`site-container ${panelStyles.content}`}>
                 <nav aria-label="Mobile navigation">
                   <p className={panelStyles.eyebrow}>Explore the portfolio</p>
                   <ul className={panelStyles.links}>
-                    {visibleSections.map((section, index) => (
-                      <li key={section.id}>
-                        <a
-                          href={`#${section.id}`}
-                          data-testid="mobile-section-link"
-                          aria-current={section.id === active ? "location" : undefined}
-                          onClick={(e) => goToSection(e, section.id)}
-                          className={cn(
-                            panelStyles.link,
-                            section.id === active && panelStyles.active,
-                          )}
-                        >
-                          <span aria-hidden className={panelStyles.number}>
-                            {String(index + 1).padStart(2, "0")}
-                          </span>
-                          <span>{section.label}</span>
-                          <ArrowUpRight aria-hidden className={panelStyles.arrow} />
-                        </a>
-                      </li>
-                    ))}
+                    {visibleSections.map((section) => {
+                      const Icon = SECTION_ICONS[section.id] ?? Layers;
+                      return (
+                        <li key={section.id} data-section={section.id}>
+                          <a
+                            href={`#${section.id}`}
+                            data-testid="mobile-section-link"
+                            aria-current={section.id === active ? "location" : undefined}
+                            onClick={(e) => goToSection(e, section.id)}
+                            className={cn(
+                              panelStyles.link,
+                              section.id === active && panelStyles.active,
+                            )}
+                          >
+                            <span aria-hidden className={panelStyles.icon}>
+                              <Icon size={19} strokeWidth={1.6} />
+                            </span>
+                            <span>{section.label}</span>
+                            <ArrowUpRight aria-hidden className={panelStyles.arrow} />
+                          </a>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </nav>
                 {navCta && (
                   <div className={panelStyles.action}>
                     <p className={panelStyles.eyebrow}>
                       {navCta.external ? "Independent development" : "Start a conversation"}
+                    </p>
+                    <p className={panelStyles.actionTitle}>
+                      {navCta.external ? "Fuel future projects." : "Build something together."}
                     </p>
                     <p className={panelStyles.actionDescription}>
                       {navCta.external
