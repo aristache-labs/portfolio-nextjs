@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Script from "next/script";
-import Image from "next/image";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ArrowRight, ArrowUpRight, ChevronDown, Mail, RadioTower, Send } from "lucide-react";
@@ -12,7 +11,6 @@ import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { SectionBackdrop } from "./SectionBackdrop";
 import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./social-icons";
-import motionCss from "@/components/navbar/support-motion.module.css";
 
 export { platformIcon, type SocialIcon, type SocialRow };
 
@@ -68,15 +66,7 @@ function cardsFor(socials: SocialRow[], email: string): Card[] {
   return cards;
 }
 
-export function Contact({
-  socials,
-  email,
-  sponsorUrl,
-}: {
-  socials: SocialRow[];
-  email: string;
-  sponsorUrl?: string | null;
-}) {
+export function Contact({ socials, email }: { socials: SocialRow[]; email: string }) {
   const cards = cardsFor(socials, email);
   const reducedMotionProps = useReducedMotionProps();
   const [name, setName] = useState("");
@@ -284,24 +274,6 @@ export function Contact({
               - ADRIAN
             </footer>
           </m.figure>
-          {sponsorUrl?.trim() && (
-            <a
-              href={sponsorUrl.trim()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-brand-mid/80 hover:text-brand-bright focus-visible:ring-brand-mid/70 mt-5 inline-flex items-center gap-2 text-sm underline-offset-4 transition-colors hover:underline focus-visible:ring-2 focus-visible:outline-none"
-            >
-              <Image
-                src="/icons/heart.svg"
-                alt=""
-                width={16}
-                height={16}
-                className={`${motionCss.heart} size-4 shrink-0 object-contain`}
-              />
-              Support Independent Projects
-              <ArrowRight className="size-3.5" aria-hidden />
-            </a>
-          )}
         </div>
 
         <m.div

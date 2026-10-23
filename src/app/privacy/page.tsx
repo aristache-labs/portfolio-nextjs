@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SITE } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: `Privacy | ${SITE.name}`,
+  title: "Privacy",
   description: `How ${SITE.name} handles information submitted through this site.`,
 };
 

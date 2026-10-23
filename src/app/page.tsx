@@ -113,13 +113,11 @@ export default async function Home() {
 
       {show("experience") && <Experience experiences={experiences} />}
 
-      {show("projects") && <Projects projects={projects} />}
+      {show("projects") && <Projects projects={projects} sponsorUrl={sponsorUrl} />}
 
       {show("services") && <Services services={services} />}
 
-      {show("contact") && (
-        <Contact socials={socials} email={contactEmail} sponsorUrl={sponsorUrl} />
-      )}
+      {show("contact") && <Contact socials={socials} email={contactEmail} />}
 
       <Footer socials={socials} email={profile.email} sponsorUrl={sponsorUrl} />
     </div>

@@ -112,9 +112,7 @@ describe("Footer", () => {
     const support = screen.getByRole("link", { name: /fuel future projects/i });
     expect(support.getAttribute("href")).toBe("https://example.com/sponsor");
     expect(support.getAttribute("target")).toBe("_blank");
-    expect(screen.getByRole("link", { name: /send a message/i }).getAttribute("href")).toBe(
-      "#contact",
-    );
+    expect(screen.getByRole("link", { name: "Contact" }).getAttribute("href")).toBe("#contact");
   });
 
   it("renders empty socials gracefully", () => {

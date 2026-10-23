@@ -127,15 +127,9 @@ describe("Contact", () => {
     expect(screen.getByRole("link", { name: new RegExp(email) })).toBeTruthy();
   });
 
-  it("shows the support link only when a sponsor url is set", () => {
-    const { rerender } = render(<Contact socials={mockSocials} email={email} />);
+  it("keeps the support link out of the contact section", () => {
+    render(<Contact socials={mockSocials} email={email} />);
     expect(screen.queryByRole("link", { name: /support independent projects/i })).toBeNull();
-    rerender(
-      <Contact socials={mockSocials} email={email} sponsorUrl="https://example.com/sponsor" />,
-    );
-    const support = screen.getByRole("link", { name: /support independent projects/i });
-    expect(support.getAttribute("href")).toBe("https://example.com/sponsor");
-    expect(support.getAttribute("target")).toBe("_blank");
   });
 
   it("renders empty social list gracefully", () => {
