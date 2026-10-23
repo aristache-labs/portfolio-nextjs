@@ -13,7 +13,6 @@ import { Hero } from "@/components/home/Hero";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
 import { CaveatFontGate } from "@/components/home/CaveatFontGate";
-import { StatsigEventButton } from "@/components/analytics/StatsigEventButton";
 
 // ISR: prerendered at build time, so the build needs a reachable database. 12h is a Neon compute
 // budget decision, not a freshness one - admin saves publish immediately. See AGENTS.md.
@@ -119,10 +118,6 @@ export default async function Home() {
       {show("services") && <Services services={services} />}
 
       {show("contact") && <Contact socials={socials} email={contactEmail} />}
-
-      <div className="site-container flex justify-center py-6">
-        <StatsigEventButton />
-      </div>
 
       <Footer socials={socials} email={profile.email} sponsorUrl={sponsorUrl} />
     </div>
