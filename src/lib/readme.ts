@@ -1,5 +1,29 @@
 const EXCERPT_MAX = 600;
 
+/** Select presentation prose without pulling installation or technical sections into the preview. */
+export function projectReadmeExcerpt(markdown: string): string {
+  const source = markdown
+    .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "")
+    .replace(/```[\s\S]*?```|~~~[\s\S]*?~~~/g, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+  const headings = [...source.matchAll(/^ {0,3}(#{1,6})[ \t]+(.+?)[ \t]*#*[ \t]*\r?$/gm)];
+  const overview = headings.find((heading) =>
+    /^overview$/i.test(heading[2].replace(/[*_`]/g, "").trim()),
+  );
+  if (overview) {
+    const start = overview.index! + overview[0].length;
+    const next = headings.find((heading) => heading.index! >= start);
+    const excerpt = toExcerpt(source.slice(start, next?.index));
+    if (excerpt) return excerpt;
+  }
+  const firstSection = headings.find((heading) => heading[1].length > 1);
+  const introduction = source
+    .slice(0, firstSection?.index)
+    .replace(/^ {0,3}#\s+.*$/gm, "")
+    .replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/gi, "");
+  return toExcerpt(introduction);
+}
+
 // READMEs use entities freely in the prose the excerpt lands on ("In-process &middot; both SDK
 // majors", "&plusmn;2.3%"). Stripping tags does not touch them, so undecoded they reach the page
 // verbatim - React escapes the ampersand and the visitor reads "&middot;".

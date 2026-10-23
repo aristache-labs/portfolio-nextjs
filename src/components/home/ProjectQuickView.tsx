@@ -243,20 +243,17 @@ export function ProjectQuickView({
 
         <DialogBody className="space-y-5">
           <div>
-            <h4 className="text-muted mb-1.5 text-xs font-semibold tracking-wider uppercase">
-              From the README
-            </h4>
-            <p className="text-muted line-clamp-4 text-sm leading-relaxed text-pretty lg:line-clamp-6 lg:text-[15px]">
-              {excerpt || "Read the project documentation on GitHub."}
+            <p className="text-muted text-sm leading-relaxed lg:text-[15px]">
+              {excerpt || "Read the project documentation on GitHub."}{" "}
+              <a
+                href={`${githubUrl.replace(/\/$/, "")}#readme`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-bright focus-visible:ring-brand-mid/70 inline rounded-sm text-xs font-medium whitespace-nowrap hover:underline focus-visible:ring-2 focus-visible:outline-none"
+              >
+                View more <ExternalLink className="inline size-2.5 align-baseline" aria-hidden />
+              </a>
             </p>
-            <a
-              href={`${githubUrl.replace(/\/$/, "")}#readme`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-brand-bright focus-visible:ring-brand-mid/70 mt-3 inline-flex items-center gap-1 rounded-md text-sm font-medium hover:underline focus-visible:ring-2 focus-visible:outline-none"
-            >
-              View more <ExternalLink className="size-3" aria-hidden />
-            </a>
           </div>
           <div className={`lg:hidden ${styles.mobileOnlyHidden}`}>{tags}</div>
         </DialogBody>

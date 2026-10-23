@@ -1,5 +1,27 @@
 import { describe, it, expect } from "vitest";
-import { toExcerpt } from "./readme";
+import { projectReadmeExcerpt, toExcerpt } from "./readme";
+
+describe("projectReadmeExcerpt", () => {
+  it("prefers Overview and stops before the following section", () => {
+    expect(
+      projectReadmeExcerpt(
+        "# App\n\nSlogan.\n\n## Overview\n\nUseful description.\n\n## Install\n\nCommands.",
+      ),
+    ).toBe("Useful description.");
+  });
+  it("uses introduction without the title when Overview is missing", () => {
+    expect(projectReadmeExcerpt("# App\n\nIntroduction.\n\n## Features\n\nDetails.")).toBe(
+      "Introduction.",
+    );
+  });
+  it("ignores fake headings in code and handles empty Overview", () => {
+    expect(
+      projectReadmeExcerpt(
+        "# App\n\nIntroduction.\n\n```md\n## Overview\nFake\n```\n## Overview\n\n## Install\nCommands.",
+      ),
+    ).toBe("Introduction.");
+  });
+});
 
 describe("toExcerpt", () => {
   it("keeps the first real sentence of prose", () => {

@@ -3,7 +3,7 @@ import { db } from "@/db/client";
 import { githubCache, githubUserCache } from "@/db/schema";
 import type { GithubCache, GithubUserCache } from "@/db/schema";
 import { getReadme, getRepo, getUserStats } from "@/lib/github";
-import { toExcerpt } from "@/lib/readme";
+import { projectReadmeExcerpt } from "@/lib/readme";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -108,7 +108,7 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
           let readmeExcerpt: string | null = cached?.readmeExcerpt ?? null;
           try {
             const markdown = await getReadme(slug);
-            readmeExcerpt = markdown === null ? "" : toExcerpt(markdown);
+            readmeExcerpt = markdown === null ? "" : projectReadmeExcerpt(markdown);
           } catch {
             /* null when never checked, so needsRefresh stays true */
           }

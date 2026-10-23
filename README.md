@@ -4,7 +4,11 @@
 
 # Cristache Adrian · Portfolio
 
-<em>A portfolio that is edited, not redeployed.</em>
+<em>Aristache. IT specialist and software developer. The site is edited in admin, not redeployed.</em>
+
+<br />
+
+<a href="https://www.aristache.dev">www.aristache.dev</a>
 
 <br />
 
@@ -18,15 +22,15 @@
 ![Contributors](https://shields.io/github/contributors/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
 ![License: MIT](https://shields.io/github/license/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
 ![Last commit](https://shields.io/github/last-commit/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
-![Issues](https://shields.io/github/issues/aristache-labs/portfolio-nextjs??style=flat-square&labelColor=0f6e68&color=76f5e1)
+![Issues](https://shields.io/github/issues/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
 ![Watchers](https://shields.io/github/watchers/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
 
-<strong>Every section DB-driven &middot; GitHub OAuth admin &middot; light / dark / system &middot; five brand palettes &middot; ISR with on-demand revalidation</strong><br>
-<sub>There is no benchmark here, and a portfolio site does not deserve one. What is checkable instead: <strong>283 unit tests</strong> across 44 files plus <strong>10 Playwright end-to-end tests</strong>; a route check that asserts every page serves the <em>right content</em> rather than a 200, which is the only way to test an <a href="https://github.com/aristache-labs/portfolio-nextjs/blob/master/scripts/check-routes.mjs">admin route that is protected <em>and</em> returns 200</a>; per-route JS payload and TTFB budgets measured against a production build, which <a href="https://github.com/aristache-labs/portfolio-nextjs/blob/master/scripts/check-vitals.mjs">refuse to measure a dev server</a> because unminified bundles read several times heavier; and Lighthouse gating <strong>accessibility, best practices and SEO at &ge; 0.90</strong> on every pull request. <a href="https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/ci.yml">See the runs</a>.</sub>
+<strong>Dark only &middot; one brand &middot; every section DB-driven &middot; GitHub OAuth admin &middot; ISR with on-demand revalidation</strong><br>
+<sub>Live at <a href="https://www.aristache.dev">www.aristache.dev</a>. What is checkable: Vitest unit tests plus Playwright end-to-end tests; a route check that asserts every page serves the <em>right content</em> rather than a 200, which is the only way to test an <a href="https://github.com/aristache-labs/portfolio-nextjs/blob/master/scripts/check-routes.mjs">admin route that is protected <em>and</em> returns 200</a>; per-route JS payload and TTFB budgets measured against a production build, which <a href="https://github.com/aristache-labs/portfolio-nextjs/blob/master/scripts/check-vitals.mjs">refuse to measure a dev server</a> because unminified bundles read several times heavier; and Lighthouse gating <strong>accessibility, best practices and SEO at &ge; 0.90</strong> on every pull request. <a href="https://github.com/aristache-labs/portfolio-nextjs/actions/workflows/ci.yml">See the runs</a>.</sub>
 
 <br />
 
-[Stack](#stack) &middot; [Local setup](#local-setup) &middot; [Admin panel](#admin-panel) &middot; [Deployment](#deployment)
+[Stack](#stack) &middot; [The site](#the-site) &middot; [Local setup](#local-setup) &middot; [Admin panel](#admin-panel) &middot; [Deployment](#deployment)
 
 <sub><b>AI agents / LLMs:</b> the deployed site is machine-readable at <code>/llms.txt</code>, or as one blob at <code>/llms-full.txt</code>. Repo conventions and pitfalls live in <a href="AGENTS.md"><code>AGENTS.md</code></a>.</sub>
 
@@ -34,11 +38,17 @@
 
 ---
 
+## Overview
+
+Aristache is the personal portfolio of Cristache Adrian, an IT specialist and software developer. The site at https://www.aristache.dev is dark, with a single brand. Profile, projects, experience, skills, services, and contact details are stored in PostgreSQL and edited from the admin panel, so a content change publishes without a redeploy. Featured work opens in a quick view with screenshots and live GitHub stats.
+
 ## Table of Contents
 
 - [Cristache Adrian · Portfolio](#cristache-adrian--portfolio)
   - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
   - [Stack](#stack)
+  - [The site](#the-site)
   - [Architecture overview](#architecture-overview)
   - [Prerequisites](#prerequisites)
   - [Local setup](#local-setup)
@@ -62,10 +72,10 @@
 
 | Layer           | Technology                                                          |
 | --------------- | ------------------------------------------------------------------- |
-| Framework       | [Next.js 16](https://nextjs.org/) (App Router, Turbopack)           |
+| Framework       | [Next.js 16](https://nextjs.org/) (App Router, Turbopack in dev)    |
 | UI library      | [React 19](https://react.dev/)                                      |
 | Language        | TypeScript                                                          |
-| Styling         | [Tailwind CSS v4](https://tailwindcss.com/), Geist font             |
+| Styling         | [Tailwind CSS v4](https://tailwindcss.com/), Geist, Sora, Caveat    |
 | Animation       | [Framer Motion](https://www.framer-motion.com/)                     |
 | Icons           | [Lucide React](https://lucide.dev/)                                 |
 | Database        | PostgreSQL via [postgres-js](https://github.com/porsager/postgres)  |
@@ -73,6 +83,7 @@
 | Auth            | [Auth.js v5](https://authjs.dev/) - GitHub OAuth                    |
 | File storage    | [Vercel Blob](https://vercel.com/docs/storage/vercel-blob)          |
 | Email           | [Resend](https://resend.com/)                                       |
+| Bot check       | [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) |
 | Analytics       | [Vercel Analytics](https://vercel.com/analytics) + Google Analytics |
 | Package manager | [Bun](https://bun.sh/)                                              |
 | Unit tests      | [Vitest](https://vitest.dev/) + Testing Library                     |
@@ -81,15 +92,32 @@
 
 ---
 
+## The site
+
+[www.aristache.dev](https://www.aristache.dev) is a dark, single-palette portfolio. Visitors do not pick a light theme or a brand colour. The homepage is one scroll:
+
+1. **Hero** - name, role marquee, "Currently" tagline, resume, socials.
+2. **About** - bio, portrait, stats. Years of experience come from the experience rows, so the number moves on its own each January.
+3. **Skills** - grouped cards with icons.
+4. **Experience** - roles with expandable detail.
+5. **Projects** - featured showcase, category filter, grid, and a quick view (cover, screenshots, stars, forks, GitHub and live links).
+6. **Services** - what is on offer.
+7. **Contact** - subject, message, Turnstile, email via Resend. An empty profile email hides the email card.
+
+Each section can be hidden in admin. A hidden section runs no query and never loads its chunk. Nav and footer follow the same visibility map. A primary funding link can show as the sponsor in the nav.
+
+---
+
 ## Architecture overview
 
-- **DB-driven content** - profile, projects, experiences, skills, services, social links, taglines, and FAQs are stored in PostgreSQL and seeded via `bun run db:seed`. The admin panel allows live CRUD editing. The profile drives the hero (name, editable role marquee, "Currently" tagline, avatar) and the About section.
-- **Image uploads** - the profile avatar, skill icons and project media (cover image plus up to six quick-view screenshots) are uploaded from the admin panel to Vercel Blob and served from the CDN. Icons fit inside a 128px box with SVG stored raw; project media fits inside 1600×1000, since a screenshot squeezed into an icon box is unreadable. Every field also accepts a plain URL, and existing static asset paths keep working.
-- **GitHub cache** - stars, forks, languages, descriptions and a README excerpt per repo, plus account-level followers/stars/repo counts, are cached in Postgres with a **24-hour TTL** and served from the last-known-good row so they never flash blank. A GitHub outage or rate limit falls back to the stale row rather than erroring. Only repos listed in the database are enriched.
-- **Theming and brand palette** - light/dark/system plus five selectable brand palettes (Iris by default), chosen from the appearance menu in the nav and remembered in `localStorage`. `src/lib/brand.ts` is the build-time source of truth for the default; `globals.css` mirrors it as CSS variables and `src/app/globals.theme.test.ts` fails if the two drift. Server-rendered artifacts that cannot be per-visitor (Open Graph image, PWA manifest, notification emails) always use the default.
-- **Testimonials** - visitors submit testimonials through a validated form (inline per-field errors) with an optional cropped avatar uploaded to Vercel Blob. Submissions land in a moderation queue; the admin approves or rejects them before they appear publicly. Resend emails the admin on new submissions.
-- **Admin panel** - protected by GitHub OAuth (`AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET`). Access is restricted to the GitHub login set in `ADMIN_GITHUB_LOGIN` (default: `aristache-labs`). The panel exposes CRUD tabs for all content types plus the testimonial moderation queue.
-- **SEO / GEO** - structured metadata, Open Graph, Twitter cards, Google verification, and `robots.txt` are generated from the database profile row and site config.
+- **DB-driven content** - profile, projects, experiences, skills, services, social links, and funding links live in PostgreSQL and are seeded with `bun run db:seed`. The admin panel is the editor. The profile drives the hero (name, roles, tagline, resume) and About (bio, avatar, stats).
+- **Image uploads** - the profile avatar, skill icons, and project media (cover plus up to six quick-view screenshots) go from admin to Vercel Blob. Icons fit inside a 128px box, SVG stored raw. The avatar is 1024px. Project media fits inside 1600×1000. Every image field also accepts a plain URL.
+- **GitHub cache** - stars, forks, languages, descriptions, and a README excerpt per repo, plus account-level followers, stars, and repo counts, are cached in Postgres with a **24-hour TTL**. A GitHub outage falls back to the last good row. Only repos listed in the database are enriched.
+- **Look** - dark only, one brand (the default ramp in `src/lib/brand.ts`, mirrored in `globals.css`). Open Graph, the PWA manifest, and notification email use that same ramp. There is no light mode and no palette picker on the site.
+- **Contact** - the form posts to `/api/contact`. Turnstile checks the token, a rate limit caps repeats, and Resend emails `CONTACT_EMAIL`.
+- **Admin panel** - GitHub OAuth (`AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET`). Only the login in `ADMIN_GITHUB_LOGIN` (this site: `aristache-labs`) can sign in. CRUD covers every content type above. Settings toggles section visibility.
+- **SEO** - metadata, Open Graph, Twitter cards, JSON-LD, `robots.txt`, and `/llms.txt` come from the profile row and `src/lib/seo/site.ts`. The canonical origin is `NEXT_PUBLIC_SITE_URL` (`https://www.aristache.dev` in production).
+- **Freshness** - the homepage is ISR (`revalidate = 43200`, 12h). That timer is a database compute budget, not how fast edits show up. Admin saves call `revalidatePortfolio()` and publish immediately.
 
 ---
 
@@ -97,7 +125,7 @@
 
 - **[Bun](https://bun.sh/) ≥ 1.1** - the only supported package manager and runtime.
 - **PostgreSQL ≥ 14** - running locally or via a managed service (Neon, Supabase, etc.).
-- A **GitHub OAuth App** for admin login (Settings → Developer settings → OAuth Apps).
+- A **GitHub OAuth App** for admin login (Settings → Developer settings → OAuth Apps). Callback should match the site, `https://www.aristache.dev` in production and `http://localhost:4000` locally.
 
 ---
 
@@ -125,18 +153,20 @@ cp .env.example .env.local
 | `AUTH_SECRET`                           | Yes         | Random secret for Auth.js session encryption (`openssl rand -base64 32`)                      |
 | `AUTH_GITHUB_ID`                        | Yes         | GitHub OAuth App client ID                                                                    |
 | `AUTH_GITHUB_SECRET`                    | Yes         | GitHub OAuth App client secret                                                                |
-| `ADMIN_GITHUB_LOGIN`                    | Yes         | GitHub username allowed to access the admin panel (e.g. `aristache-labs`)                     |
-| `GITHUB_TOKEN`                          | Recommended | GitHub personal access token for project metadata fetching (higher rate limits)               |
-| `BLOB_READ_WRITE_TOKEN`                 | Yes (prod)  | Vercel Blob token for image uploads (avatar, skill icons, project media, testimonial avatars) |
-| `RESEND_API_KEY`                        | Yes (prod)  | Resend API key for admin notification emails                                                  |
-| `RESEND_FROM_EMAIL`                     | Yes (prod)  | From address for emails, e.g. `Portfolio <noreply@example.com>` (verified domain)             |
-| `CONTACT_EMAIL`                         | Yes (prod)  | Email address to receive testimonial submission notifications                                 |
+| `ADMIN_GITHUB_LOGIN`                    | Yes         | GitHub username allowed into admin. This site uses `aristache-labs`                           |
+| `GITHUB_TOKEN`                          | Recommended | GitHub personal access token for project metadata (higher rate limits)                        |
+| `BLOB_READ_WRITE_TOKEN`                 | Yes (prod)  | Vercel Blob token for avatar, skill icons, and project media                                  |
+| `RESEND_API_KEY`                        | Yes (prod)  | Resend API key for contact notifications                                                      |
+| `RESEND_FROM_EMAIL`                     | Yes (prod)  | From address, e.g. `Aristache <noreply@aristache.dev>` (verified domain)                      |
+| `CONTACT_EMAIL`                         | Yes (prod)  | Inbox that receives contact-form mail                                                         |
+| `TURNSTILE_SECRET_KEY`                  | Yes (prod)  | Cloudflare Turnstile secret for `/api/contact`                                                |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`        | Yes (prod)  | Cloudflare Turnstile site key rendered on the contact form                                    |
 | `REVALIDATE_SECRET`                     | Yes (prod)  | Secret for the `/api/revalidate` on-demand revalidation endpoint                              |
-| `NEXT_PUBLIC_SITE_URL`                  | Yes         | Canonical site URL, e.g. `http://localhost:4000`                                              |
+| `NEXT_PUBLIC_SITE_URL`                  | Yes         | Canonical site URL. Local: `http://localhost:4000`. Production: `https://www.aristache.dev`   |
 | `NEXT_PUBLIC_GTAG_ID`                   | Optional    | Google Analytics measurement ID (e.g. `G-XXXXXXXXXX`)                                         |
 | `NEXT_PUBLIC_GOOGLE_VERIFICATION_TOKEN` | Optional    | Google Search Console site verification token                                                 |
 
-> The resume link is stored in the database (`profile.resumeUrl`) and managed from the admin panel - not via an environment variable.
+> The resume link is stored in the database (`profile.resumeUrl`) and managed from the admin panel, not via an environment variable.
 
 ### 3. Database setup
 
@@ -205,38 +235,37 @@ bun run check:vitals    # refuses a dev server: unminified bundles give meaningl
 
 ## Admin panel
 
-The admin panel is at `/admin` and requires authentication via GitHub OAuth.
+The admin panel is at `/admin` and requires GitHub OAuth.
 
-- Only the GitHub account set in `ADMIN_GITHUB_LOGIN` (e.g. `aristache-labs`) can sign in.
-- After signing in you have access to CRUD tabs for profile, projects, experiences, skills, services, social links, taglines, FAQs, and funding links.
-- The profile editor manages your name, bio, hero role marquee, "Currently" tagline, resume link, and avatar (upload or URL). Skill icons are uploaded or URL-pasted per skill.
-- The projects editor curates which repos appear and how: title, blurb, tags, order, featured/hidden flags, a cover image, and up to six screenshots for the quick view. `order` doubles as the showcase ranking - the leading featured rows get the large cells above the grid, and the rest keep a "Featured" badge inside it.
-- Settings controls per-section visibility. A hidden section runs no query and never loads its chunk, so hiding one also makes the page lighter.
-- Testimonial submissions appear in a moderation queue. Approve a testimonial to make it visible on the site; reject to discard it.
+- Only `ADMIN_GITHUB_LOGIN` can sign in. For this site that is `aristache-labs`.
+- Tabs: profile, projects, experiences, skills, services, social links, funding links, and settings.
+- Profile: name, email, bio, hero roles, hero tagline, resume link, avatar (upload or URL).
+- Projects: which repos appear, title, blurb, category, tags, order, featured and hidden flags, a cover, and up to six screenshots. `order` ranks the showcase. Leading featured rows get the large cells. The rest keep a Featured badge in the grid. `category` feeds the public filter.
+- Skills: name, category, level, icon upload or URL.
+- Settings: per-section visibility. Hiding a section also skips its query and its JS chunk.
+- Years of experience are derived from experience start years, not from the age of the GitHub account.
 
-Image uploads (avatar, skill icons, project cover and screenshots) require `BLOB_READ_WRITE_TOKEN` to be set.
-
-Years of experience is derived from the experience rows' start years, not from GitHub - so it increments on its own each January and counts professional work rather than how long the GitHub account has existed.
+Image uploads need `BLOB_READ_WRITE_TOKEN`.
 
 ---
 
 ## Deployment
 
-The site is deployed on [Vercel](https://vercel.com/). The main branch deploys automatically.
+The site is deployed on [Vercel](https://vercel.com/) at [www.aristache.dev](https://www.aristache.dev). `master` deploys automatically.
 
-1. Import the repository in Vercel.
-2. Add all required environment variables in the Vercel project settings.
-3. Provision a PostgreSQL database (Vercel Postgres / Neon) and set `DATABASE_URL` to its **pooled** connection string.
-4. Seed the production database **once** by hand against the production `DATABASE_URL`: `DATABASE_URL=<prod> bun run db:seed`. The seed is guarded (seed-if-empty), so it inserts the initial content only when the database is empty and never overwrites later edits.
-5. Push to `master` - Vercel runs the `vercel-build` script, which applies pending migrations and then builds. It does **not** seed; data seeding is the one-time manual step above, and further content changes are made in the admin panel.
+1. Import [aristache-labs/portfolio-nextjs](https://github.com/aristache-labs/portfolio-nextjs) in Vercel.
+2. Add all required environment variables in the Vercel project settings. Set `NEXT_PUBLIC_SITE_URL` to `https://www.aristache.dev`.
+3. Provision PostgreSQL (Neon) and set `DATABASE_URL` to its **pooled** connection string.
+4. Seed production **once**: `DATABASE_URL=<prod> bun run db:seed`. The seed inserts only when the database is empty and never overwrites later edits.
+5. Push to `master`. Vercel runs `vercel-build`, which applies pending migrations and then builds. It does not seed. Further content changes happen in the admin panel.
 
-The local `DATABASE_URL` stays pointed at your local Postgres for development; only the Vercel environment uses the production database.
+The local `DATABASE_URL` stays on local Postgres. Only the Vercel environment uses the production database.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Fork, branch, and open a PR - see [CONTRIBUTING.md](CONTRIBUTING.md) for the checks a PR has to pass. Bugs and ideas go to [Issues][issues]; vulnerabilities follow [SECURITY.md](SECURITY.md).
+Contributions are welcome. Fork, branch, and open a PR. See [CONTRIBUTING.md](CONTRIBUTING.md) for the checks a PR has to pass. Bugs and ideas go to [Issues][issues]. Vulnerabilities follow [SECURITY.md](SECURITY.md).
 
 Repo conventions, the local gate, and the pitfalls worth knowing before touching the design system live in [AGENTS.md](AGENTS.md).
 
@@ -250,19 +279,20 @@ Thanks to everyone who has contributed to this portfolio.
 
 ## License
 
-Licensed under the **MIT** license - see [LICENSE](LICENSE).
+Licensed under the **MIT** license. See [LICENSE](LICENSE).
 
 ## Support the project
 
-This portfolio is MIT licensed and free to fork.
+This portfolio is MIT licensed and free to fork. The live site is [www.aristache.dev](https://www.aristache.dev).
 
 ## Connect
 
 <div align="center">
 
-**Cristache Adrian**
+**Cristache Adrian** · [aristache.dev](https://www.aristache.dev)
 
 <a href="https://github.com/aristache-labs"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
+<a href="https://www.aristache.dev"><img src="https://img.shields.io/badge/Site-0f6e68?style=for-the-badge&logo=googlechrome&logoColor=white" alt="aristache.dev" /></a>
 
 </div>
 
