@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, m } from "framer-motion";
 import {
   ArrowRight,
@@ -68,6 +69,8 @@ export function SiteNav({
   );
   const ids = useMemo(() => visibleSections.map((s) => s.id), [visibleSections]);
   const active = useScrollSpy(ids);
+  const onHomepage = usePathname() === "/";
+  const sectionHref = (id: string) => `${onHomepage ? "" : "/"}#${id}`;
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -77,7 +80,7 @@ export function SiteNav({
   const navCta = sponsor
     ? { href: sponsor, external: true, label: "Support My Work" }
     : showContact
-      ? { href: "#contact", external: false, label: "Let's Talk" }
+      ? { href: sectionHref("contact"), external: false, label: "Let's Talk" }
       : null;
 
   // Mobile menu links scroll explicitly, and only after the panel has finished collapsing.
@@ -157,7 +160,7 @@ export function SiteNav({
           className="site-container flex h-[72px] items-center justify-between"
         >
           <a
-            href="#hero"
+            href={sectionHref("hero")}
             aria-label="Home"
             className={cn("flex min-w-0 items-center gap-2.5", open && panelStyles.dimmedLogo)}
           >
@@ -179,7 +182,7 @@ export function SiteNav({
               return (
                 <li key={section.id}>
                   <a
-                    href={`#${section.id}`}
+                    href={sectionHref(section.id)}
                     className={cn(
                       "group relative text-[15px] transition-colors",
                       isActive
@@ -256,7 +259,7 @@ export function SiteNav({
                       return (
                         <li key={section.id} data-section={section.id}>
                           <a
-                            href={`#${section.id}`}
+                            href={sectionHref(section.id)}
                             data-testid="mobile-section-link"
                             aria-current={section.id === active ? "location" : undefined}
                             onClick={(e) => goToSection(e, section.id)}

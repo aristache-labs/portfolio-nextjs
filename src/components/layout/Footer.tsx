@@ -38,10 +38,12 @@ const rise = (delay: number) => ({
 
 export function Footer({
   sponsorUrl,
+  homeHrefPrefix = "",
 }: {
   socials: SocialRow[];
   email?: string | null;
   sponsorUrl?: string | null;
+  homeHrefPrefix?: string;
 }) {
   const year = new Date().getFullYear();
   const reducedMotionProps = useReducedMotionProps();
@@ -105,7 +107,7 @@ export function Footer({
           >
             <div className="flex flex-col items-center text-center">
               <Link
-                href="#hero"
+                href={`${homeHrefPrefix}#hero`}
                 aria-label="Aristache, back to top"
                 className={`inline-block rounded-lg ${FOCUS}`}
               >
@@ -135,7 +137,7 @@ export function Footer({
               {LINKS.map((link) => (
                 <li key={link.href} className={link.href === "#contact" ? "col-span-2" : undefined}>
                   <a
-                    href={link.href}
+                    href={`${homeHrefPrefix}${link.href}`}
                     className={`group flex min-h-11 items-center justify-center gap-1.5 rounded-md py-1 text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
                   >
                     <ChevronRight
@@ -196,7 +198,7 @@ export function Footer({
                   Have something in mind? I&apos;d love to hear about it.
                 </p>
                 <Button
-                  href="#contact"
+                  href={`${homeHrefPrefix}#contact`}
                   variant="primary"
                   size="lg"
                   className={`group mt-5 rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] [@media(orientation:landscape)_and_(max-width:1024px)]:self-center ${FOCUS}`}

@@ -6,6 +6,7 @@ import { useTheme } from "next-themes";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { BRAND, hexToRgb } from "@/lib/brand";
 import { usePalette } from "@/hooks/usePalette";
+import styles from "./ambient-background.module.css";
 
 type Ramp = ReadonlyArray<readonly [number, number, number]>;
 
@@ -79,6 +80,7 @@ export function AmbientBackground() {
   }, [palette, resolvedTheme]);
 
   useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const context = canvas.getContext("2d");
@@ -99,16 +101,17 @@ export function AmbientBackground() {
     let lastInput = -Infinity;
 
     function resize() {
-      w = window.innerWidth;
-      h = window.innerHeight;
+      const bounds = cv.getBoundingClientRect();
+      w = bounds.width || window.innerWidth;
+      h = bounds.height || window.innerHeight;
       cv.width = Math.floor(w * dpr);
       cv.height = Math.floor(h * dpr);
-      cv.style.width = `${w}px`;
-      cv.style.height = `${h}px`;
+      ptr.x = ptr.tx = w / 2;
+      ptr.y = ptr.ty = h * 0.42;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       // Resizing clears the bitmap; without a loop (reduced motion) the
       // canvas would stay blank until the next frame that never comes.
-      if (reduced) draw(0);
+      draw(0);
     }
 
     function draw(t: number) {
@@ -164,6 +167,11 @@ export function AmbientBackground() {
 
     resize();
     window.addEventListener("resize", resize);
+    // Safari can settle its viewport after the orientation resize event.
+    // Observe the CSS-sized canvas so its bitmap follows the final dimensions.
+    const sizeObserver = new ResizeObserver(resize);
+    sizeObserver.observe(cv);
+    window.visualViewport?.addEventListener("resize", resize);
 
     // Reduced motion: one static frame, no tracking, no loop.
     if (reduced) {
@@ -174,6 +182,8 @@ export function AmbientBackground() {
       return () => {
         redrawRef.current = null;
         window.removeEventListener("resize", resize);
+        sizeObserver.disconnect();
+        window.visualViewport?.removeEventListener("resize", resize);
       };
     }
 
@@ -222,6 +232,8 @@ export function AmbientBackground() {
       running = false;
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      sizeObserver.disconnect();
+      window.visualViewport?.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onInput);
       window.removeEventListener("pointerdown", onInput);
       document.removeEventListener("visibilitychange", onVisibility);
@@ -232,11 +244,14 @@ export function AmbientBackground() {
   if (pathname?.startsWith("/admin") || pathname === "/") return null;
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      data-testid="ambient-bg"
-      className="pointer-events-none fixed inset-0 -z-10 h-full w-full"
-    />
+    <>
+      <div aria-hidden="true" className={styles.mobile} />
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        data-testid="ambient-bg"
+        className={`${styles.canvas} pointer-events-none fixed inset-0 -z-10 h-full w-full`}
+      />
+    </>
   );
 }

@@ -347,7 +347,7 @@
     width: calc(100% - 64px);
     max-width: 780px;
     max-height: calc(100dvh - 88px);
-    margin: 8px auto 12px;
+    margin: -8px auto 12px;
     border: 1px solid rgb(var(--brand-mid-rgb) / 0.16);
     border-radius: 20px;
     background:
@@ -360,7 +360,7 @@
 
   .content {
     width: 100%;
-    grid-template-columns: minmax(0, 1fr) minmax(190px, 0.4fr);
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.44fr);
     gap: 24px;
     padding: 24px 20px max(24px, env(safe-area-inset-bottom));
   }
@@ -422,6 +422,18 @@
   .action {
     padding: 12px 14px;
     border-radius: 16px;
+    align-self: end;
+    justify-self: end;
+    width: 100%;
+  }
+
+  .action .eyebrow {
+    white-space: nowrap;
+    letter-spacing: 0.12em;
+  }
+
+  .action .eyebrow::after {
+    display: none;
   }
 
   .actionDescription {

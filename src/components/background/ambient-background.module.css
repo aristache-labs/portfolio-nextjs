@@ -1,0 +1,37 @@
+.mobile {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .canvas {
+    display: none;
+  }
+  .mobile {
+    display: block;
+    position: fixed;
+    inset: -15%;
+    z-index: -10;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 80% 25%, rgb(var(--brand-mid-rgb) / 0.1), transparent 55%),
+      radial-gradient(ellipse at 15% 85%, rgb(var(--brand-deep-rgb) / 0.12), transparent 60%);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+    .mobile {
+      animation: scroll-ambient linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+
+@keyframes scroll-ambient {
+  from {
+    transform: translateY(-3%);
+  }
+  to {
+    transform: translateY(3%);
+  }
+}
