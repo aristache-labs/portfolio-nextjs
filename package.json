@@ -44,7 +44,6 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-easy-crop": "^6.2.3",
-    "react-github-btn": "^1.4.0",
     "resend": "^6.28.0",
     "sharp": "^0.35.4",
     "tailwind-merge": "^2.6.1",

@@ -1,0 +1,51 @@
+@media (max-width: 1023px) and (orientation: portrait) {
+  .title {
+    flex: 1 1 auto;
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .titleTags {
+    display: block;
+    flex: 0 0 auto;
+    max-width: none;
+    align-self: center;
+  }
+
+  .titleTags > div {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 2px;
+  }
+
+  .titleTags span {
+    padding: 2px 3px;
+    font-size: 8px;
+    white-space: nowrap;
+  }
+
+  .mobileOnlyHidden {
+    display: none;
+  }
+
+  .footer {
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding: 16px;
+  }
+
+  .footer > a {
+    min-height: 32px;
+    padding: 6px 8px;
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  .footer > div {
+    gap: 4px;
+  }
+
+  .footer img {
+    height: 18px;
+  }
+}

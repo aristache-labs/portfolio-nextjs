@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
+import { ProjectRepoBadges } from "./ProjectRepoBadges";
 import { ChevronLeft, ChevronRight, Star, GitFork, ExternalLink, Github } from "lucide-react";
 import {
   Dialog,
@@ -16,9 +16,9 @@ import {
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
+import styles from "./project-quick-view.module.css";
 
 type Slide = { src: string; poster: boolean };
-const GitHubButton = dynamic(() => import("react-github-btn"), { ssr: false });
 
 /** Tallest the poster well may grow. A 9:16 shot uses this height; a 16:9 shot is shorter. */
 const STAGE_MAX = "min(50vh, 26rem)";
@@ -207,9 +207,15 @@ export function ProjectQuickView({
 
         <DialogHeader>
           <div className="flex items-start justify-between gap-3">
-            <DialogTitle className="min-w-0 lg:text-[22px]">{project.title}</DialogTitle>
-            <div className="hidden max-w-[55%] lg:block">{tags}</div>
-            <div className="text-muted flex shrink-0 items-center gap-3 text-sm lg:hidden">
+            <DialogTitle className={`min-w-0 lg:text-[22px] ${styles.title}`}>
+              {project.title}
+            </DialogTitle>
+            <div className={`hidden max-w-[55%] self-center lg:block ${styles.titleTags}`}>
+              {tags}
+            </div>
+            <div
+              className={`text-muted flex shrink-0 items-center gap-3 text-sm lg:hidden ${styles.mobileOnlyHidden}`}
+            >
               {(project.stars ?? 0) > 0 && (
                 <span
                   className="flex items-center gap-1"
@@ -229,7 +235,9 @@ export function ProjectQuickView({
             </div>
           </div>
           {blurb && (
-            <DialogDescription className="line-clamp-3 lg:sr-only">{blurb}</DialogDescription>
+            <DialogDescription className={`line-clamp-3 lg:sr-only ${styles.mobileOnlyHidden}`}>
+              {blurb}
+            </DialogDescription>
           )}
         </DialogHeader>
 
@@ -250,10 +258,12 @@ export function ProjectQuickView({
               View more <ExternalLink className="size-3" aria-hidden />
             </a>
           </div>
-          <div className="lg:hidden">{tags}</div>
+          <div className={`lg:hidden ${styles.mobileOnlyHidden}`}>{tags}</div>
         </DialogBody>
 
-        <DialogFooter className="flex-row flex-wrap items-center justify-start gap-2 sm:justify-start">
+        <DialogFooter
+          className={`flex-row flex-wrap items-center justify-start gap-2 sm:justify-start ${styles.footer}`}
+        >
           {project.homepage && (
             <Button
               href={project.homepage}
@@ -262,7 +272,10 @@ export function ProjectQuickView({
               rel="noopener noreferrer"
               leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
             >
-              Live site
+              <span className={styles.mobileOnlyHidden}>Live site</span>
+              <span className="hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline">
+                Live
+              </span>
             </Button>
           )}
           <Button
@@ -273,19 +286,13 @@ export function ProjectQuickView({
             rel="noopener noreferrer"
             leftIcon={<Github className="size-3.5" aria-hidden />}
           >
-            View code
+            <span className={styles.mobileOnlyHidden}>View code</span>
+            <span className="hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline">
+              Code
+            </span>
           </Button>
-          <div className="ml-auto flex min-h-[28px] items-center">
-            <GitHubButton
-              href={`https://github.com/aristache-labs/${project.repo}`}
-              data-color-scheme="no-preference: dark; light: dark; dark: dark;"
-              data-icon="octicon-star"
-              data-size="large"
-              data-show-count="true"
-              aria-label={`Star aristache-labs/${project.repo} on GitHub`}
-            >
-              Give a Star
-            </GitHubButton>
+          <div className="ml-auto">
+            <ProjectRepoBadges repo={project.repo} />
           </div>
         </DialogFooter>
       </DialogContent>
