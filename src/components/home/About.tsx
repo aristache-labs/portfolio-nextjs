@@ -76,7 +76,7 @@ export function About({ profile }: { profile: AboutProfile }) {
   return (
     <Section
       id="about"
-      className="scroll-mt-24 pt-0 pb-6 md:scroll-mt-2 md:pt-28 md:pb-8"
+      className="scroll-mt-[80px] pt-0 pb-6 md:scroll-mt-2 md:pt-28 md:pb-8"
       backdrop={
         <>
           <SectionBackdrop

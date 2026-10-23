@@ -68,8 +68,9 @@ export function SiteNav({
     [sections, hidden],
   );
   const ids = useMemo(() => visibleSections.map((s) => s.id), [visibleSections]);
-  const active = useScrollSpy(ids);
+  const activeSection = useScrollSpy(ids);
   const onHomepage = usePathname() === "/";
+  const active = onHomepage ? activeSection : null;
   const sectionHref = (id: string) => `${onHomepage ? "" : "/"}#${id}`;
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);

@@ -29,6 +29,13 @@ export default async function PrivacyPage() {
   ]);
   return (
     <>
+      <SiteNav
+        socials={[]}
+        hidden={Object.entries(profile.sectionVisibility)
+          .filter(([, visible]) => visible === false)
+          .map(([id]) => id)}
+        sponsorUrl={funding.find((item) => item.primary)?.url}
+      />
       <div className={styles.backdropSection}>
         <SectionBackdrop
           video="/media/services.mp4"
@@ -36,13 +43,6 @@ export default async function PrivacyPage() {
           scrim="absolute inset-0 bg-background/80"
         />
         <div className="site-container text-foreground relative z-10 min-h-dvh pb-16 sm:pb-24">
-          <SiteNav
-            socials={[]}
-            hidden={Object.entries(profile.sectionVisibility)
-              .filter(([, visible]) => visible === false)
-              .map(([id]) => id)}
-            sponsorUrl={funding.find((item) => item.primary)?.url}
-          />
           <div className="h-24" aria-hidden />
           <article className={`${styles.article} mx-auto max-w-5xl pt-12 sm:pt-20`}>
             <div className="mb-5 flex justify-start">
@@ -92,7 +92,7 @@ export default async function PrivacyPage() {
                     key={id}
                     id={id}
                     aria-labelledby={`${id}-title`}
-                    className="border-brand-mid/15 scroll-mt-8 border-t py-7 first:border-t-0 first:pt-0 sm:py-8"
+                    className="border-brand-mid/15 scroll-mt-[88px] border-t py-7 first:border-t-0 first:pt-0 sm:py-8"
                   >
                     <h2
                       id={`${id}-title`}

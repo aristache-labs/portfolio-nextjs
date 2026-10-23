@@ -30,7 +30,7 @@ export function Services({ services }: { services: ServiceRow[] }) {
   return (
     <Section
       id="services"
-      className="scroll-mt-24 pt-6 pb-4 md:pt-12 md:pb-6"
+      className="scroll-mt-[80px] pt-6 pb-4 md:pt-12 md:pb-6"
       backdrop={
         <>
           <SectionBackdrop

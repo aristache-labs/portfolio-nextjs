@@ -144,7 +144,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
   return (
     <Section
       id="contact"
-      className="scroll-mt-24 pt-4 pb-12 md:pt-6 md:pb-14"
+      className="scroll-mt-[80px] pt-4 pb-12 md:pt-6 md:pb-14"
       backdrop={
         <>
           <SectionBackdrop

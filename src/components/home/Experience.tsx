@@ -140,7 +140,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
   return (
     <Section
       id="experience"
-      className={`${styles.section} scroll-mt-24 overflow-clip pt-2 md:scroll-mt-1 md:pt-28`}
+      className={`${styles.section} scroll-mt-[80px] overflow-clip pt-2 md:scroll-mt-1 md:pt-28`}
       backdrop={
         <SectionBackdrop
           video="/media/experience.mp4"
