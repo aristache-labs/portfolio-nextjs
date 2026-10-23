@@ -8,6 +8,7 @@ import motionCss from "@/components/navbar/support-motion.module.css";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { SectionBackdrop } from "./SectionBackdrop";
 import type { MergedProject } from "@/lib/projects";
+import spacing from "./experience-projects-spacing.module.css";
 
 const GITHUB_PROFILE = "https://github.com/aristache-labs";
 
@@ -23,7 +24,7 @@ export function Projects({
   return (
     <Section
       id="projects"
-      className="scroll-mt-[80px] pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12"
+      className={`${spacing.projects} scroll-mt-[80px] pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
       backdrop={
         <>
           <SectionBackdrop video="/media/projects.mp4" poster="/media/projects.webp" />

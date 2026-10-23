@@ -9,6 +9,7 @@ import { SectionBackdrop } from "./SectionBackdrop";
 import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
 import styles from "./experience-layout.module.css";
+import spacing from "./experience-projects-spacing.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -140,7 +141,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
   return (
     <Section
       id="experience"
-      className={`${styles.section} scroll-mt-[80px] overflow-clip pt-2 md:scroll-mt-1 md:pt-28`}
+      className={`${styles.section} ${spacing.experience} scroll-mt-[80px] overflow-clip pt-2 md:scroll-mt-1 md:pt-28`}
       backdrop={
         <SectionBackdrop
           video="/media/experience.mp4"

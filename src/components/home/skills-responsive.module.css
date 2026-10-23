@@ -6,8 +6,7 @@
     line-height: 1.4;
   }
 
-  .section p,
-  .section blockquote {
+  .section p {
     font-size: 13px;
     line-height: 1.6;
   }

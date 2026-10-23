@@ -1,0 +1,22 @@
+@media (min-width: 1024px) and (pointer: fine) {
+  .experience {
+    padding-bottom: 64px;
+  }
+
+  .projects {
+    padding-top: 64px;
+    /* Heading starts 80px below the viewport top when reached by an anchor. */
+    scroll-margin-top: 16px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .experience {
+    padding-bottom: 32px;
+  }
+
+  .projects {
+    padding-top: 40px;
+    scroll-margin-top: 40px;
+  }
+}
