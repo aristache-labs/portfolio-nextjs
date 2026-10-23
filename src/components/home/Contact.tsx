@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Script from "next/script";
+import Image from "next/image";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
-import { ArrowRight, ArrowUpRight, ChevronDown, Heart, Mail, RadioTower, Send } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { SectionBackdrop } from "./SectionBackdrop";
 import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./social-icons";
+import motionCss from "@/components/navbar/support-motion.module.css";
 
 export { platformIcon, type SocialIcon, type SocialRow };
 
@@ -111,8 +113,8 @@ export function Contact({
   }, [turnstileNear]);
 
   const inputClass =
-    "mt-2 h-10 w-full rounded-lg border border-white/10 bg-black/40 px-3 text-base text-white placeholder:text-white/35 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
-  const labelClass = "block text-[13.5px] font-medium text-white/75";
+    "mt-2 h-10 w-full rounded-lg border border-white/15 bg-black/40 px-3 text-base text-white placeholder:text-white/50 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
+  const labelClass = "block text-[13.5px] font-medium text-white/85";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -152,7 +154,7 @@ export function Contact({
   return (
     <Section
       id="contact"
-      className="scroll-mt-24 pt-4 pb-6 md:pt-6 md:pb-8"
+      className="scroll-mt-24 pt-4 pb-12 md:pt-6 md:pb-14"
       backdrop={
         <>
           <SectionBackdrop
@@ -176,7 +178,7 @@ export function Contact({
       }
     >
       <div className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10 [@media(orientation:landscape)_and_(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-height:500px)]:items-start [@media(orientation:landscape)_and_(max-height:500px)]:justify-between [@media(orientation:landscape)_and_(max-height:500px)]:gap-x-8 [@media(orientation:landscape)_and_(max-height:500px)]:gap-y-0">
-        <div className="min-w-0 lg:w-[38%] lg:max-w-[560px] [@media(orientation:landscape)_and_(max-height:500px)]:w-[42%]">
+        <div className="min-w-0 lg:w-[42%] lg:max-w-[640px] [@media(orientation:landscape)_and_(max-height:500px)]:w-[42%]">
           <m.p
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -200,8 +202,7 @@ export function Contact({
             {...reducedMotionProps}
             className="font-display mt-6 text-[clamp(2rem,3.5vw,3.1rem)] leading-[1.08] font-extrabold tracking-tight text-white"
           >
-            Great&apos; Ideas Start with a <span className="gradient-text">Conversation.</span>
-            <br />
+            Great Ideas Start with a <span className="gradient-text">Conversation.</span>
           </m.h2>
 
           <m.p
@@ -210,11 +211,11 @@ export function Contact({
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.18 }}
             {...reducedMotionProps}
-            className="mt-4 max-w-[475px] text-[16.5px] leading-[1.62] text-white/75 sm:text-[17px]"
+            className="mt-4 max-w-[475px] text-[16.5px] leading-[1.62] text-white/80 sm:text-[17px] [@media(orientation:landscape)_and_(max-height:500px)]:text-[14px] [@media(orientation:landscape)_and_(max-height:500px)]:leading-[1.45]"
           >
             Have a project in mind, a technical challenge to solve, or an opportunity to
             collaborate? Whether it&apos;s IT infrastructure, automation, web, or mobile
-            development, I&apos;d love to hear from you..
+            development, I&apos;d love to hear from you.
           </m.p>
 
           {cards.length > 0 && (
@@ -233,28 +234,30 @@ export function Contact({
                       href={card.href}
                       aria-label={card.label}
                       {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                      className="group hover:border-brand-mid/45 relative flex h-full items-center gap-3 rounded-2xl border border-white/10 bg-(--bg) bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] p-3.5 transition-colors duration-300 sm:gap-3.5 sm:p-4"
+                      className="group hover:border-brand-mid/45 relative flex h-full items-center gap-2.5 rounded-2xl border border-white/10 bg-(--bg) bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] p-3 transition-colors duration-300 sm:gap-2.5 sm:p-3"
                     >
                       {card.key === "email" ? (
-                        <IconTile size="md">
+                        <IconTile size="sm">
                           <SocialGlyph
                             platform="gmail"
-                            className="size-7 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)]"
+                            className="size-6 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)]"
                           />
                         </IconTile>
                       ) : (
-                        <span className="grid size-[46px] shrink-0 place-items-center">
+                        <span className="grid size-9 shrink-0 place-items-center">
                           <SocialGlyph
                             platform={card.title}
-                            className="size-9 object-contain drop-shadow-[0_4px_10px_rgb(0_0_0/0.4)]"
+                            className="size-8 object-contain drop-shadow-[0_4px_10px_rgb(0_0_0/0.4)]"
                           />
                         </span>
                       )}
                       <span className="min-w-0">
-                        <span className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[15px]">
+                        <span className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[14px]">
                           {card.title}
                         </span>
-                        <span className="mt-0.5 block text-[12px] break-words text-white/55 sm:text-[13px]">
+                        <span
+                          className={`mt-0.5 block text-[12px] text-white/75 sm:text-[12px] ${card.key === "email" ? "whitespace-nowrap" : "break-words"}`}
+                        >
                           {card.value}
                         </span>
                       </span>
@@ -288,7 +291,13 @@ export function Contact({
               rel="noopener noreferrer"
               className="text-brand-mid/80 hover:text-brand-bright focus-visible:ring-brand-mid/70 mt-5 inline-flex items-center gap-2 text-sm underline-offset-4 transition-colors hover:underline focus-visible:ring-2 focus-visible:outline-none"
             >
-              <Heart className="size-3.5" aria-hidden />
+              <Image
+                src="/icons/heart.svg"
+                alt=""
+                width={16}
+                height={16}
+                className={`${motionCss.heart} size-4 shrink-0 object-contain`}
+              />
               Support Independent Projects
               <ArrowRight className="size-3.5" aria-hidden />
             </a>
@@ -305,7 +314,7 @@ export function Contact({
         >
           <form
             onSubmit={handleSubmit}
-            className="border-brand-mid/20 bg-background/75 mx-auto w-full max-w-[535px] rounded-3xl border p-6 shadow-[0_0_70px_-15px_rgb(var(--brand-mid-rgb)/0.4)] backdrop-blur-xl sm:p-8 lg:ml-auto"
+            className="border-brand-mid/20 bg-background/75 mx-auto w-full max-w-[535px] rounded-3xl border p-6 shadow-[0_0_50px_-18px_rgb(var(--brand-mid-rgb)/0.24)] backdrop-blur-xl sm:p-8 lg:ml-auto"
           >
             <div className="flex items-center gap-3">
               <IconTile size="sm">
