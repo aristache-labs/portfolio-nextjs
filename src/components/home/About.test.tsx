@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { installMatchMedia } from "@/test/matchMedia";
 import { About } from "./About";
+import { AboutBio } from "./AboutBio";
 
 // Mock Reveal to render children directly
 vi.mock("@/components/motion/Reveal", () => ({
@@ -18,11 +19,26 @@ const mockProfile = {
 };
 
 describe("About", () => {
+  it("expands and collapses the remaining mobile biography", () => {
+    render(
+      <AboutBio bio="I turn technical challenges into practical, dependable solutions. More about my work." />,
+    );
+    const toggle = screen.getByRole("button", { name: "View more" });
+    const remainder = document.getElementById(toggle.getAttribute("aria-controls")!);
+    expect(remainder).toHaveAttribute("hidden");
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(remainder).not.toHaveAttribute("hidden");
+    expect(remainder).toHaveTextContent("More about my work.");
+    fireEvent.click(screen.getByRole("button", { name: "View less" }));
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(remainder).toHaveAttribute("hidden");
+  });
   it("renders the bio text", () => {
     render(<About profile={mockProfile} />);
     expect(
-      screen.getByText("I build fast, accessible web apps and love open source."),
-    ).toBeInTheDocument();
+      screen.getAllByText("I build fast, accessible web apps and love open source."),
+    ).toHaveLength(2);
   });
 
   it("renders stat labels", () => {

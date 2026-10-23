@@ -10,5 +10,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    {
+      url: new URL("/privacy", SITE.url).toString(),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
   ];
 }

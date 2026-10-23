@@ -8,9 +8,28 @@ import { getProfile, getFundingLinks, getSocialLinks } from "@/lib/queries";
 import styles from "./privacy.module.css";
 import { SITE } from "@/lib/seo/site";
 
+const privacyDescription = `How ${SITE.name} handles information submitted through this site.`;
+
 export const metadata: Metadata = {
   title: "Privacy",
-  description: `How ${SITE.name} handles information submitted through this site.`,
+  description: privacyDescription,
+  alternates: { canonical: "/privacy" },
+  openGraph: {
+    type: "website",
+    url: new URL("/privacy", SITE.url).toString(),
+    siteName: SITE.name,
+    title: `Privacy | ${SITE.name}`,
+    description: privacyDescription,
+    locale: "en_US",
+    images: [{ url: "/opengraph-image" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Privacy | ${SITE.name}`,
+    description: privacyDescription,
+    creator: SITE.handle,
+    images: ["/opengraph-image"],
+  },
 };
 
 const sections = [

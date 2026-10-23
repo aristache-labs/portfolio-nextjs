@@ -1,9 +1,15 @@
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import { describe, it, expect, afterEach, beforeEach } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
+import { usePathname } from "next/navigation";
 import { installMatchMedia } from "@/test/matchMedia";
 import { SiteNav } from "./SiteNav";
 
-beforeEach(() => installMatchMedia({ "(prefers-reduced-motion: reduce)": true }));
+vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/") }));
+
+beforeEach(() => {
+  vi.mocked(usePathname).mockReturnValue("/");
+  installMatchMedia({ "(prefers-reduced-motion: reduce)": true });
+});
 afterEach(cleanup);
 
 const socials = [
@@ -12,6 +18,16 @@ const socials = [
 ];
 
 describe("SiteNav", () => {
+  it("links back to homepage sections from Privacy without marking Home active", () => {
+    vi.mocked(usePathname).mockReturnValue("/privacy");
+    render(<SiteNav socials={socials} />);
+    expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "/#about");
+    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+    const links = screen.getAllByTestId("mobile-section-link");
+    expect(links[0]).toHaveAttribute("href", "/#hero");
+    expect(links[1]).toHaveAttribute("href", "/#about");
+    links.forEach((link) => expect(link).not.toHaveAttribute("aria-current"));
+  });
   it("renders the home link, inline sections, and connect CTA", () => {
     render(<SiteNav socials={socials} />);
     expect(screen.getAllByRole("link", { name: /^home$/i })[0]).toHaveAttribute("href", "#hero");
