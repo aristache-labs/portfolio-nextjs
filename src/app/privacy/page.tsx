@@ -176,8 +176,9 @@ export default async function PrivacyPage() {
                       {id === "analytics" && (
                         <>
                           The site uses Vercel Analytics and Speed Insights. Google Analytics loads
-                          only when it is configured. These tools record aggregate visits, not the
-                          contents of the contact form.
+                          only when it is configured and you accept it in analytics preferences. You
+                          can change your choice using Analytics preferences in the footer. These
+                          tools record aggregate visits, not the contents of the contact form.
                         </>
                       )}
                     </p>

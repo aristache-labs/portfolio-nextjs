@@ -1,23 +1,51 @@
-import Script from "next/script";
+"use client";
 
-/**
- * `lazyOnload` so the ~45KB gtag bundle runs after the window load event and never competes
- * with hydration. A pageview a few hundred ms later costs nothing; the vitals win is real.
- */
+import { useEffect, useRef } from "react";
+import Script from "next/script";
+import { usePathname } from "next/navigation";
+import {
+  applyAnalyticsConsent,
+  googleCommand,
+  readConsent,
+  useAnalyticsConsent,
+} from "@/lib/analytics-consent";
+
 export function GoogleAnalytics() {
   const id = process.env.NEXT_PUBLIC_GTAG_ID;
-  if (!id) return null;
+  const consent = useAnalyticsConsent();
+  const pathname = usePathname();
+  const initialized = useRef(false);
+  const privateRoute = pathname?.startsWith("/admin") || pathname === "/login";
+
+  useEffect(() => {
+    applyAnalyticsConsent(privateRoute ? "rejected" : consent);
+  }, [consent, privateRoute]);
+
+  if (!id || consent !== "accepted" || privateRoute) return null;
+
   return (
-    <>
-      <Script src={`https://www.googletagmanager.com/gtag/js?id=${id}`} strategy="lazyOnload" />
-      <Script id="gtag-init" strategy="lazyOnload">
-        {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${id}');
-          `}
-      </Script>
-    </>
+    <Script
+      src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`}
+      strategy="lazyOnload"
+      onReady={() => {
+        if (
+          readConsent() !== "accepted" ||
+          window.location.pathname.startsWith("/admin") ||
+          window.location.pathname === "/login"
+        )
+          return;
+        applyAnalyticsConsent(consent);
+        if (initialized.current) return;
+        initialized.current = true;
+        googleCommand("consent", "default", {
+          analytics_storage: "granted",
+          ad_storage: "denied",
+          ad_user_data: "denied",
+          ad_personalization: "denied",
+        });
+        googleCommand("js", new Date());
+        googleCommand("config", id);
+      }}
+    />
   );
 }

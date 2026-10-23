@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { AnalyticsPreferences } from "@/components/analytics/AnalyticsPreferences";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { HashScrollFix } from "@/components/util/HashScrollFix";
@@ -130,6 +131,7 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
             <AmbientBackground />
             <main>{children}</main>
             <ScrollToTop />
+            <AnalyticsPreferences />
           </ThemeProvider>
         </MotionProvider>
         <HashScrollFix />

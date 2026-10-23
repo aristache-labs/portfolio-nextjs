@@ -4,6 +4,7 @@ import { m } from "framer-motion";
 import { ArrowRight, ArrowUpRight, ChevronRight, Mail, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { AnalyticsPreferencesButton } from "@/components/analytics/AnalyticsPreferences";
 import { Button } from "@/components/ui/Button";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import type { SocialRow } from "@/components/home/social-icons";
@@ -223,19 +224,24 @@ export function Footer({
           {...reducedMotionProps}
           className="bg-background/80 mt-8 grid items-center gap-3 rounded-xl border border-white/10 px-5 py-3.5 text-center sm:mt-10 md:grid-cols-[1fr_auto_1fr] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]"
         >
-          <p className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px]">
+          <div className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px]">
             <span className="max-md:block">
               <span className="text-brand-bright">&copy; {year}</span> Cristache Adrian. All rights
               reserved.
             </span>
-            <span className="mx-1.5 text-white/30 max-md:hidden">|</span>
-            <Link
-              href="/privacy"
-              className={`text-brand-bright underline-offset-4 transition-colors duration-200 hover:text-white hover:underline max-md:mt-1 max-md:block ${FOCUS}`}
-            >
-              Privacy
-            </Link>
-          </p>
+            <span aria-hidden className="mx-1.5 text-white/30 max-md:hidden">
+              |
+            </span>
+            <span className="inline-flex items-baseline whitespace-nowrap max-md:mt-1">
+              <Link
+                href="/privacy"
+                className={`text-brand-bright underline-offset-4 transition-colors hover:text-white hover:underline ${FOCUS}`}
+              >
+                Privacy
+              </Link>
+              <AnalyticsPreferencesButton />
+            </span>
+          </div>
           <div className="hidden items-center justify-center gap-2.5 md:flex [@media(orientation:landscape)_and_(max-width:1024px)]:hidden">
             <Workflow className="text-brand-mid size-5.5" aria-hidden />
             <span className="font-mono text-[11.5px] tracking-[0.28em] text-white/65">
