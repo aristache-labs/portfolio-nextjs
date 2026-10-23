@@ -88,6 +88,21 @@ describe("SiteNav", () => {
       "aria-expanded",
       "false",
     );
+    expect(screen.getByRole("button", { name: /open menu/i })).toHaveFocus();
+  });
+
+  it("locks page scrolling only while the mobile menu is open", () => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "auto";
+    const { unmount } = render(<SiteNav socials={socials} />);
+    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(document.body.style.overflow).toBe("auto");
+    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+    unmount();
+    expect(document.body.style.overflow).toBe("auto");
+    document.body.style.overflow = previous;
   });
 
   it("closes when a mobile section link is chosen", () => {
