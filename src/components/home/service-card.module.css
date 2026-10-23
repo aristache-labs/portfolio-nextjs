@@ -1,0 +1,18 @@
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .card {
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .card h3 {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+
+  .card p {
+    margin-top: 5px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}

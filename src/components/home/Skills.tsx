@@ -9,6 +9,7 @@ import { SkillCard, skillPercent } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import statsCss from "./about-stats.module.css";
 import quoteCss from "./skills-quote.module.css";
+import responsiveCss from "./skills-responsive.module.css";
 
 export type SkillRow = {
   name: string;
@@ -72,7 +73,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
   return (
     <section
       id="skills"
-      className="relative z-10 scroll-mt-[80px] overflow-x-clip overflow-y-visible"
+      className={`${responsiveCss.section} relative z-10 scroll-mt-[80px] overflow-x-clip overflow-y-visible`}
     >
       <SectionBackdrop
         frame="screen"

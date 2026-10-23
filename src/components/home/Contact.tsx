@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import Script from "next/script";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
@@ -33,7 +33,6 @@ type Card = {
   value: string;
   href: string;
   external: boolean;
-  label: string;
 };
 
 function cardsFor(socials: SocialRow[], email: string): Card[] {
@@ -46,7 +45,6 @@ function cardsFor(socials: SocialRow[], email: string): Card[] {
       value: email,
       href: `mailto:${email}`,
       external: false,
-      label: `Email ${email}`,
     });
   }
   const linkedin = [...socials]
@@ -60,13 +58,13 @@ function cardsFor(socials: SocialRow[], email: string): Card[] {
       value: linkedin.username || linkedin.url.replace(/^https?:\/\//, ""),
       href: linkedin.url,
       external: linkedin.url.startsWith("http"),
-      label: `${linkedin.platform}: ${linkedin.username}`,
     });
   }
   return cards;
 }
 
 export function Contact({ socials, email }: { socials: SocialRow[]; email: string }) {
+  const cardId = useId();
   const cards = cardsFor(socials, email);
   const reducedMotionProps = useReducedMotionProps();
   const [name, setName] = useState("");
@@ -222,7 +220,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
                   >
                     <a
                       href={card.href}
-                      aria-label={card.label}
+                      aria-labelledby={`${cardId}-${index}-title ${cardId}-${index}-value`}
                       {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className="group hover:border-brand-mid/45 relative flex h-full items-center gap-2.5 rounded-2xl border border-white/10 bg-(--bg) bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] p-3 transition-colors duration-300 sm:gap-2.5 sm:p-3"
                     >
@@ -242,10 +240,14 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
                         </span>
                       )}
                       <span className="min-w-0">
-                        <span className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[14px]">
+                        <span
+                          id={`${cardId}-${index}-title`}
+                          className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[14px]"
+                        >
                           {card.title}
                         </span>
                         <span
+                          id={`${cardId}-${index}-value`}
                           className={`mt-0.5 block text-[12px] text-white/75 sm:text-[12px] ${card.key === "email" ? "whitespace-nowrap" : "break-words"}`}
                         >
                           {card.value}
