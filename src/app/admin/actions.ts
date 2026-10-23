@@ -30,6 +30,7 @@ import {
   type ReorderInput,
 } from "@/lib/schemas";
 import { auth } from "@/auth";
+import { refreshCachedRepo } from "@/lib/github-cache";
 import { revalidatePortfolio } from "@/lib/revalidate";
 import { isAllowedImageHost } from "@/lib/image-hosts";
 
@@ -115,6 +116,15 @@ export async function updateProject(id: number, input: ProjectInput): Promise<vo
 export async function deleteProject(id: number): Promise<void> {
   await requireAdmin();
   await db.delete(projects).where(eq(projects.id, id));
+  revalidatePortfolio();
+}
+
+/** Pull stars, forks, and the README Overview now. The 24h cache does not apply. */
+export async function refreshProjectGithub(id: number): Promise<void> {
+  await requireAdmin();
+  const [row] = await db.select({ repo: projects.repo }).from(projects).where(eq(projects.id, id));
+  if (!row) throw new Error("Project not found.");
+  await refreshCachedRepo(`aristache-labs/${row.repo}`);
   revalidatePortfolio();
 }
 

@@ -64,11 +64,17 @@ export async function getUserStats(username: string): Promise<GithubUserStats | 
   };
 }
 
+/** `fresh` skips the 1h data cache. The admin refresh needs the README that is on GitHub now. */
+function githubFetchInit(fresh: boolean): RequestInit {
+  if (fresh) return { cache: "no-store" };
+  return { next: { revalidate: REVALIDATE_SECONDS, tags: ["github"] } };
+}
+
 /** Fetch a single repo by "owner/name". Returns null on 404. Throws on bad schema. */
-export async function getRepo(slug: string): Promise<GithubRepo | null> {
+export async function getRepo(slug: string, fresh = false): Promise<GithubRepo | null> {
   const res = await fetch(`${GITHUB_API}/repos/${slug}`, {
     headers: authHeaders(),
-    next: { revalidate: REVALIDATE_SECONDS, tags: ["github"] },
+    ...githubFetchInit(fresh),
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`GitHub getRepo ${slug} failed: ${res.status}`);
@@ -78,11 +84,11 @@ export async function getRepo(slug: string): Promise<GithubRepo | null> {
 /** Fetch a repo's README as raw markdown. Returns null when the repo has none (404),
  *  which is common enough that it is not an error. Throws on other failures so the
  *  caller can fall back to cache. */
-export async function getReadme(slug: string): Promise<string | null> {
+export async function getReadme(slug: string, fresh = false): Promise<string | null> {
   const res = await fetch(`${GITHUB_API}/repos/${slug}/readme`, {
     // The raw media type returns markdown directly instead of base64 JSON.
     headers: { ...authHeaders(), Accept: "application/vnd.github.raw" },
-    next: { revalidate: REVALIDATE_SECONDS, tags: ["github"] },
+    ...githubFetchInit(fresh),
   });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`GitHub getReadme ${slug} failed: ${res.status}`);

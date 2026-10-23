@@ -51,8 +51,8 @@ function RepoBadge({
         <img
           src={`https://img.shields.io/github/${badgePath}?${query}`}
           alt={`GitHub ${metric}`}
-          height={20}
-          className="h-5 w-auto rounded-md"
+          height={22}
+          className="h-[22px] w-auto rounded-md"
           referrerPolicy="no-referrer"
           onError={() => setFailed(true)}
         />

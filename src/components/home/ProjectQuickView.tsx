@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { ProjectRepoBadges } from "./ProjectRepoBadges";
 import { ChevronLeft, ChevronRight, Star, GitFork, ExternalLink, Github } from "lucide-react";
@@ -124,9 +124,36 @@ export function ProjectQuickView({
   onClose: () => void;
 }) {
   const [index, setIndex] = useState(0);
+  const [descriptionElement, setDescriptionElement] = useState<HTMLSpanElement | null>(null);
   const [previousProjectId, setPreviousProjectId] = useState(project?.id ?? null);
   const [ratios, setRatios] = useState<Record<string, number>>({});
   const projectId = project?.id ?? null;
+  useEffect(() => {
+    const span = descriptionElement;
+    const paragraph = span?.parentElement;
+    const container = paragraph?.parentElement;
+    if (!span || !paragraph || !container) return;
+    const text = project?.readmeExcerpt?.trim() || "Read the project documentation on GitHub.";
+    const fit = () => {
+      span.replaceChildren(document.createTextNode(text));
+      const available = Math.max(0, container.clientHeight - 2);
+      if (!available || paragraph.scrollHeight <= available) return;
+      const words = text.split(/\s+/);
+      let low = 0;
+      let high = words.length;
+      while (low < high) {
+        const middle = Math.ceil((low + high) / 2);
+        span.replaceChildren(document.createTextNode(`${words.slice(0, middle).join(" ")}…`));
+        if (paragraph.scrollHeight <= available) low = middle;
+        else high = middle - 1;
+      }
+      span.replaceChildren(document.createTextNode(`${words.slice(0, low).join(" ")}…`));
+    };
+    const observer = new ResizeObserver(fit);
+    observer.observe(container);
+    fit();
+    return () => observer.disconnect();
+  }, [project, descriptionElement]);
   if (projectId !== previousProjectId) {
     setPreviousProjectId(projectId);
     setIndex(0);
@@ -196,7 +223,10 @@ export function ProjectQuickView({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent
+        className={`max-w-2xl ${styles.dialog}`}
+        style={{ "--preview-ratio": activeRatio ?? 16 / 9 } as CSSProperties}
+      >
         <PosterCarousel
           title={project.title}
           slides={slides}
@@ -205,7 +235,7 @@ export function ProjectQuickView({
           onIndex={setIndex}
         />
 
-        <DialogHeader>
+        <DialogHeader className={styles.header}>
           <div className="flex items-start justify-between gap-3">
             <DialogTitle className={`min-w-0 lg:text-[22px] ${styles.title}`}>
               {project.title}
@@ -241,10 +271,12 @@ export function ProjectQuickView({
           )}
         </DialogHeader>
 
-        <DialogBody className="space-y-5">
+        <DialogBody className={`space-y-5 ${styles.body}`}>
           <div>
             <p className="text-muted text-sm leading-relaxed lg:text-[15px]">
-              {excerpt || "Read the project documentation on GitHub."}{" "}
+              <span ref={setDescriptionElement} className={styles.descriptionText}>
+                {excerpt || "Read the project documentation on GitHub."}
+              </span>{" "}
               <a
                 href={`${githubUrl.replace(/\/$/, "")}#readme`}
                 target="_blank"
@@ -270,7 +302,9 @@ export function ProjectQuickView({
               leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
             >
               <span className={styles.mobileOnlyHidden}>Live site</span>
-              <span className="hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline">
+              <span
+                className={`hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline ${styles.shortLabel}`}
+              >
                 Live
               </span>
             </Button>
@@ -284,7 +318,9 @@ export function ProjectQuickView({
             leftIcon={<Github className="size-3.5" aria-hidden />}
           >
             <span className={styles.mobileOnlyHidden}>View code</span>
-            <span className="hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline">
+            <span
+              className={`hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline ${styles.shortLabel}`}
+            >
               Code
             </span>
           </Button>

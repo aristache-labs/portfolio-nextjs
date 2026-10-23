@@ -118,6 +118,19 @@ describe("getCachedRepoData", () => {
     expect(result.get("aristache-labs/my-repo")?.stars).toBe(50);
   });
 
+  it("force refreshes a fresh row and reads Overview with the cache bypass", async () => {
+    mockDbSelect([cacheRow("my-repo", 50, TWENTY_THREE_HOURS, "old excerpt")]);
+    mockGetRepo.mockResolvedValue(githubRepo("my-repo", 77));
+    mockGetReadme.mockResolvedValue("## Overview\n\nNew description.\n\n## Install\n\nnope");
+
+    const result = await getCachedRepoData(["aristache-labs/my-repo"], { force: true });
+
+    expect(mockGetRepo).toHaveBeenCalledWith("aristache-labs/my-repo", true);
+    expect(mockGetReadme).toHaveBeenCalledWith("aristache-labs/my-repo", true);
+    expect(result.get("aristache-labs/my-repo")?.stars).toBe(77);
+    expect(result.get("aristache-labs/my-repo")?.readmeExcerpt).toBe("New description.");
+  });
+
   it("refreshes a FRESH row whose excerpt is NULL, backfilling rows that predate the column", async () => {
     // The prod case: the column was added while existing rows were still inside their 24h
     // window, so without this they would render blank until the TTL happened to roll.
@@ -127,7 +140,7 @@ describe("getCachedRepoData", () => {
     const result = await getCachedRepoData(["aristache-labs/my-repo"]);
 
     expect(mockGetRepo).toHaveBeenCalled();
-    expect(result.get("aristache-labs/my-repo")?.readmeExcerpt).toBe("repo Some prose.");
+    expect(result.get("aristache-labs/my-repo")?.readmeExcerpt).toBe("Some prose.");
   });
 
   it("does NOT refresh a fresh row whose excerpt is an empty string", async () => {

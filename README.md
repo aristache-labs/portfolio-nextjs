@@ -240,7 +240,7 @@ The admin panel is at `/admin` and requires GitHub OAuth.
 - Only `ADMIN_GITHUB_LOGIN` can sign in. For this site that is `aristache-labs`.
 - Tabs: profile, projects, experiences, skills, services, social links, funding links, and settings.
 - Profile: name, email, bio, hero roles, hero tagline, resume link, avatar (upload or URL).
-- Projects: which repos appear, title, blurb, category, tags, order, featured and hidden flags, a cover, and up to six screenshots. `order` ranks the showcase. Leading featured rows get the large cells. The rest keep a Featured badge in the grid. `category` feeds the public filter.
+- Projects: which repos appear, title, blurb, category, tags, order, featured and hidden flags, a cover, and up to six screenshots. `order` ranks the showcase. Leading featured rows get the large cells. The rest keep a Featured badge in the grid. `category` feeds the public filter. **Refresh** on a row pulls stars, forks, and the README `## Overview` immediately, instead of waiting for the 24-hour GitHub cache.
 - Skills: name, category, level, icon upload or URL.
 - Settings: per-section visibility. Hiding a section also skips its query and its JS chunk.
 - Years of experience are derived from experience start years, not from the age of the GitHub account.

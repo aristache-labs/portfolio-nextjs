@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { RecordList, type AdminRow } from "@/components/admin/ui";
 import { RecordFormDialog, type AdminField } from "@/components/admin/RecordFormDialog";
@@ -21,6 +22,7 @@ export function AdminCrudPage<T extends { id: number | string }>({
   createAction,
   updateAction,
   deleteAction,
+  extraActions,
   empty,
 }: {
   title: string;
@@ -35,6 +37,8 @@ export function AdminCrudPage<T extends { id: number | string }>({
   createAction: ServerAction;
   updateAction: ServerAction;
   deleteAction: ServerAction;
+  /** Rendered on each row, before Edit. */
+  extraActions?: (row: T) => ReactNode;
   empty: string;
 }) {
   return (
@@ -55,13 +59,16 @@ export function AdminCrudPage<T extends { id: number | string }>({
           id: row.id,
           ...toRow(row),
           actions: (
-            <RecordFormDialog
-              mode="edit"
-              title={editTitle}
-              fields={fields}
-              formAction={updateAction}
-              record={row}
-            />
+            <>
+              {extraActions?.(row)}
+              <RecordFormDialog
+                mode="edit"
+                title={editTitle}
+                fields={fields}
+                formAction={updateAction}
+                record={row}
+              />
+            </>
           ),
         }))}
         deleteAction={deleteAction}

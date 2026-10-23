@@ -69,8 +69,12 @@ async function stampChecked(cached: GithubCache | undefined, repoName: string): 
 /**
  * Missing or stale (>24h) rows refresh from GitHub and upsert. Never throws: a rate limit or
  * network error falls back to the existing row, so the section always renders.
+ * `options.force` is the admin button: it always fetches and throws when GitHub cannot be read.
  */
-export async function getCachedRepoData(slugs: string[]): Promise<Map<string, CachedRepoStats>> {
+export async function getCachedRepoData(
+  slugs: string[],
+  options?: { force?: boolean },
+): Promise<Map<string, CachedRepoStats>> {
   const result = new Map<string, CachedRepoStats>();
 
   if (slugs.length === 0) return result;
@@ -92,7 +96,8 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
 
       // NULL means the row predates the readme_excerpt column, not that the repo has no
       // README (that stores ""), so refreshing on NULL is what backfills existing rows.
-      const needsRefresh = !cached || isStale(cached) || cached.readmeExcerpt === null;
+      const force = options?.force === true;
+      const needsRefresh = force || !cached || isStale(cached) || cached.readmeExcerpt === null;
 
       if (!needsRefresh) {
         result.set(slug, rowToStats(cached!, slug));
@@ -100,16 +105,18 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
       }
 
       try {
-        const live = await getRepo(slug);
+        const live = force ? await getRepo(slug, true) : await getRepo(slug);
         if (live) {
           // "" means "checked, this repo has no README". A thrown fetch is not that: writing
           // "" there hides a real README until the 24h TTL. Leave NULL so the next render
           // retries. A previous excerpt, including a confirmed "", is kept.
           let readmeExcerpt: string | null = cached?.readmeExcerpt ?? null;
           try {
-            const markdown = await getReadme(slug);
+            const markdown = force ? await getReadme(slug, true) : await getReadme(slug);
             readmeExcerpt = markdown === null ? "" : projectReadmeExcerpt(markdown);
-          } catch {
+          } catch (error) {
+            // A forced refresh must not stamp fetchedAt over a failed README read.
+            if (force) throw error;
             /* null when never checked, so needsRefresh stays true */
           }
 
@@ -150,13 +157,16 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
             readmeExcerpt,
             pushedAt: upsertRow.pushedAt,
           });
+        } else if (force) {
+          throw new Error(`GitHub repo ${slug} was not found.`);
         } else {
           // 404: renamed, deleted or made private. Stamp the row so a NULL excerpt cannot keep
           // re-triggering the backfill above on every regeneration, forever.
           await stampChecked(cached, repoName);
           result.set(slug, cached ? rowToStats(cached, slug) : nullStats(slug));
         }
-      } catch {
+      } catch (error) {
+        if (force) throw error;
         await stampChecked(cached, repoName);
         result.set(slug, cached ? rowToStats(cached, slug) : nullStats(slug));
       }
@@ -164,6 +174,11 @@ export async function getCachedRepoData(slugs: string[]): Promise<Map<string, Ca
   );
 
   return result;
+}
+
+/** Admin button. Ignores the 24h TTL and the 1h fetch cache. Throws if GitHub cannot be read. */
+export async function refreshCachedRepo(slug: string): Promise<void> {
+  await getCachedRepoData([slug], { force: true });
 }
 
 export type CachedUserStats = {

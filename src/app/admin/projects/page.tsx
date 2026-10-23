@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { projects } from "@/db/schema";
-import { createProject, updateProject, deleteProject } from "../actions";
+import { createProject, updateProject, deleteProject, refreshProjectGithub } from "../actions";
 import { AdminCrudPage } from "@/components/admin/AdminCrudPage";
 import { Badge } from "@/components/admin/ui";
 import { type AdminField } from "@/components/admin/RecordFormDialog";
@@ -113,11 +113,15 @@ export default async function ProjectsEditor() {
     "use server";
     await deleteProject(Number(formData.get("id")));
   }
+  async function refresh(formData: FormData) {
+    "use server";
+    await refreshProjectGithub(Number(formData.get("id")));
+  }
 
   return (
     <AdminCrudPage
       title="Projects"
-      description="Curate which repos appear and how."
+      description="Curate which repos appear and how. Refresh pulls GitHub now, including the README Overview."
       createTitle="Add project"
       editTitle="Edit project"
       fields={fields}
@@ -136,6 +140,18 @@ export default async function ProjectsEditor() {
       createAction={create}
       updateAction={update}
       deleteAction={remove}
+      extraActions={(p) => (
+        <form action={refresh}>
+          <input type="hidden" name="id" value={p.id} />
+          <button
+            type="submit"
+            title="Pull stars, forks, and the README Overview from GitHub now"
+            className="text-muted hover:bg-foreground/5 hover:text-foreground rounded-md px-2 py-1 text-xs font-medium transition"
+          >
+            Refresh
+          </button>
+        </form>
+      )}
       empty="No projects yet."
     />
   );
