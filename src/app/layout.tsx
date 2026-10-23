@@ -1,4 +1,4 @@
-﻿import "./globals.css";
+import "./globals.css";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { ReactNode } from "react";
@@ -14,6 +14,7 @@ import { HashScrollFix } from "@/components/util/HashScrollFix";
 import { AmbientBackground } from "@/components/background/AmbientBackground";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE } from "@/lib/seo/site";
+import MyStatsig from "./my-statsig";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -128,36 +129,38 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
         />
       </head>
       <body className={GeistSans.className}>
-        <noscript>
-          <iframe
-            src="https://www.googletagmanager.com/ns.html?id=GTM-N6MK2T96"
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-            title="Google Tag Manager"
-          />
-        </noscript>
-        <PersonJsonLd />
-        <WebSiteJsonLd />
-        <MotionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode.
-                The palette needs no provider - usePalette is an external-store hook. */}
-            <AmbientBackground />
-            <main>{children}</main>
-            <ScrollToTop />
-            <AnalyticsPreferences />
-          </ThemeProvider>
-        </MotionProvider>
-        <HashScrollFix />
-        <VercelAnalytics />
-        <SpeedInsights />
-        <GoogleAnalytics />
+        <MyStatsig>
+          <noscript>
+            <iframe
+              src="https://www.googletagmanager.com/ns.html?id=GTM-N6MK2T96"
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+              title="Google Tag Manager"
+            />
+          </noscript>
+          <PersonJsonLd />
+          <WebSiteJsonLd />
+          <MotionProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode.
+                  The palette needs no provider - usePalette is an external-store hook. */}
+              <AmbientBackground />
+              <main>{children}</main>
+              <ScrollToTop />
+              <AnalyticsPreferences />
+            </ThemeProvider>
+          </MotionProvider>
+          <HashScrollFix />
+          <VercelAnalytics />
+          <SpeedInsights />
+          <GoogleAnalytics />
+        </MyStatsig>
       </body>
     </html>
   );
