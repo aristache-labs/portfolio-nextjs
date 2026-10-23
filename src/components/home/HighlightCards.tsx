@@ -1,10 +1,13 @@
 "use client";
 
+import actionStyles from "./project-actions.module.css";
+
 import Image from "next/image";
 import { ExternalLink, GitFork, Github, Maximize2, Star } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
+import { COMPACT_PROJECT_ACTION } from "./project-styles";
 
 /** "Oct 2026". Fixed to UTC so the server render and the browser agree on the month. */
 export function formatUpdated(date: Date): string {
@@ -37,29 +40,25 @@ function Cover({
   );
 }
 
-function MetaLine({ label, project }: { label: string; project: MergedProject }) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span className="text-xs font-semibold tracking-wider text-(--accent-on-chip) uppercase">
-        {label}
-      </span>
-      <span aria-hidden className="text-muted text-xs">
-        ·
-      </span>
-      <Stats project={project} />
-    </div>
-  );
-}
-
 function Stats({ project }: { project: MergedProject }) {
   return (
     <div className="text-muted flex shrink-0 items-center gap-3 text-xs">
-      <span className="flex items-center gap-1" aria-label={pluralize(project.stars ?? 0, "star")}>
-        <Star className="size-3.5" aria-hidden /> {project.stars ?? "—"}
-      </span>
-      <span className="flex items-center gap-1" aria-label={pluralize(project.forks ?? 0, "fork")}>
-        <GitFork className="size-3.5" aria-hidden /> {project.forks ?? "—"}
-      </span>
+      {(project.stars ?? 0) > 0 && (
+        <span
+          className="flex items-center gap-1"
+          aria-label={pluralize(project.stars ?? 0, "star")}
+        >
+          <Star className="size-3.5" aria-hidden /> {project.stars ?? "—"}
+        </span>
+      )}
+      {(project.forks ?? 0) > 0 && (
+        <span
+          className="flex items-center gap-1"
+          aria-label={pluralize(project.forks ?? 0, "fork")}
+        >
+          <GitFork className="size-3.5" aria-hidden /> {project.forks ?? "—"}
+        </span>
+      )}
     </div>
   );
 }
@@ -68,19 +67,18 @@ function Stats({ project }: { project: MergedProject }) {
  * The first chip is GitHub's primary language. The rest are the tags stored on the project
  * (admin), the same kind of hand-written labels a site shows beyond the language bar.
  */
+const PRIMARY_TAG =
+  "shrink-0 rounded-full border border-(--brand-deep)/40 bg-(--chip-surface) px-1.5 py-0.5 text-[10px] leading-tight font-semibold text-(--accent-on-chip)";
+
 function Tags({ project }: { project: MergedProject }) {
   if (!project.language && project.tags.length === 0) return null;
   return (
-    <div className="mt-2.5 flex flex-wrap gap-1.5">
-      {project.language && (
-        <span className="rounded-full border border-(--brand-deep)/40 bg-(--chip-surface) px-2 py-0.5 text-xs font-semibold text-(--accent-on-chip)">
-          {project.language}
-        </span>
-      )}
+    <div className="ml-auto flex min-w-0 basis-[max-content] flex-wrap justify-end gap-1.5 [&>span]:px-2.5 [&>span]:py-1 [&>span]:text-[12px]">
+      {project.language && <span className={PRIMARY_TAG}>{project.language}</span>}
       {project.tags.map((tag) => (
         <span
           key={tag}
-          className="border-border text-muted rounded-full border bg-(--chip-surface) px-2 py-0.5 text-xs"
+          className="border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[10px] leading-tight"
         >
           {tag}
         </span>
@@ -89,30 +87,47 @@ function Tags({ project }: { project: MergedProject }) {
   );
 }
 
-function Actions({ project, onQuickView }: { project: MergedProject; onQuickView: () => void }) {
+function Actions({
+  project,
+  onQuickView,
+  compact = false,
+}: {
+  project: MergedProject;
+  onQuickView: () => void;
+  compact?: boolean;
+}) {
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
+  const compactClass = compact ? COMPACT_PROJECT_ACTION : undefined;
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2">
+    <div
+      className={`${actionStyles.actions} ${compact ? "mt-2" : "mt-4"} flex flex-wrap items-center gap-2`}
+    >
       <Button
+        className={compactClass}
         size="sm"
         onClick={onQuickView}
         leftIcon={<Maximize2 className="size-3.5" aria-hidden />}
       >
-        Quick view
+        View
       </Button>
       <Button
         href={githubUrl}
+        title="View code on GitHub"
+        className={compactClass}
         variant="secondary"
         size="sm"
         target="_blank"
         rel="noopener noreferrer"
-        leftIcon={<Github className="size-3.5" aria-hidden />}
+        leftIcon={
+          <Github style={{ width: compact ? 16 : 20, height: compact ? 16 : 20 }} aria-hidden />
+        }
       >
-        Code
+        <span className="sr-only">Code</span>
       </Button>
       {project.homepage && (
         <Button
           href={project.homepage}
+          className={compactClass}
           variant="ghost"
           size="sm"
           target="_blank"
@@ -121,6 +136,14 @@ function Actions({ project, onQuickView }: { project: MergedProject; onQuickView
         >
           Live
         </Button>
+      )}
+      {compact && project.pushedAt && (
+        <time
+          dateTime={project.pushedAt.toISOString()}
+          className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[10px] tracking-[0.04em] uppercase"
+        >
+          {formatUpdated(project.pushedAt)}
+        </time>
       )}
     </div>
   );
@@ -139,18 +162,29 @@ export function FeaturedCard({
 }) {
   return (
     <article className={`${SHELL} flex flex-col`}>
+      <span className="pointer-events-none absolute top-[25px] -right-[39px] z-20 flex h-[30px] w-[160px] rotate-45 items-center justify-center border-y border-(--brand-mid)/50 bg-(--brand-deep) text-[11px] font-bold tracking-[0.12em] text-white shadow-sm">
+        FEATURED
+      </span>
       <div className="border-border relative aspect-video w-full shrink-0 overflow-hidden border-b">
         <Cover project={project} sizes="(max-width: 1024px) 100vw, 48rem" fit="object-cover" />
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <MetaLine label="Featured" project={project} />
-        <h3 className="mt-2 line-clamp-1 text-lg leading-snug font-bold">{project.title}</h3>
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <h3 className="max-w-full min-w-0 text-lg leading-snug font-bold break-words">
+            {project.title}
+          </h3>
+          <Tags project={project} />
+        </div>
+        {((project.stars ?? 0) > 0 || (project.forks ?? 0) > 0) && (
+          <div className="mt-2">
+            <Stats project={project} />
+          </div>
+        )}
         {project.description && (
           <p className="text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty">
             {project.description}
           </p>
         )}
-        <Tags project={project} />
         <div className="mt-auto">
           <Actions project={project} onQuickView={onQuickView} />
         </div>
@@ -159,7 +193,7 @@ export function FeaturedCard({
   );
 }
 
-/** Compact card: preview on the left, then the update line, title, description and actions. */
+/** Compact card with a shared title/update row and smaller actions. */
 export function RecentCard({
   project,
   onQuickView,
@@ -170,8 +204,10 @@ export function RecentCard({
   priority?: boolean;
 }) {
   return (
-    <article className={`${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4`}>
-      <div className="ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch">
+    <article
+      className={`${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
+    >
+      <div className="ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full">
         <Cover
           project={project}
           sizes="(max-width: 640px) 100vw, 192px"
@@ -180,21 +216,25 @@ export function RecentCard({
         />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <MetaLine
-          label={project.pushedAt ? `Updated ${formatUpdated(project.pushedAt)}` : "Project"}
-          project={project}
-        />
-        <h3 className="mt-1.5 line-clamp-1 text-[1.0625rem] leading-snug font-bold">
-          {project.title}
-        </h3>
+        <div className="flex min-w-0 items-baseline justify-between gap-2">
+          <h3
+            title={project.title}
+            className="min-w-0 truncate text-[15px] leading-snug font-semibold"
+          >
+            {project.title}
+          </h3>
+          {(project.language || project.tags[0]) && (
+            <span className={PRIMARY_TAG}>{project.language || project.tags[0]}</span>
+          )}
+        </div>
+        {((project.stars ?? 0) > 0 || (project.forks ?? 0) > 0) && <Stats project={project} />}
         {project.description && (
           <p className="text-muted mt-1.5 line-clamp-2 text-sm leading-relaxed text-pretty">
             {project.description}
           </p>
         )}
-        <Tags project={project} />
         <div className="mt-auto">
-          <Actions project={project} onQuickView={onQuickView} />
+          <Actions project={project} onQuickView={onQuickView} compact />
         </div>
       </div>
     </article>

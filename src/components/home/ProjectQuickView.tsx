@@ -193,18 +193,22 @@ export function ProjectQuickView({
           <div className="flex items-start justify-between gap-3">
             <DialogTitle>{project.title}</DialogTitle>
             <div className="text-muted flex shrink-0 items-center gap-3 text-sm">
-              <span
-                className="flex items-center gap-1"
-                aria-label={pluralize(project.stars ?? 0, "star")}
-              >
-                <Star className="size-4" aria-hidden /> {project.stars ?? "—"}
-              </span>
-              <span
-                className="flex items-center gap-1"
-                aria-label={pluralize(project.forks ?? 0, "fork")}
-              >
-                <GitFork className="size-4" aria-hidden /> {project.forks ?? "—"}
-              </span>
+              {(project.stars ?? 0) > 0 && (
+                <span
+                  className="flex items-center gap-1"
+                  aria-label={pluralize(project.stars ?? 0, "star")}
+                >
+                  <Star className="size-4" aria-hidden /> {project.stars ?? "—"}
+                </span>
+              )}
+              {(project.forks ?? 0) > 0 && (
+                <span
+                  className="flex items-center gap-1"
+                  aria-label={pluralize(project.forks ?? 0, "fork")}
+                >
+                  <GitFork className="size-4" aria-hidden /> {project.forks ?? "—"}
+                </span>
+              )}
             </div>
           </div>
           {blurb && <DialogDescription className="line-clamp-3">{blurb}</DialogDescription>}

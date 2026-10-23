@@ -41,10 +41,10 @@ describe("ProjectCard", () => {
     expect(screen.getByLabelText("1 fork")).toBeInTheDocument();
   });
 
-  it("labels absent counts as zero, in the plural", () => {
+  it("hides absent counts", () => {
     render(<ProjectCard project={{ ...base, stars: null, forks: null }} />);
-    expect(screen.getByLabelText("0 stars")).toBeInTheDocument();
-    expect(screen.getByLabelText("0 forks")).toBeInTheDocument();
+    expect(screen.queryByLabelText("0 stars")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("0 forks")).not.toBeInTheDocument();
   });
 
   it("omits the Live link when there is no homepage", () => {
@@ -57,10 +57,9 @@ describe("ProjectCard", () => {
     expect(screen.getByText("Live")).toBeInTheDocument();
   });
 
-  it("renders null stats as em-dash", () => {
+  it("does not render placeholders for missing stats", () => {
     render(<ProjectCard project={{ ...base, stars: null, forks: null }} />);
-    const dashes = screen.getAllByText("—");
-    expect(dashes).toHaveLength(2);
+    expect(screen.queryByText("—")).not.toBeInTheDocument();
   });
 
   it("renders the project title", () => {

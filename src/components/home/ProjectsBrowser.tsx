@@ -6,13 +6,14 @@ import { ProjectCard } from "./ProjectCard";
 import { FeaturedCard, RecentCard } from "./HighlightCards";
 import { ProjectQuickView } from "./ProjectQuickView";
 import type { MergedProject } from "@/lib/projects";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ALL = "All";
 // Featured on the left, most recently pushed on the right. Both columns are capped so the
 // block stays compact; everything else falls through to the filterable grid below.
 const MAX_FEATURED = 2;
-const MAX_RECENT = 5;
-const PAGE_SIZE = 9;
+const MAX_RECENT = 8;
+const PAGE_SIZE = 4;
 
 // One flex column per side. Featured covers keep their own aspect ratio.
 const TRACK = "flex flex-1 flex-col gap-4";
@@ -29,7 +30,12 @@ function ColumnLabel({ children }: { children: string }) {
  */
 export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const [language, setLanguage] = useState(ALL);
-  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(PAGE_SIZE);
+  const [landscapeLimit, setLandscapeLimit] = useState(4);
+  const mobileLandscape = useMediaQuery(
+    "(orientation: landscape) and (max-width: 1023px) and (max-height: 500px) and (pointer: coarse)",
+  );
+  const recentLimit = mobileLandscape ? landscapeLimit : MAX_RECENT;
   const [quickView, setQuickView] = useState<MergedProject | null>(null);
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
@@ -68,19 +74,17 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   }, [projects]);
 
   const filtered = language === ALL ? rest : rest.filter((p) => p.language === language);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, pageCount - 1);
-  const visible = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  const visible = filtered.slice(0, limit);
 
   function selectLanguage(name: string) {
     setLanguage(name);
-    setPage(0);
+    setLimit(PAGE_SIZE);
   }
 
   return (
     <>
       {(featured.length > 0 || recent.length > 0) && (
-        <div className="mb-10 grid items-stretch gap-8 lg:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:gap-4">
+        <div className="mb-10 grid items-start gap-6 lg:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:gap-4">
           {featured.length > 0 && (
             <div className="flex flex-col">
               <ColumnLabel>Featured</ColumnLabel>
@@ -97,13 +101,30 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           {recent.length > 0 && (
             <div className="flex flex-col">
               <ColumnLabel>Recently updated</ColumnLabel>
-              <div className={TRACK}>
-                {recent.map((p, i) => (
-                  <Reveal key={p.id} delay={0.1 + i * 0.05} className="flex lg:flex-1">
+              <div className="grid gap-4 lg:grid-cols-2">
+                {recent.slice(0, recentLimit).map((p, i) => (
+                  <Reveal
+                    key={p.id}
+                    distance={12}
+                    duration={0.4}
+                    delay={Math.min(i * 0.03, 0.12)}
+                    className="flex min-w-0"
+                  >
                     <RecentCard project={p} onQuickView={() => setQuickView(p)} />
                   </Reveal>
                 ))}
               </div>
+              {recent.length > recentLimit && (
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setLandscapeLimit((n) => n + 4)}
+                    className="border-border text-foreground hover:border-brand-mid/50 min-h-[44px] rounded-xl border px-5 py-3 text-sm font-medium transition-colors"
+                  >
+                    Show more recently updated
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -143,28 +164,16 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             ))}
           </div>
 
-          {pageCount > 1 && (
-            <nav aria-label="Project pages" className="mt-8 flex items-center justify-center gap-2">
-              {Array.from({ length: pageCount }, (_, i) => {
-                const active = i === safePage;
-                return (
-                  <button
-                    key={i}
-                    type="button"
-                    aria-label={`Page ${i + 1}`}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => setPage(i)}
-                    className={
-                      active
-                        ? "grid size-8 place-items-center rounded-full border border-(--brand-deep)/50 bg-(--chip-surface) text-xs font-semibold text-(--accent-on-chip)"
-                        : "border-border text-muted hover:text-foreground grid size-8 place-items-center rounded-full border text-xs font-medium"
-                    }
-                  >
-                    {i + 1}
-                  </button>
-                );
-              })}
-            </nav>
+          {filtered.length > limit && (
+            <div className="mt-8 text-center">
+              <button
+                type="button"
+                onClick={() => setLimit((n) => n + PAGE_SIZE)}
+                className="border-border text-foreground hover:border-brand-mid/50 min-h-[44px] rounded-xl border px-5 py-3 text-sm font-medium transition-colors"
+              >
+                Show more projects
+              </button>
+            </div>
           )}
 
           {filtered.length === 0 && (

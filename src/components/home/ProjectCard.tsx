@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import actionStyles from "./project-actions.module.css";
+
 import { Star, GitFork, ExternalLink, Github, Maximize2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Meteors } from "@/components/ui/Meteors";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
+import { COMPACT_PROJECT_ACTION, COMPACT_PROJECT_TAGS } from "./project-styles";
 
 export type { MergedProject };
 
@@ -17,20 +18,14 @@ export function ProjectCard({
   project: MergedProject;
   onQuickView?: () => void;
 }) {
-  const [hover, setHover] = useState(false);
-
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
   const blurb = project.description ?? "";
 
   return (
     <Card
       as="article"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
       className="group bg-surface relative flex h-full flex-col overflow-hidden border-(--brand-mid)/30 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-(--brand-mid)/55"
     >
-      {hover && <Meteors number={10} />}
-
       <div className="relative z-10 flex flex-1 flex-col">
         {/* Featured badge: more projects are flagged featured than the showcase above
             can hold, so the ones that land in the grid still say so. */}
@@ -42,20 +37,24 @@ export function ProjectCard({
 
         {/* Title + stats row */}
         <div className="flex items-start justify-between gap-3">
-          <h3 className="min-w-0 text-lg leading-snug font-bold">{project.title}</h3>
+          <h3 className="min-w-0 text-[15px] leading-snug font-semibold">{project.title}</h3>
           <div className="text-muted flex shrink-0 items-center gap-3 text-xs">
-            <span
-              className="flex items-center gap-1"
-              aria-label={pluralize(project.stars ?? 0, "star")}
-            >
-              <Star className="size-3.5" aria-hidden /> {project.stars ?? "—"}
-            </span>
-            <span
-              className="flex items-center gap-1"
-              aria-label={pluralize(project.forks ?? 0, "fork")}
-            >
-              <GitFork className="size-3.5" aria-hidden /> {project.forks ?? "—"}
-            </span>
+            {(project.stars ?? 0) > 0 && (
+              <span
+                className="flex items-center gap-1"
+                aria-label={pluralize(project.stars ?? 0, "star")}
+              >
+                <Star className="size-3.5" aria-hidden /> {project.stars ?? "—"}
+              </span>
+            )}
+            {(project.forks ?? 0) > 0 && (
+              <span
+                className="flex items-center gap-1"
+                aria-label={pluralize(project.forks ?? 0, "fork")}
+              >
+                <GitFork className="size-3.5" aria-hidden /> {project.forks ?? "—"}
+              </span>
+            )}
           </div>
         </div>
 
@@ -68,7 +67,7 @@ export function ProjectCard({
 
         {/* Tech tags */}
         {(project.language || project.tags.length > 0) && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
+          <div className={`${COMPACT_PROJECT_TAGS} mt-2.5 flex flex-wrap gap-1.5`}>
             {project.language && (
               // Opaque brand-tinted chip: --chip-surface is a subtle violet
               // wash (not flat black) that blocks the moving ambient gradient
@@ -89,28 +88,32 @@ export function ProjectCard({
         )}
 
         {/* Action links */}
-        <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+        <div className={`${actionStyles.actions} mt-auto flex flex-wrap items-center gap-2 pt-4`}>
           {onQuickView && (
             <Button
+              className={COMPACT_PROJECT_ACTION}
               size="sm"
               onClick={onQuickView}
               leftIcon={<Maximize2 className="size-3.5" aria-hidden />}
             >
-              Quick view
+              View
             </Button>
           )}
           <Button
+            className={COMPACT_PROJECT_ACTION}
             href={githubUrl}
+            title="View code on GitHub"
             variant="secondary"
             size="sm"
             target="_blank"
             rel="noopener noreferrer"
             leftIcon={<Github className="size-3.5" aria-hidden />}
           >
-            Code
+            <span className="sr-only">Code</span>
           </Button>
           {project.homepage && (
             <Button
+              className={COMPACT_PROJECT_ACTION}
               href={project.homepage}
               variant="ghost"
               size="sm"
