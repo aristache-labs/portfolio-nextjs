@@ -42,6 +42,19 @@ export { getProjects as getProjectsMerged };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+/** Navigation and footer need no GitHub statistics or experience history. */
+export async function getNavigationProfile() {
+  const [row] = await db
+    .select({ email: profile.email, sectionVisibility: profile.sectionVisibility })
+    .from(profile)
+    .limit(1);
+  if (!row) throw new Error("Profile row not found");
+  return {
+    email: row.email ?? null,
+    sectionVisibility: (row.sectionVisibility as Record<string, boolean>) ?? {},
+  };
+}
+
 export async function getProfile(): Promise<{
   name: string;
   email: string | null;
@@ -61,7 +74,10 @@ export async function getProfile(): Promise<{
 
   // Served from the last-known-good cache row so they never flash blank, falling back to the
   // seeded stats only on a cold cache with a failed first fetch.
-  const userStats = await getCachedUserStats(GITHUB_USERNAME);
+  const [userStats, periods] = await Promise.all([
+    getCachedUserStats(GITHUB_USERNAME),
+    db.select({ period: experiences.period }).from(experiences),
+  ]);
   const followers = userStats ? userStats.followers : Number(s.followers ?? 0);
   const repos =
     userStats && userStats.publicRepos > 0 ? userStats.publicRepos : Number(s.repos ?? 0);
@@ -70,7 +86,6 @@ export async function getProfile(): Promise<{
   // Years is NOT GitHub-derived: it is professional experience, taken from the experience
   // rows. GitHub's first-contribution year answers a different question (how long the
   // account has existed) and counted hobby years as professional ones.
-  const periods = await db.select({ period: experiences.period }).from(experiences);
   const years = professionalYears(periods.map((p) => p.period)) ?? Number(s.years ?? 0);
 
   return {

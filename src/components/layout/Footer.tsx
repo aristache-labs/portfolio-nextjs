@@ -137,7 +137,8 @@ export function Footer({
             <ul className="mx-auto mt-2 grid w-full max-w-[280px] grid-cols-2 gap-x-2 gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-2">
               {LINKS.map((link) => (
                 <li key={link.href} className={link.href === "#contact" ? "col-span-2" : undefined}>
-                  <a
+                  <Link
+                    scroll={!homeHrefPrefix}
                     href={`${homeHrefPrefix}${link.href}`}
                     className={`group flex min-h-11 items-center justify-center gap-1.5 rounded-md py-1 text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
                   >
@@ -146,7 +147,7 @@ export function Footer({
                       aria-hidden
                     />
                     <span>{link.label}</span>
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

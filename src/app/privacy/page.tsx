@@ -11,7 +11,7 @@ import {
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
-import { getProfile, getFundingLinks, getSocialLinks } from "@/lib/queries";
+import { getNavigationProfile, getFundingLinks, getSocialLinks } from "@/lib/queries";
 import styles from "./privacy.module.css";
 import { SITE } from "@/lib/seo/site";
 
@@ -49,7 +49,7 @@ export const revalidate = 43200;
 
 export default async function PrivacyPage() {
   const [profile, funding, socials] = await Promise.all([
-    getProfile(),
+    getNavigationProfile(),
     getFundingLinks(),
     getSocialLinks(),
   ]);

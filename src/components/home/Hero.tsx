@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +11,7 @@ import { SocialGlyph } from "./social-icons";
 import { IconTile } from "@/components/ui/IconTile";
 import { SectionEdge } from "./SectionBackdrop";
 import styles from "./hero-motion.module.css";
+import { scrollToSection } from "@/lib/scroll-to-section";
 export type HeroProfile = {
   name: string;
   roles: string[];
@@ -72,6 +73,16 @@ export function Hero({
   socials?: { platform: string; url: string }[];
 }) {
   const reduce = useReducedMotion();
+  const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
+  useEffect(() => () => stopAnchorScroll.current?.(), []);
+  const navigateToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    if (!document.getElementById(id)) return;
+    event.preventDefault();
+    stopAnchorScroll.current?.();
+    stopAnchorScroll.current = scrollToSection(id, reduce);
+  };
   const typed = useTypewriter(GREETING, reduce);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
@@ -319,6 +330,7 @@ export function Hero({
                 variant="primary"
                 size="lg"
                 href="#projects"
+                onClick={(event) => navigateToSection(event, "projects")}
                 className="rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] max-sm:w-full [@media(max-height:500px)]:py-2"
               >
                 Explore Projects
@@ -331,6 +343,7 @@ export function Hero({
                   variant="secondary"
                   size="lg"
                   href="#contact"
+                  onClick={(event) => navigateToSection(event, "contact")}
                   className="border-foreground/20 bg-foreground/3 rounded-2xl px-4 py-3.5 backdrop-blur-md hover:border-(--brand-mid)/60 hover:bg-(--brand-mid)/10 max-sm:w-full sm:px-7 [@media(max-height:500px)]:py-2"
                 >
                   Get in Touch

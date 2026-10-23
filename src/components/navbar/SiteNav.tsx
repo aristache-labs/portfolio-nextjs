@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, m } from "framer-motion";
 import {
@@ -22,6 +23,7 @@ import { cn } from "@/utils/cn";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
+import { scrollToSection } from "@/lib/scroll-to-section";
 import type { MenuSection } from "./MenuOverlay";
 import motionCss from "./support-motion.module.css";
 import navStyles from "./nav-landscape.module.css";
@@ -77,6 +79,8 @@ export function SiteNav({
   const [scrolled, setScrolled] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
+  useEffect(() => () => stopAnchorScroll.current?.(), [onHomepage]);
   const showContact = visibleSections.some((s) => s.id === "contact");
   const sponsor = sponsorUrl?.trim();
   const navCta = sponsor
@@ -90,10 +94,18 @@ export function SiteNav({
   // any scroll already in flight, so a scroll started on click never gets anywhere on a phone.
   const pendingId = useRef<string | null>(null);
   const goToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    if (!onHomepage) {
+      setOpen(false);
+      return;
+    }
     const target = document.getElementById(id);
     if (target) {
       event.preventDefault();
-      pendingId.current = id;
+      stopAnchorScroll.current?.();
+      if (open) pendingId.current = id;
+      else stopAnchorScroll.current = scrollToSection(id, reduce);
     }
     setOpen(false);
   };
@@ -102,10 +114,8 @@ export function SiteNav({
     pendingId.current = null;
     const target = document.getElementById(id ?? "");
     if (!id || !target) return;
-    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-    // After the panel has collapsed, so Framer's scroll reset cannot cancel the scroll. Keeps
-    // Next's own history state so its router stays in sync.
-    window.history.replaceState(window.history.state, "", `#${id}`);
+    stopAnchorScroll.current?.();
+    stopAnchorScroll.current = scrollToSection(id, reduce);
   };
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -196,8 +206,10 @@ export function SiteNav({
           aria-label="Primary"
           className="site-container flex h-[72px] items-center justify-between"
         >
-          <a
+          <Link
+            scroll={onHomepage}
             href={sectionHref("hero")}
+            onClick={(event) => goToSection(event, "hero")}
             aria-label="Home"
             className={cn("flex min-w-0 items-center gap-2.5", open && panelStyles.dimmedLogo)}
           >
@@ -211,15 +223,17 @@ export function SiteNav({
               unoptimized
               className="h-auto w-[min(42vw,14rem)]"
             />
-          </a>
+          </Link>
 
           <ul className="hidden items-center gap-8 xl:flex">
             {visibleSections.map((section) => {
               const isActive = section.id === active;
               return (
                 <li key={section.id}>
-                  <a
+                  <Link
+                    scroll={onHomepage}
                     href={sectionHref(section.id)}
+                    onClick={(event) => goToSection(event, section.id)}
                     className={cn(
                       "group relative text-[15px] transition-colors",
                       isActive
@@ -236,15 +250,16 @@ export function SiteNav({
                           : "w-0 group-hover:w-full",
                       )}
                     />
-                  </a>
+                  </Link>
                 </li>
               );
             })}
           </ul>
 
           {navCta && (
-            <a
+            <Link
               href={navCta.href}
+              onClick={navCta.external ? undefined : (event) => goToSection(event, "contact")}
               {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
             >
@@ -261,7 +276,7 @@ export function SiteNav({
               {!navCta.external && (
                 <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
               )}
-            </a>
+            </Link>
           )}
 
           <button
@@ -295,7 +310,8 @@ export function SiteNav({
                       const Icon = SECTION_ICONS[section.id] ?? Layers;
                       return (
                         <li key={section.id} data-section={section.id}>
-                          <a
+                          <Link
+                            scroll={onHomepage}
                             href={sectionHref(section.id)}
                             data-testid="mobile-section-link"
                             aria-current={section.id === active ? "location" : undefined}
@@ -310,7 +326,7 @@ export function SiteNav({
                             </span>
                             <span>{section.label}</span>
                             <ArrowUpRight aria-hidden className={panelStyles.arrow} />
-                          </a>
+                          </Link>
                         </li>
                       );
                     })}
@@ -329,9 +345,12 @@ export function SiteNav({
                         ? "Support the tools and ideas that come next."
                         : "Have a project in mind? Let's talk."}
                     </p>
-                    <a
+                    <Link
                       href={navCta.href}
-                      onClick={() => setOpen(false)}
+                      onClick={(event) => {
+                        if (navCta.external) setOpen(false);
+                        else goToSection(event, "contact");
+                      }}
                       {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className={panelStyles.cta}
                     >
@@ -346,7 +365,7 @@ export function SiteNav({
                       )}
                       {navCta.label}
                       <ArrowRight className="ml-auto size-4" aria-hidden />
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>

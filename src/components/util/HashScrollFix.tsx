@@ -1,47 +1,55 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
-/**
- * The native hash jump fires before the page reaches its final height - lazy sections and
- * scroll-reveal growth keep pushing the target down - so a single scroll lands wrong. Polls
- * until the target's offset is stable across several ticks instead.
- */
+/** Position cross-page anchors without animating through the whole homepage. */
 export function HashScrollFix() {
+  const pathname = usePathname();
+
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash || hash.length < 2) return;
-    const id = decodeURIComponent(hash.slice(1));
+    let id: string;
+    try {
+      id = decodeURIComponent(hash.slice(1));
+    } catch {
+      return;
+    }
 
-    let lastTop = Number.NaN;
-    let stableTicks = 0;
-    let elapsed = 0;
-    const STEP = 100;
-    const MAX = 3000; // give up after 3s
-    const STABLE_REQUIRED = 4; // ~400ms of no movement
-
+    let lastPosition: number | undefined;
+    let attempts = 0;
     const tick = () => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: "auto", block: "start" });
-        const top = Math.round(el.getBoundingClientRect().top);
-        if (Math.abs(top - lastTop) < 2) stableTicks += 1;
-        else stableTicks = 0;
-        lastTop = top;
-        if (stableTicks >= STABLE_REQUIRED) {
-          clearInterval(timer);
-          return;
+      const target = document.getElementById(id);
+      if (target) {
+        const position = target.getBoundingClientRect().top + window.scrollY;
+        if (lastPosition === undefined || Math.abs(position - lastPosition) > 2) {
+          target.scrollIntoView({ behavior: "instant", block: "start" });
+          lastPosition = position;
         }
       }
-      elapsed += STEP;
-      if (elapsed >= MAX) clearInterval(timer);
+      if (++attempts >= 20) clearInterval(timer);
     };
 
-    const timer = setInterval(tick, STEP);
+    const timer = setInterval(tick, 100);
+    const stop = () => clearInterval(timer);
+    const onKey = (event: KeyboardEvent) => {
+      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key))
+        stop();
+    };
     tick();
-
-    return () => clearInterval(timer);
-  }, []);
+    window.addEventListener("wheel", stop, { passive: true });
+    window.addEventListener("touchmove", stop, { passive: true });
+    window.addEventListener("pointerdown", stop, { passive: true });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      stop();
+      window.removeEventListener("wheel", stop);
+      window.removeEventListener("touchmove", stop);
+      window.removeEventListener("pointerdown", stop);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [pathname]);
 
   return null;
 }
