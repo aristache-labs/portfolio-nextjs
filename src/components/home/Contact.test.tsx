@@ -100,7 +100,7 @@ describe("Contact", () => {
 
   it("renders only the email and linkedin cards", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    expect(screen.getByLabelText("linkedin: aristache-labs")).toBeTruthy();
+    expect(screen.getByRole("link", { name: /^linkedin aristache-labs$/i })).toBeTruthy();
     expect(screen.queryByLabelText("github: aristache-labs")).toBeNull();
     expect(screen.queryByLabelText("twitter: aristache-labs")).toBeNull();
     expect(screen.queryByText(/other ways to connect/i)).toBeNull();
@@ -108,7 +108,7 @@ describe("Contact", () => {
 
   it("opens the linkedin card in a new tab", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    const linkedin = screen.getByLabelText("linkedin: aristache-labs");
+    const linkedin = screen.getByRole("link", { name: /^linkedin aristache-labs$/i });
     expect(linkedin.getAttribute("href")).toBe("https://linkedin.com/in/aristache-labs");
     expect(linkedin.getAttribute("target")).toBe("_blank");
     expect(linkedin.getAttribute("rel")).toBe("noopener noreferrer");
