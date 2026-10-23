@@ -5,6 +5,7 @@ import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { SectionBackdrop } from "./SectionBackdrop";
 import statsCss from "./about-stats.module.css";
+import { AboutBio } from "./AboutBio";
 
 export type AboutProfile = {
   bio: string;
@@ -114,24 +115,7 @@ export function About({ profile }: { profile: AboutProfile }) {
           </div>
         </div>
         <div className={statsCss.copy}>
-          <div className="space-y-4">
-            {profile.bio
-              .split(/\n\s*\n/)
-              .map((para) => para.trim())
-              .filter(Boolean)
-              .map((para, i) => (
-                <p
-                  key={`bio-${i}`}
-                  className={
-                    i === 0
-                      ? "text-base leading-relaxed text-white/100 sm:text-lg"
-                      : "text-muted text-base leading-relaxed text-white/60 sm:text-lg"
-                  }
-                >
-                  {para}
-                </p>
-              ))}
-          </div>
+          <AboutBio bio={profile.bio} />
         </div>
       </Reveal>
       <div>

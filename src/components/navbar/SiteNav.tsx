@@ -107,7 +107,7 @@ export function SiteNav({
           <m.div
             key="menu-backdrop"
             aria-hidden
-            onClick={(event) => (navCta.external ? setOpen(false) : goToSection(event, "contact"))}
+            onClick={() => setOpen(false)}
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={reduce ? undefined : { opacity: 0 }}
