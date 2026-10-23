@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import { AnimatePresence, m } from "framer-motion";
-import { ArrowRight, Menu, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Menu, X } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -11,6 +11,7 @@ import { Logo } from "@/components/brand/Logo";
 import type { MenuSection } from "./MenuOverlay";
 import motionCss from "./support-motion.module.css";
 import navStyles from "./nav-landscape.module.css";
+import panelStyles from "./nav-panel.module.css";
 
 const WORDMARK = { src: "/brand/aristache-text.svg", width: 992, height: 175 } as const;
 
@@ -47,6 +48,7 @@ export function SiteNav({
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const showContact = visibleSections.some((s) => s.id === "contact");
   const sponsor = sponsorUrl?.trim();
   const navCta = sponsor
@@ -87,7 +89,10 @@ export function SiteNav({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        menuButtonRef.current?.focus();
+      }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -102,7 +107,7 @@ export function SiteNav({
           <m.div
             key="menu-backdrop"
             aria-hidden
-            onClick={() => setOpen(false)}
+            onClick={(event) => (navCta.external ? setOpen(false) : goToSection(event, "contact"))}
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={reduce ? undefined : { opacity: 0 }}
@@ -191,10 +196,12 @@ export function SiteNav({
           )}
 
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
+            aria-controls="mobile-navigation"
             className={`${navStyles.menu} border-border bg-background/40 text-foreground flex size-11 shrink-0 items-center justify-center rounded-xl border backdrop-blur-md xl:hidden`}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -204,37 +211,54 @@ export function SiteNav({
         <AnimatePresence onExitComplete={scrollToPending}>
           {open && (
             <m.div
+              id="mobile-navigation"
               initial={reduce ? false : { height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={reduce ? undefined : { height: 0, opacity: 0 }}
               transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
-              className="border-border bg-background/80 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden"
+              className="border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden"
             >
-              <ul className="site-container space-y-1 py-4 [@media(max-height:500px)]:py-2">
-                {visibleSections.map((section) => (
-                  <li key={section.id}>
-                    <a
-                      href={`#${section.id}`}
-                      data-testid="mobile-section-link"
-                      onClick={(e) => goToSection(e, section.id)}
-                      className={cn(
-                        "block rounded-lg px-3 py-2.5 text-[15px] transition-colors [@media(max-height:500px)]:py-0.5 [@media(max-height:500px)]:text-sm/[1.8]",
-                        section.id === active
-                          ? "bg-(--brand-mid)/15 text-(--brand-bright)"
-                          : "text-foreground/75 hover:bg-foreground/5 hover:text-foreground",
-                      )}
-                    >
-                      {section.label}
-                    </a>
-                  </li>
-                ))}
+              <div className={`site-container ${panelStyles.content}`}>
+                <nav aria-label="Mobile navigation">
+                  <p className={panelStyles.eyebrow}>Explore the portfolio</p>
+                  <ul className={panelStyles.links}>
+                    {visibleSections.map((section, index) => (
+                      <li key={section.id}>
+                        <a
+                          href={`#${section.id}`}
+                          data-testid="mobile-section-link"
+                          aria-current={section.id === active ? "location" : undefined}
+                          onClick={(e) => goToSection(e, section.id)}
+                          className={cn(
+                            panelStyles.link,
+                            section.id === active && panelStyles.active,
+                          )}
+                        >
+                          <span aria-hidden className={panelStyles.number}>
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span>{section.label}</span>
+                          <ArrowUpRight aria-hidden className={panelStyles.arrow} />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
                 {navCta && (
-                  <li className="pt-2">
+                  <div className={panelStyles.action}>
+                    <p className={panelStyles.eyebrow}>
+                      {navCta.external ? "Independent development" : "Start a conversation"}
+                    </p>
+                    <p className={panelStyles.actionDescription}>
+                      {navCta.external
+                        ? "Support the tools and ideas that come next."
+                        : "Have a project in mind? Let's talk."}
+                    </p>
                     <a
                       href={navCta.href}
                       onClick={() => setOpen(false)}
                       {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                      className="text-foreground focus-visible:ring-brand-bright/70 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-(--brand-deep) px-5 py-3 text-sm font-semibold focus-visible:ring-2 focus-visible:outline-none"
+                      className={panelStyles.cta}
                     >
                       {navCta.external && (
                         <Image
@@ -246,11 +270,11 @@ export function SiteNav({
                         />
                       )}
                       {navCta.label}
-                      {!navCta.external && <ArrowRight className="size-4" />}
+                      <ArrowRight className="ml-auto size-4" aria-hidden />
                     </a>
-                  </li>
+                  </div>
                 )}
-              </ul>
+              </div>
             </m.div>
           )}
         </AnimatePresence>

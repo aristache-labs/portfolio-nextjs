@@ -360,7 +360,7 @@ export function Hero({
             {iconSocials.length > 0 && (
               <m.div
                 {...fadeUp(reduce, 0.9)}
-                className="mt-5 flex shrink-0 flex-wrap items-center gap-3 [@media(max-height:500px)]:mt-2 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0"
+                className={`${styles.socialLinks} mt-5 flex shrink-0 flex-wrap items-center gap-3 [@media(max-height:500px)]:mt-2 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
               >
                 {iconSocials.map((s) => {
                   const external = s.url.startsWith("http");

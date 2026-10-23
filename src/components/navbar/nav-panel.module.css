@@ -1,0 +1,136 @@
+.content {
+  display: grid;
+  gap: 24px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.eyebrow {
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.links {
+  display: grid;
+  margin-top: 12px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 50px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgb(255 255 255 / 0.07);
+  border-radius: 8px;
+  color: var(--foreground);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  transition:
+    background-color 180ms,
+    color 180ms;
+}
+
+.number {
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.arrow {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.link:hover,
+.active {
+  background: rgb(var(--brand-mid-rgb) / 0.1);
+  color: var(--brand-bright);
+}
+
+.active .number,
+.active .arrow {
+  color: var(--brand-bright);
+}
+
+.link:focus-visible,
+.cta:focus-visible {
+  outline: 2px solid var(--brand-mid);
+  outline-offset: 3px;
+}
+
+.action {
+  padding-top: 20px;
+  border-top: 1px solid rgb(var(--brand-mid-rgb) / 0.2);
+}
+
+.actionDescription {
+  max-width: 28ch;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid rgb(var(--brand-mid-rgb) / 0.35);
+  border-radius: 12px;
+  background: rgb(var(--brand-mid-rgb) / 0.1);
+  color: var(--brand-bright);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 180ms;
+}
+
+.cta:hover {
+  background: rgb(var(--brand-mid-rgb) / 0.18);
+}
+
+@media (orientation: landscape) and (min-width: 600px) {
+  .content {
+    grid-template-columns: minmax(0, 1fr) minmax(190px, 0.45fr);
+    align-items: center;
+    gap: 32px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 24px;
+    margin-top: 8px;
+  }
+
+  .link {
+    min-height: 46px;
+    font-size: 18px;
+  }
+
+  .action {
+    padding-top: 0;
+    padding-left: 24px;
+    border-top: 0;
+    border-left: 1px solid rgb(var(--brand-mid-rgb) / 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .cta {
+    transition: none;
+  }
+}

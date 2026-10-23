@@ -163,7 +163,7 @@ export function Footer({
                   rel="noopener noreferrer"
                   className={`group hover:border-brand-mid/45 bg-background/85 hover:bg-background/95 mt-3 flex min-h-[112px] items-center gap-4 rounded-2xl border border-white/15 px-5 py-4 text-left shadow-[0_12px_28px_-18px_rgb(0_0_0/0.65),inset_0_1px_0_rgb(255_255_255/0.05)] backdrop-blur-xl transition-colors duration-300 [@media(orientation:landscape)_and_(max-width:1024px)]:min-h-[88px] [@media(orientation:landscape)_and_(max-width:1024px)]:w-full [@media(orientation:landscape)_and_(max-width:1024px)]:max-w-[280px] [@media(orientation:landscape)_and_(max-width:1024px)]:gap-2 [@media(orientation:landscape)_and_(max-width:1024px)]:self-center [@media(orientation:landscape)_and_(max-width:1024px)]:px-3 [@media(orientation:landscape)_and_(max-width:1024px)]:py-3 ${FOCUS}`}
                 >
-                  <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.03] [@media(orientation:landscape)_and_(max-width:1024px)]:size-9">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.03] [@media(orientation:landscape)_and_(max-width:1024px)]:size-9 [@media(orientation:landscape)_and_(max-width:1024px)]:translate-x-1">
                     <Image
                       src="/icons/heart.svg"
                       alt=""
@@ -172,7 +172,7 @@ export function Footer({
                       className={`${motionCss.heart} size-[18px] object-contain`}
                     />
                   </span>
-                  <span className="min-w-0 flex-1 [@media(orientation:landscape)_and_(max-width:1024px)]:pl-2">
+                  <span className="min-w-0 flex-1 [@media(orientation:landscape)_and_(max-width:1024px)]:pl-4">
                     <span className="text-muted block font-mono text-[10px] tracking-[0.2em] uppercase [@media(orientation:landscape)_and_(max-width:1024px)]:text-[9px] [@media(orientation:landscape)_and_(max-width:1024px)]:tracking-[0.12em]">
                       Independent development
                     </span>
