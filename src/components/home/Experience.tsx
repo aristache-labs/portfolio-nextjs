@@ -13,6 +13,7 @@ import spacing from "./experience-projects-spacing.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+const TIMELINE_SPRING = { stiffness: 120, damping: 30, restDelta: 0.001 };
 
 /** Scroll-in props shared with Skills and Contact; immediately visible when motion is reduced. */
 function rise(reduce: boolean, y: number, duration: number, delay = 0) {
@@ -135,7 +136,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
     target: listRef,
     offset: ["start 70%", "end 60%"],
   });
-  const fill = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
+  const fill = useSpring(scrollYProgress, TIMELINE_SPRING);
   const scaleY = useTransform(fill, [0, 1], [0, 1]);
 
   return (
