@@ -79,6 +79,36 @@ await group("login page renders", async () => {
   await expectContent("/login", ["Cristache Adrian"]);
 });
 
+await group("privacy has its own canonical and is listed in the sitemap", async () => {
+  const { body } = await get("/privacy");
+  const canonical = body.match(/<link\b[^>]*rel="canonical"[^>]*href="([^"]+)"/)?.[1];
+  if (!canonical) {
+    fail("/privacy has no canonical");
+    return;
+  }
+  try {
+    if (new URL(canonical).pathname !== "/privacy") {
+      fail("/privacy canonical does not point to /privacy");
+    }
+  } catch {
+    fail("/privacy canonical is not a valid absolute URL");
+  }
+  const { body: sitemap } = await get("/sitemap.xml");
+  if (!sitemap.includes(`<loc>${canonical}</loc>`)) {
+    fail("sitemap does not include the Privacy canonical");
+  }
+});
+
+await group("missing pages return 404 with noindex and a way home", async () => {
+  const res = await fetch(`${base}/__route-check-missing-page`, { redirect: "manual" });
+  const body = await res.text();
+  if (res.status !== 404) fail(`missing page returned ${res.status}, expected 404`);
+  if (!/<meta\b[^>]*name="robots"[^>]*content="[^"]*noindex/.test(body)) {
+    fail("missing page has no noindex directive");
+  }
+  if (!/<a\b[^>]*href="\/"/.test(body)) fail("missing page has no link to the homepage");
+});
+
 await group("robots, sitemap, manifest and llms routes serve valid content", async () => {
   // robots must keep disallowing /admin and still advertise the sitemap; a
   // generator refactor that drops either is invisible to a status check.

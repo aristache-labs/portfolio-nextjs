@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import Script from "next/script";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ArrowRight, ArrowUpRight, ChevronDown, Mail, RadioTower, Send } from "lucide-react";
@@ -17,14 +16,6 @@ export { platformIcon, type SocialIcon, type SocialRow };
 const SUBJECTS = ["Project Collaboration", "Job Opportunity", "Freelance Work", "General Question"];
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
-
-type TurnstileApi = { reset: () => void };
-
-function resetTurnstile() {
-  (window as unknown as { turnstile?: TurnstileApi }).turnstile?.reset();
-}
 
 type Card = {
   key: string;
@@ -75,31 +66,6 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
   const [error, setError] = useState("");
   const inFlight = useRef(false);
 
-  // Turnstile's ~600 KB script waits until the widget nears the viewport. Latches true once
-  // reached, so it is never removed; with no IntersectionObserver it loads immediately.
-  const turnstileRef = useRef<HTMLDivElement>(null);
-  const [turnstileNear, setTurnstileNear] = useState(false);
-  useEffect(() => {
-    if (turnstileNear) return;
-    if (typeof IntersectionObserver === "undefined") {
-      const t = setTimeout(() => setTurnstileNear(true), 0);
-      return () => clearTimeout(t);
-    }
-    const el = turnstileRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setTurnstileNear(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "600px 0px", threshold: 0 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [turnstileNear]);
-
   const inputClass =
     "mt-2 h-10 w-full rounded-lg border border-white/15 bg-black/40 px-3 text-base text-white placeholder:text-white/50 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
   const labelClass = "block text-[13.5px] font-medium text-white/85";
@@ -110,14 +76,11 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
     inFlight.current = true;
     setStatus("submitting");
     setError("");
-    const turnstileToken = String(
-      new FormData(event.currentTarget).get("cf-turnstile-response") ?? "",
-    );
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email: from, subject, message, turnstileToken }),
+        body: JSON.stringify({ name, email: from, subject, message }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -135,7 +98,6 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
       setStatus("error");
     } finally {
       inFlight.current = false;
-      resetTurnstile();
     }
   }
 
@@ -378,24 +340,6 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
                 />
               </div>
             </div>
-
-            {TURNSTILE_SITE_KEY && (
-              <>
-                {turnstileNear && (
-                  <Script
-                    src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-                    strategy="afterInteractive"
-                  />
-                )}
-                <div
-                  ref={turnstileRef}
-                  className="cf-turnstile mt-5"
-                  data-sitekey={TURNSTILE_SITE_KEY}
-                  data-action="contact"
-                  data-theme="dark"
-                />
-              </>
-            )}
 
             <Magnetic className="mt-5 block w-full">
               <Button

@@ -19,6 +19,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { installMobileNavDebug, mobileNavDebug } from "@/lib/mobile-nav-debug";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
@@ -77,6 +78,17 @@ export function SiteNav({
   const [scrolled, setScrolled] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const debugTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => {
+    const cleanup = installMobileNavDebug();
+    return () => {
+      cleanup?.();
+      debugTimers.current.forEach(clearTimeout);
+    };
+  }, []);
+  useEffect(() => {
+    mobileNavDebug("menu-state");
+  }, [open]);
   const showContact = visibleSections.some((s) => s.id === "contact");
   const sponsor = sponsorUrl?.trim();
   const navCta = sponsor
@@ -85,11 +97,10 @@ export function SiteNav({
       ? { href: sectionHref("contact"), external: false, label: "Let's Talk" }
       : null;
 
-  // Mobile menu links scroll explicitly, and only after the panel has finished collapsing.
-  // Framer Motion measures the height auto -> 0 exit with window.scrollTo(0, 0), which cancels
-  // any scroll already in flight, so a scroll started on click never gets anywhere on a phone.
+  // Start section scrolling after the menu exits, so the navigation transition has settled.
   const pendingId = useRef<string | null>(null);
   const goToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    mobileNavDebug("section-select", id);
     const target = document.getElementById(id);
     if (target) {
       event.preventDefault();
@@ -102,10 +113,22 @@ export function SiteNav({
     pendingId.current = null;
     const target = document.getElementById(id ?? "");
     if (!id || !target) return;
-    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-    // After the panel has collapsed, so Framer's scroll reset cannot cancel the scroll. Keeps
-    // Next's own history state so its router stays in sync.
+    const phoneLandscape = window.matchMedia(
+      "(orientation: landscape) and (max-height: 500px) and (pointer: coarse)",
+    ).matches;
+    // Avoid traversing every composited section on a short touch viewport.
+    // Explicit instant also overrides the page's CSS scroll-behavior: smooth.
+    const behavior = reduce || phoneLandscape ? "instant" : "smooth";
+    mobileNavDebug("scroll-start", id, `behavior=${behavior}`);
+    target.scrollIntoView({ behavior, block: "start" });
+    // Preserve Next's history state so its router stays in sync.
     window.history.replaceState(window.history.state, "", `#${id}`);
+    if (process.env.NODE_ENV === "development") {
+      debugTimers.current.forEach(clearTimeout);
+      debugTimers.current = [250, 750, 1500, 3000].map((delay) =>
+        setTimeout(() => mobileNavDebug("scroll-sample", id), delay),
+      );
+    }
   };
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -168,6 +191,7 @@ export function SiteNav({
         {open && (
           <m.div
             key="menu-backdrop"
+            data-mobile-menu-backdrop
             aria-hidden
             onClick={() => setOpen(false)}
             initial={reduce ? false : { opacity: 0 }}
@@ -267,7 +291,10 @@ export function SiteNav({
           <button
             ref={menuButtonRef}
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => {
+              mobileNavDebug("menu-toggle");
+              setOpen((v) => !v);
+            }}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-navigation"
@@ -281,10 +308,10 @@ export function SiteNav({
           {open && (
             <m.div
               id="mobile-navigation"
-              initial={reduce ? false : { height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={reduce ? undefined : { height: 0, opacity: 0 }}
-              transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
+              initial={reduce ? false : { opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? undefined : { opacity: 0, y: -4 }}
+              transition={{ duration: reduce ? 0 : 0.2, ease: "easeOut" }}
               className={`${panelStyles.panel} border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden`}
             >
               <div className={`site-container ${panelStyles.content}`}>

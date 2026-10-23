@@ -51,6 +51,13 @@ describe("SectionBackdrop", () => {
     expect(video?.hasAttribute("src")).toBe(false);
   });
 
+  it("keeps the poster on a landscape phone wider than the desktop breakpoint", () => {
+    installMatchMedia({ [DESKTOP_QUERY]: true, "(pointer: coarse)": true });
+    const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
+    expect(container.querySelector("video")).toBeNull();
+    expect(container.querySelector("img")).toHaveAttribute("src", "/a.webp");
+  });
+
   it("skips the video under reduced motion", () => {
     installMatchMedia({ [DESKTOP_QUERY]: true, "(prefers-reduced-motion: reduce)": true });
     const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
