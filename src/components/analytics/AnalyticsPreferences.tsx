@@ -35,7 +35,7 @@ export function AnalyticsPreferences() {
   }, [consent]);
 
   if (
-    !process.env.NEXT_PUBLIC_GTAG_ID ||
+    (!process.env.NEXT_PUBLIC_GTAG_ID && !process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY) ||
     !ready ||
     pathname?.startsWith("/admin") ||
     pathname === "/login" ||
@@ -58,15 +58,16 @@ export function AnalyticsPreferences() {
         Your analytics preferences
       </h2>
       <p className="text-muted mt-2 text-[13px] leading-relaxed">
-        With your permission, Google Analytics helps me understand how visitors use this portfolio.
-        You can accept or reject it and change your choice in the footer.{" "}
+        With your permission, Google Analytics and Statsig help me understand visits, clicks and
+        navigation through session replay. The contact form is excluded from recordings. You can
+        accept or reject analytics and change your choice in the footer.{" "}
         <Link href="/privacy" className="text-brand-bright underline underline-offset-4">
           Privacy policy
         </Link>
       </p>
       {editing && (
         <label className="border-brand-mid/20 mt-4 flex min-h-[44px] cursor-pointer items-center justify-between gap-4 rounded-xl border p-3 text-[14px]">
-          Allow Google Analytics
+          Allow optional analytics
           <input
             type="checkbox"
             checked={enabled}
@@ -104,7 +105,7 @@ export function AnalyticsPreferences() {
 }
 
 export function AnalyticsPreferencesButton() {
-  if (!process.env.NEXT_PUBLIC_GTAG_ID) return null;
+  if (!process.env.NEXT_PUBLIC_GTAG_ID && !process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY) return null;
   return (
     <>
       <span aria-hidden className="mx-1.5 text-white/30">

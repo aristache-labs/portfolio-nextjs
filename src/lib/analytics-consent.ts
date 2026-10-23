@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
 export type AnalyticsConsent = "accepted" | "rejected" | null;
 export const CONSENT_KEY = "analytics-consent-v1";
 export const PREFERENCES_EVENT = "analytics-preferences-open";
-const CHANGE_EVENT = "analytics-consent-change";
+export const CHANGE_EVENT = "analytics-consent-change";
 let memoryConsent: AnalyticsConsent = null;
 let memoryOnly = false;
 

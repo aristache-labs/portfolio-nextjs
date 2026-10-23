@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",
+    "@flags-sdk/statsig": "^0.3.1",
     "@radix-ui/react-alert-dialog": "1.1.15",
     "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-popover": "^1.1.23",
@@ -37,6 +38,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
+    "flags": "^4.3.1",
     "framer-motion": "^12.43.0",
     "geist": "^1.7.2",
     "lucide-react": "0.542.0",
@@ -50,6 +52,7 @@
     "resend": "^6.28.0",
     "sharp": "0.35.4",
     "tailwind-merge": "^2.6.1",
+    "vercel": "^65.2.0",
     "zod": "^4.6.5"
   },
   "overrides": {

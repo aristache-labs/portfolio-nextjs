@@ -60,3 +60,4 @@ mobile-hero.png
 # Playwright e2e output
 playwright-report/
 test-results/
+.env*

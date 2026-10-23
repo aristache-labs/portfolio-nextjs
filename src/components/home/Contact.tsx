@@ -250,7 +250,8 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
         >
           <form
             onSubmit={handleSubmit}
-            className="border-brand-mid/20 bg-background/75 mx-auto w-full max-w-[535px] rounded-3xl border p-6 shadow-[0_0_50px_-18px_rgb(var(--brand-mid-rgb)/0.24)] backdrop-blur-xl sm:p-8 lg:ml-auto"
+            data-replay-block
+            className="rr-block border-brand-mid/20 bg-background/75 mx-auto w-full max-w-[535px] rounded-3xl border p-6 shadow-[0_0_50px_-18px_rgb(var(--brand-mid-rgb)/0.24)] backdrop-blur-xl sm:p-8 lg:ml-auto"
           >
             <div className="flex items-center gap-3">
               <IconTile size="sm">
