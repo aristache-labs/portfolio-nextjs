@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight, Star, GitFork, ExternalLink, Github } from "lucide-react";
 import {
   Dialog,
@@ -17,6 +18,7 @@ import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
 
 type Slide = { src: string; poster: boolean };
+const GitHubButton = dynamic(() => import("react-github-btn"), { ssr: false });
 
 /** Tallest the poster well may grow. A 9:16 shot uses this height; a 16:9 shot is shorter. */
 const STAGE_MAX = "min(50vh, 26rem)";
@@ -172,11 +174,25 @@ export function ProjectQuickView({
 
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
   const blurb = project.description ?? "";
-  // The excerpt only earns its space when it says something the blurb did not.
-  const excerpt =
-    project.readmeExcerpt && !blurb.startsWith(project.readmeExcerpt.slice(0, 40))
-      ? project.readmeExcerpt
-      : null;
+  const excerpt = project.readmeExcerpt?.trim() || null;
+  const tags =
+    project.language || project.tags.length > 0 ? (
+      <div className="flex flex-wrap items-center justify-end gap-1.5">
+        {project.language && (
+          <span className="rounded-full border border-(--brand-deep)/40 bg-(--chip-surface) px-2 py-0.5 text-xs font-semibold text-(--accent-on-chip)">
+            {project.language}
+          </span>
+        )}
+        {project.tags.map((tag) => (
+          <span
+            key={tag}
+            className="border-border text-muted rounded-full border bg-(--chip-surface) px-2 py-0.5 text-xs"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    ) : null;
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
@@ -191,8 +207,9 @@ export function ProjectQuickView({
 
         <DialogHeader>
           <div className="flex items-start justify-between gap-3">
-            <DialogTitle>{project.title}</DialogTitle>
-            <div className="text-muted flex shrink-0 items-center gap-3 text-sm">
+            <DialogTitle className="min-w-0 lg:text-[22px]">{project.title}</DialogTitle>
+            <div className="hidden max-w-[55%] lg:block">{tags}</div>
+            <div className="text-muted flex shrink-0 items-center gap-3 text-sm lg:hidden">
               {(project.stars ?? 0) > 0 && (
                 <span
                   className="flex items-center gap-1"
@@ -211,51 +228,32 @@ export function ProjectQuickView({
               )}
             </div>
           </div>
-          {blurb && <DialogDescription className="line-clamp-3">{blurb}</DialogDescription>}
+          {blurb && (
+            <DialogDescription className="line-clamp-3 lg:sr-only">{blurb}</DialogDescription>
+          )}
         </DialogHeader>
 
         <DialogBody className="space-y-5">
-          {excerpt && (
-            <div>
-              <h4 className="text-muted mb-1.5 text-xs font-semibold tracking-wider uppercase">
-                From the README
-              </h4>
-              <p className="text-muted line-clamp-4 text-sm leading-relaxed text-pretty">
-                {excerpt}
-              </p>
-            </div>
-          )}
-
-          {(project.language || project.tags.length > 0) && (
-            <div className="flex flex-wrap gap-1.5">
-              {project.language && (
-                <span className="rounded-full border border-(--brand-deep)/40 bg-(--chip-surface) px-2 py-0.5 text-xs font-semibold text-(--accent-on-chip)">
-                  {project.language}
-                </span>
-              )}
-              {project.tags.map((t) => (
-                <span
-                  key={t}
-                  className="border-border text-muted rounded-full border bg-(--chip-surface) px-2 py-0.5 text-xs"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
+          <div>
+            <h4 className="text-muted mb-1.5 text-xs font-semibold tracking-wider uppercase">
+              From the README
+            </h4>
+            <p className="text-muted line-clamp-4 text-sm leading-relaxed text-pretty lg:line-clamp-6 lg:text-[15px]">
+              {excerpt || "Read the project documentation on GitHub."}
+            </p>
+            <a
+              href={`${githubUrl.replace(/\/$/, "")}#readme`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-bright focus-visible:ring-brand-mid/70 mt-3 inline-flex items-center gap-1 rounded-md text-sm font-medium hover:underline focus-visible:ring-2 focus-visible:outline-none"
+            >
+              View more <ExternalLink className="size-3" aria-hidden />
+            </a>
+          </div>
+          <div className="lg:hidden">{tags}</div>
         </DialogBody>
 
-        <DialogFooter className="gap-2">
-          <Button
-            href={githubUrl}
-            variant="secondary"
-            size="sm"
-            target="_blank"
-            rel="noopener noreferrer"
-            leftIcon={<Github className="size-3.5" aria-hidden />}
-          >
-            View code
-          </Button>
+        <DialogFooter className="flex-row flex-wrap items-center justify-start gap-2 sm:justify-start">
           {project.homepage && (
             <Button
               href={project.homepage}
@@ -267,6 +265,28 @@ export function ProjectQuickView({
               Live site
             </Button>
           )}
+          <Button
+            href={githubUrl}
+            variant="secondary"
+            size="sm"
+            target="_blank"
+            rel="noopener noreferrer"
+            leftIcon={<Github className="size-3.5" aria-hidden />}
+          >
+            View code
+          </Button>
+          <div className="ml-auto flex min-h-[28px] items-center">
+            <GitHubButton
+              href={`https://github.com/aristache-labs/${project.repo}`}
+              data-color-scheme="no-preference: dark; light: dark; dark: dark;"
+              data-icon="octicon-star"
+              data-size="large"
+              data-show-count="true"
+              aria-label={`Star aristache-labs/${project.repo} on GitHub`}
+            >
+              Give a Star
+            </GitHubButton>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
