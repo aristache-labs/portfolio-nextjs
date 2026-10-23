@@ -51,20 +51,22 @@ export function resolveServiceIcon(service: Pick<ServiceRow, "icon" | "title">):
   return BY_TITLE.find(([pattern]) => pattern.test(service.title))?.[1] ?? Sparkles;
 }
 
-function isIconAsset(icon: string | null): icon is string {
-  return Boolean(icon && /^\/icons\/[\w-]+\.svg$/i.test(icon));
+export function resolveServiceImageSource(icon: string | null): string | null {
+  if (!icon || !/^\/icons\/[\w-]+\.(?:svg|webp)$/i.test(icon)) return null;
+  return icon.replace(/^(\/icons\/(?:react|html|windows))\.svg$/i, "$1.webp");
 }
 
 /** Compact summary using the same icon treatment as the other homepage sections. */
 export function ServiceCard({ service }: { service: ServiceRow }) {
-  const icon = isIconAsset(service.icon) ? (
+  const imageSource = resolveServiceImageSource(service.icon);
+  const icon = imageSource ? (
     <Image
-      src={service.icon}
+      src={imageSource}
       alt=""
-      width={32}
-      height={32}
+      width={56}
+      height={56}
       unoptimized
-      className="relative z-10 size-10 scale-180 object-contain"
+      className="relative z-10 size-14 object-contain"
     />
   ) : (
     createElement(resolveServiceIcon(service), { ...ICON_PROPS })
@@ -72,14 +74,14 @@ export function ServiceCard({ service }: { service: ServiceRow }) {
 
   return (
     <article className="group bg-surface/70 hover:border-brand-mid/40 flex h-full items-start gap-3 rounded-2xl border border-white/10 p-4 transition-colors duration-300 sm:p-5">
-      <span className="grid size-9 shrink-0 place-items-center text-(--accent-on-chip) [&_svg]:size-6">
+      <span className="grid size-14 shrink-0 place-items-center text-(--accent-on-chip) [&_svg]:size-6">
         {icon}
       </span>
       <div className="min-w-0">
-        <h3 className="text-foreground text-base leading-snug font-semibold tracking-tight">
+        <h3 className="text-foreground text-base leading-snug font-semibold tracking-tight 2xl:text-[15px] 2xl:whitespace-nowrap">
           {service.title}
         </h3>
-        <p className="text-muted mt-1.5 text-sm leading-relaxed">
+        <p className="text-muted mt-1.5 text-sm leading-relaxed 2xl:text-[13px] 2xl:whitespace-nowrap">
           {service.shortDescription?.trim() || service.description}
         </p>
       </div>

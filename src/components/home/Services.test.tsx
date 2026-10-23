@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { installMatchMedia } from "@/test/matchMedia";
 import { Services } from "./Services";
 import type { ServiceRow } from "./Services";
-import { resolveServiceIcon } from "./ServiceCard";
+import { resolveServiceIcon, resolveServiceImageSource } from "./ServiceCard";
 import { AppWindow, Cloud, Server, Smartphone, Sparkles, Workflow, Wrench } from "lucide-react";
 
 beforeEach(() => installMatchMedia());
@@ -42,6 +42,14 @@ const mockServices: ServiceRow[] = [
     icon: "Code",
     order: 3,
   },
+  {
+    id: 4,
+    title: "Automation & Tools",
+    description: "PowerShell scripting and enterprise deployment workflows.",
+    shortDescription: "Less manual work. More efficiency.",
+    icon: null,
+    order: 4,
+  },
 ];
 
 describe("Services", () => {
@@ -73,20 +81,21 @@ describe("Services", () => {
     expect(screen.getByRole("heading", { name: "What I do" })).toBeInTheDocument();
   });
 
-  it("shows only the first three services by admin order", () => {
+  it("shows only the first four services by admin order", () => {
     render(
       <Services
         services={[
-          { ...mockServices[0], id: 4, title: "Later service", order: 10 },
+          { ...mockServices[0], id: 5, title: "Later service", order: 10 },
           ...mockServices.toReversed(),
         ]}
       />,
     );
-    expect(screen.getAllByRole("article")).toHaveLength(3);
+    expect(screen.getAllByRole("article")).toHaveLength(4);
     expect(screen.getAllByRole("heading", { level: 3 }).map((node) => node.textContent)).toEqual([
       "Web Development",
       "Mobile Apps",
       "API Design",
+      "Automation & Tools",
     ]);
     expect(screen.queryByText("Later service")).not.toBeInTheDocument();
   });
@@ -113,5 +122,19 @@ describe("resolveServiceIcon", () => {
   it("prefers a known Lucide icon name set in admin, and falls back for unknown names", () => {
     expect(resolveServiceIcon({ title: "Web Applications", icon: "Cloud" })).toBe(Cloud);
     expect(resolveServiceIcon({ title: "Something else", icon: "UnknownIcon" })).toBe(Sparkles);
+  });
+});
+
+describe("resolveServiceImageSource", () => {
+  it("uses the compact normalized assets for the legacy heavy SVG icons", () => {
+    expect(resolveServiceImageSource("/icons/react.svg")).toBe("/icons/react.webp");
+    expect(resolveServiceImageSource("/icons/html.svg")).toBe("/icons/html.webp");
+    expect(resolveServiceImageSource("/icons/windows.svg")).toBe("/icons/windows.webp");
+  });
+
+  it("preserves other SVG and WebP paths and ignores unsupported sources", () => {
+    expect(resolveServiceImageSource("/icons/custom.svg")).toBe("/icons/custom.svg");
+    expect(resolveServiceImageSource("/icons/custom.webp")).toBe("/icons/custom.webp");
+    expect(resolveServiceImageSource("https://example.com/icon.svg")).toBeNull();
   });
 });

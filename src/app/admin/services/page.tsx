@@ -29,14 +29,14 @@ const fields: AdminField[] = [
     name: "icon",
     label: "Icon",
     type: "text",
-    placeholder: "/icons/html.svg or AppWindow",
-    hint: "Use an asset path such as /icons/html.svg, or a Lucide name such as AppWindow. Leave empty to choose from the title.",
+    placeholder: "/icons/html.webp or AppWindow",
+    hint: "Use an asset path such as /icons/html.webp, or a Lucide name such as AppWindow. Leave empty to choose from the title.",
   },
   {
     name: "order",
     label: "Order",
     type: "number",
-    hint: "The first three services by order appear on the homepage.",
+    hint: "The first four services by order appear on the homepage.",
   },
 ];
 
@@ -52,7 +52,7 @@ function parse(formData: FormData) {
 
 export default async function ServicesEditor() {
   const rows = await db.select().from(services).orderBy(services.order, services.id);
-  const homepageIds = new Set(rows.slice(0, 3).map((service) => service.id));
+  const homepageIds = new Set(rows.slice(0, 4).map((service) => service.id));
 
   async function create(formData: FormData) {
     "use server";
@@ -70,7 +70,7 @@ export default async function ServicesEditor() {
   return (
     <AdminCrudPage
       title="Services"
-      description="Three compact cards on the homepage. Lower order values appear first; the remaining services stay in admin."
+      description="Four compact cards on the homepage. Lower order values appear first; the remaining services stay in admin."
       createTitle="Add service"
       editTitle="Edit service"
       fields={fields}

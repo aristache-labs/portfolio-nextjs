@@ -24,7 +24,7 @@ function rise(reduce: boolean, y: number, duration: number, delay = 0) {
 }
 
 export function Services({ services }: { services: ServiceRow[] }) {
-  const sorted = [...services].sort((a, b) => a.order - b.order || a.id - b.id).slice(0, 3);
+  const sorted = [...services].sort((a, b) => a.order - b.order || a.id - b.id).slice(0, 4);
   const reduce = useReducedMotion();
 
   return (
@@ -70,7 +70,7 @@ export function Services({ services }: { services: ServiceRow[] }) {
           </Card>
         </m.div>
       ) : (
-        <div className="grid items-stretch gap-3 lg:grid-cols-3">
+        <div className="grid items-stretch gap-3 md:grid-cols-2 2xl:grid-cols-4">
           {sorted.map((s, i) => (
             <m.div
               key={s.id}
