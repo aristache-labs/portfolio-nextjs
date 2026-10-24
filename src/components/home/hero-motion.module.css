@@ -86,6 +86,22 @@
 }
 
 @media (pointer: coarse) and (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) {
+  .hero h1 > span:last-child {
+    margin-top: 10px;
+  }
+  .copy {
+    margin-bottom: 14px;
+  }
+  .hero .actions a {
+    min-height: 44px;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  .actions a svg {
+    width: 14px;
+    height: 14px;
+  }
   .focus {
     max-width: 210px;
     padding: 16px;

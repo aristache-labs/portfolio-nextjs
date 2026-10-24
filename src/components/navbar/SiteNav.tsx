@@ -196,7 +196,7 @@ export function SiteNav({
       >
         <nav
           aria-label="Primary"
-          className="site-container flex h-[72px] items-center justify-between"
+          className={`${navStyles.bar} site-container flex h-[72px] items-center justify-between`}
         >
           <Link
             scroll={onHomepage}
@@ -205,7 +205,7 @@ export function SiteNav({
             aria-label="Home"
             className={cn("flex min-w-0 items-center gap-2.5", open && panelStyles.dimmedLogo)}
           >
-            <Logo />
+            <Logo className={navStyles.logo} />
             <Image
               src={WORDMARK.src}
               alt=""
@@ -213,7 +213,7 @@ export function SiteNav({
               height={WORDMARK.height}
               priority
               unoptimized
-              className="h-auto w-[min(42vw,14rem)]"
+              className={`${navStyles.wordmark} h-auto w-[min(42vw,14rem)]`}
             />
           </Link>
 
@@ -280,7 +280,7 @@ export function SiteNav({
               animate={{ height: "auto", opacity: 1 }}
               exit={reduce ? undefined : { height: 0, opacity: 0 }}
               transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
-              className={`${panelStyles.panel} border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden`}
+              className={`${navStyles.panel} ${panelStyles.panel} border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden`}
             >
               <div className={`site-container ${panelStyles.content}`}>
                 <nav aria-label="Mobile navigation">

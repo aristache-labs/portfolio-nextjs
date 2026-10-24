@@ -280,7 +280,7 @@ export function Hero({
 
           <m.div
             {...fadeUp(reduce, 0.8)}
-            className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2"
+            className={`${styles.actions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
           >
             <Magnetic className="max-sm:w-full">
               <Button
