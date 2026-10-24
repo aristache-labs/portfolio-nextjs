@@ -205,7 +205,7 @@ describe("getProfile", () => {
       },
     ]);
     const result = await getProfile();
-    expect(result.name).toBe("Cristache Adrian");
+    expect(result.name).toBe("Adrian Cristache");
     expect(result.roles).toEqual(["Developer", "Designer"]);
     // repos/stars/followers from the live cache; years from the experience rows.
     expect(result.stats).toEqual({ years: 4, repos: 72, stars: 340, followers: 112 });

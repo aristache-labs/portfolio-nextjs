@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/aristache-labs/portfolio-nextjs/refs/heads/master/public/brand/logo.svg" width="76" alt="Cristache Adrian">
+<img src="https://raw.githubusercontent.com/aristache-labs/portfolio-nextjs/refs/heads/master/public/brand/logo.svg" width="76" alt="Adrian Cristache">
 
-# Cristache Adrian · Portfolio
+# Adrian Cristache · Portfolio
 
-<em>Aristache. IT specialist and software developer. The site is edited in admin, not redeployed.</em>
+<em>Technical Team Lead · Automation Engineer · Builds web &amp; mobile apps. The site is edited in admin, not redeployed.</em>
 
 <br />
 
@@ -40,11 +40,11 @@
 
 ## Overview
 
-Aristache is the personal portfolio of Cristache Adrian, an IT specialist and software developer. The site at https://www.aristache.dev is dark, with a single brand. Profile, projects, experience, skills, services, and contact details are stored in PostgreSQL and edited from the admin panel, so a content change publishes without a redeploy. Featured work opens in a quick view with screenshots and live GitHub stats.
+Aristache is the personal portfolio of Adrian Cristache: Technical Team Lead · Automation Engineer · Builds web & mobile apps. The site at https://www.aristache.dev is dark, with a single brand. Profile, projects, experience, skills, services, and contact details are stored in PostgreSQL and edited from the admin panel, so a content change publishes without a redeploy. Featured work opens in a quick view with screenshots and live GitHub stats.
 
 ## Table of Contents
 
-- [Cristache Adrian · Portfolio](#cristache-adrian--portfolio)
+- [Adrian Cristache · Portfolio](#adrian-cristache--portfolio)
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
   - [Stack](#stack)
@@ -286,7 +286,7 @@ This portfolio is MIT licensed and free to fork. The live site is [www.aristache
 
 <div align="center">
 
-**Cristache Adrian** · [aristache.dev](https://www.aristache.dev)
+**Adrian Cristache** · [aristache.dev](https://www.aristache.dev)
 
 <a href="https://github.com/aristache-labs"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" /></a>
 <a href="https://www.aristache.dev"><img src="https://img.shields.io/badge/Site-0f6e68?style=for-the-badge&logo=googlechrome&logoColor=white" alt="aristache.dev" /></a>

@@ -24,9 +24,10 @@ export const metadata: Metadata = {
   },
   description: SITE.description,
   keywords: [
-    "cristache adrian",
+    SITE.name,
     "aristache-labs",
-    "it technician",
+    "technical team lead",
+    "automation engineer",
     "mobile developer",
     "web developer",
     "react native",

@@ -13,7 +13,7 @@ export function GET() {
 
 > ${SITE.description}
 
-Personal site for Cristache Adrian (aristache-labs), an IT technician and mobile and web developer. Start with the Profile links. Skip Optional when a shorter context is enough.
+Personal site for ${SITE.name} (aristache-labs). ${SITE.positioning}. Start with the Profile links. Skip Optional when a shorter context is enough.
 
 ## Profile
 

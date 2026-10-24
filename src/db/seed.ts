@@ -1,4 +1,5 @@
 import { db } from "./client";
+import { IDENTITY } from "@/lib/identity";
 import {
   profile,
   projects,
@@ -16,10 +17,10 @@ import {
 const seededAvatarUrl = "/images/aristache.webp";
 
 const profileRow = {
-  name: "Cristache Adrian",
+  name: IDENTITY.name,
   bio: "I'm Adrian, a Technical Team Lead and software developer with over 8 years of experience in IT infrastructure, system administration, and automation. I lead enterprise deployments, build reliable systems, and turn complex technical challenges into practical solutions.\n\nBeyond infrastructure, I create modern web and mobile applications, combining engineering, creativity, and a constant drive to learn and improve.",
   stats: { years: 8, repos: 6, stars: 0, followers: 0 },
-  roles: ["IT Technician", "Mobile Developer", "Web Developer"],
+  roles: [...IDENTITY.roles],
   // Resume URL lives in the DB only — set it via the admin panel.
   resumeUrl: null,
   avatarUrl: seededAvatarUrl,

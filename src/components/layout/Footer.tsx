@@ -10,6 +10,7 @@ import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import type { SocialRow } from "@/components/home/social-icons";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
 import motionCss from "@/components/navbar/support-motion.module.css";
+import { SITE } from "@/lib/seo/site";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -227,7 +228,7 @@ export function Footer({
         >
           <div className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px]">
             <span className="max-md:block">
-              <span className="text-brand-bright">&copy; {year}</span> Cristache Adrian. All rights
+              <span className="text-brand-bright">&copy; {year}</span> {SITE.name}. All rights
               reserved.
             </span>
             <span aria-hidden className="mx-1.5 text-white/30 max-md:hidden">

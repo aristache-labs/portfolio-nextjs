@@ -15,7 +15,7 @@ export function PersonJsonLd() {
         name: SITE.name,
         url: SITE.url,
         image: `${SITE.url}/opengraph-image`,
-        jobTitle: "Software Development Engineer & AI Lead",
+        jobTitle: SITE.jobTitle,
         description: SITE.description,
         sameAs: SITE.sameAs,
       }}

@@ -12,6 +12,9 @@ describe("JSON-LD", () => {
     const script = container.querySelector('script[type="application/ld+json"]')!;
     const data = parse(script.innerHTML);
     expect(data["@type"]).toBe("Person");
+    expect(data.name).toBe("Adrian Cristache");
+    expect(data.jobTitle).toBe("Technical Team Lead · Automation Engineer");
+    expect(data.description).toContain("Builds web & mobile apps");
     expect(Array.isArray(data.sameAs)).toBe(true);
     expect(data.sameAs.length).toBeGreaterThan(0);
   });

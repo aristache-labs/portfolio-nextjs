@@ -7,6 +7,7 @@ import { getProjects } from "@/lib/projects";
 import type { MergedProject } from "@/lib/projects";
 import { getCachedUserStats } from "@/lib/github-cache";
 import { professionalYears } from "@/lib/experience";
+import { IDENTITY } from "@/lib/identity";
 
 // Bundled asset shown when the profile has no avatar set yet (e.g. before the
 // admin uploads one). Served from `public/`, so a relative src is correct here.
@@ -89,7 +90,8 @@ export async function getProfile(): Promise<{
   const years = professionalYears(periods.map((p) => p.period)) ?? Number(s.years ?? 0);
 
   return {
-    name: row.name,
+    // Normalize the original family-name-first value without overwriting admin content.
+    name: row.name === "Cristache Adrian" ? IDENTITY.name : row.name,
     email: row.email ?? null,
     bio: row.bio,
     avatarUrl: (row.avatarUrl as string) || FALLBACK_AVATAR,

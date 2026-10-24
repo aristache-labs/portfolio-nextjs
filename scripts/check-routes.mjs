@@ -54,8 +54,8 @@ async function expectContent(path, needles) {
 // toggle, so asserting on "Projects" would fail CI when someone legitimately hides it.
 const home = await group("homepage serves its DB-independent identity copy", () =>
   expectContent("/", [
-    "Cristache Adrian",
-    "<title>Aristache | Adrian Cristache - IT Specialist &amp; Software Developer</title>",
+    "Adrian Cristache",
+    "<title>Aristache | Adrian Cristache - Technical Team Lead · Automation Engineer</title>",
   ]),
 );
 
@@ -76,7 +76,7 @@ await group("stylesheets serve with content", async () => {
 });
 
 await group("login page renders", async () => {
-  await expectContent("/login", ["Cristache Adrian"]);
+  await expectContent("/login", ["Adrian Cristache"]);
 });
 
 await group("privacy has its own canonical and is listed in the sitemap", async () => {
@@ -130,8 +130,8 @@ await group("robots, sitemap, manifest and llms routes serve valid content", asy
 
   // llms-full must actually be the fuller document; if a refactor makes them
   // identical, the whole point of shipping two files is gone.
-  const llms = await expectContent("/llms.txt", ["# Cristache Adrian"]);
-  const llmsFull = await expectContent("/llms-full.txt", ["# Cristache Adrian"]);
+  const llms = await expectContent("/llms.txt", ["# Adrian Cristache"]);
+  const llmsFull = await expectContent("/llms-full.txt", ["# Adrian Cristache"]);
   if (llmsFull.length <= llms.length) {
     fail(`llms-full.txt (${llmsFull.length}B) is not longer than llms.txt (${llms.length}B)`);
   }

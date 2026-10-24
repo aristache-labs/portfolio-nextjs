@@ -407,7 +407,7 @@ export function Hero({
               >
                 {profile.roles.map((role, i) => (
                   <span key={role}>
-                    {i > 0 && " / "}
+                    {i > 0 && " · "}
                     <span className="whitespace-nowrap md:whitespace-normal">{role}</span>
                   </span>
                 ))}

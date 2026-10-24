@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 // database and so the assertions pin that the output comes from that data, not from prose.
 vi.mock("@/lib/queries", () => ({
   getProfile: async () => ({
-    name: "Cristache Adrian",
+    name: "Adrian Cristache",
     bio: "Bio paragraph from the database.",
     roles: ["SDE-1", "Open Source Contributor"],
     avatarUrl: "",
@@ -59,7 +59,7 @@ import { GET } from "../llms-full.txt/route";
 describe("llms-full.txt", () => {
   it("renders identity, bio, stats, projects and experience from the loaders", async () => {
     const text = await (await GET()).text();
-    expect(text).toContain("# Cristache Adrian - Full Profile");
+    expect(text).toContain("# Adrian Cristache - Full Profile");
     expect(text).toContain("SDE-1 · Open Source Contributor");
     expect(text).toContain("Software Development Engineer at StarApps Studio (Jul 2024 - Present)");
     expect(text).toContain("Bio paragraph from the database.");
@@ -104,7 +104,7 @@ describe("llms-full.txt with every optional section hidden", () => {
     vi.resetModules();
     vi.doMock("@/lib/queries", () => ({
       getProfile: async () => ({
-        name: "Cristache Adrian",
+        name: "Adrian Cristache",
         bio: "Bio paragraph from the database.",
         roles: ["SDE-1"],
         avatarUrl: "",

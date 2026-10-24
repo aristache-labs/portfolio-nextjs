@@ -4,6 +4,7 @@ import { updateProfile } from "../actions";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Panel, Field, Input, Textarea, SubmitButton } from "@/components/admin/ui";
 import { AvatarField } from "@/components/admin/AvatarField";
+import { IDENTITY } from "@/lib/identity";
 
 export const dynamic = "force-dynamic";
 
@@ -68,9 +69,7 @@ export default async function ProfileEditor() {
               name="roles"
               defaultValue={(row?.roles ?? []).join("\n")}
               rows={3}
-              placeholder={
-                "Software Development Engineer\nFull Stack Developer\nOpen Source Contributor"
-              }
+              placeholder={IDENTITY.roles.join("\n")}
             />
           </Field>
           <Field label="Resume URL" hint="Full https URL to your resume/CV.">

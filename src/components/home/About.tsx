@@ -6,6 +6,7 @@ import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { SectionBackdrop } from "./SectionBackdrop";
 import statsCss from "./about-stats.module.css";
 import { AboutBio } from "./AboutBio";
+import { SITE } from "@/lib/seo/site";
 
 export type AboutProfile = {
   bio: string;
@@ -95,7 +96,7 @@ export function About({ profile }: { profile: AboutProfile }) {
       <Reveal distance={12} duration={0.4} className={statsCss.biography}>
         {profile.avatarUrl && (
           <div className={statsCss.portrait}>
-            <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? "Cristache Adrian"} />
+            <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? SITE.name} />
           </div>
         )}
         <div className={statsCss.heading}>

@@ -10,7 +10,7 @@
   }
 }
 
-@media (orientation: portrait) and (max-width: 1024px ) {
+@media (orientation: portrait) and (max-width: 1024px) {
   .button {
     width: 56px;
     height: 56px;
@@ -22,7 +22,6 @@
     height: 28px;
   }
 }
-
 
 @media (orientation: landscape) and (max-height: 500px) {
   .button {

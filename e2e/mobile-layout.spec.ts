@@ -112,7 +112,7 @@ test("portrait hero fills the first screen without shifting its heading", async 
         const hero = document.querySelector("#hero")!.getBoundingClientRect();
         const heading = document.querySelector("#hero h1")!.getBoundingClientRect();
         const cue = document
-          .querySelector('[aria-label="Scroll to projects"]')!
+          .querySelector('#hero a[href="#projects"][aria-label]')!
           .getBoundingClientRect();
         const roles = document.querySelector("#hero > .site-container")!.getBoundingClientRect();
         return {

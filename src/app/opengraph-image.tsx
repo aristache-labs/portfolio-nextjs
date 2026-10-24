@@ -45,9 +45,7 @@ export default async function OpengraphImage() {
         <div style={{ display: "flex", fontSize: 68, fontWeight: 700, letterSpacing: -2 }}>
           built with <span style={{ color: BRAND.bright, marginLeft: 16 }}>intention.</span>
         </div>
-        <div style={{ fontSize: 25, color: "#b8c5c5", marginTop: 24 }}>
-          IT systems. Automation. Web &amp; mobile development.
-        </div>
+        <div style={{ fontSize: 25, color: "#b8c5c5", marginTop: 24 }}>{SITE.positioning}</div>
       </div>
       <div
         style={{

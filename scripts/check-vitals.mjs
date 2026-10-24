@@ -24,7 +24,7 @@ const BUDGETS = [
 // Both a wrong site and a dev server produce believable numbers, and unminified bundles read
 // several times heavier - failing the budget for an entirely fictional reason.
 const identity = await (await get(`${base}/`)).text();
-if (!identity.includes("Cristache Adrian")) {
+if (!identity.includes("Adrian Cristache")) {
   console.error(`FAIL: ${base} is serving a different site`);
   console.error("Point BASE_URL at this site's `bun run start`, not another server on that port.");
   process.exit(1);
