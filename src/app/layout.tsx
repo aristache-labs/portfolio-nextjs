@@ -88,17 +88,6 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
       className={`${GeistSans.variable} ${GeistMono.variable}`}
     >
       <head>
-        {/* Google Tag Manager. Keep this high in <head> so it can initialize early. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':" +
-              "new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0]," +
-              "j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=" +
-              "'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);" +
-              "})(window,document,'script','dataLayer','GTM-N6MK2T96');",
-          }}
-        />
         {/* Match the portrait hero's screen floor before its first paint, so hydration
             does not resize the cover image and visibly change its crop. */}
         <script
@@ -131,15 +120,6 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
       </head>
       <body className={GeistSans.className}>
         <MyStatsig>
-          <noscript>
-            <iframe
-              src="https://www.googletagmanager.com/ns.html?id=GTM-N6MK2T96"
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
-              title="Google Tag Manager"
-            />
-          </noscript>
           <PersonJsonLd />
           <WebSiteJsonLd />
           <MotionProvider>

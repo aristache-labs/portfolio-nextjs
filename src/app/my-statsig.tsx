@@ -1,22 +1,41 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { LogLevel, StatsigProvider } from "@statsig/react-bindings";
-import { StatsigAutoCapture } from "@/components/analytics/StatsigAutoCapture";
-import { StatsigSessionReplay } from "@/components/analytics/StatsigSessionReplay";
+import { useEffect, type ReactNode } from "react";
+import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
+import { readConsent, useAnalyticsConsent } from "@/lib/analytics-consent";
 
-const user = { userID: "a-user" };
-const options = { logLevel: LogLevel.Debug };
+const StatsigAnalytics = dynamic(() => import("@/components/analytics/StatsigAnalytics"), {
+  ssr: false,
+});
+
+function clearStatsigStorage() {
+  for (const name of ["localStorage", "sessionStorage"] as const) {
+    try {
+      const storage = window[name];
+      for (const key of Object.keys(storage)) {
+        if (key.startsWith("statsig.")) storage.removeItem(key);
+      }
+    } catch {
+      // Storage may be unavailable. No SDK is started without consent.
+    }
+  }
+}
 
 export default function MyStatsig({ children }: { children: ReactNode }) {
   const sdkKey = process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY;
-  if (!sdkKey) return <>{children}</>;
+  const consent = useAnalyticsConsent();
+  const pathname = usePathname();
+  const privateRoute = pathname?.startsWith("/admin") || pathname === "/login";
+
+  useEffect(() => {
+    if (readConsent() !== "accepted") clearStatsigStorage();
+  }, [consent]);
 
   return (
-    <StatsigProvider sdkKey={sdkKey} user={user} options={options}>
-      <StatsigAutoCapture />
-      <StatsigSessionReplay />
+    <>
       {children}
-    </StatsigProvider>
+      {sdkKey && consent === "accepted" && !privateRoute && <StatsigAnalytics sdkKey={sdkKey} />}
+    </>
   );
 }

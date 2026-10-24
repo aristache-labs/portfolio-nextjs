@@ -23,6 +23,8 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
+      NEXT_PUBLIC_GTAG_ID: "G-TEST123",
+      NEXT_PUBLIC_STATSIG_CLIENT_KEY: "client-test",
       DATABASE_URL: process.env.DATABASE_URL ?? "postgres://build:build@localhost:5432/build",
       AUTH_SECRET: process.env.AUTH_SECRET ?? "ci-dummy-secret",
     },
