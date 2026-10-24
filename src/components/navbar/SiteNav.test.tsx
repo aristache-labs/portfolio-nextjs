@@ -50,15 +50,12 @@ describe("SiteNav", () => {
     expect(screen.getByRole("link", { name: "Projects" })).toBeInTheDocument();
   });
 
-  it("shows the sponsor action on desktop and mobile when configured", () => {
-    render(<SiteNav socials={socials} sponsorUrl="https://example.com/sponsor" />);
-    expect(screen.getByRole("link", { name: "Support My Work" })).toHaveAttribute(
-      "href",
-      "https://example.com/sponsor",
-    );
-    expect(screen.queryByRole("link", { name: "Let's Talk" })).not.toBeInTheDocument();
+  it("makes contact the primary action on desktop and mobile", () => {
+    render(<SiteNav socials={socials} />);
+    expect(screen.getByRole("link", { name: "Let's Talk" })).toHaveAttribute("href", "#contact");
+    expect(screen.queryByRole("link", { name: "Support My Work" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
-    expect(screen.getAllByRole("link", { name: "Support My Work" })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "Let's Talk" })).toHaveLength(2);
   });
 
   it("omits the CTA when contact is hidden", () => {

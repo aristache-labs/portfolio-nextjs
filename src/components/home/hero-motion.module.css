@@ -25,7 +25,7 @@
     font-size: 14px;
   }
   .hero h1 > span:last-child {
-    font-size: 20px;
+    font-size: 16px;
   }
   .copy {
     font-size: 14px;
@@ -85,6 +85,23 @@
   }
 }
 
+@media (pointer: coarse) and (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) {
+  .focus {
+    max-width: 210px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  .focus p:first-child {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+  }
+  .focus p:last-child {
+    margin-top: 6px;
+    font-size: 10px;
+    line-height: 1.85;
+  }
+}
+
 @media (orientation: portrait) and (max-width: 767px) {
   .roles {
     text-align: center;
@@ -97,10 +114,10 @@
     padding-bottom: 30px;
   }
   .hero h1 > span:first-child {
-    font-size: 36px;
+    font-size: 32px;
   }
   .hero h1 > span:last-child {
-    font-size: 18px;
+    font-size: 14px;
     line-height: 1;
   }
   .copy {
@@ -111,6 +128,25 @@
 
 @media (prefers-reduced-motion: reduce) {
   .focus {
+    animation: none;
+  }
+}
+.greeting {
+  display: inline-block;
+  animation: greeting-reveal 0.9s steps(12, end) 0.15s both;
+}
+
+@keyframes greeting-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .greeting {
     animation: none;
   }
 }

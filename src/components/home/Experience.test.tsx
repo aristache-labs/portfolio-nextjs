@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { Experience } from "./Experience";
 import type { ExperienceRow } from "@/lib/queries";
 
@@ -92,10 +92,13 @@ describe("Experience", () => {
     expect(screen.getByText("2020 – 2022")).toBeInTheDocument();
   });
 
-  it("renders experience descriptions", () => {
+  it("keeps full descriptions accessible behind the mobile disclosure", () => {
     render(<Experience experiences={mockExperiences} />);
     expect(screen.getByText("Built scalable APIs")).toBeInTheDocument();
     expect(screen.getByText("Led team of 5 engineers")).toBeInTheDocument();
+    expect(screen.getByText("Led team of 5 engineers")).not.toBeVisible();
+    fireEvent.click(screen.getAllByText("More details")[0]);
+    expect(screen.getByText("Led team of 5 engineers")).toBeVisible();
   });
 
   it("renders the section with id='experience'", () => {

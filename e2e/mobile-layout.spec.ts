@@ -71,6 +71,7 @@ test("portrait screen floor is applied before hydration", async ({ page, isMobil
 });
 
 async function ready(page: Page) {
+  await expect(page.locator("#hero")).toBeVisible();
   await expect(page.locator("#hero h1 > span").first()).toHaveCSS("opacity", "1", {
     timeout: 15_000,
   });

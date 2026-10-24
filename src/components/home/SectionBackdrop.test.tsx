@@ -1,11 +1,33 @@
-import { cleanup, fireEvent, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
-import { DESKTOP_QUERY } from "@/hooks/useMediaQuery";
+import { BACKGROUND_VIDEO_QUERY } from "@/hooks/useMediaQuery";
 import { SectionBackdrop } from "./SectionBackdrop";
 
 class FakeIO {
+  static instances: FakeIO[] = [];
+  constructor(
+    readonly callback: IntersectionObserverCallback,
+    readonly options?: IntersectionObserverInit,
+  ) {
+    FakeIO.instances.push(this);
+  }
+  static emit(target: Element, margin: string, visible: boolean) {
+    for (const instance of FakeIO.instances) {
+      if (instance.options?.rootMargin !== margin) continue;
+      instance.callback(
+        [
+          {
+            target,
+            isIntersecting: visible,
+            intersectionRatio: visible ? 1 : 0,
+          } as IntersectionObserverEntry,
+        ],
+        instance as unknown as IntersectionObserver,
+      );
+    }
+  }
   observe = vi.fn();
   unobserve = vi.fn();
   disconnect = vi.fn();
@@ -28,23 +50,26 @@ describe("SectionBackdrop", () => {
 
   beforeEach(() => {
     vi.stubGlobal("IntersectionObserver", FakeIO);
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
   });
 
   afterEach(() => {
     cleanup();
     hero?.remove();
     hero = undefined;
+    vi.restoreAllMocks();
   });
 
   it("never mounts a video on mobile, only the lazy poster", () => {
-    installMatchMedia({ [DESKTOP_QUERY]: false });
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: false });
     const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
     expect(container.querySelector("video")).toBeNull();
     expect(container.querySelector("img")?.getAttribute("loading")).toBe("lazy");
   });
 
   it("mounts the video on desktop without a source until the section is near", () => {
-    installMatchMedia({ [DESKTOP_QUERY]: true });
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true });
     const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
     const video = container.querySelector("video");
     expect(video).not.toBeNull();
@@ -52,7 +77,7 @@ describe("SectionBackdrop", () => {
   });
 
   it("skips the video under reduced motion", () => {
-    installMatchMedia({ [DESKTOP_QUERY]: true, "(prefers-reduced-motion: reduce)": true });
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true, "(prefers-reduced-motion: reduce)": true });
     const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
     expect(container.querySelector("video")).toBeNull();
   });
@@ -65,7 +90,7 @@ describe("SectionBackdrop", () => {
   });
 
   it.each(["load", "error"])("releases the poster after the hero %s event", (event) => {
-    installMatchMedia({ [DESKTOP_QUERY]: false });
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: false });
     const image = installHero(false);
     const { container } = render(
       <SectionBackdrop poster="/media/about.webp" deferUntilHeroLoaded />,
@@ -77,7 +102,7 @@ describe("SectionBackdrop", () => {
   });
 
   it("releases immediately when the hero completed before hydration", () => {
-    installMatchMedia({ [DESKTOP_QUERY]: false });
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: false });
     installHero(true);
     const { container } = render(
       <SectionBackdrop poster="/media/about.webp" deferUntilHeroLoaded />,
@@ -86,7 +111,7 @@ describe("SectionBackdrop", () => {
   });
 
   it("does not block the poster when the hero is absent", () => {
-    installMatchMedia({ [DESKTOP_QUERY]: false });
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: false });
     const { container } = render(
       <SectionBackdrop poster="/media/about.webp" deferUntilHeroLoaded />,
     );
@@ -94,14 +119,14 @@ describe("SectionBackdrop", () => {
   });
 
   it("keeps other posters available while the hero loads", () => {
-    installMatchMedia({ [DESKTOP_QUERY]: false });
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: false });
     installHero(false);
     const { container } = render(<SectionBackdrop poster="/media/skills.webp" />);
     expect(container.querySelector("img")).toHaveAttribute("src", "/media/skills.webp");
   });
 
-  it("also defers the desktop video poster", () => {
-    installMatchMedia({ [DESKTOP_QUERY]: true });
+  it("uses a single deferred image instead of requesting a second video poster", () => {
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true });
     const image = installHero(false);
     const { container } = render(
       <SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" deferUntilHeroLoaded />,
@@ -110,7 +135,25 @@ describe("SectionBackdrop", () => {
     expect(container.querySelector("img")).toBeNull();
     Object.defineProperty(image, "complete", { value: true });
     fireEvent.load(image);
-    expect(container.querySelector("video")).toHaveAttribute("poster", "/media/about.webp");
+    expect(container.querySelector("video")).not.toHaveAttribute("poster");
     expect(container.querySelector("img")).toHaveAttribute("src", "/media/about.webp");
+    expect(container.querySelectorAll("img")).toHaveLength(1);
+  });
+
+  it("does not preload or play a nearby video until it is visible, and pauses it after scrolling away", () => {
+    installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true });
+    const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
+    const root = container.firstElementChild!;
+    const video = container.querySelector("video")!;
+    expect(video).toHaveAttribute("preload", "none");
+    expect(video).not.toHaveAttribute("autoplay");
+    act(() => FakeIO.emit(root, "200px 0px", true));
+    expect(video).toHaveAttribute("src", "/a.mp4");
+    expect(video.play).not.toHaveBeenCalled();
+    act(() => FakeIO.emit(root, "0px", true));
+    expect(video.play).toHaveBeenCalledOnce();
+    Object.defineProperty(video, "paused", { configurable: true, value: false });
+    act(() => FakeIO.emit(root, "0px", false));
+    expect(video.pause).toHaveBeenCalledOnce();
   });
 });

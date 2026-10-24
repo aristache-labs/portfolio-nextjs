@@ -13,10 +13,13 @@ describe("JSON-LD", () => {
     const data = parse(script.innerHTML);
     expect(data["@type"]).toBe("Person");
     expect(data.name).toBe("Adrian Cristache");
-    expect(data.jobTitle).toBe("Technical Team Lead · Automation Engineer");
-    expect(data.description).toContain("Builds web & mobile apps");
+    expect(data.jobTitle).toBe("IT Specialist · Web & Mobile Developer");
+    expect(data.description).toContain("Web and mobile projects in my spare time.");
     expect(Array.isArray(data.sameAs)).toBe(true);
-    expect(data.sameAs.length).toBeGreaterThan(0);
+    expect(data.sameAs).toEqual([
+      "https://github.com/aristache-labs",
+      "https://www.linkedin.com/in/adrian-cristache-727773444",
+    ]);
   });
 
   it("emits a valid WebSite schema", () => {

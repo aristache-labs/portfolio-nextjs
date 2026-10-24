@@ -1,0 +1,52 @@
+@media (orientation: portrait) and (max-width: 639px) {
+  .footer > div:last-child {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  .intro {
+    display: none;
+  }
+
+  .columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    margin-top: 0;
+  }
+
+  .identity img {
+    height: 72px;
+  }
+
+  .identity p {
+    font-size: 12px;
+  }
+
+  .contact {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .contact > h3,
+  .contact > p {
+    display: none;
+  }
+
+  .contact > a {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .legal {
+    margin-top: 16px;
+    padding: 12px;
+  }
+
+  .legal > p {
+    display: none;
+  }
+
+  .legal > div > span:first-child {
+    padding-inline-end: 56px;
+    text-align: left;
+  }
+}

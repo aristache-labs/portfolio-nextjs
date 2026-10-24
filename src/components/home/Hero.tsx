@@ -6,48 +6,25 @@ import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { HERO_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { IconTile } from "@/components/ui/IconTile";
 import { SectionEdge } from "./SectionBackdrop";
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
+import { IDENTITY } from "@/lib/identity";
 export type HeroProfile = {
   name: string;
   roles: string[];
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const HERO_COPY =
-  "I build modern applications, reliable systems, and thoughtful digital experiences that solve real problems and create lasting value.";
-const FOCUS = ["Think", "Build", "Evolve", "Repeat"] as const;
+const HERO_COPY = IDENTITY.summary;
+const FOCUS = ["Systems", "Apps", "Automation", "Delivery"] as const;
 const GREETING = "// HELLO, I'M";
 /** Cover-fit box for the 16:9 hero plate, centered in its size container. */
 const PLATE =
   "absolute top-1/2 left-1/2 aspect-video w-[max(100cqw,calc(100cqh*16/9))] -translate-x-1/2 -translate-y-1/2";
-
-function useTypewriter(text: string, reduce: boolean) {
-  const [out, setOut] = useState("");
-
-  useEffect(() => {
-    if (reduce) return;
-    let i = 0;
-    let interval: ReturnType<typeof setInterval> | undefined;
-    const timeout = setTimeout(() => {
-      interval = setInterval(() => {
-        i += 1;
-        setOut(text.slice(0, i));
-        if (i >= text.length && interval) clearInterval(interval);
-      }, 55);
-    }, 400);
-    return () => {
-      clearTimeout(timeout);
-      if (interval) clearInterval(interval);
-    };
-  }, [text, reduce]);
-
-  return reduce ? text : out;
-}
 
 function fadeUp(reduce: boolean, delay: number) {
   return {
@@ -83,8 +60,7 @@ export function Hero({
     stopAnchorScroll.current?.();
     stopAnchorScroll.current = scrollToSection(id, reduce);
   };
-  const typed = useTypewriter(GREETING, reduce);
-  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const canPlayVideo = useMediaQuery(HERO_VIDEO_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     // Some iPhone browsers paint below their reported large viewport. Reserve the
@@ -128,8 +104,8 @@ export function Hero({
 
   const showVideo = videoOk && !reduce;
   // The poster is the LCP image: hold the video request until it has arrived (or failed), so
-  // hero.mp4 never competes with hero.webp. Phones never mount the video.
-  const mountVideo = showVideo && isDesktop && (posterLoaded || !posterOk);
+  // hero.mp4 never competes with hero.webp, including on landscape phones.
+  const mountVideo = showVideo && canPlayVideo && (posterLoaded || !posterOk);
 
   // The img may finish loading before hydration attaches onLoad.
   const posterRef = (node: HTMLImageElement | null) => {
@@ -197,24 +173,15 @@ export function Hero({
             fetchPriority="high"
             onLoad={() => setPosterLoaded(true)}
             onError={() => setPosterOk(false)}
-            className="absolute inset-0 h-full w-full object-cover md:hidden"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         )}
         <div className="bg-background/70 absolute inset-0 md:hidden" />
         {/* Desktop plate: sized exactly like object-cover on a 16:9 picture, so anything placed
             inside it by percentage stays on the same spot of the picture at any screen size. */}
-        <div className={`${PLATE} hidden md:block`}>
+        <div className={`${PLATE} hidden md:block landscape:block`}>
           {/* The poster img is the LCP candidate and stays put: the video mounts above it, so the
               swap never creates a later, same-size LCP element. */}
-          {posterOk && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src="/media/hero.webp"
-              alt=""
-              fetchPriority="high"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          )}
           {mountVideo && (
             <video
               ref={videoRef}
@@ -241,10 +208,10 @@ export function Hero({
         >
           <m.div
             {...fadeUp(reduce, 0.85)}
-            className={`${styles.focus} glass bg-background/70 absolute top-[45%] left-[73%] max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:top-[37%] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:left-[71.5%]`}
+            className={`${styles.focus} glass bg-background/70 absolute top-[45%] left-[73%] max-w-[300px] rounded-2xl border border-(--brand-mid)/25 px-5 py-6 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:top-[37%] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:left-[71.5%]`}
           >
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
-              {"// focus"}
+              {"// scope"}
             </p>
             <p className="text-foreground/80 mt-2 text-sm leading-relaxed">
               {FOCUS.map((word, i) => (
@@ -258,12 +225,12 @@ export function Hero({
         </div>
       </div>
 
-      {showVideo && (
+      {mountVideo && (
         <button
           type="button"
           onClick={toggleVideo}
           aria-label={playing ? "Pause background video" : "Play background video"}
-          className="border-border bg-background/40 text-foreground/70 hover:text-foreground absolute right-6 bottom-24 z-20 hidden size-10 items-center justify-center rounded-full border backdrop-blur-md md:flex"
+          className="border-border bg-background/40 text-foreground/70 hover:text-foreground absolute right-6 bottom-24 z-20 hidden size-10 items-center justify-center rounded-full border backdrop-blur-md md:flex landscape:flex"
         >
           {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
         </button>
@@ -277,28 +244,18 @@ export function Hero({
             {...fadeUp(reduce, 0.15)}
             className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90 [@media(max-height:500px)]:mb-1 [@media(max-height:500px)]:text-[11px]"
           >
-            {typed}
-            {typed !== GREETING && !reduce && (
-              <span
-                aria-hidden
-                className="animate-blink ml-1 inline-block h-4 w-[2px] translate-y-[3px] bg-(--brand-bright)"
-              />
-            )}
+            <span className={styles.greeting}>{GREETING}</span>
           </m.p>
 
           <h1 className="max-w-3xl">
-            <m.span
-              {...fadeUp(reduce, 0.3)}
-              className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(3.5rem,8vw,6.5rem)] leading-[0.95] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(2.5rem,6vw,4rem)]"
-            >
-              {profile.name.replace(/\bCristache\b\s*/i, "").trim()}
-            </m.span>
+            <span className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(2.5rem,4.8vw,4.5rem)] leading-[1] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(1.8rem,3.6vw,2.75rem)]">
+              {profile.name.trim().split(/\s+/)[0]}
+            </span>{" "}
             <m.span
               {...fadeUp(reduce, 0.45)}
-              className="font-display mt-3 block text-[clamp(1.6rem,4vw,2.6rem)] leading-[1.08] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[1.05rem]"
+              className="font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]"
             >
-              Technology, <br />
-              built with <span className="text-(--brand-mid)">intention.</span>
+              IT expertise. <span className="text-(--brand-mid)">Web & mobile development.</span>
             </m.span>
           </h1>
 
@@ -420,7 +377,7 @@ export function Hero({
             className="glass bg-background/70 mx-auto mt-6 max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md lg:hidden portrait:hidden [@media(max-height:500px)]:hidden"
           >
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
-              {"// focus"}
+              {"// scope"}
             </p>
             <p className="text-foreground/80 mt-2 text-sm leading-relaxed">
               {FOCUS.map((word, i) => (

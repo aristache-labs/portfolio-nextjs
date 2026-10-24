@@ -17,5 +17,8 @@ export function useMediaQuery(query: string): boolean {
   );
 }
 
-/** Same breakpoint as Tailwind's `md:`, where the section videos start showing. */
-export const DESKTOP_QUERY = "(min-width: 768px)";
+/** Section background videos are reserved for desktop pointers. */
+export const BACKGROUND_VIDEO_QUERY = "(min-width: 1024px) and (hover: hover) and (pointer: fine)";
+
+/** The hero also animates on touch devices held in landscape. */
+export const HERO_VIDEO_QUERY = `${BACKGROUND_VIDEO_QUERY}, (pointer: coarse) and (orientation: landscape)`;

@@ -8,7 +8,10 @@ export const SITE = {
   url: requirePublicEnv("NEXT_PUBLIC_SITE_URL"),
   ...IDENTITY,
   title: `Aristache | ${IDENTITY.name} - ${IDENTITY.jobTitle}`,
-  description: `${IDENTITY.name} - ${IDENTITY.positioning}. Enterprise IT deployments, workflow automation, and reliable applications.`,
+  description: `${IDENTITY.name} - ${IDENTITY.positioning}. Enterprise IT, PowerShell automation and script security. Web and mobile projects in my spare time.`,
   handle: "@aristache-labs",
-  sameAs: ["https://github.com/aristache-labs"],
+  sameAs: [
+    "https://github.com/aristache-labs",
+    "https://www.linkedin.com/in/adrian-cristache-727773444",
+  ],
 } as const;

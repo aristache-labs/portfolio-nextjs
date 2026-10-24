@@ -34,7 +34,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `Privacy | ${SITE.name}`,
     description: privacyDescription,
-    creator: SITE.handle,
     images: ["/opengraph-image"],
   },
 };
@@ -60,7 +59,6 @@ export default async function PrivacyPage() {
         hidden={Object.entries(profile.sectionVisibility)
           .filter(([, visible]) => visible === false)
           .map(([id]) => id)}
-        sponsorUrl={funding.find((item) => item.primary)?.url}
       />
       <div className={styles.backdropSection}>
         <SectionBackdrop
@@ -175,12 +173,9 @@ export default async function PrivacyPage() {
                       )}
                       {id === "analytics" && (
                         <>
-                          The site uses Vercel Analytics and Speed Insights. Google Analytics and
-                          Statsig Auto Capture record visits and clicks only when configured and
-                          accepted in analytics preferences. You can change your choice using
-                          Analytics preferences in the footer. Statsig Session Replay also records
-                          navigation after you accept analytics and stops when you withdraw
-                          permission. The contact form and its contents are excluded from replay.
+                          The site uses Vercel Web Analytics to measure page views and navigation.
+                          Google Analytics, Statsig and session replay are not enabled. Contact form
+                          messages are used only to reply to your inquiry.
                         </>
                       )}
                     </p>

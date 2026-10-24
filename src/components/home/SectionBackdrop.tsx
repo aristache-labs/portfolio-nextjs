@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { DESKTOP_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { BACKGROUND_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { useHeroPosterReady } from "@/hooks/useHeroPosterReady";
 
 type Listener = (visible: boolean) => void;
@@ -22,8 +22,11 @@ function observe(el: Element, rootMargin: string, listener: Listener) {
   if (!entry) {
     const listeners = new Map<Element, Listener>();
     const io = new IntersectionObserver(
-      (records) => records.forEach((r) => listeners.get(r.target)?.(r.isIntersecting)),
-      { rootMargin, threshold: 0 },
+      (records) =>
+        records.forEach((r) =>
+          listeners.get(r.target)?.(r.isIntersecting && r.intersectionRatio >= 0.01),
+        ),
+      { rootMargin, threshold: 0.01 },
     );
     entry = { io, listeners };
     observers.set(rootMargin, entry);
@@ -37,14 +40,14 @@ function observe(el: Element, rootMargin: string, listener: Listener) {
   };
 }
 
-/** Request video data when the section is this close to the viewport. */
+/** Attach the video source nearby; preload="none" defers data until playback. */
 const LOAD_MARGIN = "200px 0px";
-/** Keep playing until the section is this far away, then pause. */
-const PLAY_MARGIN = "600px 0px";
+/** Only visible sections should decode and play video frames. */
+const PLAY_MARGIN = "0px";
 
 /**
- * Full-bleed section video. Desktop plays the loop, fetched only when the section nears the
- * viewport and paused when it is far away. Mobile and reduced motion show the poster and never
+ * Full-bleed section video. Desktop plays the loop only while the section is visible.
+ * Mobile and reduced motion show the poster and never
  * mount a video. A missing file hides itself so the teal ground shows through.
  *
  * `screen` pins the loop to one viewport height at the top of the section.
@@ -74,17 +77,17 @@ export function SectionBackdrop({
   focus?: "center" | "left";
 }) {
   const reduce = useReducedMotion();
-  const isDesktop = useMediaQuery(DESKTOP_QUERY);
-  const isTouch = useMediaQuery("(pointer: coarse)");
+  const canPlayVideo = useMediaQuery(BACKGROUND_VIDEO_QUERY);
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoOk, setVideoOk] = useState(Boolean(video));
   const [posterOk, setPosterOk] = useState(Boolean(poster));
   const [near, setNear] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [ready, setReady] = useState(false);
   const posterReady = useHeroPosterReady(deferUntilHeroLoaded);
 
-  const showVideo = Boolean(video) && videoOk && !reduce && isDesktop && !isTouch;
+  const showVideo = Boolean(video) && videoOk && !reduce && canPlayVideo;
 
   useEffect(() => {
     const root = rootRef.current;
@@ -92,17 +95,19 @@ export function SectionBackdrop({
     const stopLoad = observe(root, LOAD_MARGIN, (visible) => {
       if (visible) setNear(true);
     });
-    const stopPlay = observe(root, PLAY_MARGIN, (visible) => {
-      const node = videoRef.current;
-      if (!node) return;
-      if (visible) node.play().catch(() => {});
-      else node.pause();
-    });
+    const stopPlay = observe(root, PLAY_MARGIN, setVisible);
     return () => {
       stopLoad();
       stopPlay();
     };
   }, [showVideo]);
+
+  useEffect(() => {
+    const node = videoRef.current;
+    if (!node || !showVideo || !near) return;
+    if (visible) node.play().catch(() => {});
+    else if (!node.paused) node.pause();
+  }, [showVideo, near, visible]);
 
   const screen = frame === "screen";
   // A portrait phone crops a 16:9 plate on both sides. Left focus keeps a
@@ -138,13 +143,11 @@ export function SectionBackdrop({
           <video
             ref={videoRef}
             className={media}
-            autoPlay
             muted
             loop
             playsInline
-            preload={near ? "auto" : "none"}
+            preload="none"
             src={near ? video : undefined}
-            poster={posterReady ? poster : undefined}
             onPlaying={() => setReady(true)}
             onError={() => setVideoOk(false)}
           />

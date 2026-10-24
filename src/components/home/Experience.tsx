@@ -29,6 +29,7 @@ function rise(reduce: boolean, y: number, duration: number, delay = 0) {
 function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number; last: boolean }) {
   const reduce = useReducedMotion();
   const desktop = useMediaQuery("(min-width: 1024px)");
+  const previewCount = desktop ? 2 : 1;
   const [expanded, setExpanded] = useState(false);
 
   const inner = (
@@ -58,7 +59,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
           </div>
           {exp.description.length > 0 && (
             <ul className="mt-3.5 space-y-2">
-              {exp.description.slice(0, 2).map((d, i) => (
+              {exp.description.slice(0, previewCount).map((d, i) => (
                 <li
                   key={`${exp.id}-bullet-${i}`}
                   className="text-muted flex gap-2.5 text-sm leading-relaxed"
@@ -69,7 +70,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
               ))}
             </ul>
           )}
-          {exp.description.length > 2 && (
+          {exp.description.length > previewCount && (
             <details
               className="group mt-2"
               open={desktop || expanded}
@@ -90,7 +91,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
                 </span>
               </summary>
               <ul className="mt-1 space-y-2">
-                {exp.description.slice(2).map((d, i) => (
+                {exp.description.slice(previewCount).map((d, i) => (
                   <li
                     key={`${exp.id}-more-${i}`}
                     className="text-muted flex gap-2.5 text-sm leading-relaxed"
@@ -178,9 +179,8 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
             {...rise(reduce, 18, 0.7, 0.18)}
             className={`${styles.intro} text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg`}
           >
-            From hands-on IT support to leading global enterprise deployments, my journey is built
-            on solving complex challenges, automating workflows, and delivering reliable technology
-            solutions.
+            Enterprise deployments, infrastructure operations and automation across international
+            restaurant locations.
           </m.p>
         </div>
 

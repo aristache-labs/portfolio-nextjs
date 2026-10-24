@@ -69,6 +69,10 @@
 }
 
 @media (max-width: 374px) {
+  .panel .numberValue {
+    font-size: 19px;
+  }
+
   .textValue {
     font-size: 11px;
   }
@@ -97,6 +101,17 @@
 }
 .copy {
   order: 3;
+}
+
+@media (orientation: portrait) and (max-width: 767px) {
+  .portrait {
+    width: 192px;
+    margin-bottom: 16px;
+  }
+
+  .heading > div {
+    margin-bottom: 20px;
+  }
 }
 
 @media (min-width: 1024px), (orientation: landscape) and (max-height: 500px) {

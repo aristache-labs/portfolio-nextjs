@@ -1,6 +1,6 @@
 # AI Agent Guidelines
 
-Last updated: 2026-08-17
+Last updated: 2026-10-24
 
 The working-discipline and multi-agent-safety rules that used to live here were a verbatim copy of `~/.claude/CLAUDE.md`, which is already loaded into every session. They were deleted rather than maintained in two places. This file now carries only what is true of **this repo** and cannot be derived from reading it quickly.
 
@@ -17,7 +17,7 @@ Personal portfolio and site for Cristache Adrian (https://github.com/aristache-l
 | Styling       | Tailwind CSS v4 (CSS-first `@theme`, no `tailwind.config.js`) |
 | Data          | Drizzle ORM + Postgres; migrations in `drizzle/`              |
 | Auth          | NextAuth v5 (beta), admin-only                                |
-| Platform      | Vercel - Blob (uploads), Analytics, Speed Insights            |
+| Platform      | Vercel - Blob (uploads), Web Analytics                        |
 | Email         | Resend (testimonial notifications)                            |
 | Lint / format | ESLint + Prettier - double quotes, semicolons, 100 columns    |
 | Tests         | Vitest (unit/component) + Playwright (e2e in `e2e/`)          |
@@ -58,7 +58,7 @@ scripts/                 check-routes and check-vitals
 5. **There are two colour sources, and which one to use is a real decision.** Visitors can pick a brand palette at runtime (`src/hooks/usePalette.ts`, applied as `data-palette` on `<html>`, with `[data-palette]` blocks in `globals.css`). That splits colour consumers in two:
 
    - **`brand.ts` constants** for anything server-rendered and shared, which a per-visitor choice cannot reach: `opengraph-image.tsx` (Satori at the edge), `manifest.ts` (JSON), `notify.ts` (email HTML, where custom properties are unsupported). These always show the default, correctly.
-   - **CSS variables** for DOM chrome that must follow the choice: Tailwind classes, `Logo.tsx` (SVG `stop-color` resolves `var()`), `CustomCursor.tsx`. `AmbientBackground.tsx` is the awkward one - a canvas cannot inherit a variable, so it reads the ramp with `getComputedStyle` and re-reads when the palette or theme changes.
+   - **CSS variables** for DOM chrome that must follow the choice: Tailwind classes and `Logo.tsx` (SVG `stop-color` resolves `var()`). `AmbientBackground.tsx` is the awkward one - a canvas cannot inherit a variable, so it reads the ramp with `getComputedStyle` and re-reads when the palette or theme changes.
 
    Obsidian is the default and is represented by the **absence** of `data-palette`, since it lives in `:root`/`.dark`. Adding a `[data-palette="obsidian"]` block would be a second definition that could disagree with the first; the theme test asserts it does not exist. Iris, Glacier, Ember, and Verdant each have their own `[data-palette]` blocks. Decorative glows must use the `--brand-*-rgb` channel lists (`rgb(var(--brand-deep-rgb)/0.55)`) rather than literal `rgba()`, or they silently keep the old palette - five of them did exactly that, invisible to a hex search because they were written in decimal.
 
@@ -70,7 +70,7 @@ scripts/                 check-routes and check-vitals
 
 9. **`next dev --turbopack` does not hot-reload `globals.css`. Restart the dev server after editing it.** HMR silently keeps serving the previously compiled stylesheet, so a token change appears to do nothing and the obvious conclusion - that the CSS is wrong - is wrong. Verified by diffing the served `/_next/static/chunks/*.css` against the source: it still carried the old custom-property names minutes after the edit. To confirm a CSS change is actually live, grep the served stylesheet rather than trusting the page; "server responds 200" is not a readiness signal for CSS.
 
-10. **Every public route ships roughly the same ~1425KB of JS** (decompressed) because the _root layout_ dominates: `ThemeProvider`, `AmbientBackground`, `CustomCursor`, `HashScrollFix` and three analytics scripts are client components on every route, `/login` included. Below-the-fold homepage sections are already split with `next/dynamic`, so a jump in `check:vitals` means something escaped that split rather than that a section grew.
+10. **The homepage and `/login` ship roughly ~735KB of JS** (decompressed, measured 2026-10-24), with an **800KB ceiling** in `check:vitals`. The shared root providers still dominate, but only Vercel Web Analytics remains: Google Analytics, Statsig, session replay, Speed Insights and their consent UI have been removed. `AmbientBackgroundGate` keeps the canvas module off the homepage, login and admin routes; no custom cursor is mounted. Section background videos require a fine pointer, hover, at least 1024px width and no reduced-motion preference. The hero also plays its MP4 on touch devices in landscape; portrait phones and reduced-motion visitors keep static posters. Section videos use `preload="none"`, receive a source near the viewport, play only while visible and pause offscreen. Each backdrop has one poster image, without a duplicate `video.poster`; the hero also has one image across breakpoints. Below-the-fold homepage sections remain split with `next/dynamic`, so keep media loading and JavaScript payload regressions separate when investigating performance.
 
 11. **Upload size is chosen per folder, and getting it wrong is invisible until someone looks.** `src/lib/blob.ts` has three entry points: `uploadIcon` fits inside **128px** (skill icons, SVG stored raw), `uploadAvatar` **1024px at quality 90**, `uploadProjectMedia` **1600x1000**. The profile portrait went through `uploadIcon` for a while, so it was stored at 128px and About upscaled it roughly 5x - it looked "dull and blurry" with nothing failing anywhere. `src/lib/__tests__/blob-avatar.test.ts` pins the boxes. Note also that a quality other than 75 must be listed in `images.qualities` in `next.config.js`; Next 16 allowlists it and rejects anything else with a 400 from the optimiser.
 

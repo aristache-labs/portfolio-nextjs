@@ -4,7 +4,7 @@
 
 # Adrian Cristache · Portfolio
 
-<em>Technical Team Lead · Automation Engineer · Builds web &amp; mobile apps. The site is edited in admin, not redeployed.</em>
+<em>IT Specialist · Web &amp; Mobile Developer. The site is edited in admin, not redeployed.</em>
 
 <br />
 
@@ -40,7 +40,7 @@
 
 ## Overview
 
-Aristache is the personal portfolio of Adrian Cristache: Technical Team Lead · Automation Engineer · Builds web & mobile apps. The site at https://www.aristache.dev is dark, with a single brand. Profile, projects, experience, skills, services, and contact details are stored in PostgreSQL and edited from the admin panel, so a content change publishes without a redeploy. Featured work opens in a quick view with screenshots and live GitHub stats.
+Aristache is the personal portfolio of Adrian Cristache: IT Specialist · Web & Mobile Developer. The site at https://www.aristache.dev is dark, with a single brand. Profile, projects, experience, skills, services, and contact details are stored in PostgreSQL and edited from the admin panel, so a content change publishes without a redeploy. Featured work opens in a quick view with screenshots and live GitHub stats.
 
 ## Table of Contents
 
@@ -83,7 +83,7 @@ Aristache is the personal portfolio of Adrian Cristache: Technical Team Lead · 
 | Auth            | [Auth.js v5](https://authjs.dev/) - GitHub OAuth                    |
 | File storage    | [Vercel Blob](https://vercel.com/docs/storage/vercel-blob)          |
 | Email           | [Resend](https://resend.com/)                                       |
-| Analytics       | [Vercel Analytics](https://vercel.com/analytics) + Google Analytics |
+| Analytics       | [Vercel Analytics](https://vercel.com/analytics) |
 | Package manager | [Bun](https://bun.sh/)                                              |
 | Unit tests      | [Vitest](https://vitest.dev/) + Testing Library                     |
 | E2E tests       | [Playwright](https://playwright.dev/)                               |
@@ -160,7 +160,6 @@ cp .env.example .env.local
 | `CONTACT_EMAIL`                         | Yes (prod)  | Inbox that receives contact-form mail                                                         |
 | `REVALIDATE_SECRET`                     | Yes (prod)  | Secret for the `/api/revalidate` on-demand revalidation endpoint                              |
 | `NEXT_PUBLIC_SITE_URL`                  | Yes         | Canonical site URL. Local: `http://localhost:4000`. Production: `https://www.aristache.dev`   |
-| `NEXT_PUBLIC_GTAG_ID`                   | Optional    | Google Analytics measurement ID (e.g. `G-XXXXXXXXXX`)                                         |
 | `NEXT_PUBLIC_GOOGLE_VERIFICATION_TOKEN` | Optional    | Google Search Console site verification token                                                 |
 
 > The resume link is stored in the database (`profile.resumeUrl`) and managed from the admin panel, not via an environment variable.

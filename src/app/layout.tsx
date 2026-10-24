@@ -5,16 +5,12 @@ import { ReactNode } from "react";
 import { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import { AnalyticsPreferences } from "@/components/analytics/AnalyticsPreferences";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { HashScrollFix } from "@/components/util/HashScrollFix";
-import { AmbientBackground } from "@/components/background/AmbientBackground";
+import { AmbientBackgroundGate } from "@/components/background/AmbientBackgroundGate";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE } from "@/lib/seo/site";
-import MyStatsig from "./my-statsig";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -23,17 +19,6 @@ export const metadata: Metadata = {
     template: `%s | ${SITE.name}`,
   },
   description: SITE.description,
-  keywords: [
-    SITE.name,
-    "aristache-labs",
-    "technical team lead",
-    "automation engineer",
-    "mobile developer",
-    "web developer",
-    "react native",
-    "react",
-    "next.js",
-  ],
   authors: [{ name: SITE.name, url: SITE.url }],
   creator: SITE.name,
   robots: {
@@ -63,7 +48,6 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE.title,
     description: SITE.description,
-    creator: SITE.handle,
   },
   ...(process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION_TOKEN
     ? {
@@ -120,29 +104,24 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
         />
       </head>
       <body className={GeistSans.className}>
-        <MyStatsig>
-          <PersonJsonLd />
-          <WebSiteJsonLd />
-          <MotionProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode.
+        <PersonJsonLd />
+        <WebSiteJsonLd />
+        <MotionProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode.
                   The palette needs no provider - usePalette is an external-store hook. */}
-              <AmbientBackground />
-              <main>{children}</main>
-              <ScrollToTop />
-              <AnalyticsPreferences />
-            </ThemeProvider>
-          </MotionProvider>
-          <HashScrollFix />
-          <VercelAnalytics />
-          <SpeedInsights />
-          <GoogleAnalytics />
-        </MyStatsig>
+            <AmbientBackgroundGate />
+            <main>{children}</main>
+            <ScrollToTop />
+          </ThemeProvider>
+        </MotionProvider>
+        <HashScrollFix />
+        <VercelAnalytics />
       </body>
     </html>
   );

@@ -13,12 +13,11 @@ async function get(url) {
   }
 }
 
-// Re-measured 2026-08-17 after the palette work: ~1492KB on all three, up from 1425. The ROOT
-// LAYOUT dominates (ThemeProvider, AmbientBackground and three analytics scripts
-// load everywhere). A ceiling to ratchet DOWN, not an endorsement of 1.5MB.
+// Re-measured 2026-10-24: ~735KB after removing Google/Statsig and splitting the ambient canvas.
+// Keep 800KB as the ceiling so those root-layout costs cannot silently return.
 const BUDGETS = [
-  { path: "/", js: 1560, ttfb: 800 },
-  { path: "/login", js: 1560, ttfb: 800 },
+  { path: "/", js: 800, ttfb: 800 },
+  { path: "/login", js: 800, ttfb: 800 },
 ];
 
 // Both a wrong site and a dev server produce believable numbers, and unminified bundles read

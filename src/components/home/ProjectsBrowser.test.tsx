@@ -55,22 +55,25 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
     expect(screen.getAllByRole("article")).toHaveLength(14);
   });
-  it("shows three lower cards in portrait and keeps undisplayed recent projects accessible", () => {
+  it("shows two lower cards in portrait and keeps undisplayed recent projects accessible", () => {
     installMatchMedia({ "(max-width: 1023px)": true });
     render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(9);
+    expect(screen.getAllByRole("article")).toHaveLength(6);
     fireEvent.click(screen.getByRole("button", { name: /^Web Apps/ }));
-    expect(screen.getByRole("heading", { name: "Project 7" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Project 5" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Project 7" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Project 10" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
+    expect(screen.getByRole("heading", { name: "Project 7" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
   });
   it("shows four lower cards in landscape and an empty state for an empty category", () => {
     installMatchMedia({ "(max-width: 1023px)": true, "(orientation: landscape)": true });
     render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(10);
+    expect(screen.getAllByRole("article")).toHaveLength(8);
     fireEvent.click(screen.getByRole("button", { name: /^Automation & Tools/ }));
     expect(screen.getByText("No projects in Automation & Tools yet.")).toBeInTheDocument();
-    expect(screen.getAllByRole("article")).toHaveLength(6);
+    expect(screen.getAllByRole("article")).toHaveLength(4);
   });
 });

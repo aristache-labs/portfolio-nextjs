@@ -34,13 +34,13 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const [category, setCategory] = useState(ALL);
   const [extra, setExtra] = useState(0);
   const mobileViewport = useMediaQuery("(max-width: 1023px)");
-  const recentLimit = mobileViewport ? 4 : MAX_RECENT;
+  const recentLimit = mobileViewport ? 2 : MAX_RECENT;
   const [quickView, setQuickView] = useState<MergedProject | null>(null);
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
   // a `rest` array rebuilt every render, so it never actually memoised anything.
   const landscape = useMediaQuery("(orientation: landscape)");
-  const pageSize = mobileViewport ? (landscape ? 4 : 3) : 6;
+  const pageSize = mobileViewport ? (landscape ? 4 : 2) : 6;
   const limit = pageSize + extra;
   const { featured, recent, rest, categories } = useMemo(() => {
     // projects arrives already sorted featured-first by mergeProjects.
@@ -106,7 +106,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                     distance={12}
                     duration={0.4}
                     delay={Math.min(i * 0.03, 0.12)}
-                    className="flex min-w-0"
+                    className={`flex min-w-0 ${i >= 2 ? "max-lg:hidden" : ""}`}
                   >
                     <RecentCard project={p} onQuickView={() => setQuickView(p)} />
                   </Reveal>

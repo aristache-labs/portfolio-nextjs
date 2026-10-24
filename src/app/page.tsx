@@ -1,5 +1,5 @@
 import nextDynamic from "next/dynamic";
-import { Caveat, Sora } from "next/font/google";
+import { Sora } from "next/font/google";
 import {
   getProfile,
   getProjectsMerged,
@@ -12,7 +12,6 @@ import {
 import { Hero } from "@/components/home/Hero";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
-import { CaveatFontGate } from "@/components/home/CaveatFontGate";
 
 // ISR: prerendered at build time, so the build needs a reachable database. 12h is a Neon compute
 // budget decision, not a freshness one - admin saves publish immediately. See AGENTS.md.
@@ -23,15 +22,6 @@ const sora = Sora({
   weight: ["500", "600", "700"],
   variable: "--font-sora",
   display: "swap",
-});
-
-const caveat = Caveat({
-  subsets: ["latin"],
-  weight: ["600"],
-  variable: "--font-hand",
-  display: "swap",
-  // Only the Contact quote and skills motion use it, both below the fold.
-  preload: false,
 });
 
 // Below-the-fold sections: lazy-loaded to keep the hero bundle lean.
@@ -64,7 +54,7 @@ export default async function Home() {
 
   // Fetch only the data for VISIBLE sections - a hidden section runs no query
   // (and its component chunk never loads via the gated dynamic import below).
-  // Socials + funding are shared (nav/footer + hero sponsor), so always load.
+  // Socials and the optional footer support link are shared, so always load.
   const [projects, experiences, skills, services, socials, funding] = await Promise.all([
     show("projects") ? getProjectsMerged() : Promise.resolve([]),
     show("experience") ? getExperiences() : Promise.resolve([]),
@@ -82,13 +72,11 @@ export default async function Home() {
       data-site="cinematic"
       className={`${sora.variable} dark bg-background text-foreground relative min-h-screen`}
     >
-      <CaveatFontGate className={caveat.variable} />
       <SiteNav
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
         hidden={Object.entries(vis)
           .filter(([, v]) => v === false)
           .map(([k]) => k)}
-        sponsorUrl={sponsorUrl}
       />
 
       <Hero
@@ -113,7 +101,7 @@ export default async function Home() {
 
       {show("experience") && <Experience experiences={experiences} />}
 
-      {show("projects") && <Projects projects={projects} sponsorUrl={sponsorUrl} />}
+      {show("projects") && <Projects projects={projects} />}
 
       {show("services") && <Services services={services} />}
 

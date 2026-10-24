@@ -9,8 +9,7 @@ vi.mock("@/components/motion/Reveal", () => ({
   Reveal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-// AnimatedStat renders for real (count-up) — force reduced motion so it shows
-// the final values synchronously, and provide matchMedia for the hook.
+// Keep reveal effects static and provide matchMedia for the motion hooks.
 beforeEach(() => installMatchMedia({ "(prefers-reduced-motion: reduce)": true }));
 
 const mockProfile = {
@@ -41,20 +40,25 @@ describe("About", () => {
     ).toHaveLength(2);
   });
 
-  it("renders stat labels", () => {
+  it("shows impact metrics instead of repository counts and technology categories", () => {
     render(<About profile={mockProfile} />);
     expect(screen.getByText("Years of experience")).toBeInTheDocument();
-    expect(screen.getByText("Public repos")).toBeInTheDocument();
-    expect(screen.getByText("Applications")).toBeInTheDocument();
-    expect(screen.getByText("Systems")).toBeInTheDocument();
+    expect(screen.getByText("Less manual work")).toBeInTheDocument();
+    expect(screen.getByText("Locations upgraded")).toBeInTheDocument();
+    expect(screen.getByText("Team members led")).toBeInTheDocument();
+    expect(screen.queryByText("Public repos")).not.toBeInTheDocument();
+    expect(screen.queryByText("Windows & Linux")).not.toBeInTheDocument();
     expect(screen.queryByText("GitHub stars")).not.toBeInTheDocument();
     expect(screen.queryByText("GitHub followers")).not.toBeInTheDocument();
   });
 
-  it("renders the experience figure and a + suffix for 100 or more repos", () => {
+  it("renders the documented outcomes independently of the GitHub stats", () => {
     render(<About profile={mockProfile} />);
     expect(screen.getByText("8+")).toBeInTheDocument();
-    expect(screen.getByText("120+")).toBeInTheDocument();
+    expect(screen.getByText("60%")).toBeInTheDocument();
+    expect(screen.getByText("1,600+")).toBeInTheDocument();
+    expect(screen.getByText("5")).toBeInTheDocument();
+    expect(screen.queryByText("120+")).not.toBeInTheDocument();
   });
 
   it("renders the section with correct id", () => {
@@ -65,7 +69,7 @@ describe("About", () => {
   it("renders the section heading", () => {
     render(<About profile={mockProfile} />);
     expect(
-      screen.getByRole("heading", { level: 2, name: /the mind\s*behind the code/i }),
+      screen.getByRole("heading", { level: 2, name: /infrastructure\s*and software/i }),
     ).toBeInTheDocument();
   });
 

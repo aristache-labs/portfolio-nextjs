@@ -1,4 +1,4 @@
-import { CalendarDays, FolderGit2, Layers, Server, type LucideIcon } from "lucide-react";
+import { CalendarDays, MapPin, TrendingDown, Users, type LucideIcon } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
 import { AvatarPortrait } from "./AvatarPortrait";
 import { Section } from "@/components/ui/Section";
@@ -7,6 +7,7 @@ import { SectionBackdrop } from "./SectionBackdrop";
 import statsCss from "./about-stats.module.css";
 import { AboutBio } from "./AboutBio";
 import { SITE } from "@/lib/seo/site";
+import { IDENTITY } from "@/lib/identity";
 
 export type AboutProfile = {
   bio: string;
@@ -18,16 +19,16 @@ export type AboutProfile = {
 const GLASS =
   "border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] backdrop-blur-[18px]";
 
-function StatBar({ repos }: { repos: number }) {
+function StatBar() {
   const items: { icon: LucideIcon; value: string; label: string }[] = [
-    { icon: CalendarDays, value: "8+", label: "Years of experience" },
+    { icon: TrendingDown, value: IDENTITY.manualWorkReduction, label: "Less manual work" },
     {
-      icon: FolderGit2,
-      value: repos >= 100 ? `${repos}+` : String(repos),
-      label: "Public repos",
+      icon: MapPin,
+      value: IDENTITY.deploymentLocations,
+      label: "Locations upgraded",
     },
-    { icon: Layers, value: "Web & Mobile", label: "Applications" },
-    { icon: Server, value: "Windows & Linux", label: "Systems" },
+    { icon: Users, value: IDENTITY.teamSize, label: "Team members led" },
+    { icon: CalendarDays, value: IDENTITY.experienceYears, label: "Years of experience" },
   ];
 
   return (
@@ -35,7 +36,7 @@ function StatBar({ repos }: { repos: number }) {
       distance={12}
       duration={0.4}
       delay={0.1}
-      className="mt-14 lg:col-span-2 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2"
+      className="mt-8 lg:col-span-2 lg:mt-14 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2"
     >
       <div
         className={`${statsCss.panel} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
@@ -57,7 +58,7 @@ function StatBar({ repos }: { repos: number }) {
               </IconTile>
               <span className="min-w-0">
                 <span
-                  className={`font-display block leading-tight text-white ${value === "Web & Mobile" || value === "Windows & Linux" ? `${statsCss.textValue} text-base font-semibold xl:text-lg` : `${statsCss.numberValue} text-xl font-bold sm:text-2xl`}`}
+                  className={`${statsCss.numberValue} font-display block text-xl leading-tight font-bold text-white sm:text-2xl`}
                 >
                   {value}
                 </span>
@@ -109,9 +110,8 @@ export function About({ profile }: { profile: AboutProfile }) {
               <span aria-hidden className="bg-border h-px flex-1" />
             </p>
             <h2 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-              The <span className="gradient-text">Mind</span>
-              <br />
-              Behind the <span className="gradient-text">Code.</span>
+              Infrastructure <br />
+              and <span className="gradient-text">software.</span>
             </h2>
           </div>
         </div>
@@ -120,7 +120,7 @@ export function About({ profile }: { profile: AboutProfile }) {
         </div>
       </Reveal>
       <div>
-        <StatBar repos={profile.stats.repos} />
+        <StatBar />
       </div>
     </Section>
   );

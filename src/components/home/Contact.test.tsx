@@ -116,7 +116,7 @@ describe("Contact", () => {
 
   it("renders the heading", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    expect(screen.getByRole("heading", { name: /conversation/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 2, name: /discuss a project/i })).toBeTruthy();
   });
 
   it("omits the linkedin card when that profile is not configured", () => {

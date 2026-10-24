@@ -75,8 +75,8 @@ describe("Skills", () => {
 
   it("renders section heading", () => {
     render(<Skills skills={mockSkills} />);
-    expect(screen.getByText("Skills that build")).toBeInTheDocument();
-    expect(screen.getByText("possibilities")).toBeInTheDocument();
+    expect(screen.getByText("Technologies and")).toBeInTheDocument();
+    expect(screen.getByText("tools")).toBeInTheDocument();
   });
 
   it("shows the level as a percent", () => {
@@ -100,9 +100,7 @@ describe("Skills", () => {
       order: i,
     }));
     render(<Skills skills={many} />);
-    expect(
-      screen.getByText("My 8 most-used skills - explore all 9 by category."),
-    ).toBeInTheDocument();
+    expect(screen.getAllByText(/^Skill \d$/)).toHaveLength(8);
     expect(screen.queryByText("Skill 8")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("tab", { name: "Extra" }));
     expect(screen.getByText("Skill 8")).toBeInTheDocument();
@@ -151,6 +149,6 @@ describe("Skills", () => {
 
   it("renders an empty state gracefully", () => {
     render(<Skills skills={[]} />);
-    expect(screen.getByText("Skills that build")).toBeInTheDocument();
+    expect(screen.getByText("Technologies and")).toBeInTheDocument();
   });
 });

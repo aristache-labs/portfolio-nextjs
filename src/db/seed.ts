@@ -18,7 +18,7 @@ const seededAvatarUrl = "/images/aristache.webp";
 
 const profileRow = {
   name: IDENTITY.name,
-  bio: "I'm Adrian, a Technical Team Lead and software developer with over 8 years of experience in IT infrastructure, system administration, and automation. I lead enterprise deployments, build reliable systems, and turn complex technical challenges into practical solutions.\n\nBeyond infrastructure, I create modern web and mobile applications, combining engineering, creativity, and a constant drive to learn and improve.",
+  bio: "I'm Adrian, an IT specialist and web and mobile developer with over 8 years of experience in IT infrastructure, system administration, and automation. My experience includes leading enterprise deployments, building reliable systems, and turning complex technical challenges into practical solutions.\n\nMy experience spans enterprise IT, PowerShell automation and script security. In my spare time, I build web and mobile applications.",
   stats: { years: 8, repos: 6, stars: 0, followers: 0 },
   roles: [...IDENTITY.roles],
   // Resume URL lives in the DB only — set it via the admin panel.

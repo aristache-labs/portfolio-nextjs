@@ -33,6 +33,32 @@
   }
 }
 @media (orientation: portrait) and (max-width: 1023px) {
+  .recentCard {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .recentImage {
+    width: 80px;
+    aspect-ratio: 1;
+    align-self: start;
+  }
+
+  .recentContent {
+    display: contents;
+  }
+
+  .recentText {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .recentFooter {
+    grid-column: 1 / -1;
+  }
+
   .featuredHeading {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;

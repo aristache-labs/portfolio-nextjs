@@ -152,7 +152,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             {...reducedMotionProps}
             className="font-display mt-6 text-[clamp(2rem,3.5vw,3.1rem)] leading-[1.08] font-extrabold tracking-tight text-white"
           >
-            Great Ideas Start with a <span className="gradient-text">Conversation.</span>
+            Discuss a <span className="gradient-text">project.</span>
           </m.h2>
 
           <m.p
@@ -163,9 +163,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             {...reducedMotionProps}
             className="mt-4 max-w-[475px] text-[16.5px] leading-[1.62] text-white/80 sm:text-[17px] [@media(orientation:landscape)_and_(max-height:500px)]:text-[14px] [@media(orientation:landscape)_and_(max-height:500px)]:leading-[1.45]"
           >
-            Have a project in mind, a technical challenge to solve, or an opportunity to
-            collaborate? Whether it&apos;s IT infrastructure, automation, web, or mobile
-            development, I&apos;d love to hear from you.
+            For infrastructure, automation, web and mobile projects, share your requirements below.
           </m.p>
 
           {cards.length > 0 && (
@@ -222,22 +220,6 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
               })}
             </ul>
           )}
-
-          <m.figure
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
-            {...reducedMotionProps}
-            className="mt-8 lg:mt-10"
-          >
-            <blockquote className="[font-family:var(--font-hand),cursive] text-[28px] leading-tight text-white drop-shadow-[0_2px_14px_rgb(0_0_0/0.65)] sm:text-[26px] lg:text-[28px]">
-              &ldquo;Every great solution starts with a conversation.&rdquo;
-            </blockquote>
-            <footer className="mt-2 font-mono text-[14px] tracking-[0.3em] text-white/55">
-              - ADRIAN
-            </footer>
-          </m.figure>
         </div>
 
         <m.div
@@ -263,11 +245,8 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             </div>
 
             <h3 className="font-display mt-3 text-[clamp(1.85rem,2.6vw,2.6rem)] leading-tight font-extrabold tracking-tight text-white">
-              I&apos;m all <span className="gradient-text">ears!</span>
+              Project <span className="gradient-text">details</span>
             </h3>
-            <p className="mt-3 text-[14px] leading-relaxed text-white/60">
-              Fill out the form and I&apos;ll get back to you as soon as I can.
-            </p>
 
             <div className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -336,7 +315,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
                   minLength={10}
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
-                  placeholder="Tell me about the project, the role, or the problem."
+                  placeholder="Project scope, current stack, constraints and timeline."
                   className={`${inputClass} h-[92px] resize-none py-2.5`}
                 />
               </div>

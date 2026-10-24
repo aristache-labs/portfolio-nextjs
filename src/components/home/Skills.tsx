@@ -3,12 +3,9 @@
 import { useMemo, useState } from "react";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
-import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
-import { BarChart3, Code2, Heart, Quote, Zap, type LucideIcon } from "lucide-react";
+import { Zap } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
-import statsCss from "./about-stats.module.css";
-import quoteCss from "./skills-quote.module.css";
 import responsiveCss from "./skills-responsive.module.css";
 
 export type SkillRow = {
@@ -38,12 +35,6 @@ function mostUsedSkills(skills: SkillRow[]) {
     .slice(0, MOST_USED_LIMIT);
 }
 
-function techCount(total: number) {
-  if (total <= 0) return "0";
-  if (total < 10) return String(total);
-  return `${Math.floor(total / 5) * 5}+`;
-}
-
 export function Skills({ skills }: { skills: SkillRow[] }) {
   const reducedMotionProps = useReducedMotionProps();
   const ordered = useMemo(() => byOrder(skills), [skills]);
@@ -62,13 +53,6 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
   const active = filter !== MOST_USED && categories.includes(filter) ? filter : MOST_USED;
   const visible =
     active === MOST_USED ? mostUsedSkills(ordered) : ordered.filter((s) => s.category === active);
-
-  const stats: { icon: LucideIcon; value: string; label: string }[] = [
-    { icon: Code2, value: techCount(skills.length), label: "Technologies & Tools" },
-    { icon: Zap, value: "IT + Dev", label: "Dual Expertise" },
-    { icon: BarChart3, value: "Automation", label: "Engineering Mindset" },
-    { icon: Heart, value: "Always", label: "Learning & Improving" },
-  ];
 
   return (
     <section
@@ -106,19 +90,8 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               {...reducedMotionProps}
               className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap"
             >
-              Skills that build <span className="gradient-text">possibilities</span>
+              Technologies and <span className="gradient-text">tools</span>
             </m.h2>
-
-            <m.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.15 }}
-              {...reducedMotionProps}
-              className="text-foreground/55 mx-auto mt-2 max-w-2xl text-sm sm:text-base"
-            >
-              A curated set of technologies, tools and skills I use to turn ideas into reality.
-            </m.p>
           </div>
         </div>
 
@@ -161,11 +134,6 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 })}
               </m.div>
             )}
-            {active === MOST_USED && ordered.length > MOST_USED_LIMIT && (
-              <p className="text-foreground/60 mt-2.5 text-xs max-lg:text-center">
-                My {visible.length} most-used skills - explore all {ordered.length} by category.
-              </p>
-            )}
 
             <m.div
               key={active}
@@ -191,76 +159,6 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
             </m.div>
           </div>
         </div>
-
-        <m.figure
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-          {...reducedMotionProps}
-          className={`${quoteCss.quoteCard} bg-background/40 relative order-last mx-auto mt-8 w-full max-w-sm rounded-xl border border-white/10 px-8 pt-6 pb-4 backdrop-blur-xl lg:order-none lg:mt-12`}
-        >
-          <Quote
-            aria-hidden
-            className="text-brand-bright fill-brand-mid absolute -top-3 left-4 size-6"
-          />
-          <blockquote className="text-foreground/85 text-sm leading-relaxed">
-            Tools evolve.
-            <br />
-            Problem-solving endures.
-          </blockquote>
-          <span
-            aria-hidden
-            className="bg-brand-mid mx-auto mt-2.5 block h-[2px] w-10 rounded-full shadow-[0_0_10px_rgb(var(--brand-mid-rgb)/0.9)]"
-          />
-        </m.figure>
-
-        <div className="mt-6">
-          <div className="flex min-w-0 flex-col gap-4">
-            <m.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              {...reducedMotionProps}
-              className={`${statsCss.panel} relative overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] backdrop-blur-[18px] sm:px-6`}
-            >
-              <span
-                aria-hidden
-                className="via-brand-mid/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
-              />
-
-              <span className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-4 lg:grid-cols-4`}>
-                {stats.map((stat, index) => (
-                  <span
-                    key={stat.label}
-                    className={`${statsCss.item} flex min-w-0 items-center gap-3 ${index !== 0 ? "lg:border-l lg:border-white/10 lg:pl-4" : ""}`}
-                  >
-                    <IconTile size="sm">
-                      <stat.icon className="size-[18px]" {...ICON_PROPS} />
-                    </IconTile>
-                    <span className="min-w-0">
-                      <span
-                        className={`${stat.value === techCount(skills.length) ? statsCss.numberValue : statsCss.textValue} font-display block text-base leading-tight font-semibold`}
-                      >
-                        {stat.value}
-                      </span>
-                      <span
-                        className={`${statsCss.label} text-foreground/50 block text-[11px] break-words`}
-                      >
-                        {stat.label}
-                      </span>
-                    </span>
-                  </span>
-                ))}
-              </span>
-            </m.div>
-          </div>
-        </div>
-        <figure className={quoteCss.landscapeQuote}>
-          <blockquote>&ldquo;Tools evolve. Problem-solving endures.&rdquo;</blockquote>
-          <figcaption>- ADRIAN</figcaption>
-        </figure>
       </div>
     </section>
   );

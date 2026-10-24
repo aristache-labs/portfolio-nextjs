@@ -25,7 +25,6 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import type { MenuSection } from "./MenuOverlay";
-import motionCss from "./support-motion.module.css";
 import navStyles from "./nav-landscape.module.css";
 import panelStyles from "./nav-panel.module.css";
 
@@ -58,12 +57,10 @@ const SECTIONS: MenuSection[] = [
 export function SiteNav({
   hidden = [],
   sections = SECTIONS,
-  sponsorUrl,
 }: {
   socials: { platform: string; url: string }[];
   hidden?: string[];
   sections?: MenuSection[];
-  sponsorUrl?: string | null;
 }) {
   const visibleSections = useMemo(
     () => sections.filter((s) => !hidden.includes(s.id)),
@@ -82,12 +79,7 @@ export function SiteNav({
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopAnchorScroll.current?.(), [onHomepage]);
   const showContact = visibleSections.some((s) => s.id === "contact");
-  const sponsor = sponsorUrl?.trim();
-  const navCta = sponsor
-    ? { href: sponsor, external: true, label: "Support My Work" }
-    : showContact
-      ? { href: sectionHref("contact"), external: false, label: "Let's Talk" }
-      : null;
+  const navCta = showContact ? { href: sectionHref("contact"), label: "Let's Talk" } : null;
 
   // Mobile menu links scroll explicitly, and only after the panel has finished collapsing.
   // Framer Motion measures the height auto -> 0 exit with window.scrollTo(0, 0), which cancels
@@ -259,23 +251,11 @@ export function SiteNav({
           {navCta && (
             <Link
               href={navCta.href}
-              onClick={navCta.external ? undefined : (event) => goToSection(event, "contact")}
-              {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              onClick={(event) => goToSection(event, "contact")}
               className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
             >
-              {navCta.external && (
-                <Image
-                  src="/icons/heart.svg"
-                  alt=""
-                  width={16}
-                  height={16}
-                  className={`${motionCss.heart} size-4 shrink-0 object-contain`}
-                />
-              )}
               {navCta.label}
-              {!navCta.external && (
-                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-              )}
+              <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           )}
 
@@ -334,35 +314,16 @@ export function SiteNav({
                 </nav>
                 {navCta && (
                   <div className={panelStyles.action}>
-                    <p className={panelStyles.eyebrow}>
-                      {navCta.external ? "Independent development" : "Start a conversation"}
-                    </p>
-                    <p className={panelStyles.actionTitle}>
-                      {navCta.external ? "Fuel future projects." : "Build something together."}
-                    </p>
+                    <p className={panelStyles.eyebrow}>Project inquiries</p>
+                    <p className={panelStyles.actionTitle}>Discuss your project.</p>
                     <p className={panelStyles.actionDescription}>
-                      {navCta.external
-                        ? "Support the tools and ideas that come next."
-                        : "Have a project in mind? Let's talk."}
+                      Share the scope, stack and timeline.
                     </p>
                     <Link
                       href={navCta.href}
-                      onClick={(event) => {
-                        if (navCta.external) setOpen(false);
-                        else goToSection(event, "contact");
-                      }}
-                      {...(navCta.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      onClick={(event) => goToSection(event, "contact")}
                       className={panelStyles.cta}
                     >
-                      {navCta.external && (
-                        <Image
-                          src="/icons/heart.svg"
-                          alt=""
-                          width={16}
-                          height={16}
-                          className={`${motionCss.heart} size-4 shrink-0 object-contain`}
-                        />
-                      )}
                       {navCta.label}
                       <ArrowRight className="ml-auto size-4" aria-hidden />
                     </Link>

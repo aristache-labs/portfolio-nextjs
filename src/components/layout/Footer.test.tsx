@@ -80,12 +80,12 @@ describe("Footer", () => {
     expect(screen.queryByLabelText("linkedin")).toBeNull();
     expect(screen.queryByLabelText("twitter")).toBeNull();
     expect(screen.queryByLabelText("Email")).toBeNull();
-    expect(screen.getByText(/Diagnose. Build. Automate./)).toBeTruthy();
+    expect(screen.getByText(/IT Specialist/)).toBeTruthy();
   });
 
-  it("renders the tagline and copyright line", () => {
+  it("renders professional positioning and copyright", () => {
     render(<Footer socials={mockSocials} />);
-    expect(screen.getByText(/Diagnose. Build. Automate./)).toBeTruthy();
+    expect(screen.getByText(/IT Specialist/)).toBeTruthy();
     expect(screen.getByText(/All rights reserved/)).toBeTruthy();
   });
 
@@ -105,18 +105,24 @@ describe("Footer", () => {
     );
   });
 
-  it("shows Fuel Future Projects only when a sponsor url is set", () => {
+  it("keeps contact primary and shows only a small support link when configured", () => {
     const { rerender } = render(<Footer socials={mockSocials} />);
-    expect(screen.queryByRole("link", { name: /fuel future projects/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Support" })).toBeNull();
     rerender(<Footer socials={mockSocials} sponsorUrl="https://example.com/sponsor" />);
-    const support = screen.getByRole("link", { name: /fuel future projects/i });
+    const support = screen.getByRole("link", { name: "Support" });
     expect(support.getAttribute("href")).toBe("https://example.com/sponsor");
     expect(support.getAttribute("target")).toBe("_blank");
+    expect(screen.queryByText("Fuel Future Projects")).not.toBeInTheDocument();
+    expect(screen.queryByText("Support My Work")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /send a message/i })).toHaveAttribute(
+      "href",
+      "#contact",
+    );
     expect(screen.getByRole("link", { name: "Contact" }).getAttribute("href")).toBe("#contact");
   });
 
   it("renders empty socials gracefully", () => {
     render(<Footer socials={[]} />);
-    expect(screen.getByText(/Diagnose. Build. Automate./)).toBeTruthy();
+    expect(screen.getByText(/IT Specialist/)).toBeTruthy();
   });
 });

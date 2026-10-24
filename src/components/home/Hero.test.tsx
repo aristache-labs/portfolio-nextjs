@@ -7,15 +7,22 @@ beforeEach(() => installMatchMedia());
 afterEach(cleanup);
 
 const profile = {
-  name: "Cristache Adrian",
+  name: "Adrian Cristache",
   roles: ["Full Stack Developer", "Flutter Developer"],
 };
 
 describe("Hero", () => {
-  it("renders the headline as the h1", () => {
+  it("renders only the first name, complete greeting and deployment proof immediately", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1).toHaveTextContent(/technology, built with intention/i);
+    expect(h1).not.toHaveTextContent("Cristache");
+    expect(h1.textContent).toMatch(/Adrian\s+IT expertise\. Web & mobile development\./);
+    expect(
+      screen.getByText(
+        /My experience spans enterprise IT, PowerShell automation and script security\./,
+      ),
+    ).toHaveTextContent("In my spare time, I build web and mobile applications.");
+    expect(screen.getByText("// HELLO, I'M")).toBeInTheDocument();
   });
 
   it("renders the hero tagline chip", () => {
@@ -74,5 +81,12 @@ describe("Hero", () => {
     render(<Hero profile={profile} />);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
     expect(screen.getByLabelText(/scroll to explore/i)).toHaveAttribute("href", "#projects");
+  });
+
+  it("renders a single hero poster and no video controls on a touch viewport", () => {
+    const { container } = render(<Hero profile={profile} />);
+    expect(container.querySelectorAll('img[src="/media/hero.webp"]')).toHaveLength(1);
+    expect(container.querySelector("video")).toBeNull();
+    expect(screen.queryByRole("button", { name: /background video/i })).not.toBeInTheDocument();
   });
 });

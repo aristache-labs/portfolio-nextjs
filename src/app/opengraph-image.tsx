@@ -40,10 +40,18 @@ export default async function OpengraphImage() {
       </div>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", fontSize: 68, fontWeight: 700, letterSpacing: -2 }}>
-          Technology,
+          {SITE.name}
         </div>
-        <div style={{ display: "flex", fontSize: 68, fontWeight: 700, letterSpacing: -2 }}>
-          built with <span style={{ color: BRAND.bright, marginLeft: 16 }}>intention.</span>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 40,
+            lineHeight: 1.2,
+            color: BRAND.bright,
+            marginTop: 20,
+          }}
+        >
+          {SITE.proof}
         </div>
         <div style={{ fontSize: 25, color: "#b8c5c5", marginTop: 24 }}>{SITE.positioning}</div>
       </div>
@@ -56,7 +64,7 @@ export default async function OpengraphImage() {
           paddingTop: 24,
         }}
       >
-        <span style={{ fontSize: 23 }}>{SITE.name}</span>
+        <span style={{ fontSize: 23 }}>{SITE.jobTitle}</span>
         <span style={{ fontSize: 22, color: BRAND.bright }}>{displayHost}</span>
       </div>
     </div>,
