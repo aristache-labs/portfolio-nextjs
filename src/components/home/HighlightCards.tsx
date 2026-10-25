@@ -9,6 +9,23 @@ import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
 import { COMPACT_PROJECT_ACTION } from "./project-styles";
 
+// Fallbacks follow site-container padding and the two-column highlights layout.
+// Lazy covers use their actual layout width when the browser supports auto sizes.
+const FEATURED_COVER_SIZES = [
+  "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
+  "(orientation: landscape) and (max-height: 500px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1rem) / 2)",
+  "calc(100vw - clamp(3rem, 5vw, 5.5rem))",
+].join(", ");
+
+const RECENT_COVER_SIZES = [
+  "(orientation: portrait) and (max-width: 1023px) 80px",
+  "(orientation: landscape) and (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) calc(18vw)",
+  "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 3.5rem) / 4 - 1.5rem)",
+  "(min-width: 640px) 192px",
+  "(orientation: landscape) and (max-height: 500px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1rem) / 2 - 1.75rem)",
+  "calc(100vw - clamp(3rem, 5vw, 5.5rem) - 1.75rem)",
+].join(", ");
+
 /** "Oct 2026". Fixed to UTC so the server render and the browser agree on the month. */
 export function formatUpdated(date: Date): string {
   return date.toLocaleDateString("en", { month: "short", year: "numeric", timeZone: "UTC" });
@@ -30,7 +47,8 @@ function Cover({
       src={project.coverImage}
       alt=""
       fill
-      sizes={sizes}
+      sizes={priority ? sizes : `auto, ${sizes}`}
+      loading={priority ? undefined : "lazy"}
       quality={90}
       priority={priority}
       className={`${fit} transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.02]`}
@@ -166,7 +184,7 @@ export function FeaturedCard({
         FEATURED
       </span>
       <div className="border-border relative aspect-video w-full shrink-0 overflow-hidden border-b">
-        <Cover project={project} sizes="(max-width: 1024px) 100vw, 48rem" fit="object-cover" />
+        <Cover project={project} sizes={FEATURED_COVER_SIZES} fit="object-cover" />
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <div
@@ -216,7 +234,7 @@ export function RecentCard({
       >
         <Cover
           project={project}
-          sizes="(max-width: 640px) 100vw, 192px"
+          sizes={RECENT_COVER_SIZES}
           fit="object-cover"
           priority={priority}
         />

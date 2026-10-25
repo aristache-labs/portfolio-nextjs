@@ -260,7 +260,7 @@ export function Hero({
               style={entranceStyle(0.45)}
               className={`${styles.enter} font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]`}
             >
-              IT expertise. <span className="text-(--brand-mid)">Web & mobile development.</span>
+              Infrastructure meets <span className="text-(--brand-mid)">innovation.</span>
             </span>
           </h1>
 

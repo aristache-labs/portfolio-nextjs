@@ -23,6 +23,14 @@ type Slide = { src: string; poster: boolean };
 /** Tallest the poster well may grow. A 9:16 shot uses this height; a 16:9 shot is shorter. */
 const STAGE_MAX = "min(50vh, 26rem)";
 
+// Match the dialog's portrait width, landscape image column and desktop max-w-2xl.
+// These are CSS widths, without a manual pixel-density multiplier.
+const PREVIEW_SIZES = [
+  "(orientation: portrait) and (max-width: 1023px) min(calc(100vw - 48px), 42rem)",
+  "(orientation: landscape) and (max-width: 1023px) and (max-height: 600px) min(calc((100vw - 72px) * 0.42), 352.8px)",
+  "min(calc(100vw - 2rem), 42rem)",
+].join(", ");
+
 function slidesFor(project: MergedProject): Slide[] {
   return [
     ...(project.coverImage ? [{ src: project.coverImage, poster: true }] : []),
@@ -76,7 +84,8 @@ function PosterCarousel({
         src={slide.src}
         alt={slide.poster ? `${title} poster` : `${title} screenshot ${index}`}
         fill
-        sizes="(max-width: 640px) 100vw, 1344px"
+        sizes={index === 0 ? PREVIEW_SIZES : `auto, ${PREVIEW_SIZES}`}
+        loading={index === 0 ? undefined : "lazy"}
         quality={90}
         className="object-contain"
         priority={index === 0}

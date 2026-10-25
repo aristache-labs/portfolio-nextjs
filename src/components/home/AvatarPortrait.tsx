@@ -3,6 +3,18 @@
 import Image from "next/image";
 import { useHeroPosterReady } from "@/hooks/useHeroPosterReady";
 
+// Auto follows the actual layout, including the About portrait cap and root font size.
+// Fallbacks match the outer CSS widths; the browser applies pixel density itself.
+const PORTRAIT_SIZES = [
+  "auto",
+  "(orientation: portrait) and (max-width: 767px) 192px",
+  "(orientation: landscape) and (max-height: 500px) and (pointer: coarse) 176px",
+  "(orientation: landscape) and (max-height: 500px) 256px",
+  "(min-width: 1024px) 384px",
+  "(min-width: 640px) 320px",
+  "288px",
+].join(", ");
+
 // Leaf silhouette: two large corners opposite two small ones. The halo sits 1rem outside the ring,
 // so it carries its own larger radii or its blur clips square against the frame. Scaled-down twins
 // of these radii live in admin/AvatarField, whose preview is a third of this width.
@@ -34,7 +46,8 @@ export function AvatarPortrait({ src, name }: { src: string; name: string }) {
               alt={`Portrait of ${name}`}
               fill
               quality={90}
-              sizes="(max-width: 640px) 576px, (max-width: 1024px) 640px, 768px"
+              loading="lazy"
+              sizes={PORTRAIT_SIZES}
               className="object-cover"
             />
           )}
