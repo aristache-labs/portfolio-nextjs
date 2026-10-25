@@ -11,7 +11,8 @@ import {
 /**
  * An external store, not a context provider: getServerSnapshot renders during hydration so
  * there is no mismatch and no setState-in-an-effect (which ESLint rejects here). Applied as
- * `data-palette` on <html>; initial load is handled by the pre-paint script in layout.tsx.
+ * `data-palette` on <html>. layout.tsx clears the stored key before paint, so every route
+ * resolves to the default.
  */
 const listeners = new Set<() => void>();
 

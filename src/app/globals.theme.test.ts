@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { describe, it, expect } from "vitest";
 import { BRAND, GROUND, INK, hexToRgb } from "@/lib/brand";
-import { DEFAULT_PALETTE, PALETTES } from "@/lib/palettes";
+import { DEFAULT_PALETTE, PALETTE_STORAGE_KEY, PALETTES } from "@/lib/palettes";
 
 /**
  * Drift guard between brand.ts and globals.css. Every expectation is DERIVED from brand.ts,
@@ -106,17 +106,14 @@ describe("globals.css mirrors brand.ts", () => {
     }
   });
 
-  it("keeps the pre-paint allowlist in layout.tsx in step with PALETTES", () => {
-    // layout.tsx hardcodes the ids because the script runs before any module loads. Nothing
-    // else compares the two, so a new palette could be selectable yet never survive a reload.
+  it("pins every route to Obsidian dark in layout.tsx", () => {
+    // The picker is gone, so a stored palette or theme must not reach any route. The homepage
+    // shields itself with [data-site="cinematic"]; Privacy, login, admin and errors rely on this.
     const layout = readFileSync(join(process.cwd(), "src/app/layout.tsx"), "utf-8");
-    const listed = layout.match(/\[((?:'[a-z]+',?\s*)+)\]\.indexOf\(p\)/)?.[1];
-    expect(listed, "pre-paint allowlist not found in layout.tsx").toBeDefined();
-    const ids = [...(listed ?? "").matchAll(/'([a-z]+)'/g)].map((m) => m[1]).sort();
-    const expected = PALETTES.map((p) => p.id)
-      .filter((id) => id !== DEFAULT_PALETTE)
-      .sort();
-    expect(ids).toEqual(expected);
+    expect(layout).toContain('forcedTheme="dark"');
+    expect(layout).toContain("enableSystem={false}");
+    expect(layout).toContain(`localStorage.removeItem('${PALETTE_STORAGE_KEY}')`);
+    expect(layout).not.toMatch(/dataset\.palette\s*=/);
   });
 
   it("defines the font tokens", () => {

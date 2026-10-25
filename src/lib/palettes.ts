@@ -34,5 +34,5 @@ export function resolveStoredPalette(stored: string | null): PaletteId {
   return isPaletteId(stored) ? stored : DEFAULT_PALETTE;
 }
 
-// Also hardcoded in the pre-paint script in layout.tsx - keep the two in sync.
+// Also hardcoded in the pre-paint script in layout.tsx, which clears it on every load.
 export const PALETTE_STORAGE_KEY = "palette";

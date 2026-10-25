@@ -110,16 +110,12 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
               "requestAnimationFrame(function(){document.documentElement.classList.add('theme-ready')})",
           }}
         />
-        {/* Applies the stored palette before paint, or the page shows the default for a frame
-            and snaps. The default is the ABSENCE of the attribute, hence no else branch. Key
-            duplicates PALETTE_STORAGE_KEY in lib/palettes.ts. */}
+        {/* Every route is Obsidian, which is the ABSENCE of data-palette. Drops a choice left
+            by the removed picker before usePalette reads it, so no consumer can re-apply it.
+            Key duplicates PALETTE_STORAGE_KEY in lib/palettes.ts. */}
         <script
           dangerouslySetInnerHTML={{
-            __html:
-              "try{var p=localStorage.getItem('palette');" +
-              "if(p==='magenta'){localStorage.setItem('palette','obsidian');p='obsidian';}" +
-              "if(p&&['iris','glacier','ember','verdant'].indexOf(p)>-1)" +
-              "document.documentElement.dataset.palette=p}catch(e){}",
+            __html: "try{localStorage.removeItem('palette')}catch(e){}",
           }}
         />
       </head>
@@ -127,10 +123,13 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
         <PersonJsonLd />
         <WebSiteJsonLd />
         <MotionProvider>
+          {/* Obsidian dark on every route. Forced, so neither the OS preference nor a theme
+              stored by the removed picker can switch a route to light. */}
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
-            enableSystem
+            defaultTheme="dark"
+            forcedTheme="dark"
+            enableSystem={false}
             disableTransitionOnChange
           >
             {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode.
