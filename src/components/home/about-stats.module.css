@@ -55,11 +55,6 @@
     height: 18px;
   }
 
-  .textValue {
-    font-size: 12px;
-    white-space: nowrap;
-  }
-
   .label {
     font-size: 11px;
     line-height: 1.4;
@@ -73,10 +68,6 @@
 @media (max-width: 374px) {
   .panel .numberValue {
     font-size: 19px;
-  }
-
-  .textValue {
-    font-size: 11px;
   }
 }
 
