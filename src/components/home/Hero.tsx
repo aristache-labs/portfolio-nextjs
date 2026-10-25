@@ -34,6 +34,11 @@ function fadeUp(reduce: boolean, delay: number) {
   };
 }
 
+// CSS owns copy entrances so mobile never waits for hydration to reveal its LCP text.
+function entranceStyle(delay: number) {
+  return { animationDelay: `${delay * 0.14}s` };
+}
+
 /**
  * First screen: looping plate on the right, copy on the left, teal vignette.
  * Video and poster live in public/media. Accents stay on the Obsidian ramp.
@@ -240,34 +245,37 @@ export function Hero({
         className={`${styles.content} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
       >
         <div className="max-w-2xl min-w-0 lg:pl-8">
-          <m.p
-            {...fadeUp(reduce, 0.15)}
-            className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90 [@media(max-height:500px)]:mb-1 [@media(max-height:500px)]:text-[11px]"
+          <p
+            style={entranceStyle(0.15)}
+            className={`${styles.enter} mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90 [@media(max-height:500px)]:mb-1 [@media(max-height:500px)]:text-[11px]`}
           >
             <span className={styles.greeting}>{GREETING}</span>
-          </m.p>
+          </p>
 
           <h1 className="max-w-3xl">
             <span className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(2.5rem,4.8vw,4.5rem)] leading-[1] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(1.8rem,3.6vw,2.75rem)]">
               {profile.name.trim().split(/\s+/)[0]}
             </span>{" "}
-            <m.span
-              {...fadeUp(reduce, 0.45)}
-              className="font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]"
+            <span
+              style={entranceStyle(0.45)}
+              className={`${styles.enter} font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]`}
             >
               IT expertise. <span className="text-(--brand-mid)">Web & mobile development.</span>
-            </m.span>
+            </span>
           </h1>
 
-          <m.p
-            {...fadeUp(reduce, 0.6)}
-            className={`${styles.copy} text-foreground/95 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
+          <p
+            style={entranceStyle(0.6)}
+            className={`${styles.enter} ${styles.copy} text-foreground/95 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
           >
             {HERO_COPY}
-          </m.p>
+          </p>
 
           {heroTagline && (
-            <m.p {...fadeUp(reduce, 0.7)} className="mt-4 [@media(max-height:500px)]:mt-2">
+            <p
+              style={entranceStyle(0.7)}
+              className={`${styles.enter} mt-4 [@media(max-height:500px)]:mt-2`}
+            >
               <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
                 <span
                   aria-hidden
@@ -275,12 +283,12 @@ export function Hero({
                 />
                 {heroTagline}
               </span>
-            </m.p>
+            </p>
           )}
 
-          <m.div
-            {...fadeUp(reduce, 0.8)}
-            className={`${styles.actions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
+          <div
+            style={entranceStyle(0.8)}
+            className={`${styles.enter} ${styles.actions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
           >
             <Magnetic className="max-sm:w-full">
               <Button
@@ -322,15 +330,15 @@ export function Hero({
                 </Magnetic>
               )}
             </div>
-          </m.div>
+          </div>
 
           <div
             className={`${styles.socialRow} [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-5 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:items-center [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:gap-5`}
           >
             {iconSocials.length > 0 && (
-              <m.div
-                {...fadeUp(reduce, 0.9)}
-                className={`${styles.socialLinks} mt-5 flex shrink-0 flex-wrap items-center gap-3 [@media(max-height:500px)]:mt-2 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
+              <div
+                style={entranceStyle(0.9)}
+                className={`${styles.enter} ${styles.socialLinks} mt-5 flex shrink-0 flex-wrap items-center gap-3 [@media(max-height:500px)]:mt-2 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
               >
                 {iconSocials.map((s) => {
                   const external = s.url.startsWith("http");
@@ -354,13 +362,13 @@ export function Hero({
                     </a>
                   );
                 })}
-              </m.div>
+              </div>
             )}
 
             {profile.roles.length > 0 && (
-              <m.p
-                {...fadeUp(reduce, 1)}
-                className={`${styles.roles} text-muted mt-6 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[8px] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:relative [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-top-1 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
+              <p
+                style={entranceStyle(1)}
+                className={`${styles.enter} ${styles.roles} text-muted mt-6 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[8px] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:relative [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-top-1 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
               >
                 {profile.roles.map((role, i) => (
                   <span key={role}>
@@ -368,7 +376,7 @@ export function Hero({
                     <span className="whitespace-nowrap md:whitespace-normal">{role}</span>
                   </span>
                 ))}
-              </m.p>
+              </p>
             )}
           </div>
 

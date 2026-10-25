@@ -149,7 +149,32 @@
 }
 .greeting {
   display: inline-block;
-  animation: greeting-reveal 0.9s steps(12, end) 0.15s both;
+}
+
+/* The default copy is visible, including before hydration and without JavaScript.
+   Only desktop pointers opt into the existing entrance timing and greeting reveal. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .enter {
+    animation-name: copy-enter;
+    animation-duration: 0.45s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-fill-mode: both;
+  }
+
+  .greeting {
+    animation: greeting-reveal 0.9s steps(12, end) 0.15s both;
+  }
+}
+
+@keyframes copy-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @keyframes greeting-reveal {
@@ -158,11 +183,5 @@
   }
   to {
     clip-path: inset(0 0 0 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .greeting {
-    animation: none;
   }
 }

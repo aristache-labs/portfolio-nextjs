@@ -1,6 +1,8 @@
 import { render, screen, cleanup } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { describe, it, expect, afterEach, beforeEach } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
+import { IDENTITY } from "@/lib/identity";
 import { Hero } from "./Hero";
 
 beforeEach(() => installMatchMedia());
@@ -12,6 +14,45 @@ const profile = {
 };
 
 describe("Hero", () => {
+  it("does not hide the initial hero copy or actions behind JavaScript", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(
+      <Hero
+        profile={profile}
+        heroTagline="Available for projects"
+        resumeUrl="/resume.pdf"
+        socials={[{ platform: "GitHub", url: "https://github.com/aristache-labs" }]}
+      />,
+    );
+
+    const paragraphs = [...container.querySelectorAll("p")];
+    const elements = [
+      container.querySelector("h1"),
+      container.querySelector('a[href="#projects"]'),
+      container.querySelector('a[href="#contact"]'),
+      container.querySelector('a[href="/resume.pdf"]'),
+      container.querySelector('a[aria-label="GitHub"]'),
+      ...container.querySelectorAll("h1 span"),
+      paragraphs.find((element) => element.textContent === IDENTITY.summary),
+      paragraphs.find((element) => element.textContent === "// HELLO, I'M"),
+      paragraphs.find((element) => element.textContent?.includes("Available for projects")),
+      paragraphs.find((element) => element.textContent?.includes(profile.roles[0])),
+    ];
+
+    for (const element of elements) {
+      expect(element).toBeDefined();
+      expect(element).not.toBeNull();
+      let current = element as HTMLElement | null;
+      while (current) {
+        expect(current.hidden).toBe(false);
+        expect(current.style.opacity).not.toBe("0");
+        expect(current.style.visibility).not.toBe("hidden");
+        expect(current.style.transform).not.toContain("translateY(12px)");
+        current = current.parentElement;
+      }
+    }
+  });
+
   it("renders only the first name, complete greeting and deployment proof immediately", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
