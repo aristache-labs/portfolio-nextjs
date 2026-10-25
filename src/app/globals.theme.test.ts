@@ -11,6 +11,13 @@ import { BRAND, GROUND, INK, hexToRgb } from "@/lib/brand";
 describe("globals.css mirrors brand.ts", () => {
   const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf-8");
 
+  it("loads Tailwind and the typography plugin first", () => {
+    // Without the import every utility class silently disappears while the build still
+    // passes, so the page renders unstyled with nothing failing.
+    expect(css.startsWith('@import "tailwindcss";')).toBe(true);
+    expect(css).toContain('@plugin "@tailwindcss/typography";');
+  });
+
   it("registers the brand ramp as @theme colour tokens", () => {
     expect(css).toContain("@theme {");
     expect(css).toContain(`--color-brand-deep: ${BRAND.deep}`);
@@ -34,36 +41,39 @@ describe("globals.css mirrors brand.ts", () => {
     expect(css).toContain(`--brand-bright-rgb: ${hexToRgb(BRAND.bright).join(" ")}`);
   });
 
-  it("mirrors the grounds and ink for both themes", () => {
-    expect(css).toContain(`--bg: ${GROUND.light}`);
-    expect(css).toContain(`--fg: ${INK.light}`);
+  it("mirrors the ground and ink", () => {
     expect(css).toContain(`--bg: ${GROUND.dark}`);
     expect(css).toContain(`--fg: ${INK.dark}`);
   });
 
-  it("keeps the @theme -> :root/.dark indirection that opacity modifiers depend on", () => {
-    // Tailwind v4 only generates /40-style modifiers for colours registered in @theme,
-    // and @theme cannot hold theme-switched values. Inlining a literal here instead of
-    // var(--bg) silently kills every opacity modifier in the codebase.
+  it("keeps the @theme -> :root indirection that opacity modifiers depend on", () => {
+    // Tailwind v4 only generates /40-style modifiers for colours registered in @theme.
+    // Inlining a literal here instead of var(--bg) silently kills every opacity modifier
+    // in the codebase.
     expect(css).toContain("--color-background: var(--bg)");
     expect(css).toContain("--color-foreground: var(--fg)");
     expect(css).toContain("--color-surface: var(--surface)");
   });
 
-  it("defines the per-theme tokens in both theme blocks", () => {
+  it("defines the component tokens", () => {
     for (const token of [
-      "--name-stroke",
       "--overlay-bg",
       "--chip-surface",
       "--accent-on-chip",
       "--period",
       "--gradient-brand",
       "--gradient-ink",
-      "--nav-pill-opacity",
     ]) {
-      const occurrences = css.match(new RegExp(`${token}:`, "g"))?.length ?? 0;
-      expect(occurrences, `${token} should be set for light and dark`).toBeGreaterThanOrEqual(2);
+      expect(css, `${token} should be defined`).toContain(`${token}:`);
     }
+  });
+
+  it("has no light theme left to switch to", () => {
+    // Obsidian dark is the only theme, so the tokens live in :root alone. A .dark override
+    // block or a theme-ready transition guard would be leftovers of the removed switch.
+    expect(css).toContain("color-scheme: dark");
+    expect(css).not.toMatch(/^\.dark\s*\{/m);
+    expect(css).not.toContain("theme-ready");
   });
 
   it("has a single brand ramp, with no runtime palette blocks", () => {
@@ -73,11 +83,12 @@ describe("globals.css mirrors brand.ts", () => {
   });
 
   it("pins every route to Obsidian dark in layout.tsx", () => {
-    // The homepage shields itself with [data-site="cinematic"]; Privacy, login, admin and
-    // errors rely on the forced theme, so the OS preference cannot switch them to light.
+    // A static `dark` class keeps the `dark:` variant working with no theme provider, so
+    // nothing at runtime can switch a route to light.
     const layout = readFileSync(join(process.cwd(), "src/app/layout.tsx"), "utf-8");
-    expect(layout).toContain('forcedTheme="dark"');
-    expect(layout).toContain("enableSystem={false}");
+    expect(layout).toMatch(/className=\{`dark /);
+    expect(layout).not.toContain("ThemeProvider");
+    expect(layout).not.toContain("theme-ready");
     expect(layout).not.toContain("palette");
   });
 

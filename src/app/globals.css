@@ -1,9 +1,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* Opacity modifiers (/10, /60) only work on colors registered in @theme, and @theme cannot
- * hold theme-switched values. Hence the indirection: @theme aliases --color-* to vars whose
- * raw values flip in :root/.dark. Inlining a literal there kills every modifier. */
+/* Opacity modifiers (/10, /60) only work on colors registered in @theme. Hence the
+ * indirection: @theme aliases --color-* to raw vars set in :root below. Inlining a literal
+ * there kills every modifier. */
 
 @theme {
   /* Brand ramp, mirroring src/lib/brand.ts (Obsidian teal). */
@@ -11,7 +11,7 @@
   --color-brand-mid: #58e5d0;
   --color-brand-bright: #76f5e1;
 
-  /* Semantic design-system tokens — values come from :root / .dark vars */
+  /* Semantic design-system tokens — values come from :root vars */
   --color-background: var(--bg);
   --color-foreground: var(--fg);
   --color-surface: var(--surface);
@@ -22,7 +22,6 @@
   --color-muted-foreground: var(--muted);
   --color-ring: var(--ring);
 
-  /* Gradient — per-theme overrides set in :root / .dark below */
   --gradient-brand: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
 
   /* Typography */
@@ -30,21 +29,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* <html> always carries .dark, so `dark:` utilities always apply. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Light theme — raw values for @theme var() references.
-   Ink/paper are hue-biased toward the brand ramp (never pure black/white)
-   so text harmonizes with the ambient gradient. */
+/* Obsidian dark, the only theme. Raw values for the @theme var() references. */
 :root {
-  --max-width: 1200px;
-  --bg: #f4f8f7;
-  --fg: #10181a;
-  /* Translucent so cards read as glass over the ambient canvas, not white slabs */
-  --surface: rgba(255, 255, 255, 0.6);
-  --surface-2: rgba(16, 24, 26, 0.03);
-  --border-color: rgba(16, 24, 26, 0.15);
-  --muted: rgba(16, 24, 26, 0.6);
-  --ring: #0f6e68;
+  color-scheme: dark;
+  --bg: #080c0d;
+  --fg: #f5f7f7;
+  /* Card surface. The spec's alternate ground (#101619) sits between page and card. */
+  --surface: #11191b;
+  --surface-2: #182225;
+  --border-color: #253134;
+  --muted: #a0adb1;
+  --ring: #58e5d0;
   /* Raw brand vars for arbitrary-value utilities like border-(--brand-deep).
      The @theme --color-brand-* tokens only generate the --color-* namespace,
      so components referencing the bare names need these aliases. */
@@ -58,89 +56,26 @@
   --brand-deep-rgb: 15 110 104;
   --brand-mid-rgb: 88 229 208;
   --brand-bright-rgb: 118 245 225;
-  /* Redesign tokens: hero name stroke + full-screen menu ground */
-  --name-stroke: rgba(16, 24, 26, 0.88);
-  --overlay-bg: rgba(244, 248, 247, 0.94);
-  /* Experience period label: the bright ramp end is too light on paper - use a deeper one */
-  --period: #0f6e68;
-  /* Accent text on translucent brand chips (project language etc.): deep on paper */
-  --accent-on-chip: #0f6e68;
-  /* Opaque brand-tinted chip surface - a subtle brand wash over paper, so the
-     chip reads as "brand" (not dead black) yet blocks the moving gradient. */
-  --chip-surface: #e7f7f4;
+  /* Dialog and alert-dialog glass ground */
+  --overlay-bg: rgba(8, 12, 13, 0.92);
+  /* Experience period label: the bright ramp end reads fine on the deep ground */
+  --period: #76f5e1;
+  /* Accent text on translucent brand chips: a brightened tint, legible on the deep ground */
+  --accent-on-chip: #76f5e1;
+  /* Opaque elevated chip surface that blocks the moving gradient. */
+  --chip-surface: #182225;
   /* Legacy aliases kept for existing components */
   --background: var(--bg);
   --foreground: var(--fg);
-  /* Light gradient: deeper/more saturated so it reads rich on white */
   --gradient-brand: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
-  /* Brand gradient for TEXT (gradient-text/stats). On paper the rich ramp reads
-     high-contrast, so it matches --gradient-brand; in dark it brightens (below)
-     so gradient text never fades into the deep ground. */
-  --gradient-ink: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
-  /* Nav active pill opacity for light (higher so the pill is visible) */
-  --nav-pill-opacity: 0.28;
-}
-
-/* Dark theme */
-.dark {
-  --bg: #080c0d;
-  --fg: #f5f7f7;
-  /* Card surface. The spec's alternate ground (#101619) sits between page and card. */
-  --surface: #11191b;
-  --surface-2: #182225;
-  --border-color: #253134;
-  --muted: #a0adb1;
-  --ring: #58e5d0;
-  --name-stroke: rgba(245, 247, 247, 0.9);
-  --overlay-bg: rgba(8, 12, 13, 0.92);
-  /* Dark: the bright ramp end reads fine on the deep ground */
-  --period: #76f5e1;
-  /* Dark: a brightened tint so brand chips are legible on the deep ground */
-  --accent-on-chip: #76f5e1;
-  /* Opaque elevated chip surface. */
-  --chip-surface: #182225;
-  /* Legacy aliases */
-  --background: var(--bg);
-  --foreground: var(--fg);
-  /* Dark gradient: the deep-to-mid ramp */
-  --gradient-brand: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
-  /* Brand gradient for TEXT in dark: a brighter ramp so both ends clear the deep
-     ground - the ramp's deep end is nearly invisible on it. Used by gradient-text
-     everywhere (logo wordmark, tagline, stats, headings). */
+  /* Brand gradient for TEXT: a brighter ramp so both ends clear the deep ground - the
+     ramp's deep end is nearly invisible on it. Used by gradient-text everywhere (logo
+     wordmark, tagline, stats, headings). */
   --gradient-ink: linear-gradient(135deg, #76f5e1 0%, #d7fbf6 100%);
-  /* Nav active pill opacity for dark */
-  --nav-pill-opacity: 0.2;
 }
 
-/* Homepage shell. Same Obsidian dark values as .dark above, set on the wrapper so the
-   homepage stays dark even if <html> loses the .dark class. */
+/* Homepage shell: its own type stack. Colours come from :root like every other route. */
 [data-site="cinematic"] {
-  --bg: #080c0d;
-  --fg: #f5f7f7;
-  --surface: #11191b;
-  --surface-2: #182225;
-  --border-color: #253134;
-  --muted: #a0adb1;
-  --ring: #58e5d0;
-  --brand-deep: #0f6e68;
-  --brand-mid: #58e5d0;
-  --brand-bright: #76f5e1;
-  --brand-deep-rgb: 15 110 104;
-  --brand-mid-rgb: 88 229 208;
-  --brand-bright-rgb: 118 245 225;
-  --color-brand-deep: #0f6e68;
-  --color-brand-mid: #58e5d0;
-  --color-brand-bright: #76f5e1;
-  --name-stroke: rgba(245, 247, 247, 0.9);
-  --overlay-bg: rgba(8, 12, 13, 0.92);
-  --period: #76f5e1;
-  --accent-on-chip: #76f5e1;
-  --chip-surface: #182225;
-  --background: var(--bg);
-  --foreground: var(--fg);
-  --gradient-brand: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
-  --gradient-ink: linear-gradient(135deg, #76f5e1 0%, #d7fbf6 100%);
-  --nav-pill-opacity: 0.2;
   --font-sans: ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-sora), sans-serif;
   background-color: var(--bg);
@@ -161,13 +96,6 @@ html {
   html {
     font-size: 68.75%;
   }
-}
-/* Without this the initial system-theme flip cross-fades through each element's own
- * transition-*, reading as a flicker. `!important` beats utility transitions. */
-html:not(.theme-ready) *,
-html:not(.theme-ready) *::before,
-html:not(.theme-ready) *::after {
-  transition: none !important;
 }
 /* clip, not hidden + 100vw. The hero plate is wider than the screen and
    centered with translate. On a phone in landscape, 100vw stays at the

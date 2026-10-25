@@ -322,16 +322,11 @@ async function captureTarget(browser, target) {
   const context = await browser.newContext({
     ...target.context,
 
-    // Always use Dark Mode
+    // The site is dark only; match it so native controls render the same way
     colorScheme: "dark",
 
     // Preserve stable animations for screenshots
     reducedMotion: "reduce",
-  });
-
-  // Set the theme BEFORE loading the website
-  await context.addInitScript(() => {
-    localStorage.setItem("theme", "dark");
   });
 
   try {
@@ -341,21 +336,6 @@ async function captureTarget(browser, target) {
       waitUntil: "domcontentloaded",
       timeout: 60000,
     });
-
-    // Wait until next-themes applies Dark Mode
-    await page.waitForFunction(() => document.documentElement.classList.contains("dark"), null, {
-      timeout: 10000,
-    });
-
-    // Debug theme configuration
-    const themeInfo = await page.evaluate(() => ({
-      theme: localStorage.getItem("theme"),
-      rootClass: document.documentElement.className,
-      background: getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
-      prefersDark: matchMedia("(prefers-color-scheme: dark)").matches,
-    }));
-
-    console.log(`[${target.name}] Theme:`, themeInfo);
 
     await page
       .waitForLoadState("load", {

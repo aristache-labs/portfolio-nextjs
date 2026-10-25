@@ -3,9 +3,6 @@
 import Image from "next/image";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
-import { cn } from "@/utils/cn";
-
-const INVERT_IN_LIGHT = /nextjs|next-js|next\.|vercel|express|flask|github|apple/i;
 
 const LEVEL_PERCENT: Record<string, number> = {
   Expert: 90,
@@ -42,8 +39,6 @@ export function SkillCard({
   const reducedMotionProps = useReducedMotionProps();
   const src = skillIconSrc(iconPath);
   const percent = skillPercent(level);
-  const invertLight =
-    !src.includes("/skills/") && (INVERT_IN_LIGHT.test(src) || INVERT_IN_LIGHT.test(name));
 
   return (
     <m.div
@@ -53,14 +48,7 @@ export function SkillCard({
       className="group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5"
     >
       <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
-        <Image
-          src={src}
-          alt=""
-          fill
-          sizes="36px"
-          unoptimized
-          className={cn("object-contain", invertLight && "invert dark:invert-0")}
-        />
+        <Image src={src} alt="" fill sizes="36px" unoptimized className="object-contain" />
       </span>
 
       <span className="mt-3 flex items-start justify-between gap-2">

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { BRAND, hexToRgb } from "@/lib/brand";
 import styles from "./ambient-background.module.css";
@@ -21,40 +20,21 @@ const BLOBS = [
   { c: 2, r: 0.34, sp: 0.12, sw: 0.4, ox: 0.5, oy: 0.8 },
 ] as const;
 
-// Per-theme because the blend modes are not equally strong: `lighter` on near-black falls off
-// fast, while `multiply` on paper accumulates - one shared 0.30 tinted the whole viewport.
-const NEBULA = {
-  dark: { core: 0.26, mid: 0.1 },
-  light: { core: 0.13, mid: 0.05 },
-} as const;
-
-const GLOW = {
-  dark: { core: 0.16, mid: 0.09 },
-  light: { core: 0.11, mid: 0.055 },
-} as const;
+// Alphas tuned for `lighter` on the near-black ground, where additive light falls off fast.
+const NEBULA = { core: 0.26, mid: 0.1 } as const;
+const GLOW = { core: 0.16, mid: 0.09 } as const;
 
 const IDLE_AFTER_MS = 3500;
 
 /**
  * Three-blob gradient nebula (45% autonomous drift + 55% pointer pull) plus a glow on the
- * eased pointer. Dark composites additively, light multiplies. After 3.5s idle the target
+ * eased pointer, composited additively. After 3.5s idle the target
  * tours the viewport on a Lissajous path, which is also what animates it on touch devices.
  */
 export function AmbientBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pathname = usePathname();
   const reduced = useReducedMotion();
-  const { resolvedTheme } = useTheme();
-  // Read per-frame via a ref so a theme switch needs no effect re-subscription
-  // (tearing down the rAF loop would restart the drift animation from t=0).
-  const darkRef = useRef(true);
-  // Set by the render effect below so a theme change can force a repaint. Under reduced
-  // motion there is no animation loop, so nothing would otherwise pick the new blend up.
-  const redrawRef = useRef<(() => void) | null>(null);
-  useEffect(() => {
-    darkRef.current = resolvedTheme !== "light";
-    redrawRef.current?.();
-  }, [resolvedTheme]);
 
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
@@ -92,13 +72,11 @@ export function AmbientBackground() {
     }
 
     function draw(t: number) {
-      const dark = darkRef.current;
       const m = Math.max(w, h);
       ctx.clearRect(0, 0, w, h);
 
       // Nebula (the slow layer).
-      ctx.globalCompositeOperation = dark ? "lighter" : "multiply";
-      const neb = dark ? NEBULA.dark : NEBULA.light;
+      ctx.globalCompositeOperation = "lighter";
       BLOBS.forEach((b, i) => {
         const dx = b.ox + Math.cos(t * b.sp + i * 2.1) * b.sw;
         const dy = b.oy + Math.sin(t * b.sp * 0.9 + i * 2.1) * b.sw;
@@ -110,8 +88,8 @@ export function AmbientBackground() {
         // Three stops, not two: a linear 0 -> 0 ramp reads as a flat soft disc, while a
         // mid stop below half the core alpha concentrates colour near the centre and
         // lets the outer half fade to nothing, which is what makes the edges breathe.
-        g.addColorStop(0, rgba(col, neb.core));
-        g.addColorStop(0.5, rgba(col, neb.mid));
+        g.addColorStop(0, rgba(col, NEBULA.core));
+        g.addColorStop(0.5, rgba(col, NEBULA.mid));
         g.addColorStop(1, rgba(col, 0));
         ctx.fillStyle = g;
         ctx.beginPath();
@@ -119,21 +97,14 @@ export function AmbientBackground() {
         ctx.fill();
       });
 
-      // Pointer glow (the sharp layer) - still under the theme blend mode.
+      // Pointer glow (the sharp layer) - still additive.
       const GR = Math.min(260, m * 0.28);
       const g1 = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, GR);
       const [deep, mid, bright] = RAMP;
-      if (dark) {
-        // Dark projects light: brightest hue at the core, fading through the ramp.
-        g1.addColorStop(0, rgba(bright, GLOW.dark.core));
-        g1.addColorStop(0.55, rgba(mid, GLOW.dark.mid));
-        g1.addColorStop(1, rgba(deep, 0));
-      } else {
-        // Light multiplies pigment, so the core is the deepest hue instead.
-        g1.addColorStop(0, rgba(deep, GLOW.light.core));
-        g1.addColorStop(0.55, rgba(mid, GLOW.light.mid));
-        g1.addColorStop(1, rgba(mid, 0));
-      }
+      // Projects light: brightest hue at the core, fading through the ramp.
+      g1.addColorStop(0, rgba(bright, GLOW.core));
+      g1.addColorStop(0.55, rgba(mid, GLOW.mid));
+      g1.addColorStop(1, rgba(deep, 0));
       ctx.fillStyle = g1;
       ctx.beginPath();
       ctx.arc(ptr.x, ptr.y, GR, 0, Math.PI * 2);
@@ -152,11 +123,7 @@ export function AmbientBackground() {
     // Reduced motion: one static frame, no tracking, no loop.
     if (reduced) {
       draw(0);
-      // Only the static case needs this: the animation loop below repaints every frame
-      // and picks a new theme up on its own.
-      redrawRef.current = () => draw(0);
       return () => {
-        redrawRef.current = null;
         window.removeEventListener("resize", resize);
         sizeObserver.disconnect();
         window.visualViewport?.removeEventListener("resize", resize);

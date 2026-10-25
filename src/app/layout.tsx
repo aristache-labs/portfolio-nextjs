@@ -5,7 +5,6 @@ import { ReactNode } from "react";
 import { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { HashScrollFix } from "@/components/util/HashScrollFix";
 import { AmbientBackgroundGate } from "@/components/background/AmbientBackgroundGate";
@@ -90,7 +89,9 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
       lang="en"
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      // Obsidian dark on every route. Static, so no OS preference or stored choice can switch
+      // a route to light. `dark` keeps the `dark:` variant working; tokens live in :root.
+      className={`dark ${GeistSans.variable} ${GeistMono.variable}`}
     >
       <head>
         {/* Match the portrait hero's screen floor before its first paint, so hydration
@@ -101,34 +102,14 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
               "if(matchMedia('(pointer: coarse) and (max-width: 767px) and (orientation: portrait)').matches){document.documentElement.style.setProperty('--portrait-screen-height',screen.height+'px')}",
           }}
         />
-        {/* Without this, the initial system-theme flip animates through every element's own
-            transition-* and reads as a flicker. globals.css suppresses transitions until
-            `theme-ready`; blocking and in <head> so no unguarded frame exists. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "requestAnimationFrame(function(){document.documentElement.classList.add('theme-ready')})",
-          }}
-        />
       </head>
       <body className={GeistSans.className}>
         <PersonJsonLd />
         <WebSiteJsonLd />
         <MotionProvider>
-          {/* Obsidian dark on every route. Forced, so neither the OS preference nor a theme
-              stored by the removed picker can switch a route to light. */}
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            forcedTheme="dark"
-            enableSystem={false}
-            disableTransitionOnChange
-          >
-            {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode. */}
-            <AmbientBackgroundGate />
-            <main>{children}</main>
-            <ScrollToTop />
-          </ThemeProvider>
+          <AmbientBackgroundGate />
+          <main>{children}</main>
+          <ScrollToTop />
         </MotionProvider>
         <HashScrollFix />
         <VercelAnalytics />

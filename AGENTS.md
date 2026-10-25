@@ -51,11 +51,11 @@ scripts/                 check-routes and check-vitals
 
 3. **Do not add unlayered CSS resets to `globals.css`.** An unlayered rule (`* { margin: 0 }`, `a { color: inherit }`, `button { background: transparent }`) beats every Tailwind utility regardless of specificity, because unlayered CSS outranks layered utilities. This has silently broken app-wide spacing and button text colours before. Tailwind v4 Preflight already resets correctly inside its layer. The file carries long comments saying this at each site - read them before touching it.
 
-4. **The `@theme` -> `:root`/`.dark` indirection in `globals.css` is load-bearing.** Tailwind v4 only generates opacity modifiers (`/40`, `/[0.02]`) for colours registered as `--color-*` in `@theme`, but `@theme` cannot hold theme-switched values. So `@theme` declares `--color-surface: var(--surface)` and the raw value flips in `:root`/`.dark`. Swapping colour _values_ is safe; restructuring this pattern silently kills every `border-(--brand-deep)/40` in the codebase.
+4. **The `@theme` -> `:root` indirection in `globals.css` is load-bearing.** Tailwind v4 only generates opacity modifiers (`/40`, `/[0.02]`) for colours registered as `--color-*` in `@theme`. So `@theme` declares `--color-surface: var(--surface)` and the raw value lives in `:root`. Swapping colour _values_ is safe; restructuring this pattern silently kills every `border-(--brand-deep)/40` in the codebase.
 
    The default palette lives in **`src/lib/brand.ts`**, the build-time source of truth. `globals.css` mirrors it by hand because CSS cannot import TypeScript, and `src/app/globals.theme.test.ts` derives its expectations from `brand.ts` to assert the mirror still holds - so a colour change fails the suite until both are updated. Token names are hue-neutral (`deep`/`mid`/`bright`) because the old `violet`/`cyan`/`pink` names stopped being true at the Glacier rebrand and would be wrong again on any future palette.
 
-5. **There is one brand palette, Obsidian, and every route is forced dark.** The runtime palette picker (`usePalette`, `palettes.ts`, `[data-palette]` blocks) has been removed, and `layout.tsx` passes `forcedTheme="dark"` so neither the OS preference nor an old stored theme can switch a route to light. The homepage also pins its own values on `[data-site="cinematic"]`. Colour consumers still come in two kinds:
+5. **There is one theme, Obsidian dark, on every route, with no switch at runtime.** The palette picker, `next-themes` and the light values are gone: `:root` in `globals.css` holds the only token set and sets `color-scheme: dark`, and `layout.tsx` puts a static `dark` class on `<html>` so `dark:` utilities keep applying. Do not reintroduce a `.dark` override block or a theme provider; the theme test fails on both. Colour consumers come in two kinds:
 
    - **`brand.ts` constants** where CSS cannot reach: `opengraph-image.tsx` (Satori at the edge), `manifest.ts` (JSON), `notify.ts` (email HTML, where custom properties are unsupported), the Quick View repo badges (Shields URLs) and `AmbientBackground.tsx` (a canvas cannot inherit a variable).
    - **CSS variables** for DOM chrome: Tailwind classes and `Logo.tsx` (SVG `stop-color` resolves `var()`).
@@ -78,7 +78,7 @@ scripts/                 check-routes and check-vitals
 
 ## Changing the brand colours
 
-Edit `src/lib/brand.ts`, then its hand-written mirrors in `globals.css`: the `@theme` ramp, `:root`/`.dark`, and the `[data-site="cinematic"]` homepage block. `bun run test` fails until `globals.theme.test.ts` sees them agree. `src/app/icon.png` and `src/app/apple-icon.png` are the official monogram on a dark tile, so a colour change does not recolor them.
+Edit `src/lib/brand.ts`, then its hand-written mirrors in `globals.css`: the `@theme` ramp and `:root`. `bun run test` fails until `globals.theme.test.ts` sees them agree. `src/app/icon.png` and `src/app/apple-icon.png` are the official monogram on a dark tile, so a colour change does not recolor them.
 
 ## Commands
 
