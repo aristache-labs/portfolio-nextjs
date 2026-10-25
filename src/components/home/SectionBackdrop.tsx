@@ -44,6 +44,7 @@ function observe(el: Element, rootMargin: string, listener: Listener) {
 const LOAD_MARGIN = "200px 0px";
 /** Only visible sections should decode and play video frames. */
 const PLAY_MARGIN = "0px";
+const POSTER_MARGIN = "600px 0px";
 
 /**
  * Full-bleed section video. Desktop plays the loop only while the section is visible.
@@ -59,6 +60,8 @@ export function SectionBackdrop({
   poster,
   fetchPriority,
   deferUntilHeroLoaded = false,
+  deferUntilNearViewport = false,
+  responsivePoster,
   frame = "fill",
   scrim,
   focus = "center",
@@ -68,6 +71,9 @@ export function SectionBackdrop({
   fetchPriority?: "high" | "low" | "auto";
   /** Keep this poster out of the initial HTML until the hero image loads or fails. */
   deferUntilHeroLoaded?: boolean;
+  /** Opt in per section, so its image URLs stay absent until the backdrop is nearby. */
+  deferUntilNearViewport?: boolean;
+  responsivePoster?: { srcSet: string; aspectRatio: number };
   frame?: "fill" | "screen" | "desktop-screen";
   /** Overlay tint. Defaults stay with each frame. */
   scrim?: string;
@@ -86,9 +92,43 @@ export function SectionBackdrop({
   const [near, setNear] = useState(false);
   const [visible, setVisible] = useState(false);
   const [ready, setReady] = useState(false);
+  const [posterNear, setPosterNear] = useState(false);
+  const [posterWidth, setPosterWidth] = useState<number | null>(null);
   const posterReady = useHeroPosterReady(deferUntilHeroLoaded);
+  const posterAspectRatio = responsivePoster?.aspectRatio;
 
   const showVideo = Boolean(video) && videoOk && !reduce && canPlayVideo;
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!deferUntilNearViewport || !root) return;
+    return observe(root, POSTER_MARGIN, (nearby) => {
+      if (nearby) setPosterNear(true);
+    });
+  }, [deferUntilNearViewport]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!posterAspectRatio || !root || (deferUntilNearViewport && !posterNear)) return;
+    const update = (width: number, height: number) => {
+      // object-cover can scale a wide image by height on a tall phone section.
+      setPosterWidth(Math.max(1, Math.ceil(Math.max(width, height * posterAspectRatio))));
+    };
+    const measure = () => {
+      const { width, height } = root.getBoundingClientRect();
+      update(width, height);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const observer = new ResizeObserver(([entry]) => {
+      update(entry.contentRect.width, entry.contentRect.height);
+    });
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [posterAspectRatio, deferUntilNearViewport, posterNear]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -152,20 +192,26 @@ export function SectionBackdrop({
             onError={() => setVideoOk(false)}
           />
         )}
-        {poster && posterOk && posterReady && (
-          // Decorative poster. next/image 400s a missing local file; a plain img just hides.
-          // Stays on top of the video until it has a frame, so no blank or poster flash.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={poster}
-            alt=""
-            loading="lazy"
-            fetchPriority={fetchPriority}
-            decoding="async"
-            onError={() => setPosterOk(false)}
-            className={showVideo && ready ? `${still} hidden` : still}
-          />
-        )}
+        {poster &&
+          posterOk &&
+          posterReady &&
+          (!deferUntilNearViewport || posterNear) &&
+          (!responsivePoster || posterWidth !== null) && (
+            // Decorative poster. next/image 400s a missing local file; a plain img just hides.
+            // Stays on top of the video until it has a frame, so no blank or poster flash.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={poster}
+              srcSet={responsivePoster?.srcSet}
+              sizes={responsivePoster && posterWidth !== null ? `${posterWidth}px` : undefined}
+              alt=""
+              loading="lazy"
+              fetchPriority={fetchPriority}
+              decoding="async"
+              onError={() => setPosterOk(false)}
+              className={showVideo && ready ? `${still} hidden` : still}
+            />
+          )}
         <div className={scrimClass} />
         {screen && (
           <div className="to-background/40 absolute inset-0 bg-gradient-to-r from-transparent via-transparent" />

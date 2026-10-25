@@ -59,6 +59,7 @@ describe("SectionBackdrop", () => {
     hero?.remove();
     hero = undefined;
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("never mounts a video on mobile, only the lazy poster", () => {
@@ -155,5 +156,75 @@ describe("SectionBackdrop", () => {
     Object.defineProperty(video, "paused", { configurable: true, value: false });
     act(() => FakeIO.emit(root, "0px", false));
     expect(video.pause).toHaveBeenCalledOnce();
+  });
+
+  it.each(["hero first", "viewport first"])(
+    "waits for both the hero and the nearby viewport (%s)",
+    (order) => {
+      installMatchMedia();
+      const heroImage = installHero(false);
+      const { container } = render(
+        <SectionBackdrop poster="/media/about.webp" deferUntilHeroLoaded deferUntilNearViewport />,
+      );
+      const root = container.firstElementChild!.firstElementChild!;
+      const finishHero = () => {
+        Object.defineProperty(heroImage, "complete", { value: true });
+        fireEvent.load(heroImage);
+      };
+      const approach = () => act(() => FakeIO.emit(root, "600px 0px", true));
+      expect(container.querySelector("img")).toBeNull();
+      if (order === "hero first") finishHero();
+      else approach();
+      expect(container.querySelector("img")).toBeNull();
+      if (order === "hero first") approach();
+      else finishHero();
+      expect(container.querySelector("img")).toHaveAttribute("src", "/media/about.webp");
+      act(() => FakeIO.emit(root, "600px 0px", false));
+      expect(container.querySelectorAll("img")).toHaveLength(1);
+    },
+  );
+
+  it("sizes a cover image by height on tall sections and updates after resizing", () => {
+    installMatchMedia();
+    let notifyResize: ResizeObserverCallback | undefined;
+    const disconnect = vi.fn();
+    const observe = vi.fn();
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: ResizeObserverCallback) {
+          notifyResize = callback;
+        }
+        observe = observe;
+        disconnect = disconnect;
+      },
+    );
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      width: 360,
+      height: 900,
+    } as DOMRect);
+    const { container, unmount } = render(
+      <SectionBackdrop
+        poster="/media/about.webp"
+        deferUntilNearViewport
+        responsivePoster={{ srcSet: "/small.webp 640w, /original.webp 1600w", aspectRatio: 16 / 9 }}
+      />,
+    );
+    const root = container.firstElementChild!.firstElementChild!;
+    expect(observe).not.toHaveBeenCalled();
+    act(() => FakeIO.emit(root, "600px 0px", true));
+    expect(observe).toHaveBeenCalledWith(root);
+    const image = container.querySelector("img")!;
+    expect(image).toHaveAttribute("sizes", "1600px");
+    expect(image).toHaveAttribute("srcset", "/small.webp 640w, /original.webp 1600w");
+    act(() => {
+      notifyResize!(
+        [{ contentRect: { width: 932, height: 200 } } as ResizeObserverEntry],
+        {} as ResizeObserver,
+      );
+    });
+    expect(image).toHaveAttribute("sizes", "932px");
+    unmount();
+    expect(disconnect).toHaveBeenCalledOnce();
   });
 });

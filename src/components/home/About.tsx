@@ -89,6 +89,12 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
             poster="/media/about.webp"
             fetchPriority="low"
             deferUntilHeroLoaded
+            deferUntilNearViewport
+            responsivePoster={{
+              srcSet:
+                "/media/about-640.webp 640w, /media/about-960.webp 960w, /media/about.webp 1600w",
+              aspectRatio: 16 / 9,
+            }}
           />
           <div
             aria-hidden
