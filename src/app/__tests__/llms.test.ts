@@ -7,7 +7,7 @@ describe("llms.txt", () => {
     expect(res.headers.get("Content-Type")).toMatch(/text\/plain/);
     const text = await res.text();
     expect(text).toContain("Adrian Cristache");
-    expect(text).toContain("Technical Team Lead · Automation Engineer · Builds web & mobile apps");
+    expect(text).toContain("IT Specialist · Web & Mobile Developer");
     expect(text).toContain("llms-full.txt");
   });
 

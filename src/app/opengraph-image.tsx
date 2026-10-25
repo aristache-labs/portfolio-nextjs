@@ -51,7 +51,7 @@ export default async function OpengraphImage() {
             marginTop: 20,
           }}
         >
-          {SITE.proof}
+          {SITE.headline}
         </div>
         <div style={{ fontSize: 25, color: "#b8c5c5", marginTop: 24 }}>{SITE.positioning}</div>
       </div>

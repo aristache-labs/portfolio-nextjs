@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
-import { Zap } from "lucide-react";
+import { Quote, Zap } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
@@ -66,10 +66,12 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
         poster="/media/skills.webp"
         fetchPriority="low"
       />
-      <div className="relative z-10 mx-auto flex max-w-7xl flex-col px-5 pt-6 pb-10 sm:px-8 md:pt-8 lg:block">
+      <div
+        className={`${responsiveCss.content} relative z-10 mx-auto flex max-w-7xl flex-col px-5 pt-6 pb-10 sm:px-8 md:pt-8 lg:block`}
+      >
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
-          <div className="min-w-0 text-center">
+          <div className={`${responsiveCss.heading} min-w-0 text-left`}>
             <m.span
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -88,10 +90,24 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.1 }}
               {...reducedMotionProps}
-              className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap"
+              className="font-display mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap"
             >
-              Technologies and <span className="gradient-text">tools</span>
+              Tools I <span className="gradient-text">trust</span>
             </m.h2>
+            <aside className={responsiveCss.quoteAnchor}>
+              <blockquote className={responsiveCss.quote}>
+                <Quote aria-hidden className={responsiveCss.quoteIcon} />
+                <p>
+                  Tools evolve.
+                  <br />
+                  Problem-solving endures.
+                </p>
+                <span aria-hidden className={responsiveCss.quoteAccent} />
+              </blockquote>
+            </aside>
+            <p className="text-muted mt-4 max-w-xl text-sm leading-relaxed">
+              Infrastructure on one side, web and mobile development on the other.
+            </p>
           </div>
         </div>
 

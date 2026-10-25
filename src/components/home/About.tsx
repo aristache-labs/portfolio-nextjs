@@ -110,8 +110,7 @@ export function About({ profile }: { profile: AboutProfile }) {
               <span aria-hidden className="bg-border h-px flex-1" />
             </p>
             <h2 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-              Behind the<br />
-              <span className="gradient-text">code</span>.
+              Behind the <span className="gradient-text">code</span>.
             </h2>
           </div>
         </div>

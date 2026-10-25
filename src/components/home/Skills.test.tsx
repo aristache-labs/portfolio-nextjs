@@ -75,8 +75,10 @@ describe("Skills", () => {
 
   it("renders section heading", () => {
     render(<Skills skills={mockSkills} />);
-    expect(screen.getByText("Technologies and")).toBeInTheDocument();
-    expect(screen.getByText("tools")).toBeInTheDocument();
+    expect(screen.getByText("Tools I")).toBeInTheDocument();
+    expect(screen.getByText("trust")).toBeInTheDocument();
+    expect(screen.getByText(/Infrastructure on one side/)).toBeInTheDocument();
+    expect(screen.getByText(/Tools evolve\./)).toHaveTextContent("Problem-solving endures.");
   });
 
   it("shows the level as a percent", () => {
@@ -149,6 +151,6 @@ describe("Skills", () => {
 
   it("renders an empty state gracefully", () => {
     render(<Skills skills={[]} />);
-    expect(screen.getByText("Technologies and")).toBeInTheDocument();
+    expect(screen.getByText("Tools I")).toBeInTheDocument();
   });
 });
