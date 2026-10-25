@@ -11,6 +11,7 @@ import { SocialGlyph } from "./social-icons";
 import { IconTile } from "@/components/ui/IconTile";
 import { SectionEdge } from "./SectionBackdrop";
 import styles from "./hero-motion.module.css";
+import subtitleCss from "./section-subtitle.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import { IDENTITY } from "@/lib/identity";
 export type HeroProfile = {
@@ -261,7 +262,7 @@ export function Hero({
 
           <m.p
             {...fadeUp(reduce, 0.6)}
-            className={`${styles.copy} text-foreground/65 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
+            className={`${styles.copy} text-foreground/95 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
           >
             {HERO_COPY}
           </m.p>

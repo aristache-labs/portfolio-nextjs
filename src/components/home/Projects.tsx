@@ -5,6 +5,7 @@ import { Section, SectionHeading } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { SectionBackdrop } from "./SectionBackdrop";
+import subtitleCss from "./section-subtitle.module.css";
 import type { MergedProject } from "@/lib/projects";
 import spacing from "./experience-projects-spacing.module.css";
 
@@ -41,7 +42,9 @@ export function Projects({ projects }: { projects: MergedProject[] }) {
             className="mb-0 [@media(orientation:portrait)_and_(max-width:767px)]:mb-4"
           />
         </div>
-        <p className="text-muted mb-10 max-w-2xl text-sm leading-relaxed text-pretty md:text-base [@media(orientation:portrait)_and_(max-width:767px)]:order-1 [@media(orientation:portrait)_and_(max-width:767px)]:mb-0">
+        <p
+          className={`${subtitleCss.subtitle} mb-10 max-w-2xl text-pretty [@media(orientation:portrait)_and_(max-width:767px)]:order-1 [@media(orientation:portrait)_and_(max-width:767px)]:mb-0`}
+        >
           Web and mobile applications, infrastructure projects and automation tools.
         </p>
       </Reveal>

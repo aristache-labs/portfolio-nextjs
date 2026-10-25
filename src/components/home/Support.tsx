@@ -3,6 +3,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
+import subtitleCss from "./section-subtitle.module.css";
 
 export type FundingRow = {
   label: string;
@@ -28,7 +29,7 @@ export function Support({ funding }: { funding: FundingRow[] }) {
             align="center"
             className="mb-4"
           />
-          <p className="text-foreground/70 mb-10 leading-relaxed">
+          <p className={`${subtitleCss.subtitle} mb-10`}>
             Most of what I build is free and open source. If it helps you, supporting its continued
             development is genuinely appreciated.
           </p>

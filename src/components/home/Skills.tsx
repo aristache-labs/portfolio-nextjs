@@ -7,6 +7,7 @@ import { Quote, Zap } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
+import subtitleCss from "./section-subtitle.module.css";
 
 export type SkillRow = {
   name: string;
@@ -101,7 +102,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
                 <span aria-hidden className={responsiveCss.quoteAccent} />
               </blockquote>
             </aside>
-            <p className="text-muted mt-4 max-w-xl text-sm leading-relaxed">
+            <p className={`${subtitleCss.subtitle} mt-4 max-w-xl`}>
               Infrastructure on one side, web and mobile development on the other.
             </p>
           </div>

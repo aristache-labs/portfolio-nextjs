@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import type { SocialRow } from "@/components/home/social-icons";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
+import subtitleCss from "@/components/home/section-subtitle.module.css";
 import { SITE } from "@/lib/seo/site";
 import layout from "./footer-layout.module.css";
 
@@ -82,7 +83,7 @@ export function Footer({
             viewport={{ once: true }}
             transition={{ duration: 0.55, delay: 0.08 }}
             {...reducedMotionProps}
-            className="text-muted mx-auto mt-2 max-w-[580px] text-[14px] leading-relaxed"
+            className={`${subtitleCss.subtitle} mx-auto mt-2 max-w-[580px]`}
           >
             IT infrastructure, deployment automation, web and mobile development.
           </m.p>

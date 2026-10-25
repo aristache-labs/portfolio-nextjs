@@ -9,6 +9,7 @@ import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { SectionBackdrop } from "./SectionBackdrop";
+import subtitleCss from "./section-subtitle.module.css";
 import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./social-icons";
 
 export { platformIcon, type SocialIcon, type SocialRow };
@@ -162,7 +163,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.18 }}
             {...reducedMotionProps}
-            className="mt-4 max-w-[475px] text-[16.5px] leading-[1.62] text-white/80 sm:text-[17px] [@media(orientation:landscape)_and_(max-height:500px)]:text-[14px] [@media(orientation:landscape)_and_(max-height:500px)]:leading-[1.45]"
+            className={`${subtitleCss.subtitle} mt-4 max-w-[475px]`}
           >
             For infrastructure, automation, web and mobile projects, share your requirements below.
           </m.p>

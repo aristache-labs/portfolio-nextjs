@@ -1,0 +1,23 @@
+.subtitle.subtitle {
+  font-family: inherit;
+  font-size: 16.5px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.62;
+  letter-spacing: normal;
+  color: rgb(255 255 255 / 0.8);
+  text-transform: none;
+}
+
+@media (min-width: 640px) {
+  .subtitle.subtitle {
+    font-size: 17px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .subtitle.subtitle {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+}

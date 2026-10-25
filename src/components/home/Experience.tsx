@@ -9,6 +9,7 @@ import { SectionBackdrop } from "./SectionBackdrop";
 import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
 import styles from "./experience-layout.module.css";
+import subtitleCss from "./section-subtitle.module.css";
 import spacing from "./experience-projects-spacing.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -176,10 +177,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
               Where I&apos;ve <span className="gradient-text">worked</span>
             </m.h2>
           </div>
-          <m.p
-            {...rise(reduce, 18, 0.7, 0.18)}
-            className={`${styles.intro} text-muted max-w-md text-base leading-relaxed text-white/80 sm:text-lg`}
-          >
+          <m.p {...rise(reduce, 18, 0.7, 0.18)} className={`${subtitleCss.subtitle} max-w-md`}>
             Enterprise deployments, infrastructure operations and automation across international
             restaurant locations.
           </m.p>
