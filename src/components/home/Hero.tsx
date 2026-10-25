@@ -22,6 +22,11 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 const HERO_COPY = IDENTITY.summary;
 const FOCUS = ["Systems", "Apps", "Automation", "Delivery"] as const;
 const GREETING = "// HELLO, I'M";
+const PORTRAIT_POSTER = "/media/hero-portrait.webp";
+const PORTRAIT_POSTER_QUERY =
+  "(max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 3/4)";
+const FULL_POSTER_SOURCES =
+  "/media/hero-960.webp 960w, /media/hero-1280.webp 1280w, /media/hero.webp 1672w";
 /** Cover-fit box for the 16:9 hero plate, centered in its size container. */
 const PLATE =
   "absolute top-1/2 left-1/2 aspect-video w-[max(100cqw,calc(100cqh*16/9))] -translate-x-1/2 -translate-y-1/2";
@@ -66,6 +71,7 @@ export function Hero({
     stopAnchorScroll.current = scrollToSection(id, reduce);
   };
   const canPlayVideo = useMediaQuery(HERO_VIDEO_QUERY);
+  const portraitPoster = useMediaQuery(PORTRAIT_POSTER_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     // Some iPhone browsers paint below their reported large viewport. Reserve the
@@ -96,7 +102,7 @@ export function Hero({
   useEffect(() => {
     playingRef.current = playing;
   }, [playing]);
-  const [posterLoaded, setPosterLoaded] = useState(false);
+  const [posterLoaded, setPosterLoaded] = useState<"portrait" | "full" | null>(null);
   const [videoOk, setVideoOk] = useState(true);
   const [posterOk, setPosterOk] = useState(true);
   const mouseX = useMotionValue(0);
@@ -108,13 +114,20 @@ export function Hero({
   const spotBg = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
 
   const showVideo = videoOk && !reduce;
-  // The poster is the LCP image: hold the video request until it has arrived (or failed), so
-  // hero.mp4 never competes with hero.webp, including on landscape phones.
-  const mountVideo = showVideo && canPlayVideo && (posterLoaded || !posterOk);
+  // Wait for the selected poster before requesting video, including after rotation
+  // changes the picture source from the portrait crop to the full frame.
+  const mountVideo =
+    showVideo &&
+    canPlayVideo &&
+    (posterLoaded === (portraitPoster ? "portrait" : "full") || !posterOk);
+
+  const markPosterLoaded = (node: HTMLImageElement) => {
+    setPosterLoaded(node.currentSrc.endsWith(PORTRAIT_POSTER) ? "portrait" : "full");
+  };
 
   // The img may finish loading before hydration attaches onLoad.
   const posterRef = (node: HTMLImageElement | null) => {
-    if (node?.complete && node.naturalWidth > 0) setPosterLoaded(true);
+    if (node?.complete && node.naturalWidth > 0) markPosterLoaded(node);
   };
 
   // Pause while scrolled away, resume only if the visitor has not paused it themselves.
@@ -170,23 +183,28 @@ export function Hero({
         aria-hidden
       >
         {posterOk && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            ref={posterRef}
-            src="/media/hero.webp"
-            alt=""
-            fetchPriority="high"
-            onLoad={() => setPosterLoaded(true)}
-            onError={() => setPosterOk(false)}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <picture className={`${styles.poster} absolute inset-0`}>
+            <source media={PORTRAIT_POSTER_QUERY} srcSet={PORTRAIT_POSTER} type="image/webp" />
+            {/* Cover-fit depends on height as well as width. Keep enough pixels for tall
+                viewports; the portrait source preserves the original full-height detail. */}
+            <img
+              ref={posterRef}
+              src="/media/hero.webp"
+              srcSet={FULL_POSTER_SOURCES}
+              sizes="max(100vw, 178lvh)"
+              alt=""
+              fetchPriority="high"
+              onLoad={(event) => markPosterLoaded(event.currentTarget)}
+              onError={() => setPosterOk(false)}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </picture>
         )}
         <div className="bg-background/70 absolute inset-0 md:hidden" />
         {/* Desktop plate: sized exactly like object-cover on a 16:9 picture, so anything placed
             inside it by percentage stays on the same spot of the picture at any screen size. */}
         <div className={`${PLATE} hidden md:block landscape:block`}>
-          {/* The poster img is the LCP candidate and stays put: the video mounts above it, so the
-              swap never creates a later, same-size LCP element. */}
+          {/* The poster stays put beneath the video, preserving its framing during playback. */}
           {mountVideo && (
             <video
               ref={videoRef}

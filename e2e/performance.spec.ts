@@ -49,7 +49,7 @@ for (const viewport of [
       });
       await page.goto("/");
       await expect(page.locator("#hero")).toBeVisible();
-      await expect(page.locator('#hero img[src="/media/hero.webp"]')).toHaveCount(1);
+      await expect(page.locator('#hero picture img[fetchpriority="high"]')).toHaveCount(1);
       if (viewport.width > viewport.height) {
         const heroVideo = page.locator("#hero video");
         await expect(heroVideo).toBeVisible();

@@ -1,12 +1,16 @@
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
-import { describe, it, expect, afterEach, beforeEach } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
+import { HERO_VIDEO_QUERY } from "@/hooks/useMediaQuery";
 import { IDENTITY } from "@/lib/identity";
 import { Hero } from "./Hero";
 
 beforeEach(() => installMatchMedia());
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 const profile = {
   name: "Adrian Cristache",
@@ -57,7 +61,8 @@ describe("Hero", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1).not.toHaveTextContent("Cristache");
-    expect(h1.textContent).toMatch(/Adrian\s+IT expertise\. Web & mobile development\./);
+    expect(h1).toHaveTextContent("Adrian");
+    expect(h1.lastElementChild).not.toBeEmptyDOMElement();
     expect(
       screen.getByText(
         /My experience spans enterprise IT, PowerShell automation and script security\./,
@@ -129,5 +134,52 @@ describe("Hero", () => {
     expect(container.querySelectorAll('img[src="/media/hero.webp"]')).toHaveLength(1);
     expect(container.querySelector("video")).toBeNull();
     expect(screen.queryByRole("button", { name: /background video/i })).not.toBeInTheDocument();
+  });
+
+  it("exposes responsive poster sources in server HTML without lazy loading or duplicate images", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<Hero profile={profile} />);
+    const picture = container.querySelector("picture");
+    const image = picture?.querySelector("img");
+    const source = picture?.querySelector("source");
+    expect(picture?.querySelectorAll("img")).toHaveLength(1);
+    expect(image).toHaveAttribute("fetchpriority", "high");
+    expect(image).not.toHaveAttribute("loading", "lazy");
+    expect(image).toHaveAttribute("sizes", "max(100vw, 178lvh)");
+    expect(image?.getAttribute("srcset")).toContain("/media/hero-960.webp 960w");
+    expect(image?.getAttribute("srcset")).toContain("/media/hero.webp 1672w");
+    expect(source).toHaveAttribute("srcset", "/media/hero-portrait.webp");
+    expect(source?.getAttribute("media")).toContain("max-aspect-ratio: 3/4");
+    expect(container.querySelector("video")).toBeNull();
+  });
+
+  it("waits for the full-frame poster after rotating from portrait to landscape", () => {
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    const portraitQuery =
+      "(max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 3/4)";
+    const matches = { [portraitQuery]: true, [HERO_VIDEO_QUERY]: false };
+    installMatchMedia(matches);
+    const { container, rerender } = render(<Hero profile={profile} />);
+    const image = container.querySelector("picture img")!;
+    Object.defineProperty(image, "currentSrc", {
+      configurable: true,
+      value: "http://localhost/media/hero-portrait.webp",
+    });
+    fireEvent.load(image);
+    expect(container.querySelector("video")).toBeNull();
+
+    matches[portraitQuery] = false;
+    matches[HERO_VIDEO_QUERY] = true;
+    rerender(<Hero profile={profile} />);
+    expect(container.querySelector("video")).toBeNull();
+
+    Object.defineProperty(image, "currentSrc", {
+      configurable: true,
+      value: "http://localhost/media/hero-1280.webp",
+    });
+    fireEvent.load(image);
+    expect(container.querySelector("video source")).toHaveAttribute("src", "/media/hero.mp4");
+    expect(container.querySelector("picture img")).toBe(image);
   });
 });

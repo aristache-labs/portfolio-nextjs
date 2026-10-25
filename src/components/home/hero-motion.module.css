@@ -119,6 +119,12 @@
 }
 
 @media (orientation: portrait) and (max-width: 767px) {
+  .poster {
+    bottom: auto;
+    height: 75%;
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+
   .roles {
     text-align: center;
   }
