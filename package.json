@@ -1,6 +1,6 @@
 {
   "name": "portfolio-nextjs",
-  "version": "2.4.19",
+  "version": "2.4.22",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 4000",

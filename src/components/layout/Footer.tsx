@@ -52,7 +52,18 @@ export function Footer({
 
   return (
     <footer className={`${layout.footer} relative overflow-hidden`}>
-      <SectionBackdrop poster="/media/footer.webp" scrim="bg-background/70 absolute inset-0" />
+      <SectionBackdrop
+        poster="/media/footer.webp"
+        fetchPriority="low"
+        deferUntilHeroLoaded
+        deferUntilNearViewport
+        responsivePoster={{
+          srcSet:
+            "/media/footer-640.webp 640w, /media/footer-960.webp 960w, /media/footer.webp 1600w",
+          aspectRatio: 16 / 9,
+        }}
+        scrim="bg-background/70 absolute inset-0"
+      />
       {/* Readability without hiding the skyline: dark at the top and bottom, open through the middle. */}
       <div
         aria-hidden

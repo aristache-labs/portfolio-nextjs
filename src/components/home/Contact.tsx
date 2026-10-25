@@ -130,6 +130,14 @@ export function Contact({
             frame="desktop-screen"
             video="/media/contact.mp4"
             poster="/media/experience.webp"
+            fetchPriority="low"
+            deferUntilHeroLoaded
+            deferUntilNearViewport
+            responsivePoster={{
+              srcSet:
+                "/media/experience-640.webp 640w, /media/experience-960.webp 960w, /media/experience.webp 1600w",
+              aspectRatio: 16 / 9,
+            }}
             scrim="bg-background/90 absolute inset-0 md:bg-background/90"
           />
           <div

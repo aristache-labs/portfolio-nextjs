@@ -30,6 +30,14 @@ export function Projects({
             frame="desktop-screen"
             video="/media/projects.mp4"
             poster="/media/projects.webp"
+            fetchPriority="low"
+            deferUntilHeroLoaded
+            deferUntilNearViewport
+            responsivePoster={{
+              srcSet:
+                "/media/projects-640.webp 640w, /media/projects-960.webp 960w, /media/projects.webp 1600w",
+              aspectRatio: 16 / 9,
+            }}
           />
           <div
             aria-hidden
