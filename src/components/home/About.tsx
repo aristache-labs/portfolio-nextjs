@@ -51,21 +51,23 @@ function StatBar() {
           {items.map(({ icon: Icon, value, label }) => (
             <div
               key={label}
-              className={`${statsCss.item} flex min-w-0 items-center gap-3 px-1 lg:px-3 lg:first:pl-0 lg:last:pr-0`}
+              className={`${statsCss.item} flex min-w-0 items-center justify-center px-1 lg:px-3`}
             >
-              <IconTile size="md">
-                <Icon className="size-5" {...ICON_PROPS} />
-              </IconTile>
-              <span className="min-w-0">
-                <span
-                  className={`${statsCss.numberValue} font-display block text-xl leading-tight font-bold text-white sm:text-2xl`}
-                >
-                  {value}
+              <div className={statsCss.metricGroup}>
+                <IconTile size="md">
+                  <Icon className="size-5" {...ICON_PROPS} />
+                </IconTile>
+                <span className="min-w-0 text-left">
+                  <span
+                    className={`${statsCss.numberValue} font-display block text-xl leading-tight font-bold text-white sm:text-2xl`}
+                  >
+                    {value}
+                  </span>
+                  <span className={`${statsCss.label} block text-xs break-words text-white/50`}>
+                    {label}
+                  </span>
                 </span>
-                <span className={`${statsCss.label} block text-xs break-words text-white/50`}>
-                  {label}
-                </span>
-              </span>
+              </div>
             </div>
           ))}
         </div>
