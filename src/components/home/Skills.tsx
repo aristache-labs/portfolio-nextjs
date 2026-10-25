@@ -79,17 +79,6 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
               <span>Skills</span>
               <span aria-hidden className={responsiveCss.sectionRule} />
             </div>
-            <m.span
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4 }}
-              {...reducedMotionProps}
-              className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium"
-            >
-              <Zap className="fill-brand-mid text-brand-mid size-3.5" />
-              My Toolbox
-            </m.span>
 
             <m.h2
               initial={{ opacity: 0, y: 12 }}
@@ -122,6 +111,19 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           <div aria-hidden className="hidden lg:block" />
 
           <div className="min-w-0">
+            <div className="mb-3 text-center">
+              <m.span
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+                {...reducedMotionProps}
+                className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium"
+              >
+                <Zap className="fill-brand-mid text-brand-mid size-3.5" />
+                My Toolbox
+              </m.span>
+            </div>
             {ordered.length > 0 && (
               <m.div
                 initial={{ opacity: 0, y: 12 }}
