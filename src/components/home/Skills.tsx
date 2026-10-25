@@ -7,6 +7,7 @@ import { Quote, Zap } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
+import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
 
 export type SkillRow = {
@@ -36,7 +37,7 @@ function mostUsedSkills(skills: SkillRow[]) {
     .slice(0, MOST_USED_LIMIT);
 }
 
-export function Skills({ skills }: { skills: SkillRow[] }) {
+export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?: string }) {
   const reducedMotionProps = useReducedMotionProps();
   const ordered = useMemo(() => byOrder(skills), [skills]);
   const categories = useMemo(() => {
@@ -75,10 +76,10 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
           <div className={`${responsiveCss.heading} min-w-0 text-left`}>
-            <div className={responsiveCss.sectionLabel} data-scroll-anchor>
-              <span className={responsiveCss.sectionNumber}>02</span>
+            <div className={`${labelCss.label} ${responsiveCss.sectionLabel}`} data-scroll-anchor>
+              <span className={labelCss.number}>{number}</span>
               <span>Skills</span>
-              <span aria-hidden className={responsiveCss.sectionRule} />
+              <span aria-hidden className={labelCss.rule} />
             </div>
 
             <m.h2

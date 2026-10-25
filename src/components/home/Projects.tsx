@@ -13,7 +13,13 @@ const GITHUB_PROFILE = "https://github.com/aristache-labs";
 
 /** Server shell: heading and CTA stay server-rendered, and ProjectsBrowser owns the
  *  parts that need selection state (categories, showcase, filter, grid, quick view). */
-export function Projects({ projects }: { projects: MergedProject[] }) {
+export function Projects({
+  projects,
+  number = "04",
+}: {
+  projects: MergedProject[];
+  number?: string;
+}) {
   return (
     <Section
       id="projects"
@@ -35,7 +41,7 @@ export function Projects({ projects }: { projects: MergedProject[] }) {
       <Reveal className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-10 [@media(orientation:portrait)_and_(max-width:767px)]:flex [@media(orientation:portrait)_and_(max-width:767px)]:flex-col">
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between [@media(orientation:portrait)_and_(max-width:767px)]:contents">
           <SectionHeading
-            number="04"
+            number={number}
             eyebrow="Projects"
             title="Selected Projects"
             accent="Projects"

@@ -11,7 +11,6 @@ import { SocialGlyph } from "./social-icons";
 import { IconTile } from "@/components/ui/IconTile";
 import { SectionEdge } from "./SectionBackdrop";
 import styles from "./hero-motion.module.css";
-import subtitleCss from "./section-subtitle.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import { IDENTITY } from "@/lib/identity";
 export type HeroProfile = {

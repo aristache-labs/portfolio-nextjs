@@ -1,0 +1,25 @@
+.label.label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.number {
+  color: var(--brand-mid);
+  font-weight: 600;
+}
+
+.rule {
+  flex: 1;
+  min-width: 0;
+  height: 1px;
+  background: var(--border-color);
+}

@@ -12,11 +12,14 @@ function Paragraphs({ text }: { text: string }) {
     .map((paragraph) => paragraph.trim())
     .filter(Boolean)
     .map((paragraph, index) => (
-      <p key={index}         className={
-        index === 0
-          ? "text-base leading-relaxed text-white sm:text-lg"
-          : "text-base leading-relaxed text-white/60 sm:text-lg"
-      }>
+      <p
+        key={index}
+        className={
+          index === 0
+            ? "text-base leading-relaxed text-white sm:text-lg"
+            : "text-base leading-relaxed text-white/60 sm:text-lg"
+        }
+      >
         {paragraph}
       </p>
     ));

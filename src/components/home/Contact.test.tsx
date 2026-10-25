@@ -6,6 +6,10 @@ import type { SocialRow } from "./Contact";
 import { Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 
+vi.mock("next/font/google", () => ({
+  Merienda: () => ({ className: "quote-font" }),
+}));
+
 // Mock framer-motion to avoid jsdom animation issues
 vi.mock("framer-motion", () => {
   const motionProps = [
@@ -85,6 +89,17 @@ describe("platformIcon", () => {
 
 describe("Contact", () => {
   const email = "hello@example.com";
+
+  it("attributes the conversation quote to its source", () => {
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    expect(container.querySelector("blockquote")).toHaveTextContent(
+      "The beginning is the most important part of any work.",
+    );
+    expect(screen.getByRole("link", { name: "Plato" })).toHaveAttribute(
+      "href",
+      "https://classics.mit.edu/Plato/republic.3.ii.html",
+    );
+  });
 
   it("renders the contact section with id='contact'", () => {
     const { container } = render(<Contact socials={mockSocials} email={email} />);

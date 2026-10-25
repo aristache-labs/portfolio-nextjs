@@ -1,5 +1,6 @@
 import { cn } from "@/utils/cn";
 import { HTMLAttributes, ReactNode } from "react";
+import labelCss from "./section-label.module.css";
 
 type SectionProps = {
   id?: string;
@@ -86,17 +87,10 @@ export function SectionHeading({
   return (
     <div className={cn("mb-12", className)}>
       {eyebrow && (
-        <p
-          className={cn(
-            "text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase",
-            centered && "justify-center",
-          )}
-        >
-          <span>
-            {number && <span className="gradient-text mr-3 font-semibold">{number}</span>}
-            {eyebrow}
-          </span>
-          {!centered && <span aria-hidden className="bg-border h-px flex-1" />}
+        <p className={cn(labelCss.label, centered && "justify-center")}>
+          {number && <span className={labelCss.number}>{number}</span>}
+          <span>{eyebrow}</span>
+          {!centered && <span aria-hidden className={labelCss.rule} />}
         </p>
       )}
       <h2

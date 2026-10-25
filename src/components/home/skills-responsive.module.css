@@ -44,29 +44,8 @@
 
 .sectionLabel {
   width: calc(100% - clamp(124px, 18vw, 220px) - 16px);
-  display: flex;
-  align-items: center;
-  gap: 12px;
   grid-column: 1 / -1;
   grid-row: 1;
-  margin-bottom: 16px;
-  color: var(--muted);
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-}
-
-.sectionNumber {
-  color: var(--brand-mid);
-  font-weight: 600;
-}
-
-.sectionRule {
-  flex: 1;
-  height: 1px;
-  background: var(--border-color);
 }
 
 .quote {

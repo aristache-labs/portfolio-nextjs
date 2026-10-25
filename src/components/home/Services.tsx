@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion";
 import { ServiceCard } from "./ServiceCard";
 import { SectionBackdrop } from "./SectionBackdrop";
+import labelCss from "@/components/ui/section-label.module.css";
 import type { Service } from "@/db/schema";
 
 export type ServiceRow = Service;
@@ -23,7 +24,7 @@ function rise(reduce: boolean, y: number, duration: number, delay = 0) {
   };
 }
 
-export function Services({ services }: { services: ServiceRow[] }) {
+export function Services({ services, number = "05" }: { services: ServiceRow[]; number?: string }) {
   const sorted = [...services].sort((a, b) => a.order - b.order || a.id - b.id).slice(0, 4);
   const reduce = useReducedMotion();
 
@@ -46,15 +47,10 @@ export function Services({ services }: { services: ServiceRow[] }) {
       }
     >
       <div className="mb-5">
-        <m.p
-          {...rise(reduce, 16, 0.6)}
-          className="text-muted mb-3 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
-        >
-          <span>
-            <span className="gradient-text mr-3 font-semibold">05</span>
-            Services
-          </span>
-          <span aria-hidden className="bg-border h-px flex-1" />
+        <m.p {...rise(reduce, 16, 0.6)} className={labelCss.label}>
+          <span className={labelCss.number}>{number}</span>
+          <span>Services</span>
+          <span aria-hidden className={labelCss.rule} />
         </m.p>
         <m.h2
           {...rise(reduce, 28, 0.8, 0.1)}

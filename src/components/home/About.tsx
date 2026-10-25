@@ -4,6 +4,7 @@ import { AvatarPortrait } from "./AvatarPortrait";
 import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { SectionBackdrop } from "./SectionBackdrop";
+import labelCss from "@/components/ui/section-label.module.css";
 import statsCss from "./about-stats.module.css";
 import { AboutBio } from "./AboutBio";
 import { SITE } from "@/lib/seo/site";
@@ -76,7 +77,7 @@ function StatBar() {
   );
 }
 
-export function About({ profile }: { profile: AboutProfile }) {
+export function About({ profile, number = "01" }: { profile: AboutProfile; number?: string }) {
   return (
     <Section
       id="about"
@@ -104,12 +105,10 @@ export function About({ profile }: { profile: AboutProfile }) {
         )}
         <div className={statsCss.heading}>
           <div className="mb-8">
-            <p className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase">
-              <span>
-                <span className="gradient-text mr-3 font-semibold">01</span>
-                About
-              </span>
-              <span aria-hidden className="bg-border h-px flex-1" />
+            <p className={labelCss.label}>
+              <span className={labelCss.number}>{number}</span>
+              <span>About</span>
+              <span aria-hidden className={labelCss.rule} />
             </p>
             <h2 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
               Behind the <span className="gradient-text">code</span>.

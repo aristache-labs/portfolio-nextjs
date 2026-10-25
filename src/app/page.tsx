@@ -12,6 +12,7 @@ import {
 import { Hero } from "@/components/home/Hero";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
+import { sectionNumbers } from "@/lib/section-numbers";
 
 // ISR: prerendered at build time, so the build needs a reachable database. 12h is a Neon compute
 // budget decision, not a freshness one - admin saves publish immediately. See AGENTS.md.
@@ -50,6 +51,7 @@ export default async function Home() {
   // A section is visible unless its key is explicitly false.
   const profile = await getProfile();
   const vis = profile.sectionVisibility;
+  const numbers = sectionNumbers(vis);
   const show = (id: string) => vis[id] !== false;
 
   // Fetch only the data for VISIBLE sections - a hidden section runs no query
@@ -88,6 +90,7 @@ export default async function Home() {
 
       {show("about") && (
         <About
+          number={numbers.about}
           profile={{
             bio: profile.bio,
             stats: profile.stats,
@@ -97,15 +100,17 @@ export default async function Home() {
         />
       )}
 
-      {show("skills") && <Skills skills={skills} />}
+      {show("skills") && <Skills skills={skills} number={numbers.skills} />}
 
-      {show("experience") && <Experience experiences={experiences} />}
+      {show("experience") && <Experience experiences={experiences} number={numbers.experience} />}
 
-      {show("projects") && <Projects projects={projects} />}
+      {show("projects") && <Projects projects={projects} number={numbers.projects} />}
 
-      {show("services") && <Services services={services} />}
+      {show("services") && <Services services={services} number={numbers.services} />}
 
-      {show("contact") && <Contact socials={socials} email={contactEmail} />}
+      {show("contact") && (
+        <Contact socials={socials} email={contactEmail} number={numbers.contact} />
+      )}
 
       <Footer socials={socials} email={profile.email} sponsorUrl={sponsorUrl} />
     </div>

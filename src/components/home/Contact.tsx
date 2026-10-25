@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState, type FormEvent } from "react";
+import { Merienda } from "next/font/google";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { ArrowRight, ArrowUpRight, ChevronDown, Mail, RadioTower, Send } from "lucide-react";
@@ -9,7 +10,9 @@ import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { SectionBackdrop } from "./SectionBackdrop";
+import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
+import quoteCss from "./contact-quote.module.css";
 import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./social-icons";
 
 export { platformIcon, type SocialIcon, type SocialRow };
@@ -17,6 +20,13 @@ export { platformIcon, type SocialIcon, type SocialRow };
 const SUBJECTS = ["Project Collaboration", "Job Opportunity", "Freelance Work", "General Question"];
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+
+const quoteFont = Merienda({
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
+  preload: false,
+});
 
 type Card = {
   key: string;
@@ -55,7 +65,15 @@ function cardsFor(socials: SocialRow[], email: string): Card[] {
   return cards;
 }
 
-export function Contact({ socials, email }: { socials: SocialRow[]; email: string }) {
+export function Contact({
+  socials,
+  email,
+  number = "06",
+}: {
+  socials: SocialRow[];
+  email: string;
+  number?: string;
+}) {
   const cardId = useId();
   const cards = cardsFor(socials, email);
   const reducedMotionProps = useReducedMotionProps();
@@ -112,7 +130,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             frame="desktop-screen"
             video="/media/contact.mp4"
             poster="/media/experience.webp"
-            scrim="bg-background/70 absolute inset-0 md:bg-background/90"
+            scrim="bg-background/90 absolute inset-0 md:bg-background/90"
           />
           <div
             aria-hidden
@@ -137,13 +155,11 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             {...reducedMotionProps}
-            className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
+            className={labelCss.label}
           >
-            <span>
-              <span className="gradient-text mr-3 font-semibold">06</span>
-              Contact
-            </span>
-            <span aria-hidden className="bg-border h-px flex-1" />
+            <span className={labelCss.number}>{number}</span>
+            <span>Contact</span>
+            <span aria-hidden className={labelCss.rule} />
           </m.p>
 
           <m.h2
@@ -222,6 +238,37 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
               })}
             </ul>
           )}
+          <m.figure
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, ease: EASE }}
+            {...reducedMotionProps}
+            className="border-brand-mid/20 bg-background/75 mt-8 max-w-[575px] rounded-3xl border p-5 shadow-[0_0_32px_-18px_rgb(var(--brand-mid-rgb)/0.12)] backdrop-blur-xl sm:p-6"
+          >
+            <blockquote cite="https://classics.mit.edu/Plato/republic.3.ii.html">
+              <p
+                className={`${quoteFont.className} ${quoteCss.text} text-[12px] leading-[1.55] text-white/90 sm:text-[16px]`}
+              >
+                &ldquo;The beginning is the most important part of any work.&rdquo;
+              </p>
+            </blockquote>
+            <figcaption
+              className={`${quoteCss.author} mt-3 text-right font-mono text-[12px] font-semibold tracking-[0.12em] text-white/85 uppercase sm:text-[14px]`}
+            >
+              <span aria-hidden>- </span>
+              <cite className="not-italic">
+                <a
+                  href="https://classics.mit.edu/Plato/republic.3.ii.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-brand-bright focus-visible:outline-brand-mid rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-4"
+                >
+                  Plato
+                </a>
+              </cite>
+            </figcaption>
+          </m.figure>
         </div>
 
         <m.div

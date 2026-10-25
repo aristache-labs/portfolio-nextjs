@@ -6,6 +6,7 @@ import { MapPin } from "lucide-react";
 import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
+import labelCss from "@/components/ui/section-label.module.css";
 import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
 import styles from "./experience-layout.module.css";
@@ -128,7 +129,13 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
   );
 }
 
-export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
+export function Experience({
+  experiences,
+  number = "03",
+}: {
+  experiences: ExperienceRow[];
+  number?: string;
+}) {
   const sorted = [...experiences].sort((a, b) => a.order - b.order);
   const reduce = useReducedMotion();
   const listRef = useRef<HTMLDivElement>(null);
@@ -150,7 +157,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
           frame="desktop-screen"
           video="/media/experience.mp4"
           poster="/media/experience.webp"
-          scrim="bg-background/85 absolute inset-0"
+          scrim="bg-background/90 absolute inset-0"
         />
       }
     >
@@ -160,15 +167,10 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
       <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
         <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start">
           <div className="mb-5">
-            <m.p
-              {...rise(reduce, 16, 0.6)}
-              className="text-muted mb-4 flex items-center gap-4 font-mono text-xs tracking-[0.3em] uppercase"
-            >
-              <span>
-                <span className="gradient-text mr-3 font-semibold">03</span>
-                Experience
-              </span>
-              <span aria-hidden className="bg-border h-px flex-1" />
+            <m.p {...rise(reduce, 16, 0.6)} className={labelCss.label}>
+              <span className={labelCss.number}>{number}</span>
+              <span>Experience</span>
+              <span aria-hidden className={labelCss.rule} />
             </m.p>
             <m.h2
               {...rise(reduce, 28, 0.8, 0.1)}
