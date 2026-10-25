@@ -1,4 +1,6 @@
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { act, render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { usePathname } from "next/navigation";
 import { installMatchMedia } from "@/test/matchMedia";
@@ -18,6 +20,34 @@ const socials = [
 ];
 
 describe("SiteNav", () => {
+  it("hydrates rewritten homepage links without replacing the server navigation", async () => {
+    vi.mocked(usePathname).mockReturnValue("/index");
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<SiteNav socials={socials} />);
+    document.body.append(container);
+    const serverNavigation = container.querySelector("nav");
+    const onRecoverableError = vi.fn();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+
+    try {
+      expect(container.querySelector('a[aria-label="Home"]')).toHaveAttribute("href", "/#hero");
+      vi.mocked(usePathname).mockReturnValue("/");
+      await act(async () => {
+        root = hydrateRoot(container, <SiteNav socials={socials} />, { onRecoverableError });
+      });
+
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(consoleError).not.toHaveBeenCalled();
+      expect(container.querySelector("nav")).toBe(serverNavigation);
+      expect(container.querySelector('a[aria-label="Home"]')).toHaveAttribute("href", "#hero");
+    } finally {
+      await act(async () => root?.unmount());
+      consoleError.mockRestore();
+      container.remove();
+    }
+  });
+
   it("links back to homepage sections from Privacy without marking Home active", () => {
     vi.mocked(usePathname).mockReturnValue("/privacy");
     render(<SiteNav socials={socials} />);

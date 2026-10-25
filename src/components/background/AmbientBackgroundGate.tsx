@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
+import { useHydratedPathname } from "@/hooks/useHydratedPathname";
 
 const AmbientBackground = dynamic(
   () => import("./AmbientBackground").then((module) => module.AmbientBackground),
@@ -9,7 +9,8 @@ const AmbientBackground = dynamic(
 );
 
 export function AmbientBackgroundGate() {
-  const pathname = usePathname();
-  if (pathname === "/" || pathname === "/login" || pathname?.startsWith("/admin")) return null;
+  const pathname = useHydratedPathname();
+  if (!pathname || pathname === "/" || pathname === "/login" || pathname.startsWith("/admin"))
+    return null;
   return <AmbientBackground />;
 }

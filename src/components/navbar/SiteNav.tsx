@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useHydratedPathname } from "@/hooks/useHydratedPathname";
 import { AnimatePresence, m } from "framer-motion";
 import {
   ArrowRight,
@@ -68,7 +68,7 @@ export function SiteNav({
   );
   const ids = useMemo(() => visibleSections.map((s) => s.id), [visibleSections]);
   const activeSection = useScrollSpy(ids);
-  const onHomepage = usePathname() === "/";
+  const onHomepage = useHydratedPathname() === "/";
   const active = onHomepage ? activeSection : null;
   const sectionHref = (id: string) => `${onHomepage ? "" : "/"}#${id}`;
   const reduce = useReducedMotion();
