@@ -123,7 +123,7 @@ export function SectionBackdrop({
   const scrimClass =
     scrim ??
     (screen
-      ? "bg-background/95 absolute inset-0 md:bg-background/45 [@media(orientation:landscape)_and_(max-height:500px)]:bg-background/80"
+      ? "bg-background/95 absolute inset-0 md:bg-background/50 [@media(orientation:landscape)_and_(max-height:500px)]:bg-background/90"
       : "bg-background/70 absolute inset-0");
 
   return (

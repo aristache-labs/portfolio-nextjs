@@ -111,7 +111,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
           <div aria-hidden className="hidden lg:block" />
 
           <div className="min-w-0">
-            <div className="mb-3 text-center">
+            <div className="mb-5 text-center">
               <m.span
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}

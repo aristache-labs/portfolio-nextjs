@@ -91,7 +91,7 @@ export function About({ profile }: { profile: AboutProfile }) {
           />
           <div
             aria-hidden
-            className="bg-background/80 pointer-events-none absolute inset-0 z-[1]"
+            className="bg-background/60 pointer-events-none absolute inset-0 z-[1]"
           />
         </>
       }

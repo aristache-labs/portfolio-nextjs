@@ -148,7 +148,7 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
         <SectionBackdrop
           video="/media/experience.mp4"
           poster="/media/experience.webp"
-          scrim="bg-background/90 absolute inset-0"
+          scrim="bg-background/70 absolute inset-0"
         />
       }
     >
