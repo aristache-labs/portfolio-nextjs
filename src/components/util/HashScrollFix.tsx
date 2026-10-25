@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { sectionScrollPosition } from "@/lib/scroll-to-section";
 
 /** Position cross-page anchors without animating through the whole homepage. */
 export function HashScrollFix() {
@@ -22,9 +23,9 @@ export function HashScrollFix() {
     const tick = () => {
       const target = document.getElementById(id);
       if (target) {
-        const position = target.getBoundingClientRect().top + window.scrollY;
+        const position = sectionScrollPosition(target);
         if (lastPosition === undefined || Math.abs(position - lastPosition) > 2) {
-          target.scrollIntoView({ behavior: "instant", block: "start" });
+          window.scrollTo({ top: position, behavior: "instant" });
           lastPosition = position;
         }
       }

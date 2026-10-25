@@ -1,16 +1,25 @@
 "use client";
 
+/** A centered section can expose its content start as the desktop anchor. */
+export function sectionScrollPosition(target: HTMLElement): number {
+  const anchor = window.matchMedia("(min-width: 1024px) and (pointer: fine)").matches
+    ? (target.querySelector<HTMLElement>("[data-desktop-scroll-anchor]") ?? target)
+    : target;
+  const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+  const contentOffset = anchor === target ? 0 : 30;
+  return anchor.getBoundingClientRect().top + window.scrollY - margin - contentOffset;
+}
+
 /** A paced anchor transition that yields immediately to manual navigation. */
 export function scrollToSection(id: string, reducedMotion: boolean): () => void {
   const target = document.getElementById(id);
   if (!target) return () => {};
 
   const start = window.scrollY;
-  const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
   const destination = Math.max(
     0,
     Math.min(
-      target.getBoundingClientRect().top + start - margin,
+      sectionScrollPosition(target),
       document.documentElement.scrollHeight - window.innerHeight,
     ),
   );
