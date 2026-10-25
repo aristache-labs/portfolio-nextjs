@@ -146,9 +146,10 @@ export function Experience({ experiences }: { experiences: ExperienceRow[] }) {
       className={`${styles.section} ${spacing.experience} scroll-mt-[80px] overflow-clip pt-2 md:scroll-mt-1 md:pt-28`}
       backdrop={
         <SectionBackdrop
+          frame="desktop-screen"
           video="/media/experience.mp4"
           poster="/media/experience.webp"
-          scrim="bg-background/70 absolute inset-0"
+          scrim="bg-background/85 absolute inset-0"
         />
       }
     >

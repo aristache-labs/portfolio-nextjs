@@ -143,7 +143,7 @@ describe("SectionBackdrop", () => {
   it("does not preload or play a nearby video until it is visible, and pauses it after scrolling away", () => {
     installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true });
     const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
-    const root = container.firstElementChild!;
+    const root = container.querySelector("video")!.parentElement!;
     const video = container.querySelector("video")!;
     expect(video).toHaveAttribute("preload", "none");
     expect(video).not.toHaveAttribute("autoplay");

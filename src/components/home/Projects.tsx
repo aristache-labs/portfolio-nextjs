@@ -19,7 +19,11 @@ export function Projects({ projects }: { projects: MergedProject[] }) {
       className={`${spacing.projects} scroll-mt-[80px] pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
       backdrop={
         <>
-          <SectionBackdrop video="/media/projects.mp4" poster="/media/projects.webp" />
+          <SectionBackdrop
+            frame="desktop-screen"
+            video="/media/projects.mp4"
+            poster="/media/projects.webp"
+          />
           <div
             aria-hidden
             className="bg-background/70 pointer-events-none absolute inset-0 z-[1]"

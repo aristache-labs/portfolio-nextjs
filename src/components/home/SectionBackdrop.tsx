@@ -51,6 +51,7 @@ const PLAY_MARGIN = "0px";
  * mount a video. A missing file hides itself so the teal ground shows through.
  *
  * `screen` pins the loop to one viewport height at the top of the section.
+ * `desktop-screen` applies that cap from lg upward, preserving mobile framing.
  * Stretching it over a tall section with object-cover zooms the frame.
  */
 export function SectionBackdrop({
@@ -67,7 +68,7 @@ export function SectionBackdrop({
   fetchPriority?: "high" | "low" | "auto";
   /** Keep this poster out of the initial HTML until the hero image loads or fails. */
   deferUntilHeroLoaded?: boolean;
-  frame?: "fill" | "screen";
+  frame?: "fill" | "screen" | "desktop-screen";
   /** Overlay tint. Defaults stay with each frame. */
   scrim?: string;
   /**
@@ -127,16 +128,15 @@ export function SectionBackdrop({
       : "bg-background/70 absolute inset-0");
 
   return (
-    <div
-      ref={rootRef}
-      className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-      aria-hidden
-    >
+    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
       <div
+        ref={rootRef}
         className={
           screen
             ? "absolute top-0 left-0 h-screen max-h-full w-full overflow-hidden"
-            : "absolute inset-0"
+            : frame === "desktop-screen"
+              ? "absolute inset-0 overflow-hidden lg:bottom-auto lg:h-svh lg:max-h-full"
+              : "absolute inset-0"
         }
       >
         {showVideo && (

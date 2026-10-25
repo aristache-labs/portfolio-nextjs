@@ -108,6 +108,7 @@ export function Contact({ socials, email }: { socials: SocialRow[]; email: strin
       backdrop={
         <>
           <SectionBackdrop
+            frame="desktop-screen"
             video="/media/contact.mp4"
             poster="/media/experience.webp"
             scrim="bg-background/70 absolute inset-0 md:bg-background/90"
