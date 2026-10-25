@@ -59,19 +59,26 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
       id="skills"
       className={`${responsiveCss.section} relative z-10 scroll-mt-[80px] overflow-x-clip overflow-y-visible`}
     >
-      <SectionBackdrop
-        frame="screen"
-        focus="left"
-        video="/media/skills.mp4"
-        poster="/media/skills.webp"
-        fetchPriority="low"
-      />
+      <div className={responsiveCss.backdrop}>
+        <SectionBackdrop
+          frame="screen"
+          focus="left"
+          video="/media/skills.mp4"
+          poster="/media/skills.webp"
+          fetchPriority="low"
+        />
+      </div>
       <div
         className={`${responsiveCss.content} relative z-10 mx-auto flex max-w-7xl flex-col px-5 pt-6 pb-10 sm:px-8 md:pt-8 lg:block`}
       >
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
           <div className={`${responsiveCss.heading} min-w-0 text-left`}>
+            <div className={responsiveCss.sectionLabel}>
+              <span className={responsiveCss.sectionNumber}>02</span>
+              <span>Skills</span>
+              <span aria-hidden className={responsiveCss.sectionRule} />
+            </div>
             <m.span
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}

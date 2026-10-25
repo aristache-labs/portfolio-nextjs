@@ -181,6 +181,7 @@ export function SectionEdge({ edge }: { edge: "top" | "bottom" }) {
   const bottom = edge === "bottom";
   return (
     <div
+      data-edge={edge}
       className={
         bottom
           ? "absolute inset-x-0 bottom-0 h-40 md:h-56"
