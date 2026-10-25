@@ -133,16 +133,17 @@
   }
 
   .backdrop {
-    top: 96px;
+    top: 100px;
+    left: -30px;
   }
 
   .backdrop [data-edge="top"] {
-    height: 64px;
+    height: 50px;
   }
 
   .backdrop [data-edge="top"] > div:first-child {
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
   }
 }
 
