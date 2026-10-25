@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { usePalette } from "@/hooks/usePalette";
-import { PALETTES } from "@/lib/palettes";
 import { BRAND } from "@/lib/brand";
 
 const BADGES = {
@@ -62,21 +60,15 @@ function RepoBadge({
 }
 
 export function ProjectRepoBadges({ repo }: { repo: string }) {
-  const { palette } = usePalette();
-  const ramp = PALETTES.find((p) => p.id === palette)?.ramp ?? [
-    BRAND.deep,
-    BRAND.mid,
-    BRAND.bright,
-  ];
   return (
     <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
       {(["contributors", "stars"] as const).map((metric) => (
         <RepoBadge
-          key={`${repo}-${metric}-${palette}`}
+          key={`${repo}-${metric}`}
           repo={repo}
           metric={metric}
-          color={ramp[0].slice(1)}
-          logoColor={ramp[2].slice(1)}
+          color={BRAND.deep.slice(1)}
+          logoColor={BRAND.bright.slice(1)}
         />
       ))}
     </div>

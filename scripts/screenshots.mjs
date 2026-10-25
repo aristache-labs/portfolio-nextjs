@@ -332,9 +332,6 @@ async function captureTarget(browser, target) {
   // Set the theme BEFORE loading the website
   await context.addInitScript(() => {
     localStorage.setItem("theme", "dark");
-
-    // Default Aristache Obsidian palette
-    localStorage.removeItem("palette");
   });
 
   try {

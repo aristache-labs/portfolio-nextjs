@@ -110,14 +110,6 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
               "requestAnimationFrame(function(){document.documentElement.classList.add('theme-ready')})",
           }}
         />
-        {/* Every route is Obsidian, which is the ABSENCE of data-palette. Drops a choice left
-            by the removed picker before usePalette reads it, so no consumer can re-apply it.
-            Key duplicates PALETTE_STORAGE_KEY in lib/palettes.ts. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: "try{localStorage.removeItem('palette')}catch(e){}",
-          }}
-        />
       </head>
       <body className={GeistSans.className}>
         <PersonJsonLd />
@@ -132,8 +124,7 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
             enableSystem={false}
             disableTransitionOnChange
           >
-            {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode.
-                  The palette needs no provider - usePalette is an external-store hook. */}
+            {/* Inside ThemeProvider: the canvas reads resolvedTheme for its blend mode. */}
             <AmbientBackgroundGate />
             <main>{children}</main>
             <ScrollToTop />

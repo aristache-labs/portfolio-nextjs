@@ -55,12 +55,12 @@ scripts/                 check-routes and check-vitals
 
    The default palette lives in **`src/lib/brand.ts`**, the build-time source of truth. `globals.css` mirrors it by hand because CSS cannot import TypeScript, and `src/app/globals.theme.test.ts` derives its expectations from `brand.ts` to assert the mirror still holds - so a colour change fails the suite until both are updated. Token names are hue-neutral (`deep`/`mid`/`bright`) because the old `violet`/`cyan`/`pink` names stopped being true at the Glacier rebrand and would be wrong again on any future palette.
 
-5. **There are two colour sources, and which one to use is a real decision.** Visitors can pick a brand palette at runtime (`src/hooks/usePalette.ts`, applied as `data-palette` on `<html>`, with `[data-palette]` blocks in `globals.css`). That splits colour consumers in two:
+5. **There is one brand palette, Obsidian, and every route is forced dark.** The runtime palette picker (`usePalette`, `palettes.ts`, `[data-palette]` blocks) has been removed, and `layout.tsx` passes `forcedTheme="dark"` so neither the OS preference nor an old stored theme can switch a route to light. The homepage also pins its own values on `[data-site="cinematic"]`. Colour consumers still come in two kinds:
 
-   - **`brand.ts` constants** for anything server-rendered and shared, which a per-visitor choice cannot reach: `opengraph-image.tsx` (Satori at the edge), `manifest.ts` (JSON), `notify.ts` (email HTML, where custom properties are unsupported). These always show the default, correctly.
-   - **CSS variables** for DOM chrome that must follow the choice: Tailwind classes and `Logo.tsx` (SVG `stop-color` resolves `var()`). `AmbientBackground.tsx` is the awkward one - a canvas cannot inherit a variable, so it reads the ramp with `getComputedStyle` and re-reads when the palette or theme changes.
+   - **`brand.ts` constants** where CSS cannot reach: `opengraph-image.tsx` (Satori at the edge), `manifest.ts` (JSON), `notify.ts` (email HTML, where custom properties are unsupported), the Quick View repo badges (Shields URLs) and `AmbientBackground.tsx` (a canvas cannot inherit a variable).
+   - **CSS variables** for DOM chrome: Tailwind classes and `Logo.tsx` (SVG `stop-color` resolves `var()`).
 
-   Obsidian is the default and is represented by the **absence** of `data-palette`, since it lives in `:root`/`.dark`. Adding a `[data-palette="obsidian"]` block would be a second definition that could disagree with the first; the theme test asserts it does not exist. Iris, Glacier, Ember, and Verdant each have their own `[data-palette]` blocks. Decorative glows must use the `--brand-*-rgb` channel lists (`rgb(var(--brand-deep-rgb)/0.55)`) rather than literal `rgba()`, or they silently keep the old palette - five of them did exactly that, invisible to a hex search because they were written in decimal.
+   Decorative glows must use the `--brand-*-rgb` channel lists (`rgb(var(--brand-deep-rgb)/0.55)`) rather than literal `rgba()`, or a brand change silently skips them - five of them did exactly that, invisible to a hex search because they were written in decimal. The theme test asserts no `[data-palette]` block comes back.
 
 6. **`/admin` serves HTTP 200 while being correctly protected.** `src/app/admin/layout.tsx` calls `redirect("/login")`, but by then the shell has streamed, so Next cannot send a 3xx and embeds `NEXT_REDIRECT` plus a meta-refresh in a 200 response. Never assert the admin gate with a status code in either direction: a status check reads it as "page works", and a naive security check reads it as "unprotected". `scripts/check-routes.mjs` asserts on content, which is the only way to get this right.
 
@@ -76,18 +76,9 @@ scripts/                 check-routes and check-vitals
 
 12. **Admin forms gate Save on being dirty, and the avatar does not wait for Save at all.** `src/components/admin/SubmitButton.tsx` finds its own form through the button's `form` property and compares a serialised `FormData` snapshot, so any form gets this by using that button - there is no provider. Fields that write a hidden input from React state change the DOM value with **no native event**, so the uploaders dispatch a bubbling `input` via `src/hooks/useAnnounceValue.ts` or an image-only edit leaves Save disabled. `AvatarField` deliberately does not announce, and submits no field at all: it is the sole writer of `profile.avatarUrl`, committing through `setProfileAvatar` on upload. The profile form omits the key entirely, which zod drops as an absent optional so Drizzle leaves the column alone - that is what stops a Save fired mid-upload from writing back the previous URL. An admin can paste any URL, so the action also rejects hosts `next/image` cannot serve (`src/lib/image-hosts.ts`, pinned to `next.config.js` by its own test); without that a saved avatar renders in the `unoptimized` admin preview while the public page shows nothing.
 
-## Adding a brand palette
+## Changing the brand colours
 
-Visitors pick a palette at runtime, so adding one touches four places and the pieces are checked against each other:
-
-1. `src/lib/palettes.ts` - add the id to `PaletteId` and an entry to `PALETTES` with its three-stop ramp.
-2. `src/app/globals.css` - add all three blocks: `[data-palette="<id>"]`, `[data-palette="<id>"]:not(.dark)` and `[data-palette="<id>"].dark`.
-3. `src/app/layout.tsx` - add the id to the allowlist in the palette pre-paint `<script>`, or the choice will not survive a reload. This is the easy one to miss.
-4. `bun run test` - `globals.theme.test.ts` fails if the picker swatch and the CSS disagree.
-
-Check both themes: `multiply` on paper accumulates where `lighter` on a dark ground falls off fast, so a value that works in one can wash out the other.
-
-Changing the **default** palette instead means editing `src/lib/brand.ts` plus its `:root`/`.dark` mirror in `globals.css`. `src/app/icon.png` and `src/app/apple-icon.png` are the official monogram on a dark tile, so a palette change does not recolor them.
+Edit `src/lib/brand.ts`, then its hand-written mirrors in `globals.css`: the `@theme` ramp, `:root`/`.dark`, and the `[data-site="cinematic"]` homepage block. `bun run test` fails until `globals.theme.test.ts` sees them agree. `src/app/icon.png` and `src/app/apple-icon.png` are the official monogram on a dark tile, so a colour change does not recolor them.
 
 ## Commands
 

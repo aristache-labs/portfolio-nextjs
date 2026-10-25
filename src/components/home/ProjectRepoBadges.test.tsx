@@ -1,8 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { ProjectRepoBadges } from "./ProjectRepoBadges";
-
-vi.mock("@/hooks/usePalette", () => ({ usePalette: () => ({ palette: "obsidian" }) }));
 
 describe("ProjectRepoBadges", () => {
   it("uses the selected project for both Shields images and GitHub links", () => {

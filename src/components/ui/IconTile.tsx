@@ -19,7 +19,7 @@ const RING = {
  * Premium dark-glass surface, precision teal border,
  * subtle directional light and restrained hover glow.
  *
- * Uses the existing palette-aware CSS variables.
+ * Uses the existing brand CSS variables.
  */
 export function IconTile({
   size = "md",

@@ -2,7 +2,6 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { describe, it, expect } from "vitest";
 import { BRAND, GROUND, INK, hexToRgb } from "@/lib/brand";
-import { DEFAULT_PALETTE, PALETTE_STORAGE_KEY, PALETTES } from "@/lib/palettes";
 
 /**
  * Drift guard between brand.ts and globals.css. Every expectation is DERIVED from brand.ts,
@@ -67,53 +66,19 @@ describe("globals.css mirrors brand.ts", () => {
     }
   });
 
-  it("defines a [data-palette] block for every selectable palette except the default", () => {
-    for (const { id } of PALETTES) {
-      if (id === DEFAULT_PALETTE) {
-        // The default lives in :root/.dark, so an override block would be dead weight that
-        // could silently disagree with it.
-        expect(css, "the default palette must not have an override block").not.toContain(
-          `[data-palette="${id}"]`,
-        );
-        continue;
-      }
-      // The :root prefix is the point: a bare [data-palette] ties with :root at (0,1,0) and
-      // would win only by source order.
-      expect(css).toContain(`:root[data-palette="${id}"] {`);
-      expect(css).toContain(`[data-palette="${id}"]:not(.dark) {`);
-      expect(css).toContain(`[data-palette="${id}"].dark {`);
-    }
-  });
-
-  it("mirrors each palette's picker swatch ramp in its CSS block", () => {
-    // palettes.ts holds each ramp for script consumers while the applied colours come from
-    // this CSS, so a mismatch would read one colour and apply another.
-    for (const { id, ramp } of PALETTES) {
-      if (id === DEFAULT_PALETTE) continue;
-      const start = css.indexOf(`:root[data-palette="${id}"] {`);
-      const block = css.slice(start, css.indexOf("}", start));
-      const [deep, mid, bright] = ramp;
-      expect(block, `${id} deep`).toContain(`--brand-deep: ${deep}`);
-      expect(block, `${id} mid`).toContain(`--brand-mid: ${mid}`);
-      expect(block, `${id} bright`).toContain(`--brand-bright: ${bright}`);
-      // And the channel lists that the arbitrary-value glows read.
-      expect(block, `${id} deep channels`).toContain(
-        `--brand-deep-rgb: ${hexToRgb(deep).join(" ")}`,
-      );
-      expect(block, `${id} bright channels`).toContain(
-        `--brand-bright-rgb: ${hexToRgb(bright).join(" ")}`,
-      );
-    }
+  it("has a single brand ramp, with no runtime palette blocks", () => {
+    // The palette picker is gone. A leftover [data-palette] block would be unreachable CSS
+    // that could still recolor a page if the attribute ever came back.
+    expect(css).not.toContain("[data-palette");
   });
 
   it("pins every route to Obsidian dark in layout.tsx", () => {
-    // The picker is gone, so a stored palette or theme must not reach any route. The homepage
-    // shields itself with [data-site="cinematic"]; Privacy, login, admin and errors rely on this.
+    // The homepage shields itself with [data-site="cinematic"]; Privacy, login, admin and
+    // errors rely on the forced theme, so the OS preference cannot switch them to light.
     const layout = readFileSync(join(process.cwd(), "src/app/layout.tsx"), "utf-8");
     expect(layout).toContain('forcedTheme="dark"');
     expect(layout).toContain("enableSystem={false}");
-    expect(layout).toContain(`localStorage.removeItem('${PALETTE_STORAGE_KEY}')`);
-    expect(layout).not.toMatch(/dataset\.palette\s*=/);
+    expect(layout).not.toContain("palette");
   });
 
   it("defines the font tokens", () => {

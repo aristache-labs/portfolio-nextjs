@@ -5,24 +5,10 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { BRAND, hexToRgb } from "@/lib/brand";
-import { usePalette } from "@/hooks/usePalette";
 import styles from "./ambient-background.module.css";
 
-type Ramp = ReadonlyArray<readonly [number, number, number]>;
-
-// brand.ts supplies the DEFAULT ramp, used for the very first frame and as the fallback
-// if a variable is ever missing. The live values are read from CSS below, because a
-// visitor can change the palette at runtime and a canvas cannot inherit a CSS variable.
-const DEFAULT_RAMP: Ramp = [hexToRgb(BRAND.deep), hexToRgb(BRAND.mid), hexToRgb(BRAND.bright)];
-
-/** Read the current ramp off <html>, falling back per-slot to the default. */
-function readRamp(): Ramp {
-  const cs = getComputedStyle(document.documentElement);
-  return (["--brand-deep", "--brand-mid", "--brand-bright"] as const).map((token, i) => {
-    const hex = cs.getPropertyValue(token).trim();
-    return /^#[0-9a-fA-F]{6}$/.test(hex) ? hexToRgb(hex) : DEFAULT_RAMP[i];
-  });
-}
+// The site has one brand ramp, so the canvas takes it straight from brand.ts.
+const RAMP = [hexToRgb(BRAND.deep), hexToRgb(BRAND.mid), hexToRgb(BRAND.bright)] as const;
 
 const rgba = (c: readonly [number, number, number], a: number) => `rgba(${c.join(",")},${a})`;
 
@@ -59,25 +45,16 @@ export function AmbientBackground() {
   const pathname = usePathname();
   const reduced = useReducedMotion();
   const { resolvedTheme } = useTheme();
-  const { palette } = usePalette();
-  // Read per-frame via refs so a theme or palette switch needs no effect re-subscription
+  // Read per-frame via a ref so a theme switch needs no effect re-subscription
   // (tearing down the rAF loop would restart the drift animation from t=0).
   const darkRef = useRef(true);
-  useEffect(() => {
-    darkRef.current = resolvedTheme !== "light";
-  }, [resolvedTheme]);
-
-  const rampRef = useRef<Ramp>(DEFAULT_RAMP);
-  // Set by the render effect below so a theme/palette change can force a repaint. Under
-  // reduced motion there is no animation loop, so nothing would otherwise pick the new
-  // colours up and the static frame would keep the old palette indefinitely.
+  // Set by the render effect below so a theme change can force a repaint. Under reduced
+  // motion there is no animation loop, so nothing would otherwise pick the new blend up.
   const redrawRef = useRef<(() => void) | null>(null);
   useEffect(() => {
-    // resolvedTheme is a dependency because the ramp variables can be redefined per
-    // theme, not only per palette.
-    rampRef.current = readRamp();
+    darkRef.current = resolvedTheme !== "light";
     redrawRef.current?.();
-  }, [palette, resolvedTheme]);
+  }, [resolvedTheme]);
 
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
@@ -116,7 +93,6 @@ export function AmbientBackground() {
 
     function draw(t: number) {
       const dark = darkRef.current;
-      const ramp = rampRef.current;
       const m = Math.max(w, h);
       ctx.clearRect(0, 0, w, h);
 
@@ -129,7 +105,7 @@ export function AmbientBackground() {
         const cx = (dx * 0.45 + (ptr.x / w) * 0.55) * w;
         const cy = (dy * 0.45 + (ptr.y / h) * 0.55) * h;
         const R = b.r * m;
-        const col = ramp[b.c];
+        const col = RAMP[b.c];
         const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
         // Three stops, not two: a linear 0 -> 0 ramp reads as a flat soft disc, while a
         // mid stop below half the core alpha concentrates colour near the centre and
@@ -146,7 +122,7 @@ export function AmbientBackground() {
       // Pointer glow (the sharp layer) - still under the theme blend mode.
       const GR = Math.min(260, m * 0.28);
       const g1 = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, GR);
-      const [deep, mid, bright] = ramp;
+      const [deep, mid, bright] = RAMP;
       if (dark) {
         // Dark projects light: brightest hue at the core, fading through the ramp.
         g1.addColorStop(0, rgba(bright, GLOW.dark.core));
@@ -177,7 +153,7 @@ export function AmbientBackground() {
     if (reduced) {
       draw(0);
       // Only the static case needs this: the animation loop below repaints every frame
-      // and picks a new ramp up on its own.
+      // and picks a new theme up on its own.
       redrawRef.current = () => draw(0);
       return () => {
         redrawRef.current = null;
