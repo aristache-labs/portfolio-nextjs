@@ -1,12 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { ProjectCard } from "./ProjectCard";
 import type { MergedProject } from "@/lib/projects";
-
-// Suppress Meteors animation side effects in jsdom
-vi.mock("@/components/ui/Meteors", () => ({
-  Meteors: () => null,
-}));
 
 const base: MergedProject = {
   category: null,

@@ -403,7 +403,7 @@ body {
 
 /* Shared horizontal rhythm for the nav, every Section, the hero, and the
    footer. Capped and centered so large screens keep columns aligned instead
-   of stretching gaps across the viewport. The menu overlay opts out. */
+   of stretching gaps across the viewport. */
 @utility site-container {
   width: 100%;
   max-width: 86rem;

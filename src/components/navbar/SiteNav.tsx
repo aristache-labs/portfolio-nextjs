@@ -24,9 +24,10 @@ import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
 import { scrollToSection } from "@/lib/scroll-to-section";
-import type { MenuSection } from "./MenuOverlay";
 import navStyles from "./nav-landscape.module.css";
 import panelStyles from "./nav-panel.module.css";
+
+export type MenuSection = { id: string; label: string };
 
 const SECTION_ICONS: Record<string, LucideIcon> = {
   hero: House,

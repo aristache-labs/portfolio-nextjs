@@ -86,8 +86,8 @@ describe("globals.css mirrors brand.ts", () => {
   });
 
   it("mirrors each palette's picker swatch ramp in its CSS block", () => {
-    // The swatches in AppearanceMenu are drawn from palettes.ts while the applied colours
-    // come from this CSS, so a mismatch would show one colour and apply another.
+    // palettes.ts holds each ramp for script consumers while the applied colours come from
+    // this CSS, so a mismatch would read one colour and apply another.
     for (const { id, ramp } of PALETTES) {
       if (id === DEFAULT_PALETTE) continue;
       const start = css.indexOf(`:root[data-palette="${id}"] {`);

@@ -42,7 +42,7 @@ export const DialogContent = React.forwardRef<
         "w-[calc(100%-2rem)] max-w-md",
         // Flex column: header fixed, body scrolls, footer fixed.
         "flex max-h-[90vh] flex-col",
-        // Same glass ground as the nav MenuOverlay - one modal language.
+        // Same glass ground as alert-dialog - one modal language.
         "border-border rounded-2xl border bg-(--overlay-bg) shadow-2xl backdrop-blur-xl",
         // Scale + fade in/out on the eased brand curve (smooth, not a snap).
         "dialog-pop",

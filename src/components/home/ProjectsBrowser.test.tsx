@@ -1,10 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { installMatchMedia } from "@/test/matchMedia";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import type { MergedProject } from "@/lib/projects";
-
-vi.mock("@/components/ui/Meteors", () => ({ Meteors: () => null }));
 
 beforeEach(() => installMatchMedia());
 
