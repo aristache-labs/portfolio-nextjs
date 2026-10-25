@@ -55,7 +55,8 @@ async function expectContent(path, needles) {
 const home = await group("homepage serves its DB-independent identity copy", () =>
   expectContent("/", [
     "Adrian Cristache",
-    "<title>Aristache | Adrian Cristache - Technical Team Lead · Automation Engineer</title>",
+    // SITE.title from src/lib/seo/site.ts as rendered: Next escapes `&` in the title tag.
+    "<title>Aristache | Adrian Cristache - IT Specialist · Web &amp; Mobile Developer</title>",
   ]),
 );
 

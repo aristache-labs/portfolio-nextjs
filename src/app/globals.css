@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
 /* Opacity modifiers (/10, /60) only work on colors registered in @theme. Hence the
  * indirection: @theme aliases --color-* to raw vars set in :root below. Inlining a literal

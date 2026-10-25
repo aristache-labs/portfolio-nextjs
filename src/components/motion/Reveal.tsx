@@ -1,13 +1,8 @@
 "use client";
 
-import { m, type Variants } from "framer-motion";
+import { m } from "framer-motion";
 import type { ReactNode } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-
-export const fadeUpVariants: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
-};
 
 export function Reveal({
   children,

@@ -1,9 +1,4 @@
-import {
-  githubRepoListSchema,
-  githubRepoSchema,
-  githubUserStatsSchema,
-  type GithubRepo,
-} from "./schemas";
+import { githubRepoSchema, githubUserStatsSchema, type GithubRepo } from "./schemas";
 
 const GITHUB_API = "https://api.github.com";
 const GITHUB_GRAPHQL = "https://api.github.com/graphql";
@@ -93,17 +88,4 @@ export async function getReadme(slug: string, fresh = false): Promise<string | n
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`GitHub getReadme ${slug} failed: ${res.status}`);
   return res.text();
-}
-
-/** List a user's public repos (paginated, 100/page, sorted by pushed). */
-export async function listUserRepos(username: string): Promise<GithubRepo[]> {
-  const res = await fetch(
-    `${GITHUB_API}/users/${username}/repos?per_page=100&sort=pushed&type=owner`,
-    {
-      headers: authHeaders(),
-      next: { revalidate: REVALIDATE_SECONDS, tags: ["github"] },
-    },
-  );
-  if (!res.ok) throw new Error(`GitHub listUserRepos ${username} failed: ${res.status}`);
-  return githubRepoListSchema.parse(await res.json());
 }

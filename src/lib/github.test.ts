@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getRepo, getUserStats, listUserRepos } from "./github";
+import { getRepo, getUserStats } from "./github";
 
 const repoFixture = {
   name: "siphon",
@@ -43,17 +43,6 @@ describe("getRepo", () => {
       vi.fn(async () => new Response(JSON.stringify({ name: 1 }), { status: 200 })),
     );
     await expect(getRepo("aristache-labs/bad")).rejects.toThrow();
-  });
-});
-
-describe("listUserRepos", () => {
-  it("returns a validated array", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => new Response(JSON.stringify([repoFixture]), { status: 200 })),
-    );
-    const repos = await listUserRepos("aristache-labs");
-    expect(repos).toHaveLength(1);
   });
 });
 

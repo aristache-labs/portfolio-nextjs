@@ -11,11 +11,10 @@ import { BRAND, GROUND, INK, hexToRgb } from "@/lib/brand";
 describe("globals.css mirrors brand.ts", () => {
   const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf-8");
 
-  it("loads Tailwind and the typography plugin first", () => {
+  it("loads Tailwind first", () => {
     // Without the import every utility class silently disappears while the build still
     // passes, so the page renders unstyled with nothing failing.
     expect(css.startsWith('@import "tailwindcss";')).toBe(true);
-    expect(css).toContain('@plugin "@tailwindcss/typography";');
   });
 
   it("registers the brand ramp as @theme colour tokens", () => {

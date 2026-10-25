@@ -125,8 +125,6 @@ export const githubRepoSchema = z.object({
   pushed_at: z.string(),
 });
 
-export const githubRepoListSchema = z.array(githubRepoSchema);
-
 // GitHub GraphQL user stats (single query: followers, owned public non-fork
 // repos + their stars, and the years the user has contributed in).
 export const githubUserStatsSchema = z.object({

@@ -1,29 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/utils/cn";
 
-const MARK = { src: "/brand/logo-no-text.webp", width: 128, height: 128 } as const;
-
-/** Circular mark without the wordmark. The hero sets ARISTACHE in type beneath it. */
-export function BrandMark({
-  className,
-  priority = false,
-}: {
-  className?: string;
-  priority?: boolean;
-}) {
-  return (
-    <Image
-      src={MARK.src}
-      alt=""
-      width={MARK.width}
-      height={MARK.height}
-      priority={priority}
-      unoptimized
-      className={className}
-    />
-  );
-}
-
 const MONOGRAM = { src: "/brand/logo-no-text.webp", width: 128, height: 128 } as const;
 
 export function Logo({

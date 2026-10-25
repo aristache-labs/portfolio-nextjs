@@ -1,1 +1,5 @@
+# Always check out LF, whatever core.autocrlf says: Prettier enforces LF, so CRLF checkouts
+# on Windows fail format:check with no real change.
+* text=auto eol=lf
+
 *.ts linguist-detectable=true
