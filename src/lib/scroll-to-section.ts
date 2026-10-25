@@ -1,13 +1,17 @@
 "use client";
 
-/** A centered section can expose its content start as the desktop anchor. */
+const SECTION_NAV_GAP = 38;
+
+/** Align section content consistently below the responsive navigation bar. */
 export function sectionScrollPosition(target: HTMLElement): number {
-  const anchor = window.matchMedia("(min-width: 1024px) and (pointer: fine)").matches
-    ? (target.querySelector<HTMLElement>("[data-desktop-scroll-anchor]") ?? target)
-    : target;
+  const anchor = target.querySelector<HTMLElement>("[data-scroll-anchor]");
+  if (anchor) {
+    const navigation = document.querySelector<HTMLElement>('header nav[aria-label="Primary"]');
+    const navigationHeight = navigation?.getBoundingClientRect().height ?? 72;
+    return anchor.getBoundingClientRect().top + window.scrollY - navigationHeight - SECTION_NAV_GAP;
+  }
   const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
-  const contentOffset = anchor === target ? 0 : 30;
-  return anchor.getBoundingClientRect().top + window.scrollY - margin - contentOffset;
+  return target.getBoundingClientRect().top + window.scrollY - margin;
 }
 
 /** A paced anchor transition that yields immediately to manual navigation. */

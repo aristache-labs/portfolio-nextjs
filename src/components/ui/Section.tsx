@@ -17,7 +17,9 @@ export function Section({ id, children, className, backdrop, ...rest }: SectionP
       {...rest}
     >
       {backdrop}
-      <div className={cn("site-container", backdrop && "relative z-10")}>{children}</div>
+      <div data-scroll-anchor className={cn("site-container", backdrop && "relative z-10")}>
+        {children}
+      </div>
     </section>
   );
 }

@@ -74,7 +74,7 @@ export function Skills({ skills }: { skills: SkillRow[] }) {
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
           <div className={`${responsiveCss.heading} min-w-0 text-left`}>
-            <div className={responsiveCss.sectionLabel} data-desktop-scroll-anchor>
+            <div className={responsiveCss.sectionLabel} data-scroll-anchor>
               <span className={responsiveCss.sectionNumber}>02</span>
               <span>Skills</span>
               <span aria-hidden className={responsiveCss.sectionRule} />

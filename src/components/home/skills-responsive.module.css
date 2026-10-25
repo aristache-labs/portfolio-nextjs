@@ -136,15 +136,6 @@
     top: 100px;
     left: -30px;
   }
-
-  .backdrop [data-edge="top"] {
-    height: 50px;
-  }
-
-  .backdrop [data-edge="top"] > div:first-child {
-    -webkit-backdrop-filter: blur(14px);
-    backdrop-filter: blur(14px);
-  }
 }
 
 @media (max-width: 639px) {
