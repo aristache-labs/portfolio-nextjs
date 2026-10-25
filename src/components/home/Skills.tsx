@@ -68,6 +68,13 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           video="/media/skills.mp4"
           poster="/media/skills.webp"
           fetchPriority="low"
+          deferUntilHeroLoaded
+          deferUntilNearViewport
+          responsivePoster={{
+            srcSet:
+              "/media/skills-640.webp 640w, /media/skills-960.webp 960w, /media/skills-1280.webp 1280w, /media/skills.webp 1536w",
+            aspectRatio: 3 / 2,
+          }}
         />
       </div>
       <div

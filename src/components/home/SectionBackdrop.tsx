@@ -110,25 +110,38 @@ export function SectionBackdrop({
   useEffect(() => {
     const root = rootRef.current;
     if (!posterAspectRatio || !root || (deferUntilNearViewport && !posterNear)) return;
+    const landscape =
+      focus === "left"
+        ? window.matchMedia("(orientation: landscape) and (max-height: 500px)")
+        : null;
     const update = (width: number, height: number) => {
       // object-cover can scale a wide image by height on a tall phone section.
-      setPosterWidth(Math.max(1, Math.ceil(Math.max(width, height * posterAspectRatio))));
+      // Left-focused backdrops also have a 1.3x CSS scale on short landscape screens.
+      const scale = landscape?.matches ? 1.3 : 1;
+      setPosterWidth(Math.max(1, Math.ceil(Math.max(width, height * posterAspectRatio) * scale)));
     };
     const measure = () => {
       const { width, height } = root.getBoundingClientRect();
       update(width, height);
     };
     measure();
+    landscape?.addEventListener("change", measure);
     if (typeof ResizeObserver === "undefined") {
       window.addEventListener("resize", measure);
-      return () => window.removeEventListener("resize", measure);
+      return () => {
+        window.removeEventListener("resize", measure);
+        landscape?.removeEventListener("change", measure);
+      };
     }
     const observer = new ResizeObserver(([entry]) => {
       update(entry.contentRect.width, entry.contentRect.height);
     });
     observer.observe(root);
-    return () => observer.disconnect();
-  }, [posterAspectRatio, deferUntilNearViewport, posterNear]);
+    return () => {
+      observer.disconnect();
+      landscape?.removeEventListener("change", measure);
+    };
+  }, [posterAspectRatio, deferUntilNearViewport, posterNear, focus]);
 
   useEffect(() => {
     const root = rootRef.current;

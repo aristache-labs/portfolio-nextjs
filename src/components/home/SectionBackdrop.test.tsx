@@ -227,4 +227,39 @@ describe("SectionBackdrop", () => {
     unmount();
     expect(disconnect).toHaveBeenCalledOnce();
   });
+
+  it("accounts for the landscape scale and recalculates after rotating to portrait", () => {
+    const query = "(orientation: landscape) and (max-height: 500px)";
+    const matchMedia = installMatchMedia({ [query]: true });
+    vi.stubGlobal("ResizeObserver", undefined);
+    let width = 932;
+    let height = 430;
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      () => ({ width, height }) as DOMRect,
+    );
+    const { container, unmount } = render(
+      <SectionBackdrop
+        poster="/media/skills.webp"
+        focus="left"
+        deferUntilNearViewport
+        responsivePoster={{ srcSet: "/small.webp 640w, /original.webp 1536w", aspectRatio: 3 / 2 }}
+      />,
+    );
+    const root = container.firstElementChild!.firstElementChild!;
+    act(() => FakeIO.emit(root, "600px 0px", true));
+    const image = container.querySelector("img")!;
+    expect(image).toHaveAttribute("sizes", "1212px");
+
+    const index = matchMedia.mock.calls.findIndex((args) => args[0] === query);
+    const landscape = matchMedia.mock.results[index].value;
+    landscape.matches = false;
+    width = 430;
+    height = 932;
+    const onChange = landscape.addEventListener.mock.calls[0][1];
+    act(() => onChange(new Event("change")));
+    expect(image).toHaveAttribute("sizes", "1398px");
+    expect(container.querySelector("img")).toBe(image);
+    unmount();
+    expect(landscape.removeEventListener).toHaveBeenCalledWith("change", onChange);
+  });
 });
