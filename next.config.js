@@ -10,6 +10,12 @@ const nextConfig = {
   // rewrite it into a hashed external module it cannot dlopen on Vercel
   // (see vercel/next.js#86866).
   serverExternalPackages: ["sharp"],
+  experimental: {
+    // One stylesheet per entry instead of the default merged chunks: the homepage blocks on two
+    // CSS files instead of five, and stops downloading Privacy's styles. Measured on a throttled
+    // phone profile: LCP 2.31s -> 2.19s. "strict" made six files and was slower.
+    cssChunking: false,
+  },
   // Do not redirect www -> apex here. Vercel already redirects aristache.dev to
   // www.aristache.dev. Adding the opposite redirect makes the two hosts loop.
   async rewrites() {

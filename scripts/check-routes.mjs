@@ -156,12 +156,19 @@ await group("icons and opengraph image serve real bytes of the right type", asyn
   }
 });
 
-// Proven by the redirect directive being present AND no curated data in the payload. Static
-// shell labels stream before the redirect fires and are not a leak.
+// Proven by a redirect to /login AND no curated data in the payload. With no loading boundary
+// above admin, the layout redirects before streaming, so Next answers a real 307. If a boundary
+// above it ever streams the shell first, the same gate shows up as a 200 carrying NEXT_REDIRECT.
+// Either is correct; anything else means the gate is broken.
 await group("/admin redirects anonymous requests and leaks no curated data", async () => {
-  const { body } = await get("/admin");
-  if (!body.includes("NEXT_REDIRECT") || !body.includes("/login")) {
-    fail("/admin did not emit a redirect to /login - the admin auth gate is broken");
+  const res = await fetch(`${base}/admin`, { redirect: "manual" });
+  const body = await res.text();
+  const location = res.headers.get("location") ?? "";
+  const httpRedirect = [307, 308].includes(res.status) && location.endsWith("/login");
+  const streamedRedirect =
+    res.status === 200 && body.includes("NEXT_REDIRECT") && body.includes("/login");
+  if (!httpRedirect && !streamedRedirect) {
+    fail(`/admin answered ${res.status} without a redirect to /login - the auth gate is broken`);
   }
   // Curation data only reachable behind the gate. If any of it renders for an
   // unauthenticated request, the gate is leaking regardless of the status code.
