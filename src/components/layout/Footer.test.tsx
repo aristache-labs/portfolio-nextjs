@@ -121,7 +121,7 @@ describe("Footer", () => {
       const nav = screen.getByRole("navigation", { name: "Explore" });
       groups.push(
         nav.parentElement!,
-        screen.getByRole("link", { name: /send a message/i }).parentElement!,
+        screen.getByRole("navigation", { name: "Legal" }).parentElement!,
       );
       await waitFor(() => {
         for (const group of groups) expect(group).toHaveStyle({ opacity: "0" });
@@ -162,10 +162,10 @@ describe("Footer", () => {
     }
   });
 
-  it("preserves direct-child layout rules for the mobile CTA and legal row", () => {
+  it("preserves layout rules for legal navigation and the copyright row", () => {
     const { container } = render(<Footer socials={mockSocials} />);
-    expect(screen.getByRole("link", { name: /send a message/i }).parentElement).toHaveClass(
-      layout.contact,
+    expect(screen.getByRole("navigation", { name: "Legal" }).parentElement).toHaveClass(
+      layout.resources,
     );
     expect(container.getElementsByClassName(layout.legal)[0].lastElementChild?.tagName).toBe("P");
   });
@@ -181,7 +181,7 @@ describe("Footer", () => {
       "href",
       "/#projects",
     );
-    expect(screen.getByRole("link", { name: /send a message/i })).toHaveAttribute(
+    expect(within(navigation).getByRole("link", { name: "Contact" })).toHaveAttribute(
       "href",
       "/#contact",
     );
@@ -237,12 +237,13 @@ describe("Footer", () => {
     expect(screen.getByRole("link", { name: /aristache, back to top/i })).toBeTruthy();
   });
 
-  it("does not render the social icon group", () => {
+  it("does not render social icons in the footer", () => {
     render(<Footer socials={mockSocials} email="hi@example.com" />);
     expect(screen.queryByLabelText("github")).toBeNull();
     expect(screen.queryByLabelText("linkedin")).toBeNull();
     expect(screen.queryByLabelText("twitter")).toBeNull();
     expect(screen.queryByLabelText("Email")).toBeNull();
+    expect(screen.queryByRole("link", { name: "GitHub" })).toBeNull();
   });
 
   it("renders professional positioning and copyright", () => {
@@ -257,17 +258,22 @@ describe("Footer", () => {
     expect(screen.getByText(new RegExp(year))).toBeTruthy();
   });
 
-  it("renders three columns: Explore and Let's Connect, no Other Places", () => {
+  it("replaces the contact CTA with Legal navigation", () => {
     render(<Footer socials={mockSocials} />);
     expect(screen.getByRole("heading", { name: "Explore" })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: /let's connect/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Legal" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: /let's connect/i })).toBeNull();
     expect(screen.queryByText("Other Places")).toBeNull();
-    expect(screen.getByRole("link", { name: /send a message/i }).getAttribute("href")).toBe(
-      "#contact",
+    expect(screen.queryByRole("link", { name: /send a message/i })).toBeNull();
+    const legal = screen.getByRole("navigation", { name: "Legal" });
+    expect(within(legal).getByRole("link", { name: "Privacy" })).toHaveAttribute(
+      "href",
+      "/privacy",
     );
+    expect(within(legal).getByRole("link", { name: "GDPR" })).toHaveAttribute("href", "/gdpr");
   });
 
-  it("keeps contact primary and shows only a small support link when configured", () => {
+  it("moves Support into Legal only when configured", () => {
     const { rerender } = render(<Footer socials={mockSocials} />);
     expect(screen.queryByRole("link", { name: "Support" })).toBeNull();
     rerender(<Footer socials={mockSocials} sponsorUrl="https://example.com/sponsor" />);
@@ -276,10 +282,7 @@ describe("Footer", () => {
     expect(support.getAttribute("target")).toBe("_blank");
     expect(screen.queryByText("Fuel Future Projects")).not.toBeInTheDocument();
     expect(screen.queryByText("Support My Work")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /send a message/i })).toHaveAttribute(
-      "href",
-      "#contact",
-    );
+    expect(screen.getByRole("navigation", { name: "Legal" })).toContainElement(support);
     expect(screen.getByRole("link", { name: "Contact" }).getAttribute("href")).toBe("#contact");
   });
 

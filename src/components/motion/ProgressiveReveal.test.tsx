@@ -307,6 +307,27 @@ describe("ProgressiveReveal", () => {
     expect(controls.start).toHaveBeenCalledTimes(1);
   });
 
+  it("supports a decelerating rise as the bottom bar enters the viewport", () => {
+    const { container } = render(
+      <ProgressiveReveal
+        effect="rise"
+        duration={1.8}
+        delay={0.35}
+        ease={[0.22, 0.85, 0.35, 1]}
+        viewportInset={0}
+      >
+        Copyright
+      </ProgressiveReveal>,
+    );
+    expect(observerOptions).toHaveBeenCalledWith({ rootMargin: "0px 0px -0px 0px" });
+    intersect(container.firstElementChild!, window.innerHeight - 10);
+    expect(controls.start).toHaveBeenCalledWith({
+      opacity: [0, 1],
+      y: [28, 0],
+      transition: { duration: 1.8, delay: 0.35, ease: [0.22, 0.85, 0.35, 1] },
+    });
+  });
+
   it("restores skipped content after scrolling without continuous scroll calculations", () => {
     render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
     vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockClear();

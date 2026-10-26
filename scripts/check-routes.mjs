@@ -80,25 +80,27 @@ await group("login page renders", async () => {
   await expectContent("/login", ["Adrian Cristache"]);
 });
 
-await group("privacy has its own canonical and is listed in the sitemap", async () => {
-  const { body } = await get("/privacy");
-  const canonical = body.match(/<link\b[^>]*rel="canonical"[^>]*href="([^"]+)"/)?.[1];
-  if (!canonical) {
-    fail("/privacy has no canonical");
-    return;
-  }
-  try {
-    if (new URL(canonical).pathname !== "/privacy") {
-      fail("/privacy canonical does not point to /privacy");
+for (const path of ["/privacy", "/gdpr"]) {
+  await group(`${path} has its own canonical and is listed in the sitemap`, async () => {
+    const { body } = await get(path);
+    const canonical = body.match(/<link\b[^>]*rel="canonical"[^>]*href="([^"]+)"/)?.[1];
+    if (!canonical) {
+      fail(`${path} has no canonical`);
+      return;
     }
-  } catch {
-    fail("/privacy canonical is not a valid absolute URL");
-  }
-  const { body: sitemap } = await get("/sitemap.xml");
-  if (!sitemap.includes(`<loc>${canonical}</loc>`)) {
-    fail("sitemap does not include the Privacy canonical");
-  }
-});
+    try {
+      if (new URL(canonical).pathname !== path) {
+        fail(`${path} canonical does not point to ${path}`);
+      }
+    } catch {
+      fail(`${path} canonical is not a valid absolute URL`);
+    }
+    const { body: sitemap } = await get("/sitemap.xml");
+    if (!sitemap.includes(`<loc>${canonical}</loc>`)) {
+      fail(`sitemap does not include the ${path} canonical`);
+    }
+  });
+}
 
 await group("missing pages return 404 with noindex and a way home", async () => {
   const res = await fetch(`${base}/__route-check-missing-page`, { redirect: "manual" });

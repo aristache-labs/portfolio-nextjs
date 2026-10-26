@@ -15,6 +15,8 @@ export function ProgressiveReveal({
   delay,
   staggerChildren,
   effect = "rise",
+  ease,
+  viewportInset = 120,
 }: {
   children: ReactNode;
   className?: string;
@@ -22,6 +24,8 @@ export function ProgressiveReveal({
   duration?: number;
   delay?: number;
   staggerChildren?: number;
+  ease?: [number, number, number, number];
+  viewportInset?: number;
   effect?:
     | "rise"
     | "fade"
@@ -120,7 +124,7 @@ export function ProgressiveReveal({
             transition: {
               duration,
               delay: delay ?? (expressive ? desktopDelay : 0.3),
-              ease: effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1],
+              ease: ease ?? (effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1]),
             },
           });
           if (effect === "zoom") {
@@ -131,7 +135,7 @@ export function ProgressiveReveal({
         },
         {
           // Wait until the element has moved beyond the bottom edge of the screen.
-          rootMargin: `0px 0px -${Math.min(120, Math.round(window.innerHeight * 0.15))}px 0px`,
+          rootMargin: `0px 0px -${Math.min(viewportInset, Math.round(window.innerHeight * 0.15))}px 0px`,
         },
       );
       // Prepare only offscreen content, before it can be seen during scrolling.
@@ -155,7 +159,19 @@ export function ProgressiveReveal({
       node.removeEventListener("focusin", onFocus);
       controls.stop();
     };
-  }, [controls, delay, desktopDelay, duration, effect, fromRight, mode, ready, sequence]);
+  }, [
+    controls,
+    delay,
+    desktopDelay,
+    duration,
+    ease,
+    effect,
+    fromRight,
+    mode,
+    ready,
+    sequence,
+    viewportInset,
+  ]);
 
   // Observe the stationary layout box: an offscreen translated target cannot intersect.
   if (fromRight) {

@@ -15,5 +15,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: new URL("/gdpr", SITE.url).toString(),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
   ];
 }

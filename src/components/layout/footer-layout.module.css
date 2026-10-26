@@ -25,23 +25,47 @@
     height: 126px;
   }
 
+  .identity {
+    grid-column: 1 / -1;
+  }
+
   .identity p {
     font-size: 12px;
   }
 
-  .contact {
-    grid-column: 1 / -1;
+  .explore,
+  .resources {
+    align-self: stretch;
+    padding-block: 10px;
+  }
+
+  .resources {
+    position: relative;
     text-align: center;
   }
 
-  .contact > h3,
-  .contact > p {
-    display: none;
+  .explore > nav {
+    position: relative;
+    left: -4px;
   }
 
-  .contact > a {
-    width: 100%;
-    margin-top: 0;
+  .resources::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: -8px;
+    width: 1px;
+    background: rgb(255 255 255 / 0.14);
+    pointer-events: none;
+  }
+
+  .legalLinks {
+    grid-template-columns: max-content;
+  }
+
+  .github {
+    display: none;
   }
 
   .legal {
@@ -54,7 +78,6 @@
   }
 
   .legal > div > span:first-child {
-    padding-inline-end: 56px;
-    text-align: left;
+    text-align: center;
   }
 }

@@ -1,10 +1,9 @@
 "use client";
 
-import { ArrowRight, ChevronRight, Mail, Sparkle, Workflow } from "lucide-react";
+import { ChevronRight, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { m, type Variants } from "framer-motion";
-import { Button } from "@/components/ui/Button";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import type { SocialRow } from "@/components/home/social-icons";
@@ -44,6 +43,11 @@ export function Footer({
   homeHrefPrefix?: string;
 }) {
   const year = new Date().getFullYear();
+  const legalLinks = [
+    { label: "Privacy", href: "/privacy", external: false },
+    { label: "GDPR", href: "/gdpr", external: false },
+    ...(sponsorUrl?.trim() ? [{ label: "Support", href: sponsorUrl.trim(), external: true }] : []),
+  ];
   const visibleLinks = LINKS.filter(
     (link) => link.href === "#hero" || sectionVisibility[link.href.slice(1)] !== false,
   );
@@ -158,7 +162,7 @@ export function Footer({
             duration={0}
             delay={0.1}
             staggerChildren={0.08}
-            className={`${NAV_DIVIDER} max-sm:bg-background/40 max-sm:flex max-sm:flex-col max-sm:items-center max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5 lg:flex lg:flex-col lg:items-center [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
+            className={`${layout.explore} ${NAV_DIVIDER} max-sm:bg-background/40 max-sm:flex max-sm:flex-col max-sm:items-center max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5 lg:flex lg:flex-col lg:items-center [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
           >
             <nav aria-label="Explore" className="w-full">
               <m.h3 initial={false} variants={itemVariants} className={`${HEADING} text-center`}>
@@ -188,36 +192,49 @@ export function Footer({
           </ProgressiveReveal>
 
           <ProgressiveReveal
-            effect="fade-from-left"
-            duration={0.7}
-            delay={0.15}
-            className={`${layout.contact} ${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-stretch [@media(orientation:landscape)_and_(max-width:1024px)]:text-center`}
+            effect="cascade"
+            duration={0}
+            delay={0.1}
+            staggerChildren={0.08}
+            className={`${layout.resources} ${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1`}
           >
-            <h3 className={HEADING}>Let&apos;s Connect</h3>
-            <p className="mt-3 max-w-[340px] text-[15px] leading-relaxed text-white/70">
-              Have something in mind? I&apos;d love to hear about it.
-            </p>
-            <Button
-              href={`${homeHrefPrefix}#contact`}
-              variant="primary"
-              size="lg"
-              className={`group mt-5 rounded-2xl px-7 py-3.5 shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.55)] [@media(orientation:landscape)_and_(max-width:1024px)]:self-center ${FOCUS}`}
-            >
-              <Mail className="size-4" aria-hidden />
-              Send a Message
-              <ArrowRight
-                className="size-4 transition-transform duration-300 motion-safe:group-hover:translate-x-1"
-                aria-hidden
-              />
-            </Button>
+            <nav aria-label="Legal" className="w-full">
+              <m.h3 initial={false} variants={itemVariants} className={`${HEADING} text-center`}>
+                Legal
+              </m.h3>
+              <ul className="mx-auto mt-2 grid w-fit grid-cols-1 grid-rows-3 items-center gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-4">
+                {legalLinks.map((link, index) => (
+                  <m.li
+                    key={link.href}
+                    initial={false}
+                    variants={itemVariants}
+                    className="col-start-1"
+                    style={{ gridRow: index + 1 }}
+                  >
+                    <Link
+                      href={link.href}
+                      {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
+                    >
+                      <ChevronRight
+                        aria-hidden
+                        className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+                      />
+                      {link.label}
+                    </Link>
+                  </m.li>
+                ))}
+              </ul>
+            </nav>
           </ProgressiveReveal>
         </div>
 
         <ProgressiveReveal
-          effect="cascade"
-          duration={0}
-          delay={0.1}
-          staggerChildren={0.1}
+          effect="rise"
+          duration={1.8}
+          delay={0.35}
+          ease={[0.22, 0.85, 0.35, 1]}
+          viewportInset={0}
           className={`${layout.legal} bg-background/80 mt-8 grid items-center gap-3 rounded-xl border border-white/10 px-5 py-3.5 text-center sm:mt-10 md:grid-cols-[1fr_auto_1fr] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
         >
           <m.div
@@ -228,32 +245,6 @@ export function Footer({
             <span className="max-md:block">
               <span className="text-brand-bright">&copy; {year}</span> {SITE.name}. All rights
               reserved.
-            </span>
-            <span aria-hidden className="mx-1.5 text-white/30 max-md:hidden">
-              |
-            </span>
-            <span className="inline-flex items-baseline whitespace-nowrap max-md:mt-1">
-              <Link
-                href="/privacy"
-                className={`text-brand-bright underline-offset-4 transition-colors hover:text-white hover:underline ${FOCUS}`}
-              >
-                Privacy
-              </Link>
-              {sponsorUrl?.trim() && (
-                <>
-                  <span aria-hidden className="mx-1.5 text-white/30">
-                    |
-                  </span>
-                  <a
-                    href={sponsorUrl.trim()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-white/60 underline-offset-4 transition-colors hover:text-white hover:underline ${FOCUS}`}
-                  >
-                    Support
-                  </a>
-                </>
-              )}
             </span>
           </m.div>
           <m.div
@@ -273,7 +264,7 @@ export function Footer({
             variants={itemVariants}
             className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right"
           >
-            {SITE.handle}
+            DESIGNED &amp; BUILT WITH <span className="text-brand-bright">CARE</span>
           </m.p>
         </ProgressiveReveal>
       </div>
