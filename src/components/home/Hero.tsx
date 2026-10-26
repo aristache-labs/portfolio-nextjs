@@ -5,6 +5,7 @@ import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "f
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { EncryptedText } from "@/components/ui/encrypted-text";
+import { TypingAnimation } from "@/components/ui/typing-animation";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
@@ -274,11 +275,10 @@ export function Hero({
         className={`${styles.content} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
       >
         <div className="max-w-2xl min-w-0 lg:pl-8">
-          <p
-            style={entranceStyle(0.15)}
-            className={`${styles.enter} mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90 [@media(max-height:500px)]:mb-1 [@media(max-height:500px)]:text-[11px]`}
-          >
-            <span className={styles.greeting}>{GREETING}</span>
+          <p className="mb-3 font-mono text-[13px] tracking-[0.35em] text-(--brand-bright)/90 [@media(max-height:500px)]:mb-1 [@media(max-height:500px)]:text-[11px]">
+            <TypingAnimation className={styles.greeting} blinkCursor>
+              {GREETING}
+            </TypingAnimation>
           </p>
 
           <h1 className="max-w-3xl">

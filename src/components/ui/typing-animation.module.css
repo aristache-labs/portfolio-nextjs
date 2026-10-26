@@ -1,0 +1,28 @@
+.cursor {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  margin-inline-start: 0.15em;
+  vertical-align: -0.125em;
+  background: currentColor;
+}
+
+.blink {
+  animation: cursor-blink 1s steps(1, end) infinite;
+}
+
+[data-playing="false"] .blink {
+  animation-play-state: paused;
+}
+
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blink {
+    animation: none;
+  }
+}

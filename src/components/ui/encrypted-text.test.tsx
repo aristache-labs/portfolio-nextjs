@@ -55,8 +55,12 @@ describe("EncryptedText", () => {
     const { container, getByText } = render(<EncryptedText text="IT WEB" charset="X" />);
     advance(16);
     expect(container.querySelector('[aria-hidden="true"]')?.textContent).toBe("XX XXX");
-    expect(container.querySelector('[aria-hidden="true"]')).toHaveClass("absolute", "inset-0");
-    expect(getByText("IT WEB")).toHaveStyle({ gridArea: "1 / 1" });
+    const original = getByText("IT WEB");
+    expect(original).toHaveStyle({ gridArea: "1 / 1" });
+    expect(original).not.toHaveAttribute("aria-hidden");
+    advance(400);
+    expect(getByText("IT WEB")).toBe(original);
+    expect(original).not.toHaveClass("text-transparent");
   });
 
   it("keeps reduced-motion text static without scrambling or replaying later", () => {

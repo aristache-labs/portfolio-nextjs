@@ -150,7 +150,7 @@
   }
 }
 .greeting {
-  display: inline-block;
+  display: inline-grid;
 }
 
 /* Portrait keeps copy fully visible; only individual elements move slightly at first paint. */
@@ -163,10 +163,6 @@
 
   .name {
     animation: portrait-name-settle 1s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .greeting {
-    animation: portrait-slide 1s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .headline,
@@ -195,10 +191,6 @@
     animation-duration: 1s;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     animation-fill-mode: both;
-  }
-
-  .greeting {
-    animation: greeting-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .name {
