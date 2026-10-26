@@ -1,5 +1,6 @@
 import { CalendarDays, MapPin, TrendingDown, Users, type LucideIcon } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
+import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { AvatarPortrait } from "./AvatarPortrait";
 import { Section } from "@/components/ui/Section";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
@@ -33,12 +34,7 @@ function StatBar() {
   ];
 
   return (
-    <Reveal
-      distance={12}
-      duration={0.4}
-      delay={0.1}
-      className="mt-8 lg:col-span-2 lg:mt-14 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2"
-    >
+    <ProgressiveReveal className="mt-8 lg:col-span-2 lg:mt-14 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2">
       <div
         className={`${statsCss.panel} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
       >
@@ -73,7 +69,7 @@ function StatBar() {
           ))}
         </div>
       </div>
-    </Reveal>
+    </ProgressiveReveal>
   );
 }
 

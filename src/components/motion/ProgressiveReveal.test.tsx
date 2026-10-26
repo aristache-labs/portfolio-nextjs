@@ -1,0 +1,155 @@
+import { act, cleanup, render } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
+import { hydrateRoot } from "react-dom/client";
+import { forwardRef, type ReactNode } from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ProgressiveReveal } from "./ProgressiveReveal";
+import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+
+const controls = vi.hoisted(() => ({ set: vi.fn(), start: vi.fn(), stop: vi.fn() }));
+vi.mock("framer-motion", () => ({
+  useAnimationControls: () => controls,
+  m: {
+    div: forwardRef<HTMLDivElement, { children: ReactNode; className?: string }>(
+      function MockMotionDiv({ children, className }, ref) {
+        return (
+          <div ref={ref} className={className}>
+            {children}
+          </div>
+        );
+      },
+    ),
+  },
+}));
+
+let deliver: IntersectionObserverCallback;
+let matches: Record<string, boolean>;
+let listeners: Set<() => void>;
+const disconnect = vi.fn();
+const observe = vi.fn();
+
+function change(query: string, value: boolean) {
+  act(() => {
+    matches[query] = value;
+    listeners.forEach((listener) => listener());
+  });
+}
+
+function intersect(node: Element, top = 100, isIntersecting = true) {
+  act(() =>
+    deliver(
+      [{ target: node, isIntersecting, boundingClientRect: { top } } as IntersectionObserverEntry],
+      {} as IntersectionObserver,
+    ),
+  );
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  matches = {};
+  listeners = new Set();
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: matches[query] ?? false,
+    addEventListener: (_event: string, listener: () => void) => listeners.add(listener),
+    removeEventListener: (_event: string, listener: () => void) => listeners.delete(listener),
+  }));
+  vi.stubGlobal(
+    "IntersectionObserver",
+    class {
+      constructor(callback: IntersectionObserverCallback) {
+        deliver = callback;
+      }
+      observe = observe;
+      disconnect = disconnect;
+    },
+  );
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+    top: 2000,
+  } as DOMRect);
+});
+
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+
+describe("ProgressiveReveal", () => {
+  it("serves visible HTML and hydrates without mismatches", async () => {
+    const content = <ProgressiveReveal className="metrics">Metrics</ProgressiveReveal>;
+    const html = renderToString(content);
+    expect(html).toBe('<div class="metrics">Metrics</div>');
+    const container = document.createElement("div");
+    container.innerHTML = html;
+    document.body.append(container);
+    const onRecoverableError = vi.fn();
+    let root: ReturnType<typeof hydrateRoot>;
+    await act(async () => {
+      root = hydrateRoot(container, content, { onRecoverableError });
+    });
+    expect(onRecoverableError).not.toHaveBeenCalled();
+    await act(async () => root.unmount());
+    container.remove();
+  });
+
+  it.each([
+    [false, 18, 1],
+    [true, 28, 1],
+  ])("uses the selected device profile (%s)", (desktop, distance, duration) => {
+    matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+    const { container } = render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
+    expect(controls.set).not.toHaveBeenCalled();
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledWith({
+      opacity: [0, 1],
+      y: [distance, 0],
+      transition: { duration, ease: [0.22, 1, 0.36, 1] },
+    });
+    expect(disconnect).toHaveBeenCalled();
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledTimes(1);
+    change(EXPRESSIVE_MOTION_QUERY, !desktop);
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, y: 0 });
+    expect(controls.start).toHaveBeenCalledTimes(1);
+  });
+
+  it("reveals content skipped by a fast scroll", () => {
+    const { container } = render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
+    intersect(container.firstElementChild!, -300, false);
+    expect(controls.start).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps already visible content static", () => {
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({ top: 10 } as DOMRect);
+    render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
+    expect(observe).not.toHaveBeenCalled();
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, y: 0 });
+  });
+
+  it("prioritizes reduced motion and never replays after it changes", () => {
+    matches[EXPRESSIVE_MOTION_QUERY] = true;
+    matches[REDUCED_MOTION_QUERY] = true;
+    render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
+    expect(observe).not.toHaveBeenCalled();
+    change(REDUCED_MOTION_QUERY, false);
+    expect(observe).not.toHaveBeenCalled();
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, y: 0 });
+  });
+
+  it("cancels an active entrance when reduced motion is enabled", () => {
+    const { container, unmount } = render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
+    intersect(container.firstElementChild!);
+    change(REDUCED_MOTION_QUERY, true);
+    expect(controls.stop).toHaveBeenCalled();
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, y: 0 });
+    unmount();
+    expect(listeners.size).toBe(0);
+  });
+
+  it.each(["matchMedia", "IntersectionObserver"])("falls back without %s", (api) => {
+    vi.stubGlobal(api, undefined);
+    render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
+    expect(observe).not.toHaveBeenCalled();
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, y: 0 });
+  });
+});
