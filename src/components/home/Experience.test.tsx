@@ -5,15 +5,22 @@ import type { ExperienceRow } from "@/lib/queries";
 import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { renderToString } from "react-dom/server";
+import styles from "./experience-layout.module.css";
 
 const scrollHook = vi.hoisted(() => vi.fn());
+const scrollProgress = vi.hoisted(() => ({
+  current: null as import("framer-motion").MotionValue<number> | null,
+}));
 vi.mock("framer-motion", async (importOriginal) => {
   const actual = await importOriginal<typeof import("framer-motion")>();
   return {
     ...actual,
+    useSpring: (value: import("framer-motion").MotionValue<number>) => value,
     useScroll: (options: unknown) => {
       scrollHook(options);
-      return { scrollYProgress: actual.useMotionValue(0) };
+      const progress = actual.useMotionValue(0);
+      scrollProgress.current = progress;
+      return { scrollYProgress: progress };
     },
   };
 });
@@ -41,6 +48,80 @@ const mockExperiences: ExperienceRow[] = [
 ];
 
 describe("Experience", () => {
+  it.each([
+    ["desktop", true, 1440, 900],
+    ["mobile portrait", false, 430, 932],
+    ["mobile landscape", false, 932, 430],
+  ])("fills stationary dots as the rail crosses them on %s", (_profile, desktop, width, height) => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+    vi.stubGlobal("innerWidth", width);
+    vi.stubGlobal("innerHeight", height);
+    let scale = height < 500 ? 11 / 16 : 1;
+    const trackTop = vi
+      .spyOn(HTMLElement.prototype, "offsetTop", "get")
+      .mockImplementation(function (this: HTMLElement) {
+        return this.hasAttribute("data-timeline-track") ? 24 * scale : 0;
+      });
+    const trackHeight = vi
+      .spyOn(HTMLElement.prototype, "offsetHeight", "get")
+      .mockImplementation(function (this: HTMLElement) {
+        return this.hasAttribute("data-timeline-track") ? 1000 * scale : 0;
+      });
+    const bounds = vi
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        if (this.hasAttribute("data-timeline-dot")) {
+          const top = this.hasAttribute("data-timeline-end")
+            ? 1018
+            : this.closest("li")?.dataset.experienceId === "1"
+              ? 18
+              : 518;
+          return { top: top * scale, height: 12 * scale } as DOMRect;
+        }
+        return { top: 0, height: 1048 * scale } as DOMRect;
+      });
+    const { container, rerender, unmount } = render(<Experience experiences={mockExperiences} />);
+    try {
+      const dots = container.querySelectorAll("[data-timeline-dot]");
+      expect(dots).toHaveLength(3);
+      expect(dots[2]).toHaveAttribute("data-timeline-end");
+      expect(dots[2]).toHaveAttribute("aria-hidden");
+      for (const dot of dots) expect(dot).toHaveClass(styles.marker);
+      expect(dots[0].parentElement).toBe(container.querySelector("ol > li"));
+      expect(dots[2].parentElement).toBe(container.querySelector("ol")?.parentElement);
+      expect(container.getElementsByClassName(styles.rail)).toHaveLength(3);
+      bounds.mockClear();
+      act(() => scrollProgress.current!.set(0.49));
+      expect(dots[0]).toHaveAttribute("data-timeline-filled");
+      expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
+      act(() => scrollProgress.current!.set(0.5));
+      expect(dots[1]).toHaveAttribute("data-timeline-filled");
+      expect(dots[2]).not.toHaveAttribute("data-timeline-filled");
+      act(() => scrollProgress.current!.set(1));
+      expect(dots[2]).toHaveAttribute("data-timeline-filled");
+      act(() => scrollProgress.current!.set(0.25));
+      expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
+      expect(dots[2]).not.toHaveAttribute("data-timeline-filled");
+      expect(bounds).not.toHaveBeenCalled();
+      scale = scale === 1 ? 11 / 16 : 1;
+      act(() => window.dispatchEvent(new Event("resize")));
+      expect(dots[0]).toHaveAttribute("data-timeline-filled");
+      act(() => scrollProgress.current!.set(0.49));
+      expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
+      act(() => scrollProgress.current!.set(0.5));
+      expect(dots[1]).toHaveAttribute("data-timeline-filled");
+      installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
+      rerender(<Experience experiences={mockExperiences} />);
+      expect(container.querySelector("[data-timeline-filled]")).toBeNull();
+    } finally {
+      unmount();
+      bounds.mockRestore();
+      trackTop.mockRestore();
+      trackHeight.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
   beforeEach(() => {
     scrollHook.mockClear();
     installMatchMedia();

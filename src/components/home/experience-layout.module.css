@@ -1,3 +1,28 @@
+.section {
+  --timeline-axis: 0.375rem;
+}
+
+.rail {
+  left: calc(var(--timeline-axis) - 0.5px);
+}
+
+.marker {
+  left: calc(var(--timeline-axis) - 0.375rem);
+}
+
+.dot[data-timeline-filled] {
+  background-color: var(--brand-mid);
+  box-shadow: 0 0 12px rgb(var(--brand-mid-rgb) / 0.35);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dot {
+    transition:
+      background-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+}
+
 @media (orientation: landscape) and (max-width: 1023px) and (max-height: 500px) {
   .section li li {
     font-size: 14px;
@@ -20,17 +45,8 @@
       border-color 300ms ease,
       box-shadow 300ms ease;
   }
-  .dot {
-    transition:
-      background-color 300ms ease,
-      box-shadow 300ms ease;
-  }
   .entry[data-timeline-active="true"] .card {
     border-color: rgb(var(--brand-mid-rgb) / 0.55);
     box-shadow: 0 0 24px rgb(var(--brand-mid-rgb) / 0.08);
-  }
-  .entry[data-timeline-active="true"] .dot {
-    background-color: var(--brand-mid);
-    box-shadow: 0 0 12px rgb(var(--brand-mid-rgb) / 0.35);
   }
 }

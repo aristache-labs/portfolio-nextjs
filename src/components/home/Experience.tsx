@@ -35,6 +35,46 @@ function ScrollTimelineRail({
 
   useEffect(() => {
     const list = listRef.current;
+    if (!list) return;
+    const track = list.querySelector<HTMLElement>("[data-timeline-track]");
+    if (!track) return;
+    const dots = Array.from(list.querySelectorAll<HTMLElement>("[data-timeline-dot]"));
+    let positions: number[] = [];
+    let length = 0;
+    const update = (progress: number) => {
+      dots.forEach((dot, index) => {
+        dot.toggleAttribute(
+          "data-timeline-filled",
+          progress > 0 && progress * length >= positions[index],
+        );
+      });
+    };
+    const measure = () => {
+      const bounds = list.getBoundingClientRect();
+      // Layout dimensions stay accurate when landscape changes the root font size.
+      length = track.offsetHeight;
+      const start = track.offsetTop;
+      positions = dots.map((dot) => {
+        const rect = dot.getBoundingClientRect();
+        return Math.max(0, Math.min(length, rect.top + rect.height / 2 - bounds.top - start));
+      });
+      update(fill.get());
+    };
+    measure();
+    const unsubscribe = fill.on("change", update);
+    const resize = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : undefined;
+    resize?.observe(list);
+    window.addEventListener("resize", measure);
+    return () => {
+      unsubscribe();
+      resize?.disconnect();
+      window.removeEventListener("resize", measure);
+      dots.forEach((dot) => dot.removeAttribute("data-timeline-filled"));
+    };
+  }, [fill, listRef]);
+
+  useEffect(() => {
+    const list = listRef.current;
     if (!highlightEntries || !list || typeof IntersectionObserver !== "function") return;
     const entries = Array.from(list.querySelectorAll<HTMLElement>("[data-experience-id]"));
     const visible = new Set<Element>();
@@ -77,7 +117,7 @@ function ScrollTimelineRail({
     <m.span
       aria-hidden
       style={{ scaleY }}
-      className="absolute top-6 bottom-6 left-[5.5px] w-px origin-top bg-(image:--gradient-brand)"
+      className={`${styles.rail} absolute top-6 bottom-6 w-px origin-top bg-(image:--gradient-brand)`}
     />
   );
 }
@@ -90,12 +130,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
 
   const inner = (
     <div className="flex gap-4 sm:gap-5">
-      {/* Rail dot (the connector line is drawn once for the whole list) */}
-      <div className="relative flex w-3 shrink-0 justify-center">
-        <span
-          className={`${styles.dot} bg-background z-10 mt-[18px] size-3 shrink-0 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15`}
-        />
-      </div>
+      <div aria-hidden className="w-3 shrink-0" />
 
       {/* Card content */}
       <div className={cn("min-w-0 flex-1 pb-6 sm:pb-8", last && "pb-0")}>
@@ -172,7 +207,12 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
   );
 
   return (
-    <li className={styles.entry} data-experience-id={exp.id}>
+    <li className={`${styles.entry} relative`} data-experience-id={exp.id}>
+      <span
+        aria-hidden
+        data-timeline-dot
+        className={`${styles.dot} ${styles.marker} bg-background absolute top-[1.125rem] z-10 size-3 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15`}
+      />
       <ProgressiveReveal
         effect={mode === "expressive" ? "slide" : "fade"}
         desktopDelay={Math.min(index * 0.04, 0.12)}
@@ -243,14 +283,18 @@ export function Experience({
         <div ref={listRef} className="relative">
           {/* Connector rail: faint track + a gradient fill that grows on scroll.
               Sits under the entry dots (which are z-10). */}
-          {sorted.length > 1 && (
+          {sorted.length > 0 && (
             <>
-              <span aria-hidden className="bg-border absolute top-6 bottom-6 left-[5.5px] w-px" />
               <span
                 aria-hidden
-                className="absolute top-6 bottom-6 left-[5.5px] w-px bg-(image:--gradient-brand) opacity-30"
+                data-timeline-track
+                className={`${styles.rail} bg-border absolute top-6 bottom-6 w-px`}
               />
-              {mode !== "static" && (
+              <span
+                aria-hidden
+                className={`${styles.rail} absolute top-6 bottom-6 w-px bg-(image:--gradient-brand) opacity-30`}
+              />
+              {sorted.length > 1 && mode !== "static" && (
                 <ScrollTimelineRail listRef={listRef} highlightEntries={mode === "expressive"} />
               )}
             </>
@@ -265,6 +309,14 @@ export function Experience({
               />
             ))}
           </ol>
+          {sorted.length > 0 && (
+            <span
+              aria-hidden
+              data-timeline-dot
+              data-timeline-end
+              className={`${styles.dot} ${styles.marker} bg-background absolute bottom-[1.125rem] z-10 size-3 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15`}
+            />
+          )}
         </div>
       </div>
     </Section>
