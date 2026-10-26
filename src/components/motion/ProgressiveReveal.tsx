@@ -12,6 +12,7 @@ export function ProgressiveReveal({
   desktopDelay = 0.3,
   duration = 1,
   delay,
+  staggerChildren,
   effect = "rise",
 }: {
   children: ReactNode;
@@ -19,6 +20,7 @@ export function ProgressiveReveal({
   desktopDelay?: number;
   duration?: number;
   delay?: number;
+  staggerChildren?: number;
   effect?:
     | "rise"
     | "fade"
@@ -164,7 +166,10 @@ export function ProgressiveReveal({
                 transition: {
                   duration: mode === "static" ? 0 : duration,
                   delay: mode === "static" ? 0 : (delay ?? 0.3),
-                  staggerChildren: mode === "expressive" ? 0.245 : 0,
+                  staggerChildren:
+                    mode === "static"
+                      ? 0
+                      : (staggerChildren ?? (mode === "expressive" ? 0.245 : 0)),
                   ease: [0.22, 1, 0.36, 1],
                 },
               },

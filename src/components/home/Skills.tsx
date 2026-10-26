@@ -162,7 +162,9 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   My Toolbox
                 </span>
               </div>
-              {ordered.length > 0 && (
+            </ProgressiveReveal>
+            {ordered.length > 0 && (
+              <ProgressiveReveal effect="cascade" duration={0} delay={0.3} staggerChildren={0.2}>
                 <div
                   className="flex flex-wrap items-center gap-2 max-lg:justify-center"
                   role="tablist"
@@ -173,6 +175,21 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     return (
                       <m.button
                         key={value}
+                        initial={false}
+                        variants={{
+                          hidden: { opacity: 0, scale: 0 },
+                          visible: {
+                            opacity: 1,
+                            scale: 1,
+                            transition:
+                              mode === "static"
+                                ? { duration: 0 }
+                                : {
+                                    opacity: { duration: 0.25 },
+                                    scale: { type: "spring", visualDuration: 0.7, bounce: 0.5 },
+                                  },
+                          },
+                        }}
                         type="button"
                         role="tab"
                         aria-selected={selected}
@@ -194,8 +211,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     );
                   })}
                 </div>
-              )}
-            </ProgressiveReveal>
+              </ProgressiveReveal>
+            )}
 
             {/* Layout features stay inside the dynamically loaded Skills section. */}
             <LazyMotion features={domMax}>

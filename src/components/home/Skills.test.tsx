@@ -4,6 +4,7 @@ import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { Skills } from "./Skills";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 
 vi.mock("next/image", () => ({
   default: ({ src, alt, width, height, className }: React.ImgHTMLAttributes<HTMLImageElement>) => (
@@ -145,6 +146,55 @@ describe("Skills", () => {
     expect(screen.getByRole("tab", { name: "Frontend" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Backend" })).toBeInTheDocument();
   });
+
+  it("serves category buttons visibly before hydration", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<Skills skills={mockSkills} />);
+    for (const button of container.querySelectorAll('[role="tab"]')) {
+      expect((button as HTMLElement).style.opacity).not.toBe("0");
+      expect((button as HTMLElement).style.transform).not.toContain("scale(0)");
+    }
+  });
+
+  it.each([true, false])(
+    "reveals pending buttons immediately for keyboard focus (desktop=%s)",
+    async (desktop) => {
+      installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+      const originalObserver = globalThis.IntersectionObserver;
+      const bounds = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+        top: 2000,
+        left: 0,
+      } as DOMRect);
+      vi.stubGlobal(
+        "IntersectionObserver",
+        class {
+          observe() {}
+          disconnect() {}
+        },
+      );
+      try {
+        await act(async () => {
+          render(
+            <MotionProvider>
+              <Skills skills={mockSkills} />
+            </MotionProvider>,
+          );
+        });
+        const buttons = screen.getAllByRole("tab");
+        expect(buttons[0]).toHaveStyle({ opacity: "0", transform: "scale(0)" });
+        act(() => buttons[0].focus());
+        await waitFor(() => {
+          for (const button of buttons) expect(button).toHaveStyle({ opacity: "1" });
+        });
+        fireEvent.click(screen.getByRole("tab", { name: "Backend" }));
+        for (const button of buttons) expect(button).toHaveStyle({ opacity: "1" });
+      } finally {
+        cleanup();
+        bounds.mockRestore();
+        vi.stubGlobal("IntersectionObserver", originalObserver);
+      }
+    },
+  );
 
   it.each([
     ["desktop", true, false],
