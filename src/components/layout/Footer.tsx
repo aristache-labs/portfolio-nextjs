@@ -3,6 +3,7 @@
 import { ArrowRight, ChevronRight, Mail, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { m, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
@@ -31,15 +32,25 @@ const FOCUS =
 
 export function Footer({
   sponsorUrl,
+  roles = [],
   homeHrefPrefix = "",
 }: {
   socials: SocialRow[];
   email?: string | null;
   sponsorUrl?: string | null;
+  roles?: string[];
   homeHrefPrefix?: string;
 }) {
   const year = new Date().getFullYear();
   const { mode } = useAnimationPolicy();
+  const itemVariants: Variants = {
+    hidden: mode === "static" ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: mode === "static" ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] },
+    },
+  };
 
   return (
     <footer className={`${layout.footer} relative overflow-hidden`}>
@@ -68,13 +79,13 @@ export function Footer({
 
       <div className="site-container relative z-10 pt-6 pb-24 sm:pb-8 lg:pt-8">
         <div className={`${layout.intro} flex flex-col items-center text-center`}>
-          <ProgressiveReveal effect="fade">
+          <ProgressiveReveal effect="focus" duration={0.7} delay={0.1}>
             <h2 className="font-display text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.1] font-extrabold tracking-tight text-white">
               Thanks for <span className="gradient-text">visiting.</span>
             </h2>
           </ProgressiveReveal>
 
-          <ProgressiveReveal effect="fade" desktopDelay={0.06}>
+          <ProgressiveReveal effect="fade" duration={0.65} delay={0.15}>
             <p className={`${subtitleCss.subtitle} mx-auto mt-2 max-w-[580px]`}>
               IT infrastructure, deployment automation, web and mobile development.
             </p>
@@ -86,7 +97,12 @@ export function Footer({
                 className="block h-px bg-gradient-to-r from-transparent to-white/25"
               />
             </ProgressiveReveal>
-            <Sparkle className="fill-brand-mid text-brand-bright size-4 shrink-0 drop-shadow-[0_0_8px_rgb(var(--brand-mid-rgb)/0.8)]" />
+            <ProgressiveReveal effect="zoom" duration={0.6} delay={0.1} className="shrink-0">
+              <Sparkle
+                aria-hidden
+                className="fill-brand-mid text-brand-bright size-4 drop-shadow-[0_0_8px_rgb(var(--brand-mid-rgb)/0.8)]"
+              />
+            </ProgressiveReveal>
             <ProgressiveReveal effect="line" className="flex-1 origin-left">
               <span
                 aria-hidden
@@ -99,7 +115,12 @@ export function Footer({
         <div
           className={`${layout.columns} mt-6 grid grid-cols-1 items-center gap-x-10 gap-y-7 sm:mt-8 sm:grid-cols-2 sm:gap-y-8 lg:mt-10 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4`}
         >
-          <div className={`${layout.identity} flex min-w-0 flex-col items-center justify-center`}>
+          <ProgressiveReveal
+            effect="zoom"
+            duration={0.7}
+            delay={0.1}
+            className={`${layout.identity} flex min-w-0 flex-col items-center justify-center`}
+          >
             <div className="flex flex-col items-center text-center">
               <Link
                 href={`${homeHrefPrefix}#hero`}
@@ -112,30 +133,40 @@ export function Footer({
                   width={906}
                   height={939}
                   unoptimized
-                  loading="lazy"
+                  loading="eager"
                   style={{ aspectRatio: "906 / 939" }}
-                  className="h-32 w-auto sm:h-36 [@media(orientation:landscape)_and_(max-width:1024px)]:h-28"
+                  className="h-32 w-auto sm:h-36 [@media(orientation:landscape)_and_(max-width:1024px)]:h-32"
                 />
               </Link>
-              <ProgressiveReveal effect="fade">
+              {roles.length > 0 && (
                 <p className="mt-2 max-w-[290px] text-[15px] leading-relaxed text-white/70 sm:mt-2.5 sm:text-base [@media(orientation:landscape)_and_(max-width:1024px)]:text-[14px]">
-                  {SITE.jobTitle}
+                  {roles.map((role, index) => (
+                    <span key={`${role}-${index}`} className="block">
+                      {role}
+                    </span>
+                  ))}
                 </p>
-              </ProgressiveReveal>
+              )}
             </div>
-          </div>
+          </ProgressiveReveal>
 
           <ProgressiveReveal
-            effect="fade"
-            desktopDelay={0.06}
+            effect="cascade"
+            duration={0}
+            delay={0.1}
+            staggerChildren={0.08}
             className={`${NAV_DIVIDER} max-sm:bg-background/40 max-sm:flex max-sm:flex-col max-sm:items-center max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5 lg:flex lg:flex-col lg:items-center [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
           >
             <nav aria-label="Explore" className="w-full">
-              <h3 className={`${HEADING} text-center`}>Explore</h3>
+              <m.h3 initial={false} variants={itemVariants} className={`${HEADING} text-center`}>
+                Explore
+              </m.h3>
               <ul className="mx-auto mt-2 grid w-full max-w-[280px] grid-cols-2 gap-x-2 gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-2">
                 {LINKS.map((link) => (
-                  <li
+                  <m.li
                     key={link.href}
+                    initial={false}
+                    variants={itemVariants}
                     className={link.href === "#contact" ? "col-span-2" : undefined}
                   >
                     <Link
@@ -149,15 +180,16 @@ export function Footer({
                       />
                       <span>{link.label}</span>
                     </Link>
-                  </li>
+                  </m.li>
                 ))}
               </ul>
             </nav>
           </ProgressiveReveal>
 
           <ProgressiveReveal
-            effect={mode === "expressive" ? "slide" : "fade"}
-            desktopDelay={0.12}
+            effect="fade-from-left"
+            duration={0.7}
+            delay={0.15}
             className={`${layout.contact} ${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-stretch [@media(orientation:landscape)_and_(max-width:1024px)]:text-center`}
           >
             <h3 className={HEADING}>Let&apos;s Connect</h3>
@@ -181,11 +213,17 @@ export function Footer({
         </div>
 
         <ProgressiveReveal
-          effect="fade"
-          desktopDelay={0.12}
+          effect="cascade"
+          duration={0}
+          delay={0.1}
+          staggerChildren={0.1}
           className={`${layout.legal} bg-background/80 mt-8 grid items-center gap-3 rounded-xl border border-white/10 px-5 py-3.5 text-center sm:mt-10 md:grid-cols-[1fr_auto_1fr] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
         >
-          <div className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px]">
+          <m.div
+            initial={false}
+            variants={itemVariants}
+            className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px]"
+          >
             <span className="max-md:block">
               <span className="text-brand-bright">&copy; {year}</span> {SITE.name}. All rights
               reserved.
@@ -216,18 +254,26 @@ export function Footer({
                 </>
               )}
             </span>
-          </div>
-          <div className="hidden items-center justify-center gap-2.5 md:flex [@media(orientation:landscape)_and_(max-width:1024px)]:hidden">
+          </m.div>
+          <m.div
+            initial={false}
+            variants={itemVariants}
+            className="hidden items-center justify-center gap-2.5 md:flex [@media(orientation:landscape)_and_(max-width:1024px)]:hidden"
+          >
             <Workflow className="text-brand-mid size-5.5" aria-hidden />
             <span className="font-mono text-[11.5px] tracking-[0.28em] text-white/65">
               WEB <span className="text-white/30">·</span>{" "}
               <span className="text-brand-bright">MOBILE</span>{" "}
               <span className="text-white/30">·</span> INFRASTRUCTURE
             </span>
-          </div>
-          <p className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right">
+          </m.div>
+          <m.p
+            initial={false}
+            variants={itemVariants}
+            className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right"
+          >
             {SITE.handle}
-          </p>
+          </m.p>
         </ProgressiveReveal>
       </div>
     </footer>

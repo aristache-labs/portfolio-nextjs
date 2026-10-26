@@ -112,7 +112,12 @@ export default async function Home() {
         <Contact socials={socials} email={contactEmail} number={numbers.contact} />
       )}
 
-      <Footer socials={socials} email={profile.email} sponsorUrl={sponsorUrl} />
+      <Footer
+        socials={socials}
+        email={profile.email}
+        roles={profile.roles}
+        sponsorUrl={sponsorUrl}
+      />
     </div>
   );
 }

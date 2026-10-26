@@ -50,20 +50,96 @@ describe("Footer", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(<Footer socials={mockSocials} />);
     expect(container.querySelector('nav[aria-label="Explore"]')).not.toBeNull();
-    for (const element of container.querySelectorAll("h2, a")) {
+    for (const element of container.querySelectorAll("h2, h3, p, a, img")) {
       for (let node: Element | null = element; node; node = node.parentElement) {
         expect((node as HTMLElement).style.opacity).not.toBe("0");
       }
     }
   });
 
-  it("keeps the logo outside entrance wrappers", () => {
+  it("keeps the logo visible when the footer is already on screen", () => {
     const { container } = render(<Footer socials={mockSocials} />);
     const image = container.querySelector('img[src="/brand/logo.svg"]');
     expect(image).not.toBeNull();
     for (let node = image; node; node = node.parentElement) {
       expect((node as HTMLElement).style.opacity).toBe("");
       expect((node as HTMLElement).style.transform).toBe("");
+    }
+  });
+
+  it.each([
+    [1440, 900, true],
+    [390, 844, false],
+    [844, 390, false],
+  ])("animates footer groups and navigation once at %sx%s", async (width, height, desktop) => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+    vi.stubGlobal("innerWidth", width);
+    vi.stubGlobal("innerHeight", height);
+    const observed = new Map<Element, IntersectionObserverCallback>();
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(private callback: IntersectionObserverCallback) {}
+        observe(node: Element) {
+          observed.set(node, this.callback);
+        }
+        disconnect() {}
+      },
+    );
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      top: 2000,
+      left: 0,
+    } as DOMRect);
+    const { container, unmount } = render(
+      <MotionProvider>
+        <Footer socials={mockSocials} sponsorUrl="https://example.com/support" />
+      </MotionProvider>,
+    );
+    try {
+      const groups = [layout.identity, layout.legal].map(
+        (className) => container.getElementsByClassName(className)[0] as HTMLElement,
+      );
+      const nav = screen.getByRole("navigation", { name: "Explore" });
+      groups.push(
+        nav.parentElement!,
+        screen.getByRole("link", { name: /send a message/i }).parentElement!,
+      );
+      await waitFor(() => {
+        for (const group of groups) expect(group).toHaveStyle({ opacity: "0" });
+      });
+      const enter = (node: Element) =>
+        observed.get(node)!(
+          [
+            {
+              target: node,
+              isIntersecting: true,
+              boundingClientRect: { top: 100, bottom: 300 },
+            } as IntersectionObserverEntry,
+          ],
+          {} as IntersectionObserver,
+        );
+      act(() => {
+        groups.forEach(enter);
+      });
+      await waitFor(
+        () => {
+          for (const group of groups)
+            expect(group).toHaveStyle({ opacity: "1", transform: "none" });
+          for (const item of nav.querySelectorAll("li"))
+            expect(item).toHaveStyle({ opacity: "1", transform: "none" });
+        },
+        { timeout: 2200 },
+      );
+      act(() => {
+        groups.forEach(enter);
+        window.dispatchEvent(new Event("resize"));
+      });
+      for (const group of groups) expect(group).toHaveStyle({ opacity: "1", transform: "none" });
+      expect(screen.getByRole("link", { name: "Support" })).toBeVisible();
+    } finally {
+      unmount();
+      vi.restoreAllMocks();
+      vi.unstubAllGlobals();
     }
   });
 
@@ -123,6 +199,8 @@ describe("Footer", () => {
       await waitFor(() => expect(navigation.parentElement).toHaveStyle({ opacity: "0" }));
       act(() => within(navigation).getByRole("link", { name: "Home" }).focus());
       await waitFor(() => expect(navigation.parentElement).toHaveStyle({ opacity: "1" }));
+      for (const item of navigation.querySelectorAll("li"))
+        expect(item).toHaveStyle({ opacity: "1" });
     } finally {
       unmount();
       vi.stubGlobal("IntersectionObserver", originalObserver);
@@ -146,12 +224,12 @@ describe("Footer", () => {
     expect(screen.queryByLabelText("linkedin")).toBeNull();
     expect(screen.queryByLabelText("twitter")).toBeNull();
     expect(screen.queryByLabelText("Email")).toBeNull();
-    expect(screen.getByText(/IT Specialist/)).toBeTruthy();
   });
 
   it("renders professional positioning and copyright", () => {
-    render(<Footer socials={mockSocials} />);
-    expect(screen.getByText(/IT Specialist/)).toBeTruthy();
+    render(<Footer socials={mockSocials} roles={["Platform Engineer", "Mobile Developer"]} />);
+    expect(screen.getByText("Platform Engineer")).toBeTruthy();
+    expect(screen.getByText("Mobile Developer")).toBeTruthy();
     expect(screen.getByText(/All rights reserved/)).toBeTruthy();
   });
 
@@ -189,6 +267,6 @@ describe("Footer", () => {
 
   it("renders empty socials gracefully", () => {
     render(<Footer socials={[]} />);
-    expect(screen.getByText(/IT Specialist/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /aristache, back to top/i })).toBeTruthy();
   });
 });

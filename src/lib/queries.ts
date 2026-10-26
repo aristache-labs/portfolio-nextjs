@@ -46,12 +46,17 @@ export { getProjects as getProjectsMerged };
 /** Navigation and footer need no GitHub statistics or experience history. */
 export async function getNavigationProfile() {
   const [row] = await db
-    .select({ email: profile.email, sectionVisibility: profile.sectionVisibility })
+    .select({
+      email: profile.email,
+      roles: profile.roles,
+      sectionVisibility: profile.sectionVisibility,
+    })
     .from(profile)
     .limit(1);
   if (!row) throw new Error("Profile row not found");
   return {
     email: row.email ?? null,
+    roles: row.roles ?? [],
     sectionVisibility: (row.sectionVisibility as Record<string, boolean>) ?? {},
   };
 }
