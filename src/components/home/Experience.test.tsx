@@ -67,23 +67,46 @@ describe("Experience", () => {
     expect(scrollHook).not.toHaveBeenCalled();
   });
 
-  it("keeps a static rail on touch devices even with a desktop-width layout", () => {
+  it("animates the rail on touch devices even with a desktop-width layout", () => {
     installMatchMedia({ "(min-width: 1024px)": true });
     const { container } = render(<Experience experiences={mockExperiences} />);
-    expect(scrollHook).not.toHaveBeenCalled();
+    expect(scrollHook).toHaveBeenCalled();
     expect(container.querySelector("[data-timeline-active]")).toBeNull();
     expect(screen.getByText("Led team of 5 engineers")).toBeVisible();
   });
 
-  it("mounts the scroll rail only for expressive desktop motion", () => {
-    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
-    const { container } = render(<Experience experiences={mockExperiences} />);
-    expect(scrollHook).toHaveBeenCalledWith(
-      expect.objectContaining({ offset: ["start 70%", "end 60%"] }),
-    );
-    expect(scrollHook.mock.calls[0][0].target.current).toBe(
-      container.querySelector("ol")?.parentElement,
-    );
+  it.each([
+    ["desktop", true, 1440, 900],
+    ["mobile portrait", false, 430, 932],
+    ["mobile landscape", false, 932, 430],
+  ])("mounts the scroll rail on %s", (_profile, desktop, width, height) => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+    vi.stubGlobal("innerWidth", width);
+    vi.stubGlobal("innerHeight", height);
+    try {
+      const { container } = render(<Experience experiences={mockExperiences} />);
+      expect(scrollHook).toHaveBeenCalledWith(
+        expect.objectContaining({ offset: ["start 70%", "end 60%"], trackContentSize: true }),
+      );
+      expect(scrollHook.mock.calls[0][0].target.current).toBe(
+        container.querySelector("ol")?.parentElement,
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("keeps the mobile rail mounted through rotation and removes it for reduced motion", () => {
+    const { container, rerender } = render(<Experience experiences={mockExperiences} />);
+    const rail = container.querySelector(".origin-top");
+    expect(rail).not.toBeNull();
+    act(() => window.dispatchEvent(new Event("resize")));
+    rerender(<Experience experiences={[...mockExperiences]} />);
+    expect(container.querySelector(".origin-top")).toBe(rail);
+    installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
+    rerender(<Experience experiences={[...mockExperiences]} />);
+    expect(container.querySelector(".origin-top")).toBeNull();
+    expect(container.querySelector(".opacity-30")).not.toBeNull();
   });
 
   it("skips scroll tracking for an empty or single-entry timeline", () => {

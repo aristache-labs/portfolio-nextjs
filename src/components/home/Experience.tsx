@@ -17,18 +17,25 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const TIMELINE_SPRING = { stiffness: 120, damping: 30, restDelta: 0.001 };
 
-/** Mounted only on desktop so touch devices have no continuous scroll subscriptions. */
-function DesktopTimelineRail({ listRef }: { listRef: RefObject<HTMLDivElement | null> }) {
+/** Share scroll progress across orientations; entry highlighting remains desktop-only. */
+function ScrollTimelineRail({
+  listRef,
+  highlightEntries,
+}: {
+  listRef: RefObject<HTMLDivElement | null>;
+  highlightEntries: boolean;
+}) {
   const { scrollYProgress } = useScroll({
     target: listRef,
     offset: ["start 70%", "end 60%"],
+    trackContentSize: true,
   });
   const fill = useSpring(scrollYProgress, TIMELINE_SPRING);
   const scaleY = useTransform(fill, [0, 1], [0, 1]);
 
   useEffect(() => {
     const list = listRef.current;
-    if (!list || typeof IntersectionObserver !== "function") return;
+    if (!highlightEntries || !list || typeof IntersectionObserver !== "function") return;
     const entries = Array.from(list.querySelectorAll<HTMLElement>("[data-experience-id]"));
     const visible = new Set<Element>();
     let observer: IntersectionObserver;
@@ -64,7 +71,7 @@ function DesktopTimelineRail({ listRef }: { listRef: RefObject<HTMLDivElement | 
       window.removeEventListener("resize", connect);
       entries.forEach((entry) => entry.removeAttribute("data-timeline-active"));
     };
-  }, [listRef]);
+  }, [highlightEntries, listRef]);
 
   return (
     <m.span
@@ -243,7 +250,9 @@ export function Experience({
                 aria-hidden
                 className="absolute top-6 bottom-6 left-[5.5px] w-px bg-(image:--gradient-brand) opacity-30"
               />
-              {mode === "expressive" && <DesktopTimelineRail listRef={listRef} />}
+              {mode !== "static" && (
+                <ScrollTimelineRail listRef={listRef} highlightEntries={mode === "expressive"} />
+              )}
             </>
           )}
           <ol className="relative">
