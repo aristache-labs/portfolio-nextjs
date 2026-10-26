@@ -26,9 +26,15 @@ const RECENT_COVER_SIZES = [
   "calc(100vw - clamp(3rem, 5vw, 5.5rem) - 1.75rem)",
 ].join(", ");
 
+const UPDATED_DATE_FORMATTER = new Intl.DateTimeFormat("en", {
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 /** "Oct 2026". Fixed to UTC so the server render and the browser agree on the month. */
 export function formatUpdated(date: Date): string {
-  return date.toLocaleDateString("en", { month: "short", year: "numeric", timeZone: "UTC" });
+  return Number.isNaN(date.getTime()) ? "Invalid Date" : UPDATED_DATE_FORMATTER.format(date);
 }
 
 function Cover({
