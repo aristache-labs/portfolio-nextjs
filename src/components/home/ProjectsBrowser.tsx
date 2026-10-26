@@ -22,9 +22,11 @@ const TRACK = "flex flex-1 flex-col gap-4";
 
 function ColumnLabel({ children }: { children: string }) {
   return (
-    <h3 className="text-brand-bright border-brand-mid/60 mb-4 border-l-2 pl-3 font-mono text-[14px] font-semibold tracking-[0.16em] uppercase lg:text-[16px]">
-      {children}
-    </h3>
+    <ProgressiveReveal effect="fade" duration={0.6} delay={0.1}>
+      <h3 className="text-brand-bright border-brand-mid/60 mb-4 border-l-2 pl-3 font-mono text-[14px] font-semibold tracking-[0.16em] uppercase lg:text-[16px]">
+        {children}
+      </h3>
+    </ProgressiveReveal>
   );
 }
 
@@ -34,27 +36,16 @@ function ColumnLabel({ children }: { children: string }) {
  */
 export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const { mode } = useAnimationPolicy();
+  const [hasInteracted, setHasInteracted] = useState(false);
   const cardVariants: Variants = {
-    hidden:
-      mode === "expressive" ? { opacity: 0, y: 14, scale: 0.985 } : { opacity: 1, y: 0, scale: 1 },
+    hidden: mode !== "static" ? { opacity: 0, scale: 0.9 } : { opacity: 1, scale: 1 },
     visible: {
       opacity: 1,
-      y: 0,
       scale: 1,
       transition: {
-        duration: mode === "expressive" ? 0.85 : 0,
-        ease: [0.22, 1, 0.36, 1],
-      },
-    },
-  };
-  const recentVariants: Variants = {
-    hidden: mode === "expressive" ? { opacity: 0, x: 12 } : { opacity: 1, x: 0 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: mode === "expressive" ? 0.8 : 0,
-        ease: [0.22, 1, 0.36, 1],
+        duration: mode === "static" ? 0 : hasInteracted ? 0.45 : 0.7,
+        delay: mode === "static" ? 0 : hasInteracted ? 0.1 : 0.3,
+        ease: [0.6, -0.28, 0.735, 0.045],
       },
     },
   };
@@ -102,6 +93,8 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const filtered = category === ALL ? rest : rest.filter((p) => p.category === category);
   const visible = filtered.slice(0, limit);
   function selectCategory(name: string) {
+    if (name === category) return;
+    setHasInteracted(true);
     setCategory(name);
     setExtra(0);
   }
@@ -117,8 +110,9 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                 {featured.map((p, i) => (
                   <ProgressiveReveal
                     key={p.id}
-                    effect="focus"
-                    desktopDelay={i * 0.08}
+                    effect="fade-from-left"
+                    duration={0.7}
+                    delay={i * 0.08}
                     className="flex"
                   >
                     <FeaturedCard project={p} onQuickView={() => setQuickView(p)} />
@@ -131,18 +125,19 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           {recent.length > 0 && (
             <div className="flex flex-col">
               <ColumnLabel>Recently updated</ColumnLabel>
-              <ProgressiveReveal effect="cascade" className="grid gap-4 lg:grid-cols-2">
+              <div className="grid gap-4 lg:grid-cols-2">
                 {recent.slice(0, recentLimit).map((p, i) => (
-                  <m.div
+                  <ProgressiveReveal
                     key={p.id}
-                    initial={false}
-                    variants={recentVariants}
+                    effect="fade-from-right"
+                    duration={0.5}
+                    delay={i * 0.06}
                     className={`flex min-w-0 ${i >= 2 ? "max-lg:hidden" : ""}`}
                   >
                     <RecentCard project={p} onQuickView={() => setQuickView(p)} />
-                  </m.div>
+                  </ProgressiveReveal>
                 ))}
-              </ProgressiveReveal>
+              </div>
             </div>
           )}
         </div>
@@ -152,15 +147,38 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
         <>
           <ColumnLabel>Categories</ColumnLabel>
           {categories.length > 0 && (
-            <div className="mb-6 flex flex-wrap items-center gap-2">
+            <ProgressiveReveal
+              effect="cascade"
+              duration={0}
+              delay={0.3}
+              staggerChildren={0.2}
+              className="mb-6 flex flex-wrap items-center gap-2"
+            >
               {[[ALL, rest.length] as const, ...categories].map(([name, count]) => {
                 const active = category === name;
                 return (
-                  <button
+                  <m.button
                     key={name}
                     type="button"
                     onClick={() => selectCategory(name)}
                     aria-pressed={active}
+                    initial={false}
+                    variants={{
+                      hidden: { opacity: 0, scale: 0 },
+                      visible: {
+                        opacity: 1,
+                        scale: 1,
+                        transition:
+                          mode === "static"
+                            ? { duration: 0 }
+                            : {
+                                opacity: { duration: 0.25 },
+                                scale: { type: "spring", visualDuration: 0.7, bounce: 0.5 },
+                              },
+                      },
+                    }}
+                    whileHover={mode === "expressive" ? { y: -2 } : undefined}
+                    whileTap={mode === "static" ? undefined : { scale: 0.98 }}
                     className={
                       active
                         ? "rounded-full border border-(--brand-deep)/50 bg-(--chip-surface) px-3 py-1.5 text-xs font-semibold text-(--accent-on-chip) transition-colors"
@@ -169,18 +187,27 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                   >
                     {name}
                     <span className="ml-1.5 opacity-60">{count}</span>
-                  </button>
+                  </m.button>
                 );
               })}
-            </div>
+            </ProgressiveReveal>
           )}
 
           <ProgressiveReveal
             effect="cascade"
+            duration={0}
+            delay={0}
+            staggerChildren={0.18}
             className="grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2"
           >
             {visible.map((p) => (
-              <m.div key={p.id} initial={false} variants={cardVariants} className="h-full">
+              <m.div
+                key={`${category}-${p.id}`}
+                initial={hasInteracted && mode !== "static" ? "hidden" : false}
+                animate={hasInteracted ? "visible" : undefined}
+                variants={cardVariants}
+                className="h-full"
+              >
                 <ProjectCard project={p} onQuickView={() => setQuickView(p)} />
               </m.div>
             ))}
@@ -190,7 +217,10 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             <div className="mt-8 text-center">
               <button
                 type="button"
-                onClick={() => setExtra((n) => n + pageSize)}
+                onClick={() => {
+                  setHasInteracted(true);
+                  setExtra((n) => n + pageSize);
+                }}
                 className="border-border text-foreground hover:border-brand-mid/50 min-h-[44px] rounded-xl border px-5 py-3 text-sm font-medium transition-colors"
               >
                 Show more projects

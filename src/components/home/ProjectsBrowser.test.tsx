@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within, waitFor } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { Projects } from "./Projects";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import type { MergedProject } from "@/lib/projects";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 
 beforeEach(() => installMatchMedia());
 
@@ -51,16 +52,20 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     container.innerHTML = renderToString(<Projects projects={list} />);
     expect(container.querySelector("h2")).toHaveTextContent("Selected Projects");
     expect(container.querySelectorAll("article")).toHaveLength(16);
-    for (const element of container.querySelectorAll("h2, article h3")) {
+    for (const element of container.querySelectorAll("h2, h3, button")) {
       for (let node: Element | null = element; node; node = node.parentElement) {
         expect((node as HTMLElement).style.opacity).not.toBe("0");
       }
     }
   });
 
-  it("keeps the grid entrance stable during rapid filtering and pagination", () => {
+  it("keeps the grid entrance stable during rapid filtering and pagination", async () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
-    render(<ProjectsBrowser projects={list} />);
+    render(
+      <MotionProvider>
+        <ProjectsBrowser projects={list} />
+      </MotionProvider>,
+    );
     const grid = screen.getByRole("heading", { name: "Project 11" }).closest("article")
       ?.parentElement?.parentElement;
     for (const name of [/^Desktop Apps/, /^Websites/, /^Desktop Apps/]) {
@@ -76,8 +81,46 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     const added = screen.getByRole("heading", { name: "Project 18" }).closest("article");
     expect(added?.parentElement?.parentElement).toBe(grid);
-    expect(added?.parentElement).not.toHaveStyle({ opacity: "0" });
+    await waitFor(
+      () => expect(added?.parentElement).toHaveStyle({ opacity: "1", transform: "none" }),
+      { timeout: 1800 },
+    );
   });
+
+  it.each([
+    ["desktop", true, false, false],
+    ["mobile portrait", false, true, false],
+    ["mobile landscape", false, true, true],
+  ])(
+    "animates category changes with fade and zoom on %s",
+    async (_profile, desktop, mobile, landscape) => {
+      installMatchMedia({
+        [EXPRESSIVE_MOTION_QUERY]: desktop,
+        "(max-width: 1023px)": mobile,
+        "(orientation: landscape)": landscape,
+      });
+      render(
+        <MotionProvider>
+          <ProjectsBrowser projects={list} />
+        </MotionProvider>,
+      );
+      fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
+      const entrance = screen
+        .getByRole("heading", { name: "Project 11" })
+        .closest("article")!.parentElement!;
+      const grid = entrance.parentElement;
+      expect(entrance).toHaveStyle({ opacity: "0", transform: "scale(0.9)" });
+      await waitFor(() => expect(entrance).toHaveStyle({ opacity: "1", transform: "none" }), {
+        timeout: 1800,
+      });
+      fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
+      const next = screen
+        .getByRole("heading", { name: "Project 19" })
+        .closest("article")!.parentElement!;
+      expect(next.parentElement).toBe(grid);
+      expect(next).toHaveStyle({ opacity: "0", transform: "scale(0.9)" });
+    },
+  );
 
   it.each([1, 3, 11])(
     "opens Quick View from project %i and closes it without hiding its card",

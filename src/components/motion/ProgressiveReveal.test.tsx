@@ -102,6 +102,21 @@ afterEach(() => {
 });
 
 describe("ProgressiveReveal", () => {
+  it.each([false, true])("fades Featured cards in from the left on desktop=%s", (desktop) => {
+    matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+    const { container } = render(
+      <ProgressiveReveal effect="fade-from-left" duration={0.7} delay={0}>
+        Featured
+      </ProgressiveReveal>,
+    );
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledWith({
+      opacity: [0, 1],
+      x: [-48, 0],
+      transition: { duration: 0.7, delay: 0, ease: [0.22, 1, 0.36, 1] },
+    });
+  });
+
   it.each([
     [1440, 900, true],
     [390, 844, false],

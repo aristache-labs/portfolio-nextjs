@@ -25,6 +25,7 @@ export function ProgressiveReveal({
   effect?:
     | "rise"
     | "fade"
+    | "fade-from-left"
     | "slide"
     | "slide-from-right"
     | "fade-from-right"
@@ -111,6 +112,7 @@ export function ProgressiveReveal({
             opacity: effect === "slide-from-right" ? 1 : [0, 1],
             ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
             ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
+            ...(effect === "fade-from-left" ? { x: [-48, 0] } : {}),
             ...(fromRight ? { x: [rightStart, 0] } : {}),
             ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
             ...(effect === "zoom" ? { scale: [0.9, 1] } : {}),
@@ -159,7 +161,7 @@ export function ProgressiveReveal({
   if (fromRight) {
     return (
       <div ref={element} className={className}>
-        <m.div initial={false} animate={controls}>
+        <m.div className="w-full min-w-0" initial={false} animate={controls}>
           {children}
         </m.div>
       </div>
