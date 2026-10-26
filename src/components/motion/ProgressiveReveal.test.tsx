@@ -186,6 +186,19 @@ describe("ProgressiveReveal", () => {
     });
   });
 
+  it.each([false, true])("uses a restrained title scale on desktop=%s", (desktop) => {
+    matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+    const { container } = render(<ProgressiveReveal effect="focus">Heading</ProgressiveReveal>);
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledWith({
+      opacity: [0, 1],
+      scale: [desktop ? 0.97 : 0.99, 1],
+      transition: { duration: 1, delay: 0, ease: [0.22, 1, 0.36, 1] },
+    });
+    change(REDUCED_MOTION_QUERY, true);
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0, scale: 1 });
+  });
+
   it.each([false, true])("coordinates nearby groups only on desktop (%s)", (desktop) => {
     matches[EXPRESSIVE_MOTION_QUERY] = desktop;
     const { container } = render(

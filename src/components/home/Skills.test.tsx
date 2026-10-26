@@ -1,47 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { createElement } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { Skills } from "./Skills";
-
-vi.mock("framer-motion", () => {
-  const motion = new Proxy(
-    {},
-    {
-      get: (_target, tag: string) => {
-        const Comp = ({
-          children,
-          className,
-          role,
-          onClick,
-          href,
-          type,
-          "aria-selected": ariaSelected,
-        }: {
-          children?: React.ReactNode;
-          className?: string;
-          role?: string;
-          onClick?: () => void;
-          href?: string;
-          type?: "button" | "submit" | "reset";
-          "aria-selected"?: boolean;
-        }) => {
-          return createElement(
-            tag,
-            { className, role, onClick, href, type, "aria-selected": ariaSelected },
-            children,
-          );
-        };
-        return Comp;
-      },
-    },
-  );
-  return {
-    m: motion,
-    AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  };
-});
 
 vi.mock("next/image", () => ({
   default: ({ src, alt, width, height, className }: React.ImgHTMLAttributes<HTMLImageElement>) => (
@@ -140,6 +101,31 @@ describe("Skills", () => {
     expect(screen.getByText("TypeScript")).toBeInTheDocument();
     expect(screen.getByText("Node.js")).toBeInTheDocument();
     expect(screen.getByText("PostgreSQL")).toBeInTheDocument();
+  });
+
+  it("serves visible skill text and final level bars without waiting for animation", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<Skills skills={mockSkills} />);
+    const name = container.querySelector('[title="React"]');
+    expect(name).not.toBeNull();
+    for (let node = name; node; node = node.parentElement) {
+      expect((node as HTMLElement).style.opacity).not.toBe("0");
+    }
+    expect([...container.querySelectorAll("span")].some((node) => node.style.width === "90%")).toBe(
+      true,
+    );
+  });
+
+  it("keeps the entrance group mounted during rapid category changes", () => {
+    render(<Skills skills={mockSkills} />);
+    const group = screen.getByText("React").closest(".grid");
+    expect(group).not.toBeNull();
+    for (const category of ["Backend", "Frontend", "Backend"]) {
+      fireEvent.click(screen.getByRole("tab", { name: category }));
+    }
+    expect(screen.queryByText("React")).not.toBeInTheDocument();
+    expect(screen.getByText("Node.js").closest(".grid")).toBe(group);
+    expect(group).not.toHaveStyle({ opacity: "0" });
   });
 
   it("renders category filters from the skill list", () => {

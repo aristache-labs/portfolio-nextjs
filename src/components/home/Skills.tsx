@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { m } from "framer-motion";
-import { useReducedMotionProps } from "@/hooks/useReducedMotion";
+import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Quote, Zap } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SectionBackdrop } from "./SectionBackdrop";
@@ -38,7 +39,7 @@ function mostUsedSkills(skills: SkillRow[]) {
 }
 
 export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?: string }) {
-  const reducedMotionProps = useReducedMotionProps();
+  const { mode } = useAnimationPolicy();
   const sectionRef = useRef<HTMLElement>(null);
   const [iconsNear, setIconsNear] = useState(false);
 
@@ -113,16 +114,11 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
               <span aria-hidden className={labelCss.rule} />
             </div>
 
-            <m.h2
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              {...reducedMotionProps}
-              className="font-display mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap"
-            >
-              Tools I <span className="gradient-text">trust</span>
-            </m.h2>
+            <ProgressiveReveal effect="focus" className={responsiveCss.title}>
+              <h2 className="font-display mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap">
+                Tools I <span className="gradient-text">trust</span>
+              </h2>
+            </ProgressiveReveal>
             <aside className={responsiveCss.quoteAnchor}>
               <blockquote className={responsiveCss.quote}>
                 <Quote aria-hidden className={responsiveCss.quoteIcon} />
@@ -134,9 +130,15 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 <span aria-hidden className={responsiveCss.quoteAccent} />
               </blockquote>
             </aside>
-            <p className={`${subtitleCss.subtitle} mt-4 max-w-xl`}>
-              Infrastructure on one side, web and mobile development on the other.
-            </p>
+            <ProgressiveReveal
+              effect="fade"
+              desktopDelay={0.08}
+              className={responsiveCss.description}
+            >
+              <p className={`${subtitleCss.subtitle} mt-4 max-w-xl`}>
+                Infrastructure on one side, web and mobile development on the other.
+              </p>
+            </ProgressiveReveal>
           </div>
         </div>
 
@@ -144,78 +146,76 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           <div aria-hidden className="hidden lg:block" />
 
           <div className="min-w-0">
-            <div className="mb-5 text-center">
-              <m.span
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-                {...reducedMotionProps}
-                className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium"
-              >
-                <Zap className="fill-brand-mid text-brand-mid size-3.5" />
-                My Toolbox
-              </m.span>
-            </div>
-            {ordered.length > 0 && (
-              <m.div
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-                {...reducedMotionProps}
-                className="flex flex-wrap items-center gap-2 max-lg:justify-center"
-                role="tablist"
-                aria-label="Filter skills by category"
-              >
-                {[MOST_USED, ...categories].map((value) => {
-                  const selected = active === value;
-                  return (
-                    <m.button
-                      key={value}
-                      type="button"
-                      role="tab"
-                      aria-selected={selected}
-                      onClick={() => setFilter(value)}
-                      whileHover={{ y: -2 }}
-                      whileTap={{ scale: 0.97 }}
-                      {...reducedMotionProps}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
-                        selected
-                          ? "border-brand-bright/60 bg-(image:--gradient-brand) text-white"
-                          : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
-                      }`}
-                    >
-                      {value}
-                    </m.button>
-                  );
-                })}
-              </m.div>
-            )}
+            <ProgressiveReveal effect="fade">
+              <div className="mb-5 text-center">
+                <span className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium">
+                  <Zap className="fill-brand-mid text-brand-mid size-3.5" />
+                  My Toolbox
+                </span>
+              </div>
+              {ordered.length > 0 && (
+                <div
+                  className="flex flex-wrap items-center gap-2 max-lg:justify-center"
+                  role="tablist"
+                  aria-label="Filter skills by category"
+                >
+                  {[MOST_USED, ...categories].map((value) => {
+                    const selected = active === value;
+                    return (
+                      <m.button
+                        key={value}
+                        type="button"
+                        role="tab"
+                        aria-selected={selected}
+                        onClick={() => setFilter(value)}
+                        whileHover={mode === "expressive" ? { y: -2 } : undefined}
+                        whileTap={mode === "static" ? undefined : { scale: 0.98 }}
+                        className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
+                          selected
+                            ? "border-brand-bright/60 bg-(image:--gradient-brand) text-white"
+                            : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
+                        }`}
+                      >
+                        {value}
+                      </m.button>
+                    );
+                  })}
+                </div>
+              )}
+            </ProgressiveReveal>
 
-            <m.div
-              key={active}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.15 }}
-              {...reducedMotionProps}
+            <ProgressiveReveal
+              effect="cascade"
               className="mt-4 grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4 [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:mx-auto [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:max-w-[640px]"
             >
-              {/* Replace the whole group so rapid selections cannot retain exiting cards
-                  or stale layout transforms from an earlier category. */}
-              {visible.map((skill, index) => (
-                <div key={`${skill.category}-${skill.name}`} className="min-w-0">
+              {/* Keep the entrance wrapper stable while replacing category contents immediately. */}
+              {visible.map((skill) => (
+                <m.div
+                  key={`${active}-${skill.category}-${skill.name}`}
+                  initial={false}
+                  variants={{
+                    hidden: mode === "expressive" ? { opacity: 0, y: 16 } : { opacity: 1, y: 0 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: mode === "expressive" ? 0.8 : 0,
+                        ease: [0.22, 1, 0.36, 1],
+                      },
+                    },
+                  }}
+                  className="min-w-0"
+                >
                   <SkillCard
                     name={skill.name}
                     iconPath={skill.iconPath}
                     category={skill.category}
                     level={skill.level}
-                    index={index}
                     loadIcon={iconsNear}
                   />
-                </div>
+                </m.div>
               ))}
-            </m.div>
+            </ProgressiveReveal>
           </div>
         </div>
       </div>

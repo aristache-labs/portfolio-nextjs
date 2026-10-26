@@ -15,7 +15,7 @@ export function ProgressiveReveal({
   children: ReactNode;
   className?: string;
   desktopDelay?: number;
-  effect?: "rise" | "fade" | "slide";
+  effect?: "rise" | "fade" | "slide" | "focus" | "cascade";
 }) {
   const { mode, ready } = useAnimationPolicy();
   const controls = useAnimationControls();
@@ -31,7 +31,9 @@ export function ProgressiveReveal({
       finished.current = true;
       observer?.disconnect();
       controls.stop();
-      controls.set(VISIBLE);
+      controls.set(
+        effect === "cascade" ? "visible" : effect === "focus" ? { ...VISIBLE, scale: 1 } : VISIBLE,
+      );
     };
     const onScrollEnd = () => {
       // A jump can skip the observer's intersection entirely. Check once after scrolling.
@@ -66,10 +68,15 @@ export function ProgressiveReveal({
           }
           finished.current = true;
           observer?.disconnect();
+          if (effect === "cascade") {
+            void controls.start("visible");
+            return;
+          }
           void controls.start({
             opacity: [0, 1],
             ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
             ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
+            ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
             transition: {
               duration: 1,
               delay: expressive ? desktopDelay : 0,
@@ -83,7 +90,7 @@ export function ProgressiveReveal({
         },
       );
       // Prepare only offscreen content, before it can be seen during scrolling.
-      controls.set({ opacity: 0, x: 0, y: 0 });
+      controls.set(effect === "cascade" ? "hidden" : { opacity: 0, x: 0, y: 0 });
       observer.observe(node);
       window.addEventListener("scrollend", onScrollEnd);
       node.addEventListener("focusin", onFocus);
@@ -99,7 +106,27 @@ export function ProgressiveReveal({
   }, [controls, desktopDelay, effect, mode, ready]);
 
   return (
-    <m.div ref={element} className={className} initial={false} animate={controls}>
+    <m.div
+      ref={element}
+      className={className}
+      initial={false}
+      animate={controls}
+      variants={
+        effect === "cascade"
+          ? {
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  duration: mode === "static" ? 0 : 1,
+                  staggerChildren: mode === "expressive" ? 0.045 : 0,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              },
+            }
+          : undefined
+      }
+    >
       {children}
     </m.div>
   );

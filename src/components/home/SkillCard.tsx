@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { m } from "framer-motion";
-import { useReducedMotionProps } from "@/hooks/useReducedMotion";
+import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 
 const LEVEL_PERCENT: Record<string, number> = {
   Expert: 90,
@@ -28,17 +28,15 @@ export function SkillCard({
   iconPath,
   category,
   level,
-  index,
   loadIcon = true,
 }: {
   name: string;
   iconPath: string;
   category: string;
   level?: string | null;
-  index: number;
   loadIcon?: boolean;
 }) {
-  const reducedMotionProps = useReducedMotionProps();
+  const { mode } = useAnimationPolicy();
   const src = skillIconSrc(iconPath);
   const percent = skillPercent(level);
   const icon = (
@@ -55,8 +53,7 @@ export function SkillCard({
   return (
     <m.div
       transition={{ duration: 0.2 }}
-      whileHover={{ y: -4 }}
-      {...reducedMotionProps}
+      whileHover={mode === "expressive" ? { y: -3 } : undefined}
       className="group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5"
     >
       <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
@@ -79,12 +76,8 @@ export function SkillCard({
 
       {percent != null && (
         <span className="mt-2 block h-1 w-full overflow-hidden rounded-full bg-white/10">
-          <m.span
-            initial={{ width: 0 }}
-            whileInView={{ width: `${percent}%` }}
-            viewport={{ once: true, margin: "-30px" }}
-            transition={{ duration: 1, delay: 0.2 + (index % 8) * 0.06, ease: [0.22, 1, 0.36, 1] }}
-            {...reducedMotionProps}
+          <span
+            style={{ width: `${percent}%` }}
             className="block h-full rounded-full bg-(image:--gradient-brand) shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.6)]"
           />
         </span>

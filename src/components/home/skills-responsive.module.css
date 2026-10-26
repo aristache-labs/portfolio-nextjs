@@ -21,14 +21,17 @@
   position: relative;
 }
 
-.heading h2 {
+.title {
   grid-column: 1;
   grid-row: 2;
+}
+
+.heading h2 {
   white-space: normal;
   text-wrap: initial;
 }
 
-.heading > p {
+.description {
   grid-column: 1 / -1;
   grid-row: 3;
 }
