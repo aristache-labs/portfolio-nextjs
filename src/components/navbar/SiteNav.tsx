@@ -185,7 +185,7 @@ export function SiteNav({
         ref={headerRef}
         initial={reduce ? false : { y: -70, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.2, ease: [0.52, 1, 0.26, 1] }}
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-all duration-300",
           open

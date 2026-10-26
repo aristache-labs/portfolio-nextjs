@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type MouseEvent, type RefObject } from "re
 import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { EncryptedText } from "@/components/ui/encrypted-text";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
@@ -33,7 +34,7 @@ const PLATE =
 
 // CSS owns copy entrances so mobile never waits for hydration to reveal its LCP text.
 function entranceStyle(delay: number) {
-  return { animationDelay: `${delay * 0.14}s` };
+  return { animationDelay: `${delay * 0.54}s` };
 }
 
 /** Mounted only for desktop motion, so touch devices never create pointer springs. */
@@ -397,13 +398,18 @@ export function Hero({
 
             {profile.roles.length > 0 && (
               <p
-                style={entranceStyle(1)}
-                className={`${styles.enter} ${styles.roles} text-muted mt-6 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[8px] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:relative [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-top-1 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
+                className={`${styles.roles} text-muted mt-6 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[8px] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:relative [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-top-1 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
               >
                 {profile.roles.map((role, i) => (
                   <span key={role}>
                     {i > 0 && " · "}
-                    <span className="whitespace-nowrap md:whitespace-normal">{role}</span>
+                    <EncryptedText
+                      text={role}
+                      revealDelayMs={70}
+                      encryptedClassName="text-white/30"
+                      revealedClassName="text-muted"
+                      className="whitespace-nowrap md:whitespace-normal"
+                    />
                   </span>
                 ))}
               </p>
