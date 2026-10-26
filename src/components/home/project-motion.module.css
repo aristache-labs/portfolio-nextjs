@@ -1,0 +1,22 @@
+/* Keep touch interactions static; hover enhancement follows the shared desktop policy. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .card {
+    transition:
+      translate 350ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 350ms ease,
+      border-color 350ms ease;
+  }
+
+  .card:hover {
+    translate: 0 -5px;
+    box-shadow: 0 18px 40px rgb(var(--brand-mid-rgb) / 0.12);
+  }
+
+  .cover {
+    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .card:hover .cover {
+    transform: scale(1.035);
+  }
+}

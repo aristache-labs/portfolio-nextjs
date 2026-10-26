@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { m, useScroll, useSpring, useTransform } from "framer-motion";
 import { MapPin } from "lucide-react";
-import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion";
+import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
 import labelCss from "@/components/ui/section-label.module.css";
@@ -14,22 +15,68 @@ import subtitleCss from "./section-subtitle.module.css";
 import spacing from "./experience-projects-spacing.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
 const TIMELINE_SPRING = { stiffness: 120, damping: 30, restDelta: 0.001 };
 
-/** Scroll-in props shared with Skills and Contact; immediately visible when motion is reduced. */
-function rise(reduce: boolean, y: number, duration: number, delay = 0) {
-  if (reduce) return REDUCED_MOTION_PROPS;
-  return {
-    initial: { opacity: 0, y },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true },
-    transition: { duration, delay, ease: EASE },
-  };
+/** Mounted only on desktop so touch devices have no continuous scroll subscriptions. */
+function DesktopTimelineRail({ listRef }: { listRef: RefObject<HTMLDivElement | null> }) {
+  const { scrollYProgress } = useScroll({
+    target: listRef,
+    offset: ["start 70%", "end 60%"],
+  });
+  const fill = useSpring(scrollYProgress, TIMELINE_SPRING);
+  const scaleY = useTransform(fill, [0, 1], [0, 1]);
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list || typeof IntersectionObserver !== "function") return;
+    const entries = Array.from(list.querySelectorAll<HTMLElement>("[data-experience-id]"));
+    const visible = new Set<Element>();
+    let observer: IntersectionObserver;
+    let active = true;
+    const connect = () => {
+      observer?.disconnect();
+      visible.clear();
+      entries.forEach((entry) => entry.removeAttribute("data-timeline-active"));
+      observer = new IntersectionObserver(
+        (records) => {
+          if (!active) return;
+          for (const record of records) {
+            if (record.isIntersecting) visible.add(record.target);
+            else visible.delete(record.target);
+          }
+          const current = entries.find((entry) => visible.has(entry));
+          entries.forEach((entry) => {
+            if (entry === current) entry.setAttribute("data-timeline-active", "true");
+            else entry.removeAttribute("data-timeline-active");
+          });
+        },
+        {
+          rootMargin: `-${Math.round(window.innerHeight * 0.25)}px 0px -${Math.round(window.innerHeight * 0.45)}px 0px`,
+        },
+      );
+      entries.forEach((entry) => observer.observe(entry));
+    };
+    connect();
+    window.addEventListener("resize", connect);
+    return () => {
+      active = false;
+      observer.disconnect();
+      window.removeEventListener("resize", connect);
+      entries.forEach((entry) => entry.removeAttribute("data-timeline-active"));
+    };
+  }, [listRef]);
+
+  return (
+    <m.span
+      aria-hidden
+      style={{ scaleY }}
+      className="absolute top-6 bottom-6 left-[5.5px] w-px origin-top bg-(image:--gradient-brand)"
+    />
+  );
 }
 
 function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number; last: boolean }) {
-  const reduce = useReducedMotion();
+  const { mode } = useAnimationPolicy();
   const desktop = useMediaQuery("(min-width: 1024px)");
   const previewCount = desktop ? 2 : 1;
   const [expanded, setExpanded] = useState(false);
@@ -38,12 +85,16 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
     <div className="flex gap-4 sm:gap-5">
       {/* Rail dot (the connector line is drawn once for the whole list) */}
       <div className="relative flex w-3 shrink-0 justify-center">
-        <span className="bg-background z-10 mt-[18px] size-3 shrink-0 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15" />
+        <span
+          className={`${styles.dot} bg-background z-10 mt-[18px] size-3 shrink-0 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15`}
+        />
       </div>
 
       {/* Card content */}
       <div className={cn("min-w-0 flex-1 pb-6 sm:pb-8", last && "pb-0")}>
-        <div className="bg-background/100 w-full rounded-2xl border border-(--brand-mid)/25 px-4 py-4 backdrop-blur-sm sm:px-5">
+        <div
+          className={`${styles.card} bg-background/100 w-full rounded-2xl border border-(--brand-mid)/25 px-4 py-4 backdrop-blur-sm sm:px-5`}
+        >
           <p className="font-mono text-xs leading-none tracking-[0.18em] text-(--period) uppercase">
             {exp.period}
           </p>
@@ -113,19 +164,15 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
     </div>
   );
 
-  if (reduce) {
-    return <li>{inner}</li>;
-  }
-
   return (
-    <m.li
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.12), ease: EASE }}
-    >
-      {inner}
-    </m.li>
+    <li className={styles.entry} data-experience-id={exp.id}>
+      <ProgressiveReveal
+        effect={mode === "expressive" ? "slide" : "fade"}
+        desktopDelay={Math.min(index * 0.04, 0.12)}
+      >
+        {inner}
+      </ProgressiveReveal>
+    </li>
   );
 }
 
@@ -137,16 +184,8 @@ export function Experience({
   number?: string;
 }) {
   const sorted = [...experiences].sort((a, b) => a.order - b.order);
-  const reduce = useReducedMotion();
+  const { mode } = useAnimationPolicy();
   const listRef = useRef<HTMLDivElement>(null);
-
-  // Track scroll through the list and fill the connector rail as it passes.
-  const { scrollYProgress } = useScroll({
-    target: listRef,
-    offset: ["start 70%", "end 60%"],
-  });
-  const fill = useSpring(scrollYProgress, TIMELINE_SPRING);
-  const scaleY = useTransform(fill, [0, 1], [0, 1]);
 
   return (
     <Section
@@ -175,22 +214,23 @@ export function Experience({
       <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
         <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start">
           <div className="mb-5">
-            <m.p {...rise(reduce, 16, 0.6)} className={labelCss.label}>
+            <p className={labelCss.label}>
               <span className={labelCss.number}>{number}</span>
               <span>Experience</span>
               <span aria-hidden className={labelCss.rule} />
-            </m.p>
-            <m.h2
-              {...rise(reduce, 28, 0.8, 0.1)}
-              className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap"
-            >
-              Where I&apos;ve <span className="gradient-text">worked</span>
-            </m.h2>
+            </p>
+            <ProgressiveReveal effect="fade">
+              <h2 className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap">
+                Where I&apos;ve <span className="gradient-text">worked</span>
+              </h2>
+            </ProgressiveReveal>
           </div>
-          <m.p {...rise(reduce, 18, 0.7, 0.18)} className={`${subtitleCss.subtitle} max-w-md`}>
-            Enterprise deployments, infrastructure operations and automation across international
-            restaurant locations.
-          </m.p>
+          <ProgressiveReveal effect="slide" desktopDelay={0.08}>
+            <p className={`${subtitleCss.subtitle} max-w-md`}>
+              Enterprise deployments, infrastructure operations and automation across international
+              restaurant locations.
+            </p>
+          </ProgressiveReveal>
         </div>
 
         <div ref={listRef} className="relative">
@@ -199,11 +239,11 @@ export function Experience({
           {sorted.length > 1 && (
             <>
               <span aria-hidden className="bg-border absolute top-6 bottom-6 left-[5.5px] w-px" />
-              <m.span
+              <span
                 aria-hidden
-                style={reduce ? { transform: "scaleY(1)" } : { scaleY }}
-                className="absolute top-6 bottom-6 left-[5.5px] w-px origin-top bg-(image:--gradient-brand)"
+                className="absolute top-6 bottom-6 left-[5.5px] w-px bg-(image:--gradient-brand) opacity-30"
               />
+              {mode === "expressive" && <DesktopTimelineRail listRef={listRef} />}
             </>
           )}
           <ol className="relative">

@@ -1,8 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { Footer } from "./Footer";
 import type { SocialRow } from "@/components/home/Contact";
+import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+import layout from "./footer-layout.module.css";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 
 // Mock next/link
 vi.mock("next/link", () => ({
@@ -16,28 +20,6 @@ vi.mock("next/link", () => ({
     </a>
   ),
 }));
-
-// Mock framer-motion to avoid jsdom animation issues
-vi.mock("framer-motion", () => {
-  const motionProps = ["initial", "animate", "whileInView", "viewport", "transition"];
-  const passthrough = (tag: string) => {
-    function Passthrough({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) {
-      for (const key of motionProps) delete props[key];
-      const Comp = tag as "div";
-      return <Comp {...props}>{children}</Comp>;
-    }
-    return Passthrough;
-  };
-  return {
-    m: {
-      div: passthrough("div"),
-      nav: passthrough("nav"),
-      h2: passthrough("h2"),
-      p: passthrough("p"),
-      span: passthrough("span"),
-    },
-  };
-});
 
 const mockSocials: SocialRow[] = [
   {
@@ -62,6 +44,90 @@ const mockSocials: SocialRow[] = [
 
 describe("Footer", () => {
   beforeEach(() => installMatchMedia());
+  afterEach(() => vi.restoreAllMocks());
+
+  it("serves visible copy and navigation without waiting for hydration", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<Footer socials={mockSocials} />);
+    expect(container.querySelector('nav[aria-label="Explore"]')).not.toBeNull();
+    for (const element of container.querySelectorAll("h2, a")) {
+      for (let node: Element | null = element; node; node = node.parentElement) {
+        expect((node as HTMLElement).style.opacity).not.toBe("0");
+      }
+    }
+  });
+
+  it("keeps the logo outside entrance wrappers", () => {
+    const { container } = render(<Footer socials={mockSocials} />);
+    const image = container.querySelector('img[src="/brand/logo.svg"]');
+    expect(image).not.toBeNull();
+    for (let node = image; node; node = node.parentElement) {
+      expect((node as HTMLElement).style.opacity).toBe("");
+      expect((node as HTMLElement).style.transform).toBe("");
+    }
+  });
+
+  it("preserves direct-child layout rules for the mobile CTA and legal row", () => {
+    const { container } = render(<Footer socials={mockSocials} />);
+    expect(screen.getByRole("link", { name: /send a message/i }).parentElement).toHaveClass(
+      layout.contact,
+    );
+    expect(container.getElementsByClassName(layout.legal)[0].lastElementChild?.tagName).toBe("P");
+  });
+
+  it("preserves cross-page anchor URLs on secondary routes", () => {
+    render(<Footer socials={mockSocials} homeHrefPrefix="/" />);
+    const navigation = screen.getByRole("navigation", { name: "Explore" });
+    expect(within(navigation).getByRole("link", { name: "Home" })).toHaveAttribute(
+      "href",
+      "/#hero",
+    );
+    expect(within(navigation).getByRole("link", { name: "Projects" })).toHaveAttribute(
+      "href",
+      "/#projects",
+    );
+    expect(screen.getByRole("link", { name: /send a message/i })).toHaveAttribute(
+      "href",
+      "/#contact",
+    );
+    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+  });
+
+  it("keeps the footer static with reduced motion", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [REDUCED_MOTION_QUERY]: true });
+    const { container } = render(<Footer socials={mockSocials} />);
+    expect(container.querySelector('[style*="opacity: 0"]')).toBeNull();
+    expect(screen.getByRole("link", { name: "Privacy" })).toBeVisible();
+  });
+
+  it("reveals the navigation immediately when keyboard focus reaches an offscreen link", async () => {
+    const originalObserver = globalThis.IntersectionObserver;
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      top: 2000,
+    } as DOMRect);
+    const { unmount } = render(
+      <MotionProvider>
+        <Footer socials={mockSocials} />
+      </MotionProvider>,
+    );
+    try {
+      const navigation = screen.getByRole("navigation", { name: "Explore" });
+      await waitFor(() => expect(navigation.parentElement).toHaveStyle({ opacity: "0" }));
+      act(() => within(navigation).getByRole("link", { name: "Home" }).focus());
+      await waitFor(() => expect(navigation.parentElement).toHaveStyle({ opacity: "1" }));
+    } finally {
+      unmount();
+      vi.stubGlobal("IntersectionObserver", originalObserver);
+    }
+  });
 
   it("renders the footer element", () => {
     const { container } = render(<Footer socials={mockSocials} />);

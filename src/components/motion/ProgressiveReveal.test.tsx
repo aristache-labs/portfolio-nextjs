@@ -164,6 +164,19 @@ describe("ProgressiveReveal", () => {
     expect(controls.start).not.toHaveBeenCalled();
   });
 
+  it("finishes an active entrance immediately when a link receives focus", () => {
+    const { container, getByRole } = render(
+      <ProgressiveReveal>
+        <a href="#contact">Contact</a>
+      </ProgressiveReveal>,
+    );
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledTimes(1);
+    act(() => getByRole("link").focus());
+    expect(controls.stop).toHaveBeenCalled();
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0 });
+  });
+
   it.each([false, true])("slides headings horizontally on desktop=%s", (desktop) => {
     matches[EXPRESSIVE_MOTION_QUERY] = desktop;
     const { container } = render(<ProgressiveReveal effect="slide">Heading</ProgressiveReveal>);
@@ -184,6 +197,18 @@ describe("ProgressiveReveal", () => {
       opacity: [0, 1],
       transition: { duration: 1, delay: 0, ease: [0.22, 1, 0.36, 1] },
     });
+  });
+
+  it("draws a decorative line and resets it immediately for reduced motion", () => {
+    const { container } = render(<ProgressiveReveal effect="line">Accent</ProgressiveReveal>);
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledWith({
+      opacity: [0, 1],
+      scaleX: [0, 1],
+      transition: { duration: 1, delay: 0, ease: [0.22, 1, 0.36, 1] },
+    });
+    change(REDUCED_MOTION_QUERY, true);
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0, scaleX: 1 });
   });
 
   it.each([false, true])("uses a restrained title scale on desktop=%s", (desktop) => {

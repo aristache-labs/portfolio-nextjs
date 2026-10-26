@@ -1,55 +1,22 @@
-import { describe, it, expect, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { Experience } from "./Experience";
 import type { ExperienceRow } from "@/lib/queries";
+import { installMatchMedia } from "@/test/matchMedia";
+import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+import { renderToString } from "react-dom/server";
 
-// Mock framer-motion to avoid jsdom animation issues
-vi.mock("framer-motion", () => ({
-  m: {
-    li: ({
-      children,
-      className,
-      style,
-      ...props
-    }: React.HTMLAttributes<HTMLLIElement> & { style?: React.CSSProperties }) => (
-      <li className={className} style={style} {...props}>
-        {children}
-      </li>
-    ),
-    p: ({ children, className }: React.HTMLAttributes<HTMLParagraphElement>) => (
-      <p className={className}>{children}</p>
-    ),
-    h2: ({ children, className }: React.HTMLAttributes<HTMLHeadingElement>) => (
-      <h2 className={className}>{children}</h2>
-    ),
-    span: ({
-      children,
-      className,
-      style,
-      ...props
-    }: React.HTMLAttributes<HTMLSpanElement> & { style?: React.CSSProperties }) => (
-      <span className={className} style={style} {...props}>
-        {children}
-      </span>
-    ),
-  },
-  // Scroll-progress hooks used by the connector rail; inert in jsdom.
-  useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
-  useSpring: (v: unknown) => v,
-  useTransform: () => 0,
-}));
-
-// Mock useReducedMotion — default: no reduced motion
-vi.mock("@/hooks/useReducedMotion", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/hooks/useReducedMotion")>()),
-  useReducedMotion: vi.fn(() => false),
-}));
-
-// Mock Reveal (wraps framer-motion internally)
-vi.mock("@/components/motion/Reveal", () => ({
-  Reveal: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
+const scrollHook = vi.hoisted(() => vi.fn());
+vi.mock("framer-motion", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("framer-motion")>();
+  return {
+    ...actual,
+    useScroll: (options: unknown) => {
+      scrollHook(options);
+      return { scrollYProgress: actual.useMotionValue(0) };
+    },
+  };
+});
 const mockExperiences: ExperienceRow[] = [
   {
     id: 1,
@@ -74,10 +41,107 @@ const mockExperiences: ExperienceRow[] = [
 ];
 
 describe("Experience", () => {
+  beforeEach(() => {
+    scrollHook.mockClear();
+    installMatchMedia();
+  });
+
   it("renders experience roles", () => {
     render(<Experience experiences={mockExperiences} />);
     expect(screen.getByText("Senior Software Engineer")).toBeInTheDocument();
     expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+  });
+
+  it("serves visible headings and ordered entries before hydration", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(
+      <Experience experiences={[...mockExperiences].reverse()} />,
+    );
+    expect(container.querySelectorAll("ol > li")).toHaveLength(2);
+    expect(container.querySelector("ol h3")).toHaveTextContent("Senior Software Engineer");
+    for (const element of container.querySelectorAll("h2, h3")) {
+      for (let node: Element | null = element; node; node = node.parentElement) {
+        expect((node as HTMLElement).style.opacity).not.toBe("0");
+      }
+    }
+    expect(scrollHook).not.toHaveBeenCalled();
+  });
+
+  it("keeps a static rail on touch devices even with a desktop-width layout", () => {
+    installMatchMedia({ "(min-width: 1024px)": true });
+    const { container } = render(<Experience experiences={mockExperiences} />);
+    expect(scrollHook).not.toHaveBeenCalled();
+    expect(container.querySelector("[data-timeline-active]")).toBeNull();
+    expect(screen.getByText("Led team of 5 engineers")).toBeVisible();
+  });
+
+  it("mounts the scroll rail only for expressive desktop motion", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
+    const { container } = render(<Experience experiences={mockExperiences} />);
+    expect(scrollHook).toHaveBeenCalledWith(
+      expect.objectContaining({ offset: ["start 70%", "end 60%"] }),
+    );
+    expect(scrollHook.mock.calls[0][0].target.current).toBe(
+      container.querySelector("ol")?.parentElement,
+    );
+  });
+
+  it("skips scroll tracking for an empty or single-entry timeline", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
+    const { rerender } = render(<Experience experiences={[]} />);
+    rerender(<Experience experiences={mockExperiences.slice(0, 1)} />);
+    expect(scrollHook).not.toHaveBeenCalled();
+  });
+
+  it("highlights the central entry on desktop and clears it when reduced motion is enabled", () => {
+    const originalObserver = globalThis.IntersectionObserver;
+    let notify: IntersectionObserverCallback;
+    const observed: Element[] = [];
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(private callback: IntersectionObserverCallback) {}
+        observe(target: Element) {
+          if (target.matches("[data-experience-id]")) {
+            observed.push(target);
+            notify = this.callback;
+          }
+        }
+        unobserve() {}
+        disconnect = disconnect;
+      },
+    );
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
+    const { container, rerender, unmount } = render(<Experience experiences={mockExperiences} />);
+    try {
+      expect(observed).toHaveLength(2);
+      act(() =>
+        notify!(
+          [{ target: observed[0], isIntersecting: true } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        ),
+      );
+      expect(observed[0]).toHaveAttribute("data-timeline-active", "true");
+      act(() =>
+        notify!(
+          [
+            { target: observed[0], isIntersecting: false } as IntersectionObserverEntry,
+            { target: observed[1], isIntersecting: true } as IntersectionObserverEntry,
+          ],
+          {} as IntersectionObserver,
+        ),
+      );
+      expect(observed[0]).not.toHaveAttribute("data-timeline-active");
+      expect(observed[1]).toHaveAttribute("data-timeline-active", "true");
+      installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [REDUCED_MOTION_QUERY]: true });
+      rerender(<Experience experiences={[...mockExperiences]} />);
+      expect(container.querySelector("[data-timeline-active]")).toBeNull();
+      expect(disconnect).toHaveBeenCalled();
+    } finally {
+      unmount();
+      vi.stubGlobal("IntersectionObserver", originalObserver);
+    }
   });
 
   it("renders experience orgs", () => {
@@ -107,14 +171,13 @@ describe("Experience", () => {
   });
 
   it("renders static fallback when reduced motion is preferred", async () => {
-    const { useReducedMotion } = await import("@/hooks/useReducedMotion");
-    vi.mocked(useReducedMotion).mockReturnValue(true);
+    installMatchMedia({ [REDUCED_MOTION_QUERY]: true, [EXPRESSIVE_MOTION_QUERY]: true });
 
     const { container } = render(<Experience experiences={mockExperiences} />);
     expect(container.querySelector("ol")).toBeTruthy();
     expect(screen.getByText("Senior Software Engineer")).toBeInTheDocument();
 
-    vi.mocked(useReducedMotion).mockReturnValue(false);
+    expect(scrollHook).not.toHaveBeenCalled();
   });
 
   it("renders empty state gracefully", () => {

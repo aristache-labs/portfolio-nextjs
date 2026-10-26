@@ -1,6 +1,7 @@
 "use client";
 
 import actionStyles from "./project-actions.module.css";
+import motionStyles from "./project-motion.module.css";
 
 import Image from "next/image";
 import { ExternalLink, GitFork, Github, Maximize2, Star } from "lucide-react";
@@ -57,7 +58,7 @@ function Cover({
       loading={priority ? undefined : "lazy"}
       quality={90}
       priority={priority}
-      className={`${fit} transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.02]`}
+      className={`${motionStyles.cover} ${fit}`}
     />
   ) : (
     <div className="size-full bg-(image:--gradient-brand) opacity-70" />
@@ -185,7 +186,7 @@ export function FeaturedCard({
   onQuickView: () => void;
 }) {
   return (
-    <article className={`${SHELL} flex flex-col`}>
+    <article className={`${motionStyles.card} ${SHELL} flex flex-col`}>
       <span className="pointer-events-none absolute top-[25px] -right-[39px] z-20 flex h-[30px] w-[160px] rotate-45 items-center justify-center border-y border-(--brand-mid)/50 bg-(--brand-deep) text-[11px] font-bold tracking-[0.12em] text-white shadow-sm">
         FEATURED
       </span>
@@ -233,7 +234,7 @@ export function RecentCard({
 }) {
   return (
     <article
-      className={`${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
+      className={`${motionStyles.card} ${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
     >
       <div
         className={`${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}

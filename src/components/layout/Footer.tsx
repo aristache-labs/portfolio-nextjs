@@ -1,18 +1,16 @@
 "use client";
 
-import { m } from "framer-motion";
 import { ArrowRight, ChevronRight, Mail, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { useReducedMotionProps } from "@/hooks/useReducedMotion";
+import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import type { SocialRow } from "@/components/home/social-icons";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
 import subtitleCss from "@/components/home/section-subtitle.module.css";
 import { SITE } from "@/lib/seo/site";
 import layout from "./footer-layout.module.css";
-
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 const LINKS = [
   { label: "Home", href: "#hero" },
@@ -31,13 +29,6 @@ const HEADING = "font-display text-[17px] font-semibold tracking-tight text-whit
 const FOCUS =
   "focus-visible:ring-brand-mid/70 focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none";
 
-const rise = (delay: number) => ({
-  initial: { opacity: 0, y: 22 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-40px" },
-  transition: { duration: 0.65, delay, ease: EASE },
-});
-
 export function Footer({
   sponsorUrl,
   homeHrefPrefix = "",
@@ -48,7 +39,7 @@ export function Footer({
   homeHrefPrefix?: string;
 }) {
   const year = new Date().getFullYear();
-  const reducedMotionProps = useReducedMotionProps();
+  const { mode } = useAnimationPolicy();
 
   return (
     <footer className={`${layout.footer} relative overflow-hidden`}>
@@ -77,49 +68,38 @@ export function Footer({
 
       <div className="site-container relative z-10 pt-6 pb-24 sm:pb-8 lg:pt-8">
         <div className={`${layout.intro} flex flex-col items-center text-center`}>
-          <m.h2
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.65, ease: EASE }}
-            {...reducedMotionProps}
-            className="font-display text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.1] font-extrabold tracking-tight text-white"
-          >
-            Thanks for <span className="gradient-text">visiting.</span>
-          </m.h2>
+          <ProgressiveReveal effect="fade">
+            <h2 className="font-display text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.1] font-extrabold tracking-tight text-white">
+              Thanks for <span className="gradient-text">visiting.</span>
+            </h2>
+          </ProgressiveReveal>
 
-          <m.p
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55, delay: 0.08 }}
-            {...reducedMotionProps}
-            className={`${subtitleCss.subtitle} mx-auto mt-2 max-w-[580px]`}
-          >
-            IT infrastructure, deployment automation, web and mobile development.
-          </m.p>
-          <m.div
-            initial={{ opacity: 0, scaleX: 0.9 }}
-            whileInView={{ opacity: 1, scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.14, ease: EASE }}
-            {...reducedMotionProps}
-            className="mx-auto mt-5 flex w-full max-w-[620px] items-center gap-4"
-          >
-            <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/25" />
+          <ProgressiveReveal effect="fade" desktopDelay={0.06}>
+            <p className={`${subtitleCss.subtitle} mx-auto mt-2 max-w-[580px]`}>
+              IT infrastructure, deployment automation, web and mobile development.
+            </p>
+          </ProgressiveReveal>
+          <div className="mx-auto mt-5 flex w-full max-w-[620px] items-center gap-4">
+            <ProgressiveReveal effect="line" className="flex-1 origin-right">
+              <span
+                aria-hidden
+                className="block h-px bg-gradient-to-r from-transparent to-white/25"
+              />
+            </ProgressiveReveal>
             <Sparkle className="fill-brand-mid text-brand-bright size-4 shrink-0 drop-shadow-[0_0_8px_rgb(var(--brand-mid-rgb)/0.8)]" />
-            <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/25" />
-          </m.div>
+            <ProgressiveReveal effect="line" className="flex-1 origin-left">
+              <span
+                aria-hidden
+                className="block h-px bg-gradient-to-l from-transparent to-white/25"
+              />
+            </ProgressiveReveal>
+          </div>
         </div>
 
         <div
           className={`${layout.columns} mt-6 grid grid-cols-1 items-center gap-x-10 gap-y-7 sm:mt-8 sm:grid-cols-2 sm:gap-y-8 lg:mt-10 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4`}
         >
-          <m.div
-            {...rise(0.05)}
-            {...reducedMotionProps}
-            className={`${layout.identity} flex min-w-0 flex-col items-center justify-center`}
-          >
+          <div className={`${layout.identity} flex min-w-0 flex-col items-center justify-center`}>
             <div className="flex flex-col items-center text-center">
               <Link
                 href={`${homeHrefPrefix}#hero`}
@@ -135,41 +115,47 @@ export function Footer({
                   className="h-32 w-auto sm:h-36 [@media(orientation:landscape)_and_(max-width:1024px)]:h-28"
                 />
               </Link>
-              <p className="mt-2 max-w-[290px] text-[15px] leading-relaxed text-white/70 sm:mt-2.5 sm:text-base [@media(orientation:landscape)_and_(max-width:1024px)]:text-[14px]">
-                {SITE.jobTitle}
-              </p>
+              <ProgressiveReveal effect="fade">
+                <p className="mt-2 max-w-[290px] text-[15px] leading-relaxed text-white/70 sm:mt-2.5 sm:text-base [@media(orientation:landscape)_and_(max-width:1024px)]:text-[14px]">
+                  {SITE.jobTitle}
+                </p>
+              </ProgressiveReveal>
             </div>
-          </m.div>
+          </div>
 
-          <m.nav
-            {...rise(0.12)}
-            {...reducedMotionProps}
-            aria-label="Explore"
+          <ProgressiveReveal
+            effect="fade"
+            desktopDelay={0.06}
             className={`${NAV_DIVIDER} max-sm:bg-background/40 max-sm:flex max-sm:flex-col max-sm:items-center max-sm:rounded-2xl max-sm:px-3.5 max-sm:py-2.5 lg:flex lg:flex-col lg:items-center [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
           >
-            <h3 className={`${HEADING} text-center`}>Explore</h3>
-            <ul className="mx-auto mt-2 grid w-full max-w-[280px] grid-cols-2 gap-x-2 gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-2">
-              {LINKS.map((link) => (
-                <li key={link.href} className={link.href === "#contact" ? "col-span-2" : undefined}>
-                  <Link
-                    scroll={!homeHrefPrefix}
-                    href={`${homeHrefPrefix}${link.href}`}
-                    className={`group flex min-h-11 items-center justify-center gap-1.5 rounded-md py-1 text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
+            <nav aria-label="Explore" className="w-full">
+              <h3 className={`${HEADING} text-center`}>Explore</h3>
+              <ul className="mx-auto mt-2 grid w-full max-w-[280px] grid-cols-2 gap-x-2 gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-2">
+                {LINKS.map((link) => (
+                  <li
+                    key={link.href}
+                    className={link.href === "#contact" ? "col-span-2" : undefined}
                   >
-                    <ChevronRight
-                      className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
-                      aria-hidden
-                    />
-                    <span>{link.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </m.nav>
+                    <Link
+                      scroll={!homeHrefPrefix}
+                      href={`${homeHrefPrefix}${link.href}`}
+                      className={`group flex min-h-11 items-center justify-center gap-1.5 rounded-md py-1 text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
+                    >
+                      <ChevronRight
+                        className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+                        aria-hidden
+                      />
+                      <span>{link.label}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </ProgressiveReveal>
 
-          <m.div
-            {...rise(0.19)}
-            {...reducedMotionProps}
+          <ProgressiveReveal
+            effect={mode === "expressive" ? "slide" : "fade"}
+            desktopDelay={0.12}
             className={`${layout.contact} ${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-stretch [@media(orientation:landscape)_and_(max-width:1024px)]:text-center`}
           >
             <h3 className={HEADING}>Let&apos;s Connect</h3>
@@ -189,15 +175,12 @@ export function Footer({
                 aria-hidden
               />
             </Button>
-          </m.div>
+          </ProgressiveReveal>
         </div>
 
-        <m.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.3, ease: EASE }}
-          {...reducedMotionProps}
+        <ProgressiveReveal
+          effect="fade"
+          desktopDelay={0.12}
           className={`${layout.legal} bg-background/80 mt-8 grid items-center gap-3 rounded-xl border border-white/10 px-5 py-3.5 text-center sm:mt-10 md:grid-cols-[1fr_auto_1fr] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
         >
           <div className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px]">
@@ -243,7 +226,7 @@ export function Footer({
           <p className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right">
             {SITE.handle}
           </p>
-        </m.div>
+        </ProgressiveReveal>
       </div>
     </footer>
   );

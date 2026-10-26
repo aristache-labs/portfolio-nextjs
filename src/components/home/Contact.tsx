@@ -2,8 +2,9 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Merienda } from "next/font/google";
-import { m } from "framer-motion";
-import { useReducedMotionProps } from "@/hooks/useReducedMotion";
+import { m, type Variants } from "framer-motion";
+import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { ArrowRight, ArrowUpRight, ChevronDown, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
@@ -18,8 +19,6 @@ import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./so
 export { platformIcon, type SocialIcon, type SocialRow };
 
 const SUBJECTS = ["Project Collaboration", "Job Opportunity", "Freelance Work", "General Question"];
-
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 const quoteFont = Merienda({
   subsets: ["latin"],
@@ -76,7 +75,18 @@ export function Contact({
 }) {
   const cardId = useId();
   const cards = cardsFor(socials, email);
-  const reducedMotionProps = useReducedMotionProps();
+  const { mode } = useAnimationPolicy();
+  const linkVariants: Variants = {
+    hidden: mode === "expressive" ? { opacity: 0, x: -12 } : { opacity: 1, x: 0 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: mode === "expressive" ? 0.8 : 0,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
   const [name, setName] = useState("");
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
@@ -186,153 +196,131 @@ export function Contact({
         className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10 [@media(orientation:landscape)_and_(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-height:500px)]:items-start [@media(orientation:landscape)_and_(max-height:500px)]:justify-between [@media(orientation:landscape)_and_(max-height:500px)]:gap-x-8 [@media(orientation:landscape)_and_(max-height:500px)]:gap-y-0"
       >
         <div className="min-w-0 lg:w-[42%] lg:max-w-[640px] [@media(orientation:landscape)_and_(max-height:500px)]:w-[42%]">
-          <m.p
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            {...reducedMotionProps}
-            className={labelCss.label}
-          >
+          <p className={labelCss.label}>
             <span className={labelCss.number}>{number}</span>
             <span>Contact</span>
             <span aria-hidden className={labelCss.rule} />
-          </m.p>
+          </p>
 
-          <m.h2
-            initial={{ opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.1, ease: EASE }}
-            {...reducedMotionProps}
-            className="font-display mt-6 text-[clamp(2rem,3.5vw,3.1rem)] leading-[1.08] font-extrabold tracking-tight text-white"
-          >
-            Discuss a <span className="gradient-text">project.</span>
-          </m.h2>
+          <ProgressiveReveal effect="slide">
+            <h2 className="font-display mt-6 text-[clamp(2rem,3.5vw,3.1rem)] leading-[1.08] font-extrabold tracking-tight text-white">
+              Discuss a <span className="gradient-text">project.</span>
+            </h2>
+          </ProgressiveReveal>
 
-          <m.p
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.18 }}
-            {...reducedMotionProps}
-            className={`${subtitleCss.subtitle} mt-4 max-w-[475px]`}
-          >
-            For infrastructure, automation, web and mobile projects, share your requirements below.
-          </m.p>
+          <ProgressiveReveal effect="fade" desktopDelay={0.08}>
+            <p className={`${subtitleCss.subtitle} mt-4 max-w-[475px]`}>
+              For infrastructure, automation, web and mobile projects, share your requirements
+              below.
+            </p>
+          </ProgressiveReveal>
 
           {cards.length > 0 && (
-            <ul className="mt-9 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-1 [@media(orientation:landscape)_and_(max-height:500px)]:gap-3">
-              {cards.map((card, index) => {
-                return (
-                  <m.li
-                    key={card.key}
-                    initial={{ opacity: 0, y: 22 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
-                    transition={{ duration: 0.55, delay: 0.25 + index * 0.1, ease: EASE }}
-                    {...reducedMotionProps}
-                  >
-                    <a
-                      href={card.href}
-                      aria-labelledby={`${cardId}-${index}-title ${cardId}-${index}-value`}
-                      {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                      className="group hover:border-brand-mid/45 relative flex h-full items-center gap-2.5 rounded-2xl border border-white/10 bg-(--bg) bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] p-3 transition-colors duration-300 sm:gap-2.5 sm:p-3"
-                    >
-                      {card.key === "email" ? (
-                        <IconTile size="sm">
-                          <SocialGlyph
-                            platform="gmail"
-                            className="size-6 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)]"
-                          />
-                        </IconTile>
-                      ) : (
-                        <span className="grid size-9 shrink-0 place-items-center">
-                          <SocialGlyph
-                            platform={card.title}
-                            className="size-8 object-contain drop-shadow-[0_4px_10px_rgb(0_0_0/0.4)]"
-                          />
+            <ProgressiveReveal effect="cascade" className="mt-9">
+              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-1 [@media(orientation:landscape)_and_(max-height:500px)]:gap-3">
+                {cards.map((card, index) => {
+                  return (
+                    <m.li key={card.key} initial={false} variants={linkVariants}>
+                      <a
+                        href={card.href}
+                        aria-labelledby={`${cardId}-${index}-title ${cardId}-${index}-value`}
+                        {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                        className="group hover:border-brand-mid/45 relative flex h-full items-center gap-2.5 rounded-2xl border border-white/10 bg-(--bg) bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] p-3 transition-colors duration-300 sm:gap-2.5 sm:p-3"
+                      >
+                        {card.key === "email" ? (
+                          <IconTile size="sm">
+                            <SocialGlyph
+                              platform="gmail"
+                              className="size-6 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)]"
+                            />
+                          </IconTile>
+                        ) : (
+                          <span className="grid size-9 shrink-0 place-items-center">
+                            <SocialGlyph
+                              platform={card.title}
+                              className="size-8 object-contain drop-shadow-[0_4px_10px_rgb(0_0_0/0.4)]"
+                            />
+                          </span>
+                        )}
+                        <span className="min-w-0">
+                          <span
+                            id={`${cardId}-${index}-title`}
+                            className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[14px]"
+                          >
+                            {card.title}
+                          </span>
+                          <span
+                            id={`${cardId}-${index}-value`}
+                            className={`mt-0.5 block text-[12px] text-white/75 sm:text-[12px] ${card.key === "email" ? "whitespace-nowrap" : "break-words"}`}
+                          >
+                            {card.value}
+                          </span>
                         </span>
-                      )}
-                      <span className="min-w-0">
-                        <span
-                          id={`${cardId}-${index}-title`}
-                          className="block pr-6 text-[14px] font-bold text-white capitalize sm:text-[14px]"
-                        >
-                          {card.title}
-                        </span>
-                        <span
-                          id={`${cardId}-${index}-value`}
-                          className={`mt-0.5 block text-[12px] text-white/75 sm:text-[12px] ${card.key === "email" ? "whitespace-nowrap" : "break-words"}`}
-                        >
-                          {card.value}
-                        </span>
-                      </span>
-                      <ArrowUpRight className="group-hover:text-brand-bright absolute top-3 right-3 size-4 text-white/40 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </a>
-                  </m.li>
-                );
-              })}
-            </ul>
+                        <ArrowUpRight className="group-hover:text-brand-bright absolute top-3 right-3 size-4 text-white/40 transition-all duration-300 motion-safe:group-hover:translate-x-0.5 motion-safe:group-hover:-translate-y-0.5 motion-reduce:transition-none" />
+                      </a>
+                    </m.li>
+                  );
+                })}
+              </ul>
+            </ProgressiveReveal>
           )}
-          <m.figure
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55, ease: EASE }}
-            {...reducedMotionProps}
-            className="border-brand-mid/20 bg-background/75 mt-8 max-w-[575px] rounded-3xl border p-5 shadow-[0_0_32px_-18px_rgb(var(--brand-mid-rgb)/0.12)] backdrop-blur-xl sm:p-6"
-          >
-            <blockquote cite="https://classics.mit.edu/Plato/republic.3.ii.html">
-              <p
-                className={`${quoteFontNear ? quoteFont.className : ""} ${quoteCss.text} text-[12px] leading-[1.55] text-white/90 sm:text-[16px]`}
-              >
-                &ldquo;The beginning is the most important part of any work.&rdquo;
-              </p>
-            </blockquote>
-            <figcaption
-              className={`${quoteCss.author} mt-3 text-right font-mono text-[12px] font-semibold tracking-[0.12em] text-white/85 uppercase sm:text-[14px]`}
-            >
-              <span aria-hidden>- </span>
-              <cite className="not-italic">
-                <a
-                  href="https://classics.mit.edu/Plato/republic.3.ii.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-brand-bright focus-visible:outline-brand-mid rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-4"
+          <ProgressiveReveal effect="fade" className="mt-8 max-w-[575px]">
+            <figure className="border-brand-mid/20 bg-background/75 rounded-3xl border p-5 shadow-[0_0_32px_-18px_rgb(var(--brand-mid-rgb)/0.12)] backdrop-blur-xl sm:p-6">
+              <blockquote cite="https://classics.mit.edu/Plato/republic.3.ii.html">
+                <p
+                  className={`${quoteFontNear ? quoteFont.className : ""} ${quoteCss.text} text-[12px] leading-[1.55] text-white/90 sm:text-[16px]`}
                 >
-                  Plato
-                </a>
-              </cite>
-            </figcaption>
-          </m.figure>
+                  &ldquo;The beginning is the most important part of any work.&rdquo;
+                </p>
+              </blockquote>
+              <figcaption
+                className={`${quoteCss.author} mt-3 text-right font-mono text-[12px] font-semibold tracking-[0.12em] text-white/85 uppercase sm:text-[14px]`}
+              >
+                <span aria-hidden>- </span>
+                <cite className="not-italic">
+                  <a
+                    href="https://classics.mit.edu/Plato/republic.3.ii.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-brand-bright focus-visible:outline-brand-mid rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-4"
+                  >
+                    Plato
+                  </a>
+                </cite>
+              </figcaption>
+            </figure>
+          </ProgressiveReveal>
         </div>
 
-        <m.div
-          initial={{ opacity: 0, y: 34 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
-          {...reducedMotionProps}
-          className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9 [@media(orientation:landscape)_and_(max-height:500px)]:w-[52%] [@media(orientation:landscape)_and_(max-height:500px)]:pt-0"
-        >
+        <div className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9 [@media(orientation:landscape)_and_(max-height:500px)]:w-[52%] [@media(orientation:landscape)_and_(max-height:500px)]:pt-0">
           <form
             onSubmit={handleSubmit}
             data-replay-block
-            className="rr-block border-brand-mid/20 bg-background/75 mx-auto w-full max-w-[535px] rounded-3xl border p-6 shadow-[0_0_50px_-18px_rgb(var(--brand-mid-rgb)/0.24)] backdrop-blur-xl sm:p-8 lg:ml-auto"
+            className="rr-block border-brand-mid/20 bg-background/75 relative mx-auto w-full max-w-[535px] rounded-3xl border p-6 shadow-[0_0_50px_-18px_rgb(var(--brand-mid-rgb)/0.24)] backdrop-blur-xl sm:p-8 lg:ml-auto"
           >
-            <div className="flex items-center gap-3">
-              <IconTile size="sm">
-                <RadioTower className="size-3.5" {...ICON_PROPS} />
-              </IconTile>
-              <span className="font-mono text-[11.5px] tracking-[0.3em] text-white/70">
-                SEND A MESSAGE
-              </span>
-            </div>
+            <ProgressiveReveal
+              effect="line"
+              className="pointer-events-none absolute inset-x-8 top-0 h-px origin-left"
+            >
+              <span
+                aria-hidden
+                className="via-brand-mid/60 block h-full bg-gradient-to-r from-transparent to-transparent"
+              />
+            </ProgressiveReveal>
+            <ProgressiveReveal effect="fade" desktopDelay={0.12}>
+              <div className="flex items-center gap-3">
+                <IconTile size="sm">
+                  <RadioTower className="size-3.5" {...ICON_PROPS} />
+                </IconTile>
+                <span className="font-mono text-[11.5px] tracking-[0.3em] text-white/70">
+                  SEND A MESSAGE
+                </span>
+              </div>
 
-            <h3 className="font-display mt-3 text-[clamp(1.85rem,2.6vw,2.6rem)] leading-tight font-extrabold tracking-tight text-white">
-              Project <span className="gradient-text">details</span>
-            </h3>
+              <h3 className="font-display mt-3 text-[clamp(1.85rem,2.6vw,2.6rem)] leading-tight font-extrabold tracking-tight text-white">
+                Project <span className="gradient-text">details</span>
+              </h3>
+            </ProgressiveReveal>
 
             <div className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -417,7 +405,7 @@ export function Contact({
               >
                 <Send className="size-4" aria-hidden />
                 {status === "submitting" ? "Sending..." : "Send Message"}
-                <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="size-4 transition-transform duration-300 motion-safe:group-hover:translate-x-1 motion-reduce:transition-none" />
               </Button>
             </Magnetic>
 
@@ -432,7 +420,7 @@ export function Contact({
               </p>
             )}
           </form>
-        </m.div>
+        </div>
       </div>
     </Section>
   );

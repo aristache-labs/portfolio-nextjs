@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Reveal } from "@/components/motion/Reveal";
+import { m, type Variants } from "framer-motion";
+import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
+import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProjectCard } from "./ProjectCard";
 import { FeaturedCard, RecentCard } from "./HighlightCards";
 import { ProjectQuickView } from "./ProjectQuickView";
@@ -31,6 +33,31 @@ function ColumnLabel({ children }: { children: string }) {
  * share the quick-view state. Filters the already-loaded list rather than refetching.
  */
 export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
+  const { mode } = useAnimationPolicy();
+  const cardVariants: Variants = {
+    hidden:
+      mode === "expressive" ? { opacity: 0, y: 14, scale: 0.985 } : { opacity: 1, y: 0, scale: 1 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: mode === "expressive" ? 0.85 : 0,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+  const recentVariants: Variants = {
+    hidden: mode === "expressive" ? { opacity: 0, x: 12 } : { opacity: 1, x: 0 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: mode === "expressive" ? 0.8 : 0,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
   const [category, setCategory] = useState(ALL);
   const [extra, setExtra] = useState(0);
   const mobileViewport = useMediaQuery("(max-width: 1023px)");
@@ -88,9 +115,14 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
               <ColumnLabel>Featured</ColumnLabel>
               <div className={TRACK}>
                 {featured.map((p, i) => (
-                  <Reveal key={p.id} delay={i * 0.05} className="flex">
+                  <ProgressiveReveal
+                    key={p.id}
+                    effect="focus"
+                    desktopDelay={i * 0.08}
+                    className="flex"
+                  >
                     <FeaturedCard project={p} onQuickView={() => setQuickView(p)} />
-                  </Reveal>
+                  </ProgressiveReveal>
                 ))}
               </div>
             </div>
@@ -99,19 +131,18 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           {recent.length > 0 && (
             <div className="flex flex-col">
               <ColumnLabel>Recently updated</ColumnLabel>
-              <div className="grid gap-4 lg:grid-cols-2">
+              <ProgressiveReveal effect="cascade" className="grid gap-4 lg:grid-cols-2">
                 {recent.slice(0, recentLimit).map((p, i) => (
-                  <Reveal
+                  <m.div
                     key={p.id}
-                    distance={12}
-                    duration={0.4}
-                    delay={Math.min(i * 0.03, 0.12)}
+                    initial={false}
+                    variants={recentVariants}
                     className={`flex min-w-0 ${i >= 2 ? "max-lg:hidden" : ""}`}
                   >
                     <RecentCard project={p} onQuickView={() => setQuickView(p)} />
-                  </Reveal>
+                  </m.div>
                 ))}
-              </div>
+              </ProgressiveReveal>
             </div>
           )}
         </div>
@@ -144,13 +175,16 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2">
-            {visible.map((p, i) => (
-              <Reveal key={p.id} delay={(i % 3) * 0.05} className="h-full">
+          <ProgressiveReveal
+            effect="cascade"
+            className="grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2"
+          >
+            {visible.map((p) => (
+              <m.div key={p.id} initial={false} variants={cardVariants} className="h-full">
                 <ProjectCard project={p} onQuickView={() => setQuickView(p)} />
-              </Reveal>
+              </m.div>
             ))}
-          </div>
+          </ProgressiveReveal>
 
           {filtered.length > limit && (
             <div className="mt-8 text-center">

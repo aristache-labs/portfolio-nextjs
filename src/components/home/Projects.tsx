@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { Reveal } from "@/components/motion/Reveal";
+import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
@@ -46,7 +46,10 @@ export function Projects({
         </>
       }
     >
-      <Reveal className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-10 [@media(orientation:portrait)_and_(max-width:767px)]:flex [@media(orientation:portrait)_and_(max-width:767px)]:flex-col">
+      <ProgressiveReveal
+        effect="slide"
+        className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-10 [@media(orientation:portrait)_and_(max-width:767px)]:flex [@media(orientation:portrait)_and_(max-width:767px)]:flex-col"
+      >
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between [@media(orientation:portrait)_and_(max-width:767px)]:contents">
           <SectionHeading
             number={number}
@@ -61,13 +64,13 @@ export function Projects({
         >
           Web and mobile applications, infrastructure projects and automation tools.
         </p>
-      </Reveal>
+      </ProgressiveReveal>
 
       <div id="project-list" className="scroll-mt-24">
         <ProjectsBrowser projects={projects} />
       </div>
 
-      <div className="mt-12 text-center">
+      <ProgressiveReveal effect="fade" className="mt-12 text-center">
         <Magnetic>
           <Button
             href={GITHUB_PROFILE}
@@ -80,7 +83,7 @@ export function Projects({
             View all on GitHub
           </Button>
         </Magnetic>
-      </div>
+      </ProgressiveReveal>
     </Section>
   );
 }

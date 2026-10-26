@@ -1,7 +1,10 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { ProjectsBrowser } from "./ProjectsBrowser";
+import { Projects } from "./Projects";
+import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import type { MergedProject } from "@/lib/projects";
 
 beforeEach(() => installMatchMedia());
@@ -42,6 +45,73 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       project(i + 11, { category: i < 8 ? "Websites" : "Desktop Apps" }),
     ),
   ];
+
+  it("serves visible headings and project cards before hydration", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<Projects projects={list} />);
+    expect(container.querySelector("h2")).toHaveTextContent("Selected Projects");
+    expect(container.querySelectorAll("article")).toHaveLength(16);
+    for (const element of container.querySelectorAll("h2, article h3")) {
+      for (let node: Element | null = element; node; node = node.parentElement) {
+        expect((node as HTMLElement).style.opacity).not.toBe("0");
+      }
+    }
+  });
+
+  it("keeps the grid entrance stable during rapid filtering and pagination", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
+    render(<ProjectsBrowser projects={list} />);
+    const grid = screen.getByRole("heading", { name: "Project 11" }).closest("article")
+      ?.parentElement?.parentElement;
+    for (const name of [/^Desktop Apps/, /^Websites/, /^Desktop Apps/]) {
+      fireEvent.click(screen.getByRole("button", { name }));
+    }
+    expect(
+      screen.getByRole("heading", { name: "Project 19" }).closest("article")?.parentElement
+        ?.parentElement,
+    ).toBe(grid);
+    expect(screen.queryByRole("heading", { name: "Project 11" })).not.toBeInTheDocument();
+    expect(grid).not.toHaveStyle({ opacity: "0" });
+    fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
+    const added = screen.getByRole("heading", { name: "Project 18" }).closest("article");
+    expect(added?.parentElement?.parentElement).toBe(grid);
+    expect(added?.parentElement).not.toHaveStyle({ opacity: "0" });
+  });
+
+  it.each([1, 3, 11])(
+    "opens Quick View from project %i and closes it without hiding its card",
+    (id) => {
+      const originalObserver = globalThis.ResizeObserver;
+      vi.stubGlobal(
+        "ResizeObserver",
+        class {
+          observe() {}
+          disconnect() {}
+        },
+      );
+      const { unmount } = render(<ProjectsBrowser projects={list} />);
+      try {
+        const card = screen.getByRole("heading", { name: `Project ${id}` }).closest("article")!;
+        fireEvent.click(within(card).getByRole("button", { name: "View" }));
+        expect(screen.getByRole("dialog", { name: `Project ${id}` })).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Close" }));
+        expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+        expect(card).toBeVisible();
+      } finally {
+        unmount();
+        vi.stubGlobal("ResizeObserver", originalObserver);
+      }
+    },
+  );
+
+  it("keeps reduced-motion projects static and filters usable", () => {
+    installMatchMedia({ [REDUCED_MOTION_QUERY]: true, [EXPRESSIVE_MOTION_QUERY]: true });
+    const { container } = render(<ProjectsBrowser projects={list} />);
+    expect(container.querySelector('[style*="opacity: 0"]')).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
+    expect(screen.getByRole("heading", { name: "Project 19" })).toBeVisible();
+  });
   it("shows eight recent and six lower cards on desktop without duplicates", () => {
     render(<ProjectsBrowser projects={list} />);
     expect(screen.getAllByRole("article")).toHaveLength(16);

@@ -1,6 +1,7 @@
 "use client";
 
 import actionStyles from "./project-actions.module.css";
+import motionStyles from "./project-motion.module.css";
 
 import { Star, GitFork, ExternalLink, Github, Maximize2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
@@ -24,7 +25,7 @@ export function ProjectCard({
   return (
     <Card
       as="article"
-      className="group bg-surface relative flex h-full flex-col overflow-hidden border-(--brand-mid)/30 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-(--brand-mid)/55"
+      className={`${motionStyles.card} group bg-surface relative flex h-full flex-col overflow-hidden border-(--brand-mid)/30 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-(--brand-mid)/55`}
     >
       <div className="relative z-10 flex flex-1 flex-col">
         {/* Featured badge: more projects are flagged featured than the showcase above

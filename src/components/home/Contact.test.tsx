@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
+import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { Contact, platformIcon } from "./Contact";
 import type { SocialRow } from "./Contact";
 import { Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
@@ -11,48 +12,9 @@ vi.mock("next/font/google", () => ({
   Merienda: () => ({ className: "quote-font", style: { fontFamily: "Merienda" } }),
 }));
 
-// Mock framer-motion to avoid jsdom animation issues
-vi.mock("framer-motion", () => {
-  const motionProps = [
-    "initial",
-    "animate",
-    "exit",
-    "whileInView",
-    "whileHover",
-    "viewport",
-    "transition",
-  ];
-  const passthrough = (tag: string) => {
-    const MockMotionComponent = ({
-      children,
-      ...props
-    }: React.PropsWithChildren<Record<string, unknown>>) => {
-      for (const key of motionProps) delete props[key];
-      const Comp = tag as "div";
-      return <Comp {...props}>{children}</Comp>;
-    };
-    MockMotionComponent.displayName = `motion.${tag}`;
-    return MockMotionComponent;
-  };
-  return {
-    m: {
-      a: passthrough("a"),
-      div: passthrough("div"),
-      figure: passthrough("figure"),
-      h2: passthrough("h2"),
-      li: passthrough("li"),
-      p: passthrough("p"),
-    },
-  };
-});
-
-// Mock Reveal to render children directly
-vi.mock("@/components/motion/Reveal", () => ({
-  Reveal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
-
 // Magnetic renders for real and reads matchMedia via useReducedMotion
 beforeEach(() => installMatchMedia());
+afterEach(() => vi.restoreAllMocks());
 
 const mockSocials: SocialRow[] = [
   {
@@ -90,6 +52,89 @@ describe("platformIcon", () => {
 
 describe("Contact", () => {
   const email = "hello@example.com";
+
+  function fillForm() {
+    fireEvent.change(screen.getByLabelText("Your Name"), { target: { value: "Test User" } });
+    fireEvent.change(screen.getByLabelText("Your Email"), {
+      target: { value: "sender@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("Subject"), { target: { value: "General Question" } });
+    fireEvent.change(screen.getByLabelText("Message"), {
+      target: { value: "A project question for testing." },
+    });
+  }
+
+  it("serves visible copy, contact links and form fields before hydration", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(<Contact socials={mockSocials} email={email} />);
+    expect(container.querySelectorAll("input, select, textarea")).toHaveLength(4);
+    for (const element of container.querySelectorAll("h2, h3, input, select, textarea, a")) {
+      for (let node: Element | null = element; node; node = node.parentElement) {
+        expect((node as HTMLElement).style.opacity).not.toBe("0");
+      }
+    }
+  });
+
+  it("keeps the form visible and preserves edits when motion preferences change", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
+    const { container, rerender } = render(<Contact socials={mockSocials} email={email} />);
+    fillForm();
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [REDUCED_MOTION_QUERY]: true });
+    rerender(<Contact socials={[...mockSocials]} email={email} />);
+    expect(screen.getByLabelText("Your Name")).toHaveValue("Test User");
+    expect(screen.getByLabelText("Message")).toHaveValue("A project question for testing.");
+    expect(container.querySelector("form")).toBeVisible();
+    expect(container.querySelector("form")?.parentElement).not.toHaveStyle({ opacity: "0" });
+  });
+
+  it("submits once while pending and clears fields after success", async () => {
+    let resolveRequest!: (response: Response) => void;
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRequest = resolve;
+        }),
+    );
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    fillForm();
+    fireEvent.submit(container.querySelector("form")!);
+    expect(screen.getByRole("button", { name: /Sending/ })).toBeDisabled();
+    fireEvent.submit(container.querySelector("form")!);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/contact",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          name: "Test User",
+          email: "sender@example.com",
+          subject: "General Question",
+          message: "A project question for testing.",
+        }),
+      }),
+    );
+    await act(async () => resolveRequest(Response.json({ success: true })));
+    expect(screen.getByRole("status")).toHaveTextContent("Message sent.");
+    expect(screen.getByLabelText("Your Name")).toHaveValue("");
+    expect(screen.getByLabelText("Message")).toHaveValue("");
+  });
+
+  it("keeps edits after an error and allows a successful retry", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(Response.json({ error: "Please try again later." }, { status: 429 }))
+      .mockResolvedValueOnce(Response.json({ success: true }));
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    fillForm();
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent("Please try again later."),
+    );
+    expect(screen.getByLabelText("Your Email")).toHaveValue("sender@example.com");
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Message sent."));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 
   describe("deferred quote font", () => {
     const originalObserver = globalThis.IntersectionObserver;

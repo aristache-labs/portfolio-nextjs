@@ -15,7 +15,7 @@ export function ProgressiveReveal({
   children: ReactNode;
   className?: string;
   desktopDelay?: number;
-  effect?: "rise" | "fade" | "slide" | "focus" | "cascade";
+  effect?: "rise" | "fade" | "slide" | "focus" | "cascade" | "line";
 }) {
   const { mode, ready } = useAnimationPolicy();
   const controls = useAnimationControls();
@@ -32,7 +32,13 @@ export function ProgressiveReveal({
       observer?.disconnect();
       controls.stop();
       controls.set(
-        effect === "cascade" ? "visible" : effect === "focus" ? { ...VISIBLE, scale: 1 } : VISIBLE,
+        effect === "cascade"
+          ? "visible"
+          : effect === "focus"
+            ? { ...VISIBLE, scale: 1 }
+            : effect === "line"
+              ? { ...VISIBLE, scaleX: 1 }
+              : VISIBLE,
       );
     };
     const onScrollEnd = () => {
@@ -40,7 +46,7 @@ export function ProgressiveReveal({
       if (!finished.current && node.getBoundingClientRect().top < window.innerHeight) show();
     };
     const onFocus = () => {
-      if (!finished.current) show();
+      show();
     };
 
     // Never hide content that the visitor can already see, including after a resize.
@@ -77,6 +83,7 @@ export function ProgressiveReveal({
             ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
             ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
             ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
+            ...(effect === "line" ? { scaleX: [0, 1] } : {}),
             transition: {
               duration: 1,
               delay: expressive ? desktopDelay : 0,
