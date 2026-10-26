@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
 import { Quote, Zap } from "lucide-react";
@@ -39,6 +39,29 @@ function mostUsedSkills(skills: SkillRow[]) {
 
 export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?: string }) {
   const reducedMotionProps = useReducedMotionProps();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [iconsNear, setIconsNear] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const frame = requestAnimationFrame(() => setIconsNear(true));
+      return () => cancelAnimationFrame(frame);
+    }
+    // Native lazy loading can fetch offscreen icons while the hero is still loading.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        setIconsNear(true);
+        observer.disconnect();
+      },
+      { rootMargin: "600px 0px" },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
   const ordered = useMemo(() => byOrder(skills), [skills]);
   const categories = useMemo(() => {
     const present = new Set(ordered.map((skill) => skill.category));
@@ -59,6 +82,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   return (
     <section
       id="skills"
+      ref={sectionRef}
       className={`${responsiveCss.section} relative z-10 scroll-mt-[80px] overflow-x-clip overflow-y-visible`}
     >
       <div className={responsiveCss.backdrop}>
@@ -187,6 +211,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     category={skill.category}
                     level={skill.level}
                     index={index}
+                    loadIcon={iconsNear}
                   />
                 </div>
               ))}

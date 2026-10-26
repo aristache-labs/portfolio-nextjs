@@ -29,16 +29,28 @@ export function SkillCard({
   category,
   level,
   index,
+  loadIcon = true,
 }: {
   name: string;
   iconPath: string;
   category: string;
   level?: string | null;
   index: number;
+  loadIcon?: boolean;
 }) {
   const reducedMotionProps = useReducedMotionProps();
   const src = skillIconSrc(iconPath);
   const percent = skillPercent(level);
+  const icon = (
+    <Image
+      src={src}
+      alt=""
+      width={36}
+      height={36}
+      unoptimized
+      className="h-full w-full object-contain"
+    />
+  );
 
   return (
     <m.div
@@ -48,7 +60,7 @@ export function SkillCard({
       className="group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5"
     >
       <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
-        <Image src={src} alt="" fill sizes="36px" unoptimized className="object-contain" />
+        {loadIcon ? icon : <noscript>{icon}</noscript>}
       </span>
 
       <span className="mt-3 flex items-start justify-between gap-2">

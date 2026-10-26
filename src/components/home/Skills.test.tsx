@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createElement } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { Skills } from "./Skills";
 
@@ -43,9 +44,9 @@ vi.mock("framer-motion", () => {
 });
 
 vi.mock("next/image", () => ({
-  default: ({ src, alt }: { src: string; alt: string }) => (
+  default: ({ src, alt, width, height, className }: React.ImgHTMLAttributes<HTMLImageElement>) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} />
+    <img src={src} alt={alt} width={width} height={height} className={className} />
   ),
 }));
 
@@ -58,6 +59,80 @@ const mockSkills = [
 
 describe("Skills", () => {
   beforeEach(() => installMatchMedia());
+
+  describe("deferred icons", () => {
+    const originalObserver = globalThis.IntersectionObserver;
+    let notify: IntersectionObserverCallback;
+    const disconnect = vi.fn();
+
+    beforeEach(() => {
+      disconnect.mockClear();
+      vi.stubGlobal(
+        "IntersectionObserver",
+        class {
+          constructor(private callback: IntersectionObserverCallback) {}
+          observe(target: Element) {
+            if (target.id === "skills") notify = this.callback;
+          }
+          unobserve() {}
+          disconnect = disconnect;
+        },
+      );
+    });
+
+    afterEach(() => {
+      cleanup();
+      vi.stubGlobal("IntersectionObserver", originalObserver);
+    });
+
+    const activeIcons = (container: HTMLElement) =>
+      Array.from(container.querySelectorAll('img[src^="/skills/"]')).filter(
+        (image) => !image.closest("noscript"),
+      );
+
+    it("waits for Skills to approach before exposing icon URLs", () => {
+      const { container } = render(<Skills skills={mockSkills} />);
+      const emit = (isIntersecting: boolean) =>
+        act(() =>
+          notify([{ isIntersecting } as IntersectionObserverEntry], {} as IntersectionObserver),
+        );
+
+      expect(screen.getByText("React")).toBeInTheDocument();
+      expect(activeIcons(container)).toHaveLength(0);
+      emit(false);
+      expect(activeIcons(container)).toHaveLength(0);
+      emit(true);
+      expect(activeIcons(container)).toHaveLength(4);
+      expect(disconnect).toHaveBeenCalled();
+      for (const image of activeIcons(container)) {
+        expect(image).toHaveAttribute("width", "36");
+        expect(image).toHaveAttribute("height", "36");
+        expect(image.parentElement).toHaveClass("size-9");
+      }
+      fireEvent.click(screen.getByRole("tab", { name: "Backend" }));
+      expect(activeIcons(container)).toHaveLength(2);
+      emit(false);
+      expect(activeIcons(container)).toHaveLength(2);
+    });
+
+    it("loads icons when IntersectionObserver is unavailable", async () => {
+      vi.stubGlobal("IntersectionObserver", undefined);
+      const { container } = render(<Skills skills={mockSkills} />);
+      await waitFor(() => expect(activeIcons(container)).toHaveLength(4));
+    });
+
+    it("keeps SSR content and reserves icon boxes with a no-JavaScript image fallback", () => {
+      const html = renderToString(<Skills skills={mockSkills} />);
+      const fallbacks = html.match(/<noscript>[\s\S]*?<\/noscript>/g) ?? [];
+      expect(fallbacks).toHaveLength(4);
+      expect(fallbacks[0]).toContain('src="/skills/react.svg"');
+      expect(fallbacks[0]).toContain('width="36" height="36"');
+      const scriptedHtml = html.replace(/<noscript>[\s\S]*?<\/noscript>/g, "");
+      expect(scriptedHtml).not.toMatch(/src="\/skills\//);
+      expect(scriptedHtml).toContain("React");
+      expect(scriptedHtml).toContain("size-9");
+    });
+  });
 
   it("renders skill names", () => {
     render(<Skills skills={mockSkills} />);
