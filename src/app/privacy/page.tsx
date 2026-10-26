@@ -62,7 +62,7 @@ export default async function PrivacyPage() {
       />
       <div className={styles.backdropSection}>
         <SectionBackdrop
-          video="/media/services.mp4"
+          video="/media/about-v2.mp4"
           poster="/media/services.webp"
           scrim="absolute inset-0 bg-background/80"
         />

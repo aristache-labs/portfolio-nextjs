@@ -161,7 +161,7 @@ export function Contact({
         <>
           <SectionBackdrop
             frame="desktop-screen"
-            video="/media/contact.mp4"
+            video="/media/contact-v2.mp4"
             poster="/media/experience.webp"
             fetchPriority="low"
             deferUntilHeroLoaded

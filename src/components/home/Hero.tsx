@@ -231,7 +231,7 @@ export function Hero({
               preload="metadata"
               onError={() => setVideoOk(false)}
             >
-              <source src="/media/hero.mp4" type="video/mp4" />
+              <source src="/media/hero-v2.mp4" type="video/mp4" />
             </video>
           )}
         </div>
@@ -308,7 +308,6 @@ export function Hero({
               className={`${styles.enter} mt-4 [@media(max-height:500px)]:mt-2`}
             >
               <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
-
                 {heroTagline}
               </span>
             </p>

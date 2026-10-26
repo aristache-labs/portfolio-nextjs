@@ -206,7 +206,7 @@ describe("Hero", () => {
       value: "http://localhost/media/hero-1280.webp",
     });
     fireEvent.load(image);
-    expect(container.querySelector("video source")).toHaveAttribute("src", "/media/hero.mp4");
+    expect(container.querySelector("video source")).toHaveAttribute("src", "/media/hero-v2.mp4");
     expect(container.querySelector("picture img")).toBe(image);
   });
 });

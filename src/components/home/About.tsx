@@ -84,7 +84,7 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
       backdrop={
         <>
           <SectionBackdrop
-            video="/media/about.mp4"
+            video="/media/about-v2.mp4"
             poster="/media/about.webp"
             fetchPriority="low"
             deferUntilHeroLoaded

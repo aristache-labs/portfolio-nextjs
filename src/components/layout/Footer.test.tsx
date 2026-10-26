@@ -78,7 +78,7 @@ describe("Footer", () => {
 
   it("keeps the logo visible when the footer is already on screen", () => {
     const { container } = render(<Footer socials={mockSocials} />);
-    const image = container.querySelector('img[src="/brand/logo.svg"]');
+    const image = container.querySelector('img[src="/brand/logo-full-v2.webp"]');
     expect(image).not.toBeNull();
     for (let node = image; node; node = node.parentElement) {
       expect((node as HTMLElement).style.opacity).toBe("");
@@ -233,7 +233,7 @@ describe("Footer", () => {
 
   it("renders the brand logo", () => {
     const { container } = render(<Footer socials={mockSocials} />);
-    expect(container.querySelector('img[src="/brand/logo.svg"]')).toBeTruthy();
+    expect(container.querySelector('img[src="/brand/logo-full-v2.webp"]')).toBeTruthy();
     expect(screen.getByRole("link", { name: /aristache, back to top/i })).toBeTruthy();
   });
 

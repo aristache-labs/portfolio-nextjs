@@ -28,7 +28,7 @@ export function Projects({
         <>
           <SectionBackdrop
             frame="desktop-screen"
-            video="/media/projects.mp4"
+            video="/media/projects-v2.mp4"
             poster="/media/projects.webp"
             fetchPriority="low"
             deferUntilHeroLoaded

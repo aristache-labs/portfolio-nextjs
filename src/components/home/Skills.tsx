@@ -92,7 +92,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
         <SectionBackdrop
           frame="screen"
           focus="left"
-          video="/media/skills.mp4"
+          video="/media/skills-v2.mp4"
           poster="/media/skills.webp"
           fetchPriority="low"
           deferUntilHeroLoaded

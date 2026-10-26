@@ -18,6 +18,14 @@ const nextConfig = {
   },
   // Do not redirect www -> apex here. Vercel already redirects aristache.dev to
   // www.aristache.dev. Adding the opposite redirect makes the two hosts loop.
+  async headers() {
+    return ["media", "brand", "fonts", "icons", "pwa"].map((directory) => ({
+      source: `/${directory}/:path*`,
+      headers: [
+        { key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" },
+      ],
+    }));
+  },
   async rewrites() {
     // Existing database rows may still name covers converted to WebP. Real public files win.
     return {

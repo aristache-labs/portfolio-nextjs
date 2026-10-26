@@ -130,7 +130,11 @@ describe("SectionBackdrop", () => {
     installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true });
     const image = installHero(false);
     const { container } = render(
-      <SectionBackdrop video="/media/about.mp4" poster="/media/about.webp" deferUntilHeroLoaded />,
+      <SectionBackdrop
+        video="/media/about-v2.mp4"
+        poster="/media/about.webp"
+        deferUntilHeroLoaded
+      />,
     );
     expect(container.querySelector("video")).not.toHaveAttribute("poster");
     expect(container.querySelector("img")).toBeNull();

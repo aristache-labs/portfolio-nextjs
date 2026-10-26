@@ -137,13 +137,13 @@ export function Footer({
                 className={`inline-block rounded-lg ${FOCUS}`}
               >
                 <Image
-                  src="/brand/logo.svg"
+                  src="/brand/logo-full-v2.webp"
                   alt=""
-                  width={906}
-                  height={939}
+                  width={400}
+                  height={415}
                   unoptimized
-                  loading="eager"
-                  style={{ aspectRatio: "906 / 939" }}
+                  loading="lazy"
+                  style={{ aspectRatio: "400 / 415" }}
                   className="h-32 w-auto sm:h-35 [@media(orientation:landscape)_and_(max-width:1024px)]:h-45"
                 />
               </Link>

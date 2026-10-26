@@ -35,7 +35,7 @@ export function Services({ services, number = "05" }: { services: ServiceRow[]; 
       backdrop={
         <>
           <SectionBackdrop
-            video="/media/about.mp4"
+            video="/media/about-v2.mp4"
             poster="/media/about.webp"
             deferUntilHeroLoaded
           />

@@ -193,7 +193,7 @@ export function FeaturedCard({
         FEATURED
       </span>
       <div className="border-border relative aspect-video w-full shrink-0 overflow-hidden border-b">
-        <Cover project={project} sizes={FEATURED_COVER_SIZES} fit="object-cover" loading="eager" />
+        <Cover project={project} sizes={FEATURED_COVER_SIZES} fit="object-cover" />
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <div
