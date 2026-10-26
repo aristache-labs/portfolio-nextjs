@@ -1,5 +1,4 @@
 import { CalendarDays, MapPin, TrendingDown, Users, type LucideIcon } from "lucide-react";
-import { Reveal } from "@/components/motion/Reveal";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { AvatarPortrait } from "./AvatarPortrait";
 import { Section } from "@/components/ui/Section";
@@ -99,13 +98,13 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
         </>
       }
     >
-      <Reveal distance={12} duration={0.4} className={statsCss.biography}>
+      <div className={statsCss.biography}>
         {profile.avatarUrl && (
           <div className={statsCss.portrait}>
             <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? SITE.name} />
           </div>
         )}
-        <div className={statsCss.heading}>
+        <ProgressiveReveal className={statsCss.heading} effect="slide">
           <div className="mb-8">
             <p className={labelCss.label}>
               <span className={labelCss.number}>{number}</span>
@@ -116,11 +115,11 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
               Behind the <span className="gradient-text">code</span>.
             </h2>
           </div>
-        </div>
-        <div className={statsCss.copy}>
+        </ProgressiveReveal>
+        <ProgressiveReveal className={statsCss.copy} effect="fade" desktopDelay={0.12}>
           <AboutBio bio={profile.bio} />
-        </div>
-      </Reveal>
+        </ProgressiveReveal>
+      </div>
       <div>
         <StatBar />
       </div>

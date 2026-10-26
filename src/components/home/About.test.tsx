@@ -1,13 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { About } from "./About";
 import { AboutBio } from "./AboutBio";
-
-// Mock Reveal to render children directly
-vi.mock("@/components/motion/Reveal", () => ({
-  Reveal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
+import styles from "./about-stats.module.css";
 
 // Keep reveal effects static and provide matchMedia for the motion hooks.
 beforeEach(() => installMatchMedia({ "(prefers-reduced-motion: reduce)": true }));
@@ -18,6 +15,32 @@ const mockProfile = {
 };
 
 describe("About", () => {
+  it("keeps the portrait outside animated wrappers", () => {
+    const { container } = render(
+      <About profile={{ ...mockProfile, avatarUrl: "https://example.com/portrait.webp" }} />,
+    );
+    const portrait = container.getElementsByClassName(styles.portrait)[0];
+    expect(portrait).not.toHaveAttribute("style");
+    expect(portrait.parentElement).toHaveClass(styles.biography);
+    expect(portrait.parentElement).not.toHaveAttribute("style");
+  });
+
+  it("keeps portrait, heading and copy as direct layout children in visible server HTML", () => {
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(
+      <About profile={{ ...mockProfile, avatarUrl: "https://example.com/portrait.webp" }} />,
+    );
+    const biography = container.getElementsByClassName(styles.biography)[0];
+    expect(biography.children).toHaveLength(3);
+    for (const name of [styles.portrait, styles.heading, styles.copy]) {
+      const group = biography.getElementsByClassName(name)[0];
+      expect(group.parentElement).toBe(biography);
+      expect(group).not.toHaveAttribute("style");
+    }
+    expect(biography).toHaveTextContent(mockProfile.bio);
+    expect(biography).toHaveTextContent("Behind the code.");
+  });
+
   it("expands and collapses the remaining mobile biography", () => {
     render(
       <AboutBio bio="I turn technical challenges into practical, dependable solutions. More about my work." />,
