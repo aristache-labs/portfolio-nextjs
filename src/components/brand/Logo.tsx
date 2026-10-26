@@ -21,7 +21,7 @@ export function Logo({
           alt=""
           width={MONOGRAM.width}
           height={MONOGRAM.height}
-          priority
+          loading="lazy"
           unoptimized
           className={cn(size, "object-contain")}
         />

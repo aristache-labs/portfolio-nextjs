@@ -231,6 +231,7 @@ export function Contact({
                           <IconTile size="sm">
                             <SocialGlyph
                               platform="gmail"
+                              loading="lazy"
                               className="size-6 object-contain drop-shadow-[0_2px_5px_rgb(0_0_0/0.65)]"
                             />
                           </IconTile>

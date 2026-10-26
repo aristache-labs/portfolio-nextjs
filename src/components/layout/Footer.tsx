@@ -112,6 +112,8 @@ export function Footer({
                   width={906}
                   height={939}
                   unoptimized
+                  loading="lazy"
+                  style={{ aspectRatio: "906 / 939" }}
                   className="h-32 w-auto sm:h-36 [@media(orientation:landscape)_and_(max-width:1024px)]:h-28"
                 />
               </Link>

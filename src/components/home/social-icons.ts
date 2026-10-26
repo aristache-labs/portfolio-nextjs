@@ -41,10 +41,18 @@ export function socialIconSrc(platform: string): string | null {
 }
 
 /** Brand SVG when one exists, otherwise the Lucide fallback. */
-export function SocialGlyph({ platform, className }: { platform: string; className?: string }) {
+export function SocialGlyph({
+  platform,
+  className,
+  loading,
+}: {
+  platform: string;
+  className?: string;
+  loading?: "eager" | "lazy";
+}) {
   const src = socialIconSrc(platform);
   if (src) {
-    return createElement("img", { src, alt: "", "aria-hidden": true, className });
+    return createElement("img", { src, alt: "", "aria-hidden": true, className, loading });
   }
   return createElement(platformIcon(platform), { className, "aria-hidden": true });
 }
