@@ -201,7 +201,8 @@ export default async function PrivacyPage() {
       <Footer
         socials={socials}
         email={profile.email}
-        roles={profile.roles}
+        heroTagline={profile.heroTagline}
+        sectionVisibility={profile.sectionVisibility}
         sponsorUrl={funding.find((item) => item.primary)?.url}
         homeHrefPrefix="/"
       />

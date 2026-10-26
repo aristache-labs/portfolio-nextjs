@@ -115,8 +115,9 @@ export default async function Home() {
       <Footer
         socials={socials}
         email={profile.email}
-        roles={profile.roles}
+        heroTagline={profile.heroTagline}
         sponsorUrl={sponsorUrl}
+        sectionVisibility={vis}
       />
     </div>
   );

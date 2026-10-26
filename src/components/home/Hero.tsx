@@ -308,10 +308,7 @@ export function Hero({
               className={`${styles.enter} mt-4 [@media(max-height:500px)]:mt-2`}
             >
               <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
-                <span
-                  aria-hidden
-                  className="size-1.5 animate-pulse rounded-full bg-(image:--gradient-brand) shadow-[0_0_8px_2px_rgb(var(--brand-mid-rgb)/0.6)] motion-reduce:animate-none"
-                />
+
                 {heroTagline}
               </span>
             </p>

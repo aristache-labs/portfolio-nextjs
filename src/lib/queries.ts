@@ -48,7 +48,7 @@ export async function getNavigationProfile() {
   const [row] = await db
     .select({
       email: profile.email,
-      roles: profile.roles,
+      heroTagline: profile.heroTagline,
       sectionVisibility: profile.sectionVisibility,
     })
     .from(profile)
@@ -56,7 +56,7 @@ export async function getNavigationProfile() {
   if (!row) throw new Error("Profile row not found");
   return {
     email: row.email ?? null,
-    roles: row.roles ?? [],
+    heroTagline: row.heroTagline ?? null,
     sectionVisibility: (row.sectionVisibility as Record<string, boolean>) ?? {},
   };
 }

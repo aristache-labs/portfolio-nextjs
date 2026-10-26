@@ -46,6 +46,25 @@ describe("Footer", () => {
   beforeEach(() => installMatchMedia());
   afterEach(() => vi.restoreAllMocks());
 
+  it.each(["", "/"])("filters Explore links by visibility with prefix %s", (prefix) => {
+    const { container, rerender } = render(
+      <Footer
+        socials={[]}
+        homeHrefPrefix={prefix}
+        sectionVisibility={{ services: false, projects: true, hero: false }}
+      />,
+    );
+    const nav = () => container.querySelector('nav[aria-label="Explore"]')!;
+    expect(nav().querySelector(`a[href="${prefix}#services"]`)).toBeNull();
+    for (const id of ["hero", "projects", "about"]) {
+      expect(nav().querySelector(`a[href="${prefix}#${id}"]`)).not.toBeNull();
+    }
+    rerender(
+      <Footer socials={[]} homeHrefPrefix={prefix} sectionVisibility={{ services: true }} />,
+    );
+    expect(nav().querySelector(`a[href="${prefix}#services"]`)).not.toBeNull();
+  });
+
   it("serves visible copy and navigation without waiting for hydration", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(<Footer socials={mockSocials} />);
@@ -227,9 +246,8 @@ describe("Footer", () => {
   });
 
   it("renders professional positioning and copyright", () => {
-    render(<Footer socials={mockSocials} roles={["Platform Engineer", "Mobile Developer"]} />);
-    expect(screen.getByText("Platform Engineer")).toBeTruthy();
-    expect(screen.getByText("Mobile Developer")).toBeTruthy();
+    render(<Footer socials={mockSocials} heroTagline="Diagnose * Build * Automate" />);
+    expect(screen.getByText("Diagnose * Build * Automate")).toBeTruthy();
     expect(screen.getByText(/All rights reserved/)).toBeTruthy();
   });
 

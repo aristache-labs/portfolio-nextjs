@@ -32,16 +32,21 @@ const FOCUS =
 
 export function Footer({
   sponsorUrl,
-  roles = [],
+  heroTagline,
+  sectionVisibility = {},
   homeHrefPrefix = "",
 }: {
   socials: SocialRow[];
   email?: string | null;
   sponsorUrl?: string | null;
-  roles?: string[];
+  heroTagline?: string | null;
+  sectionVisibility?: Record<string, boolean>;
   homeHrefPrefix?: string;
 }) {
   const year = new Date().getFullYear();
+  const visibleLinks = LINKS.filter(
+    (link) => link.href === "#hero" || sectionVisibility[link.href.slice(1)] !== false,
+  );
   const { mode } = useAnimationPolicy();
   const itemVariants: Variants = {
     hidden: mode === "static" ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 },
@@ -135,16 +140,14 @@ export function Footer({
                   unoptimized
                   loading="eager"
                   style={{ aspectRatio: "906 / 939" }}
-                  className="h-32 w-auto sm:h-36 [@media(orientation:landscape)_and_(max-width:1024px)]:h-32"
+                  className="h-32 w-auto sm:h-35 [@media(orientation:landscape)_and_(max-width:1024px)]:h-45"
                 />
               </Link>
-              {roles.length > 0 && (
-                <p className="mt-2 max-w-[290px] text-[15px] leading-relaxed text-white/70 sm:mt-2.5 sm:text-base [@media(orientation:landscape)_and_(max-width:1024px)]:text-[14px]">
-                  {roles.map((role, index) => (
-                    <span key={`${role}-${index}`} className="block">
-                      {role}
-                    </span>
-                  ))}
+              {heroTagline && (
+                <p className="mt-2 max-w-[290px] sm:mt-2.5">
+                  <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
+                    {heroTagline}
+                  </span>
                 </p>
               )}
             </div>
@@ -161,18 +164,16 @@ export function Footer({
               <m.h3 initial={false} variants={itemVariants} className={`${HEADING} text-center`}>
                 Explore
               </m.h3>
-              <ul className="mx-auto mt-2 grid w-full max-w-[280px] grid-cols-2 gap-x-2 gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-2">
-                {LINKS.map((link) => (
-                  <m.li
-                    key={link.href}
-                    initial={false}
-                    variants={itemVariants}
-                    className={link.href === "#contact" ? "col-span-2" : undefined}
-                  >
+              <ul
+                className={`${layout.links} mx-auto mt-2 grid w-full max-w-[280px] grid-flow-col grid-cols-2 gap-x-2 gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-4`}
+                style={{ gridTemplateRows: `repeat(${Math.ceil(visibleLinks.length / 2)}, auto)` }}
+              >
+                {visibleLinks.map((link) => (
+                  <m.li key={link.href} initial={false} variants={itemVariants}>
                     <Link
                       scroll={!homeHrefPrefix}
                       href={`${homeHrefPrefix}${link.href}`}
-                      className={`group flex min-h-11 items-center justify-center gap-1.5 rounded-md py-1 text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
+                      className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
                     >
                       <ChevronRight
                         className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"

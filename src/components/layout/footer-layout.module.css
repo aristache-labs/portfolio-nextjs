@@ -1,3 +1,11 @@
+@media (min-width: 640px), (orientation: landscape) {
+  .links {
+    width: fit-content;
+    grid-template-columns: repeat(2, max-content);
+    column-gap: clamp(90px, 3vw, 20px);
+  }
+}
+
 @media (orientation: portrait) and (max-width: 639px) {
   .footer > div:last-child {
     padding-bottom: max(24px, env(safe-area-inset-bottom));
@@ -14,7 +22,7 @@
   }
 
   .identity img {
-    height: 88px;
+    height: 126px;
   }
 
   .identity p {
