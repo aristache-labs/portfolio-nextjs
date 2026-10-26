@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type RefObject } from "react";
 import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { HERO_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { IconTile } from "@/components/ui/IconTile";
@@ -18,7 +19,6 @@ export type HeroProfile = {
   roles: string[];
 };
 
-const EASE = [0.22, 1, 0.36, 1] as const;
 const HERO_COPY = IDENTITY.summary;
 const FOCUS = ["Systems", "Apps", "Automation", "Delivery"] as const;
 const GREETING = "// HELLO, I'M";
@@ -31,17 +31,43 @@ const FULL_POSTER_SOURCES =
 const PLATE =
   "absolute top-1/2 left-1/2 aspect-video w-[max(100cqw,calc(100cqh*16/9))] -translate-x-1/2 -translate-y-1/2";
 
-function fadeUp(reduce: boolean, delay: number) {
-  return {
-    initial: reduce ? false : ({ opacity: 0, y: 12 } as const),
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: reduce ? 0 : 0.45, ease: EASE, delay: reduce ? 0 : delay * 0.14 },
-  };
-}
-
 // CSS owns copy entrances so mobile never waits for hydration to reveal its LCP text.
 function entranceStyle(delay: number) {
   return { animationDelay: `${delay * 0.14}s` };
+}
+
+/** Mounted only for desktop motion, so touch devices never create pointer springs. */
+function HeroSpotlight({ section }: { section: RefObject<HTMLElement | null> }) {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const sx = useSpring(mouseX, { stiffness: 50, damping: 20 });
+  const sy = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  const spotX = useTransform(sx, [-0.5, 0.5], [30, 70]);
+  const spotY = useTransform(sy, [-0.5, 0.5], [25, 65]);
+  const background = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
+
+  useEffect(() => {
+    const node = section.current;
+    if (!node) return;
+    const move = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      const bounds = node.getBoundingClientRect();
+      mouseX.set((event.clientX - bounds.left) / bounds.width - 0.5);
+      mouseY.set((event.clientY - bounds.top) / bounds.height - 0.5);
+    };
+    const reset = () => {
+      mouseX.set(0);
+      mouseY.set(0);
+    };
+    node.addEventListener("pointermove", move);
+    node.addEventListener("pointerleave", reset);
+    return () => {
+      node.removeEventListener("pointermove", move);
+      node.removeEventListener("pointerleave", reset);
+    };
+  }, [mouseX, mouseY, section]);
+
+  return <m.div className="absolute inset-0" style={{ background }} />;
 }
 
 /**
@@ -60,6 +86,8 @@ export function Hero({
   socials?: { platform: string; url: string }[];
 }) {
   const reduce = useReducedMotion();
+  const { mode } = useAnimationPolicy();
+  const expressive = mode === "expressive";
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopAnchorScroll.current?.(), []);
   const navigateToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -105,13 +133,6 @@ export function Hero({
   const [posterLoaded, setPosterLoaded] = useState<"portrait" | "full" | null>(null);
   const [videoOk, setVideoOk] = useState(true);
   const [posterOk, setPosterOk] = useState(true);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const sx = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const sy = useSpring(mouseY, { stiffness: 50, damping: 20 });
-  const spotX = useTransform(sx, [-0.5, 0.5], [30, 70]);
-  const spotY = useTransform(sy, [-0.5, 0.5], [25, 65]);
-  const spotBg = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
 
   const showVideo = videoOk && !reduce;
   // Wait for the selected poster before requesting video, including after rotation
@@ -152,13 +173,6 @@ export function Hero({
     return match ? [match] : [];
   });
 
-  const onMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (reduce) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    mouseX.set((e.clientX - r.left) / r.width - 0.5);
-    mouseY.set((e.clientY - r.top) / r.height - 0.5);
-  };
-
   const toggleVideo = () => {
     const node = videoRef.current;
     if (!node) return;
@@ -175,7 +189,6 @@ export function Hero({
     <section
       id="hero"
       ref={sectionRef}
-      onMouseMove={onMouseMove}
       className={`${styles.hero} relative flex scroll-mt-24 flex-col overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center max-md:portrait:min-h-[max(100lvh,var(--portrait-screen-height,0px))]`}
     >
       <div
@@ -221,16 +234,13 @@ export function Hero({
           )}
         </div>
         <div className="hero-vignette absolute inset-0" />
-        {!reduce && (
-          <m.div className="absolute inset-0 hidden md:block" style={{ background: spotBg }} />
-        )}
+        {expressive && <HeroSpotlight section={sectionRef} />}
         <div className="hero-noise absolute inset-0" />
         <SectionEdge edge="bottom" />
         <div
           className={`${PLATE} hidden lg:block [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:block`}
         >
-          <m.div
-            {...fadeUp(reduce, 0.85)}
+          <div
             className={`${styles.focus} glass bg-background/70 absolute top-[45%] left-[73%] max-w-[300px] rounded-2xl border border-(--brand-mid)/25 px-5 py-6 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:top-[37%] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:left-[71.5%]`}
           >
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
@@ -244,7 +254,7 @@ export function Hero({
                 </span>
               ))}
             </p>
-          </m.div>
+          </div>
         </div>
       </div>
 
@@ -271,12 +281,14 @@ export function Hero({
           </p>
 
           <h1 className="max-w-3xl">
-            <span className="font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(2.5rem,4.8vw,4.5rem)] leading-[1] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(1.8rem,3.6vw,2.75rem)]">
+            <span
+              className={`${styles.name} font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(2.5rem,4.8vw,4.5rem)] leading-[1] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(1.8rem,3.6vw,2.75rem)]`}
+            >
               {profile.name.trim().split(/\s+/)[0]}
             </span>{" "}
             <span
               style={entranceStyle(0.45)}
-              className={`${styles.enter} font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]`}
+              className={`${styles.enter} ${styles.headline} font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]`}
             >
               Infrastructure meets <span className="text-(--brand-mid)">innovation.</span>
             </span>
@@ -398,10 +410,7 @@ export function Hero({
             )}
           </div>
 
-          <m.div
-            {...fadeUp(reduce, 1.1)}
-            className="glass bg-background/70 mx-auto mt-6 max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md lg:hidden portrait:hidden [@media(max-height:500px)]:hidden"
-          >
+          <div className="glass bg-background/70 mx-auto mt-6 max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md lg:hidden portrait:hidden [@media(max-height:500px)]:hidden">
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
               {"// scope"}
             </p>
@@ -413,12 +422,13 @@ export function Hero({
                 </span>
               ))}
             </p>
-          </m.div>
+          </div>
         </div>
       </div>
 
       <a
         href="#projects"
+        onClick={(event) => navigateToSection(event, "projects")}
         className="text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:translate-y-3"
         aria-label="Scroll to explore, jump to projects"
       >

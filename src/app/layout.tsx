@@ -10,6 +10,7 @@ import { LateMonoFont } from "@/components/util/LateMonoFont";
 import { AmbientBackgroundGate } from "@/components/background/AmbientBackgroundGate";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE } from "@/lib/seo/site";
+import { HERO_RELOAD_DEBUG } from "@/lib/hero-reload-debug";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -67,13 +68,15 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
   return (
     <html
       lang="en"
-      data-scroll-behavior="smooth"
       suppressHydrationWarning
       // Obsidian dark on every route. Static, so no OS preference or stored choice can switch
       // a route to light. `dark` keeps the `dark:` variant working; tokens live in :root.
       className={`dark ${GeistSans.variable}`}
     >
       <head>
+        {process.env.NODE_ENV === "development" && (
+          <script dangerouslySetInnerHTML={{ __html: HERO_RELOAD_DEBUG }} />
+        )}
         {/* Match the portrait hero's screen floor before its first paint, so hydration
             does not resize the cover image and visibly change its crop. */}
         <script

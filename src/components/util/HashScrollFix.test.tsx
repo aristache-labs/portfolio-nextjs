@@ -2,7 +2,8 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { HashScrollFix } from "./HashScrollFix";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
+const route = vi.hoisted(() => ({ pathname: "/" }));
+vi.mock("next/navigation", () => ({ usePathname: () => route.pathname }));
 
 describe("HashScrollFix", () => {
   let scroll = 0;
@@ -29,6 +30,7 @@ describe("HashScrollFix", () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
+    route.pathname = "/";
     scroll = 0;
     targetTop = 1000;
     visible = true;
@@ -45,8 +47,35 @@ describe("HashScrollFix", () => {
     document.body.innerHTML = "";
     window.history.replaceState(null, "", "/");
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     Object.defineProperty(window, "scrollY", originalScrollY);
     vi.useRealTimers();
+  });
+
+  it("leaves reload restoration to the browser even when the URL has an old anchor", () => {
+    vi.stubGlobal("performance", { getEntriesByType: () => [{ type: "reload" }] });
+    installSection();
+    scroll = 120;
+    render(<HashScrollFix />);
+    fireEvent.load(window);
+    fireEvent(window, new Event("pageshow"));
+    act(() => vi.advanceTimersByTime(5000));
+    expect(scroll).toBe(120);
+    expect(window.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("still aligns cross-page anchors after an initial reload", () => {
+    vi.stubGlobal("performance", { getEntriesByType: () => [{ type: "reload" }] });
+    installSection();
+    const { rerender } = render(<HashScrollFix />);
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    route.pathname = "/privacy";
+    window.history.replaceState(null, "", "/privacy");
+    rerender(<HashScrollFix />);
+    route.pathname = "/";
+    window.history.replaceState(null, "", "/#about");
+    rerender(<HashScrollFix />);
+    expect(scroll).toBe(890);
   });
 
   it.each([0, 1500])("corrects a restored scroll of %ipx without a layout change", (restored) => {

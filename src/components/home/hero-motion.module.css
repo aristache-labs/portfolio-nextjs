@@ -1,7 +1,3 @@
-.focus {
-  animation: focus-float 8s ease-in-out infinite;
-}
-
 @keyframes focus-float {
   0%,
   100% {
@@ -157,25 +153,77 @@
   display: inline-block;
 }
 
-/* The default copy is visible, including before hydration and without JavaScript.
-   Only desktop pointers opt into the existing entrance timing and greeting reveal. */
+/* Touch layouts stay static in both orientations. Desktop entrances begin at first paint. */
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .enter {
     animation-name: copy-enter;
-    animation-duration: 0.45s;
+    animation-duration: 1s;
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     animation-fill-mode: both;
   }
 
   .greeting {
-    animation: greeting-reveal 0.9s steps(12, end) 0.15s both;
+    animation: greeting-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .name {
+    animation: desktop-name-settle 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .headline {
+    animation-name: greeting-reveal;
+  }
+
+  .actions {
+    animation-name: desktop-actions-settle;
+  }
+
+  .socialLinks {
+    animation-name: social-enter;
+  }
+
+  .focus {
+    animation: focus-float 8s ease-in-out infinite;
+  }
+
+  .enter:focus-within {
+    animation: none;
   }
 }
 
 @keyframes copy-enter {
   from {
     opacity: 0;
-    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes desktop-name-settle {
+  from {
+    transform: translateY(20px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes desktop-actions-settle {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes social-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
   }
   to {
     opacity: 1;

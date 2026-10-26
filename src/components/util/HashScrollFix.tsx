@@ -1,14 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { sectionScrollPosition } from "@/lib/scroll-to-section";
 
 /** Position cross-page anchors without animating through the whole homepage. */
 export function HashScrollFix() {
   const pathname = usePathname();
+  const previousPathname = useRef(pathname);
+  const initialDocument = useRef(true);
 
   useEffect(() => {
+    if (previousPathname.current !== pathname) {
+      initialDocument.current = false;
+      previousPathname.current = pathname;
+    }
+    const navigation = performance.getEntriesByType?.("navigation")[0] as
+      PerformanceNavigationTiming | undefined;
+    // A reload restores the reader's position, which can differ from the URL's old hash.
+    // Cross-page anchor navigation still uses the alignment below.
+    if (initialDocument.current && navigation?.type === "reload") return;
     const hash = window.location.hash;
     if (!hash || hash.length < 2) return;
     let id: string;

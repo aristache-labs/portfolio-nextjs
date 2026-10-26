@@ -89,9 +89,8 @@
 /* Do NOT add a universal `* { margin: 0 }` reset here: unlayered CSS beats layered utilities
  * regardless of specificity, so it silently breaks spacing app-wide. Preflight already does
  * this correctly inside its layer. */
-html {
-  scroll-behavior: smooth;
-}
+/* Section links animate explicitly through scrollToSection. Native scroll restoration must
+   remain instant, otherwise reloading animates the entire page before hydration. */
 /* Phone in landscape: the viewport is only ~360px tall, so rem-based spacing and type fill it
    with one section at a time. Every Tailwind size is rem, so shrinking the root zooms the whole
    page out. Coarse pointer keeps short desktop windows untouched. Only font-size is set here, so

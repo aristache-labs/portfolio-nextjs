@@ -3,6 +3,7 @@ import { renderToString } from "react-dom/server";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
 import { HERO_VIDEO_QUERY } from "@/hooks/useMediaQuery";
+import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { IDENTITY } from "@/lib/identity";
 import { Hero } from "./Hero";
 
@@ -18,6 +19,31 @@ const profile = {
 };
 
 describe("Hero", () => {
+  it.each([
+    [false, false, 0],
+    [true, false, 1],
+    [true, true, 0],
+  ])(
+    "runs pointer geometry only for desktop motion (%s, reduced %s)",
+    (desktop, reduced, calls) => {
+      installMatchMedia({
+        [EXPRESSIVE_MOTION_QUERY]: desktop,
+        [REDUCED_MOTION_QUERY]: reduced,
+      });
+      const bounds = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect");
+      const { container } = render(<Hero profile={profile} />);
+      bounds.mockClear();
+      const move = new Event("pointermove", { bubbles: true });
+      Object.defineProperties(move, {
+        pointerType: { value: "mouse" },
+        clientX: { value: 100 },
+        clientY: { value: 100 },
+      });
+      fireEvent(container.querySelector("section")!, move);
+      expect(bounds).toHaveBeenCalledTimes(calls);
+    },
+  );
+
   it("does not hide the initial hero copy or actions behind JavaScript", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(
@@ -41,6 +67,7 @@ describe("Hero", () => {
       paragraphs.find((element) => element.textContent === "// HELLO, I'M"),
       paragraphs.find((element) => element.textContent?.includes("Available for projects")),
       paragraphs.find((element) => element.textContent?.includes(profile.roles[0])),
+      ...paragraphs.filter((element) => element.textContent === "// scope"),
     ];
 
     for (const element of elements) {
