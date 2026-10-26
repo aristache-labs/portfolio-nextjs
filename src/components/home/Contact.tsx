@@ -77,12 +77,12 @@ export function Contact({
   const cards = cardsFor(socials, email);
   const { mode } = useAnimationPolicy();
   const linkVariants: Variants = {
-    hidden: mode === "expressive" ? { opacity: 0, x: -12 } : { opacity: 1, x: 0 },
+    hidden: mode === "static" ? { opacity: 1, x: 0 } : { opacity: 0, x: -18 },
     visible: {
       opacity: 1,
       x: 0,
       transition: {
-        duration: mode === "expressive" ? 0.8 : 0,
+        duration: mode === "static" ? 0 : 0.65,
         ease: [0.22, 1, 0.36, 1],
       },
     },
@@ -196,13 +196,13 @@ export function Contact({
         className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10 [@media(orientation:landscape)_and_(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-height:500px)]:items-start [@media(orientation:landscape)_and_(max-height:500px)]:justify-between [@media(orientation:landscape)_and_(max-height:500px)]:gap-x-8 [@media(orientation:landscape)_and_(max-height:500px)]:gap-y-0"
       >
         <div className="min-w-0 lg:w-[42%] lg:max-w-[640px] [@media(orientation:landscape)_and_(max-height:500px)]:w-[42%]">
-          <p className={labelCss.label}>
-            <span className={labelCss.number}>{number}</span>
-            <span>Contact</span>
-            <span aria-hidden className={labelCss.rule} />
-          </p>
-
           <ProgressiveReveal effect="slide">
+            <p className={labelCss.label}>
+              <span className={labelCss.number}>{number}</span>
+              <span>Contact</span>
+              <span aria-hidden className={labelCss.rule} />
+            </p>
+
             <h2 className="font-display mt-6 text-[clamp(2rem,3.5vw,3.1rem)] leading-[1.08] font-extrabold tracking-tight text-white">
               Discuss a <span className="gradient-text">project.</span>
             </h2>
@@ -216,7 +216,13 @@ export function Contact({
           </ProgressiveReveal>
 
           {cards.length > 0 && (
-            <ProgressiveReveal effect="cascade" className="mt-9">
+            <ProgressiveReveal
+              effect="cascade"
+              duration={0}
+              delay={0.15}
+              staggerChildren={0.18}
+              className="mt-9"
+            >
               <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-1 [@media(orientation:landscape)_and_(max-height:500px)]:gap-3">
                 {cards.map((card, index) => {
                   return (
@@ -265,7 +271,12 @@ export function Contact({
               </ul>
             </ProgressiveReveal>
           )}
-          <ProgressiveReveal effect="fade" className="mt-8 max-w-[575px]">
+          <ProgressiveReveal
+            effect="zoom"
+            duration={0.7}
+            delay={0.15}
+            className="mt-8 max-w-[575px]"
+          >
             <figure className="border-brand-mid/20 bg-background/75 rounded-3xl border p-5 shadow-[0_0_32px_-18px_rgb(var(--brand-mid-rgb)/0.12)] backdrop-blur-xl sm:p-6">
               <blockquote cite="https://classics.mit.edu/Plato/republic.3.ii.html">
                 <p
@@ -293,7 +304,12 @@ export function Contact({
           </ProgressiveReveal>
         </div>
 
-        <div className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9 [@media(orientation:landscape)_and_(max-height:500px)]:w-[52%] [@media(orientation:landscape)_and_(max-height:500px)]:pt-0">
+        <ProgressiveReveal
+          effect="fade-from-right"
+          duration={0.75}
+          delay={0.15}
+          className="min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9 [@media(orientation:landscape)_and_(max-height:500px)]:w-[52%] [@media(orientation:landscape)_and_(max-height:500px)]:pt-0"
+        >
           <form
             onSubmit={handleSubmit}
             data-replay-block
@@ -308,7 +324,7 @@ export function Contact({
                 className="via-brand-mid/60 block h-full bg-gradient-to-r from-transparent to-transparent"
               />
             </ProgressiveReveal>
-            <ProgressiveReveal effect="fade" desktopDelay={0.12}>
+            <div>
               <div className="flex items-center gap-3">
                 <IconTile size="sm">
                   <RadioTower className="size-3.5" {...ICON_PROPS} />
@@ -321,7 +337,7 @@ export function Contact({
               <h3 className="font-display mt-3 text-[clamp(1.85rem,2.6vw,2.6rem)] leading-tight font-extrabold tracking-tight text-white">
                 Project <span className="gradient-text">details</span>
               </h3>
-            </ProgressiveReveal>
+            </div>
 
             <div className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -421,7 +437,7 @@ export function Contact({
               </p>
             )}
           </form>
-        </div>
+        </ProgressiveReveal>
       </div>
     </Section>
   );

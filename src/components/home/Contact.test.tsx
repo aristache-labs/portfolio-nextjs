@@ -7,6 +7,7 @@ import { Contact, platformIcon } from "./Contact";
 import type { SocialRow } from "./Contact";
 import { Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 
 vi.mock("next/font/google", () => ({
   Merienda: () => ({ className: "quote-font", style: { fontFamily: "Merienda" } }),
@@ -52,6 +53,57 @@ describe("platformIcon", () => {
 
 describe("Contact", () => {
   const email = "hello@example.com";
+
+  it("animates the numbered label together with the contact title", () => {
+    render(<Contact socials={mockSocials} email={email} number="05" />);
+    const heading = screen.getByRole("heading", { name: "Discuss a project." });
+    expect(heading.parentElement?.querySelector("p")).toHaveTextContent("05Contact");
+    expect(heading.parentElement?.querySelector("h2")).toBe(heading);
+  });
+
+  it.each([
+    [1440, 900, true],
+    [390, 844, false],
+    [844, 390, false],
+  ])(
+    "reveals the pending form on focus without losing edits at %sx%s",
+    async (width, height, desktop) => {
+      installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+      vi.stubGlobal("innerWidth", width);
+      vi.stubGlobal("innerHeight", height);
+      vi.stubGlobal(
+        "IntersectionObserver",
+        class {
+          observe() {}
+          disconnect() {}
+        },
+      );
+      vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+        top: 2000,
+        left: 0,
+      } as DOMRect);
+      const { container, unmount } = render(
+        <MotionProvider>
+          <Contact socials={mockSocials} email={email} />
+        </MotionProvider>,
+      );
+      try {
+        const form = container.querySelector("form")!;
+        const entrance = form.parentElement!;
+        await waitFor(() => expect(entrance).toHaveStyle({ opacity: "0" }));
+        fillForm();
+        act(() => screen.getByLabelText("Your Name").focus());
+        await waitFor(() => expect(entrance).toHaveStyle({ opacity: "1", transform: "none" }));
+        expect(container.querySelector("form")).toBe(form);
+        expect(screen.getByLabelText("Your Name")).toHaveValue("Test User");
+        expect(screen.getByLabelText("Message")).toHaveValue("A project question for testing.");
+      } finally {
+        unmount();
+        vi.restoreAllMocks();
+        vi.unstubAllGlobals();
+      }
+    },
+  );
 
   function fillForm() {
     fireEvent.change(screen.getByLabelText("Your Name"), { target: { value: "Test User" } });

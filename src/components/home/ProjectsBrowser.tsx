@@ -10,6 +10,7 @@ import { ProjectQuickView } from "./ProjectQuickView";
 import type { MergedProject } from "@/lib/projects";
 import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import categoryCss from "./project-categories.module.css";
 
 const ALL = "All";
 // Featured on the left, most recently pushed on the right. Both columns are capped so the
@@ -179,11 +180,11 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                     }}
                     whileHover={mode === "expressive" ? { y: -2 } : undefined}
                     whileTap={mode === "static" ? undefined : { scale: 0.98 }}
-                    className={
+                    className={`${categoryCss.button} rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
                       active
-                        ? "rounded-full border border-(--brand-deep)/50 bg-(--chip-surface) px-3 py-1.5 text-xs font-semibold text-(--accent-on-chip) transition-colors"
-                        : "border-border text-muted hover:border-foreground/30 hover:text-foreground rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
-                    }
+                        ? "border-brand-bright/60 bg-(image:--gradient-brand) text-white"
+                        : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
+                    }`}
                   >
                     {name}
                     <span className="ml-1.5 opacity-60">{count}</span>

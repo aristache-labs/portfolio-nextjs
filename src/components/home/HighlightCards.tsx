@@ -43,19 +43,21 @@ function Cover({
   sizes,
   fit,
   priority = false,
+  loading = "lazy",
 }: {
   project: MergedProject;
   sizes: string;
   fit: string;
   priority?: boolean;
+  loading?: "eager" | "lazy";
 }) {
   return project.coverImage ? (
     <Image
       src={project.coverImage}
       alt=""
       fill
-      sizes={priority ? sizes : `auto, ${sizes}`}
-      loading={priority ? undefined : "lazy"}
+      sizes={priority || loading === "eager" ? sizes : `auto, ${sizes}`}
+      loading={priority ? undefined : loading}
       quality={90}
       priority={priority}
       className={`${motionStyles.cover} ${fit}`}
@@ -191,7 +193,7 @@ export function FeaturedCard({
         FEATURED
       </span>
       <div className="border-border relative aspect-video w-full shrink-0 overflow-hidden border-b">
-        <Cover project={project} sizes={FEATURED_COVER_SIZES} fit="object-cover" />
+        <Cover project={project} sizes={FEATURED_COVER_SIZES} fit="object-cover" loading="eager" />
       </div>
       <div className="flex flex-1 flex-col p-4 sm:p-5">
         <div
