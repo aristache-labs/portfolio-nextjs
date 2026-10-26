@@ -89,9 +89,9 @@ export function Footer({
       <div className="site-container relative z-10 pt-6 pb-24 sm:pb-8 lg:pt-8">
         <div className={`${layout.intro} flex flex-col items-center text-center`}>
           <ProgressiveReveal effect="focus" duration={0.7} delay={0.1}>
-            <h2 className="font-display text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.1] font-extrabold tracking-tight text-white">
+            <p className="font-display text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.1] font-extrabold tracking-tight text-white">
               Thanks for <span className="gradient-text">visiting.</span>
-            </h2>
+            </p>
           </ProgressiveReveal>
 
           <ProgressiveReveal effect="fade" duration={0.65} delay={0.15}>

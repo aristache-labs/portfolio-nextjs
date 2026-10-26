@@ -13,6 +13,14 @@ vi.mock("next/font/google", () => ({
   Merienda: () => ({ className: "quote-font", style: { fontFamily: "Merienda" } }),
 }));
 
+vi.mock("next/link", () => ({
+  default: ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
 // Magnetic renders for real and reads matchMedia via useReducedMotion
 beforeEach(() => installMatchMedia());
 afterEach(() => vi.restoreAllMocks());
@@ -119,7 +127,7 @@ describe("Contact", () => {
   it("serves visible copy, contact links and form fields before hydration", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(<Contact socials={mockSocials} email={email} />);
-    expect(container.querySelectorAll("input, select, textarea")).toHaveLength(4);
+    expect(container.querySelectorAll("input, select, textarea")).toHaveLength(5);
     for (const element of container.querySelectorAll("h2, h3, input, select, textarea, a")) {
       for (let node: Element | null = element; node; node = node.parentElement) {
         expect((node as HTMLElement).style.opacity).not.toBe("0");
@@ -162,6 +170,7 @@ describe("Contact", () => {
           email: "sender@example.com",
           subject: "General Question",
           message: "A project question for testing.",
+          website: "",
         }),
       }),
     );
@@ -169,6 +178,34 @@ describe("Contact", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Message sent.");
     expect(screen.getByLabelText("Your Name")).toHaveValue("");
     expect(screen.getByLabelText("Message")).toHaveValue("");
+  });
+
+  it("provides autocomplete and sends the offscreen honeypot to the API", async () => {
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(Response.json({ success: true }));
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    expect(screen.getByLabelText("Your Name")).toHaveAttribute("name", "name");
+    expect(screen.getByLabelText("Your Name")).toHaveAttribute("autocomplete", "name");
+    expect(screen.getByLabelText("Your Email")).toHaveAttribute("autocomplete", "email");
+    expect(screen.getByLabelText("Subject")).toHaveAttribute("name", "subject");
+    expect(screen.getByLabelText("Message")).toHaveAttribute("name", "message");
+    const trap = container.querySelector('input[name="website"]')!;
+    expect(trap).toHaveAttribute("tabindex", "-1");
+    expect(trap).toHaveAttribute("autocomplete", "off");
+    expect(trap.parentElement).toHaveAttribute("aria-hidden", "true");
+    expect(trap.parentElement).toHaveClass("-left-[10000px]");
+    expect(screen.getByRole("link", { name: "Privacy policy" })).toHaveAttribute(
+      "href",
+      "/privacy",
+    );
+    fillForm();
+    fireEvent.change(trap, { target: { value: "https://example.com" } });
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Message sent."));
+    expect(JSON.parse(fetchMock.mock.calls[0][1]!.body as string).website).toBe(
+      "https://example.com",
+    );
   });
 
   it("keeps edits after an error and allows a successful retry", async () => {

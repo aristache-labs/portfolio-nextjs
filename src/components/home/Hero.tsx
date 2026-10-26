@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, type MouseEvent, type RefObject } from "re
 import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { EncryptedText } from "@/components/ui/encrypted-text";
 import { TypingAnimation } from "@/components/ui/typing-animation";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -393,25 +392,6 @@ export function Hero({
                   );
                 })}
               </div>
-            )}
-
-            {profile.roles.length > 0 && (
-              <p
-                className={`${styles.roles} text-muted mt-6 font-mono text-[11px] tracking-[0.04em] uppercase md:text-xs md:tracking-[0.14em] [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[8px] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:relative [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-top-1 [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:mt-0`}
-              >
-                {profile.roles.map((role, i) => (
-                  <span key={role}>
-                    {i > 0 && " · "}
-                    <EncryptedText
-                      text={role}
-                      revealDelayMs={70}
-                      encryptedClassName="text-white/30"
-                      revealedClassName="text-muted"
-                      className="whitespace-nowrap md:whitespace-normal"
-                    />
-                  </span>
-                ))}
-              </p>
             )}
           </div>
 

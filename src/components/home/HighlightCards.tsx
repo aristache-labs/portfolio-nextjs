@@ -1,5 +1,7 @@
 "use client";
 
+import type { MouseEventHandler } from "react";
+
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
 
@@ -120,7 +122,7 @@ function Actions({
   compact = false,
 }: {
   project: MergedProject;
-  onQuickView: () => void;
+  onQuickView: MouseEventHandler<HTMLButtonElement>;
   compact?: boolean;
 }) {
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
@@ -133,12 +135,14 @@ function Actions({
         className={compactClass}
         size="sm"
         onClick={onQuickView}
+        aria-label={`View ${project.title}`}
         leftIcon={<Maximize2 className="size-3.5" aria-hidden />}
       >
         View
       </Button>
       <Button
         href={githubUrl}
+        aria-label={`Code for ${project.title}`}
         title="View code on GitHub"
         className={compactClass}
         variant="secondary"
@@ -154,6 +158,7 @@ function Actions({
       {project.homepage && (
         <Button
           href={project.homepage}
+          aria-label={`Live site for ${project.title}`}
           className={compactClass}
           variant="ghost"
           size="sm"
@@ -185,7 +190,7 @@ export function FeaturedCard({
   onQuickView,
 }: {
   project: MergedProject;
-  onQuickView: () => void;
+  onQuickView: MouseEventHandler<HTMLButtonElement>;
 }) {
   return (
     <article className={`${motionStyles.card} ${SHELL} flex flex-col`}>
@@ -231,7 +236,7 @@ export function RecentCard({
   priority = false,
 }: {
   project: MergedProject;
-  onQuickView: () => void;
+  onQuickView: MouseEventHandler<HTMLButtonElement>;
   priority?: boolean;
 }) {
   return (

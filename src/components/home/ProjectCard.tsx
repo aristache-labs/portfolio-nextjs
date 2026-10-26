@@ -1,5 +1,7 @@
 "use client";
 
+import type { MouseEventHandler } from "react";
+
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
 
@@ -17,7 +19,7 @@ export function ProjectCard({
   onQuickView,
 }: {
   project: MergedProject;
-  onQuickView?: () => void;
+  onQuickView?: MouseEventHandler<HTMLButtonElement>;
 }) {
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
   const blurb = project.description ?? "";
@@ -95,6 +97,7 @@ export function ProjectCard({
               className={COMPACT_PROJECT_ACTION}
               size="sm"
               onClick={onQuickView}
+              aria-label={`View ${project.title}`}
               leftIcon={<Maximize2 className="size-3.5" aria-hidden />}
             >
               View
@@ -103,6 +106,7 @@ export function ProjectCard({
           <Button
             className={COMPACT_PROJECT_ACTION}
             href={githubUrl}
+            aria-label={`Code for ${project.title}`}
             title="View code on GitHub"
             variant="secondary"
             size="sm"
@@ -116,6 +120,7 @@ export function ProjectCard({
             <Button
               className={COMPACT_PROJECT_ACTION}
               href={project.homepage}
+              aria-label={`Live site for ${project.title}`}
               variant="ghost"
               size="sm"
               target="_blank"

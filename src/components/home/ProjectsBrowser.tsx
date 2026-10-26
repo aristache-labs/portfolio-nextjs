@@ -1,16 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type MouseEvent } from "react";
+import dynamic from "next/dynamic";
 import { m, type Variants } from "framer-motion";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProjectCard } from "./ProjectCard";
 import { FeaturedCard, RecentCard } from "./HighlightCards";
-import { ProjectQuickView } from "./ProjectQuickView";
 import type { MergedProject } from "@/lib/projects";
 import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import categoryCss from "./project-categories.module.css";
+
+// The dialog and carousel are needed only after a project is opened.
+const ProjectQuickView = dynamic(
+  () => import("./ProjectQuickView").then((module) => module.ProjectQuickView),
+  { ssr: false },
+);
 
 const ALL = "All";
 // Featured on the left, most recently pushed on the right. Both columns are capped so the
@@ -24,9 +30,9 @@ const TRACK = "flex flex-1 flex-col gap-4";
 function ColumnLabel({ children }: { children: string }) {
   return (
     <ProgressiveReveal effect="fade" duration={0.6} delay={0.1}>
-      <h3 className="text-brand-bright border-brand-mid/60 mb-4 border-l-2 pl-3 font-mono text-[14px] font-semibold tracking-[0.16em] uppercase lg:text-[16px]">
+      <p className="text-brand-bright border-brand-mid/60 mb-4 border-l-2 pl-3 font-mono text-[14px] font-semibold tracking-[0.16em] uppercase lg:text-[16px]">
         {children}
-      </h3>
+      </p>
     </ProgressiveReveal>
   );
 }
@@ -54,6 +60,17 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const [extra, setExtra] = useState(0);
   const mobileViewport = useMediaQuery("(max-width: 1023px)");
   const recentLimit = mobileViewport ? 2 : MAX_RECENT;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  function openQuickView(project: MergedProject, event: MouseEvent<HTMLButtonElement>) {
+    openerRef.current = event.currentTarget;
+    setQuickView(project);
+  }
+  function restoreFocus() {
+    const opener = openerRef.current;
+    if (opener?.isConnected) opener.focus();
+    else containerRef.current?.focus();
+  }
   const [quickView, setQuickView] = useState<MergedProject | null>(null);
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
@@ -87,9 +104,16 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
       featured: lead,
       recent: latest,
       rest: grid,
-      categories: PROJECT_CATEGORIES.map((name) => [name, counts.get(name) ?? 0] as const),
+      categories: PROJECT_CATEGORIES.filter((name) => counts.has(name)).map(
+        (name) => [name, counts.get(name)!] as const,
+      ),
     };
   }, [projects, recentLimit]);
+
+  if (category !== ALL && !categories.some(([name]) => name === category)) {
+    setCategory(ALL);
+    setExtra(0);
+  }
 
   const filtered = category === ALL ? rest : rest.filter((p) => p.category === category);
   const visible = filtered.slice(0, limit);
@@ -101,7 +125,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   }
 
   return (
-    <>
+    <div ref={containerRef} tabIndex={-1} aria-label="Projects" className="outline-none">
       {(featured.length > 0 || recent.length > 0) && (
         <div className="mb-10 grid items-start gap-6 lg:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:gap-4">
           {featured.length > 0 && (
@@ -116,7 +140,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                     delay={i * 0.08}
                     className="flex"
                   >
-                    <FeaturedCard project={p} onQuickView={() => setQuickView(p)} />
+                    <FeaturedCard project={p} onQuickView={(event) => openQuickView(p, event)} />
                   </ProgressiveReveal>
                 ))}
               </div>
@@ -135,7 +159,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                     delay={i * 0.06}
                     className={`flex min-w-0 ${i >= 2 ? "max-lg:hidden" : ""}`}
                   >
-                    <RecentCard project={p} onQuickView={() => setQuickView(p)} />
+                    <RecentCard project={p} onQuickView={(event) => openQuickView(p, event)} />
                   </ProgressiveReveal>
                 ))}
               </div>
@@ -146,8 +170,8 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
 
       {rest.length > 0 && (
         <>
-          <ColumnLabel>Categories</ColumnLabel>
-          {categories.length > 0 && (
+          <ColumnLabel>More projects</ColumnLabel>
+          {rest.length > 0 && (
             <ProgressiveReveal
               effect="cascade"
               duration={0}
@@ -180,7 +204,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                     }}
                     whileHover={mode === "expressive" ? { y: -2 } : undefined}
                     whileTap={mode === "static" ? undefined : { scale: 0.98 }}
-                    className={`${categoryCss.button} rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
+                    className={`${categoryCss.button} min-h-11 min-w-11 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
                       active
                         ? "border-brand-bright/60 bg-(image:--gradient-brand) text-white"
                         : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
@@ -209,7 +233,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                 variants={cardVariants}
                 className="h-full"
               >
-                <ProjectCard project={p} onQuickView={() => setQuickView(p)} />
+                <ProjectCard project={p} onQuickView={(event) => openQuickView(p, event)} />
               </m.div>
             ))}
           </ProgressiveReveal>
@@ -235,7 +259,13 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
         </>
       )}
 
-      <ProjectQuickView project={quickView} onClose={() => setQuickView(null)} />
-    </>
+      {quickView && (
+        <ProjectQuickView
+          project={quickView}
+          onClose={() => setQuickView(null)}
+          onRestoreFocus={restoreFocus}
+        />
+      )}
+    </div>
   );
 }

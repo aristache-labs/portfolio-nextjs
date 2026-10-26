@@ -1,7 +1,7 @@
 @media (max-width: 1023px) and (pointer: coarse) {
   .actions a,
   .actions button {
-    min-height: 0;
+    min-height: 44px;
     padding: 6px 10px;
     border-radius: 8px;
     font-size: 11px;
@@ -86,7 +86,7 @@
 
   .actions a,
   .actions button {
-    min-height: 36px;
+    min-height: 44px;
     padding: 8px 12px;
     font-size: 13px;
     border-radius: 10px;
@@ -139,7 +139,7 @@
 
   .actions.featured a,
   .actions.featured button {
-    min-height: 32px;
+    min-height: 44px;
     padding: 7px 10px;
     font-size: 12px;
     border-radius: 9px;
@@ -158,7 +158,7 @@
 
   .actions.recent a,
   .actions.recent button {
-    min-height: 30px;
+    min-height: 44px;
     padding: 6px 8px;
     font-size: 11px;
   }
@@ -213,4 +213,10 @@
     margin-left: 0;
     margin-right: auto;
   }
+}
+
+.actions a,
+.actions button {
+  min-width: 44px;
+  min-height: 44px;
 }

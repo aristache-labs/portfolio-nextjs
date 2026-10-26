@@ -124,7 +124,7 @@ describe("ProjectsBrowser categories and responsive limits", () => {
 
   it.each([1, 3, 11])(
     "opens Quick View from project %i and closes it without hiding its card",
-    (id) => {
+    async (id) => {
       const originalObserver = globalThis.ResizeObserver;
       vi.stubGlobal(
         "ResizeObserver",
@@ -136,11 +136,21 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       const { unmount } = render(<ProjectsBrowser projects={list} />);
       try {
         const card = screen.getByRole("heading", { name: `Project ${id}` }).closest("article")!;
-        fireEvent.click(within(card).getByRole("button", { name: "View" }));
-        expect(screen.getByRole("dialog", { name: `Project ${id}` })).toBeInTheDocument();
+        fireEvent.click(within(card).getByRole("button", { name: /^View Project/ }));
+        expect(await screen.findByRole("dialog", { name: `Project ${id}` })).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Close" }));
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(card).toBeVisible();
+        await waitFor(() =>
+          expect(within(card).getByRole("button", { name: /^View Project/ })).toHaveFocus(),
+        );
+        fireEvent.click(within(card).getByRole("button", { name: /^View Project/ }));
+        expect(await screen.findByRole("dialog", { name: `Project ${id}` })).toBeInTheDocument();
+        fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+        await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(within(card).getByRole("button", { name: /^View Project/ })).toHaveFocus(),
+        );
       } finally {
         unmount();
         vi.stubGlobal("ResizeObserver", originalObserver);
@@ -154,6 +164,40 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     expect(container.querySelector('[style*="opacity: 0"]')).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
     expect(screen.getByRole("heading", { name: "Project 19" })).toBeVisible();
+  });
+
+  it("loads the gallery on demand and starts at the poster when reopened", async () => {
+    const originalObserver = globalThis.ResizeObserver;
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    const { unmount } = render(
+      <ProjectsBrowser
+        projects={[
+          project(1, { featured: true, coverImage: "/poster.webp", screenshots: ["/detail.webp"] }),
+        ]}
+      />,
+    );
+    try {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      const open = screen.getByRole("button", { name: /^View Project/ });
+      fireEvent.click(open);
+      const dialog = await screen.findByRole("dialog", { name: "Project 1" });
+      expect(within(dialog).getByAltText("Project 1 poster")).toBeInTheDocument();
+      fireEvent.click(within(dialog).getByRole("button", { name: "Next image" }));
+      expect(within(dialog).getByAltText("Project 1 screenshot 1")).toBeInTheDocument();
+      fireEvent.click(within(dialog).getByRole("button", { name: "Close" }));
+      fireEvent.click(open);
+      const reopened = await screen.findByRole("dialog", { name: "Project 1" });
+      expect(within(reopened).getByAltText("Project 1 poster")).toBeInTheDocument();
+    } finally {
+      unmount();
+      vi.stubGlobal("ResizeObserver", originalObserver);
+    }
   });
   it("shows eight recent and six lower cards on desktop without duplicates", () => {
     render(<ProjectsBrowser projects={list} />);
@@ -179,12 +223,76 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
   });
-  it("shows four lower cards in landscape and an empty state for an empty category", () => {
+  it("shows four lower cards in landscape and omits empty categories", () => {
     installMatchMedia({ "(max-width: 1023px)": true, "(orientation: landscape)": true });
     render(<ProjectsBrowser projects={list} />);
     expect(screen.getAllByRole("article")).toHaveLength(8);
-    fireEvent.click(screen.getByRole("button", { name: /^Automation & Tools/ }));
-    expect(screen.getByText("No projects in Automation & Tools yet.")).toBeInTheDocument();
-    expect(screen.getAllByRole("article")).toHaveLength(4);
+    expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("More projects").tagName).toBe("P");
+    expect(screen.getByText("Recently updated").tagName).toBe("P");
+    expect(screen.getByText("Featured", { exact: true, selector: "p" }).tagName).toBe("P");
+  });
+
+  it("resets an emptied category and pagination when data changes", () => {
+    const { rerender } = render(<ProjectsBrowser projects={list} />);
+    fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
+    rerender(
+      <ProjectsBrowser
+        projects={list.map((p) =>
+          p.category === "Websites" ? { ...p, category: "Desktop Apps" } : p,
+        )}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: /^Websites/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getAllByRole("article")).toHaveLength(16);
+    expect(screen.getByRole("button", { name: "Show more projects" })).toBeInTheDocument();
+  });
+
+  it("resets an emptied category after the viewport moves its projects into recent", () => {
+    installMatchMedia({ "(max-width: 1023px)": true });
+    const { rerender } = render(<ProjectsBrowser projects={list} />);
+    fireEvent.click(screen.getByRole("button", { name: /^Web Apps/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
+    installMatchMedia();
+    rerender(<ProjectsBrowser projects={[...list]} />);
+    expect(screen.queryByRole("button", { name: /^Web Apps/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getAllByRole("article")).toHaveLength(16);
+  });
+
+  it("restores focus to Projects when the opener disappears while the gallery is open", async () => {
+    const originalObserver = globalThis.ResizeObserver;
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    const { container, rerender, unmount } = render(<ProjectsBrowser projects={list} />);
+    try {
+      fireEvent.click(screen.getByRole("button", { name: "View Project 1" }));
+      await screen.findByRole("dialog", { name: "Project 1" });
+      rerender(<ProjectsBrowser projects={list.filter((p) => p.id !== 1)} />);
+      fireEvent.click(screen.getByRole("button", { name: "Close" }));
+      await waitFor(() => expect(container.querySelector('[aria-label="Projects"]')).toHaveFocus());
+    } finally {
+      unmount();
+      vi.stubGlobal("ResizeObserver", originalObserver);
+    }
+  });
+
+  it("names project actions in all three card layouts", () => {
+    render(
+      <ProjectsBrowser projects={list.map((p) => ({ ...p, homepage: "https://example.com" }))} />,
+    );
+    for (const id of [1, 3, 11]) {
+      expect(screen.getByRole("button", { name: "View Project " + id })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Code for Project " + id })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Live site for Project " + id })).toBeInTheDocument();
+    }
   });
 });

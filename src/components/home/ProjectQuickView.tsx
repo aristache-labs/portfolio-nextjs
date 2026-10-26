@@ -128,9 +128,11 @@ function PosterCarousel({
 export function ProjectQuickView({
   project,
   onClose,
+  onRestoreFocus,
 }: {
   project: MergedProject | null;
   onClose: () => void;
+  onRestoreFocus?: () => void;
 }) {
   const [index, setIndex] = useState(0);
   const [descriptionElement, setDescriptionElement] = useState<HTMLSpanElement | null>(null);
@@ -233,6 +235,11 @@ export function ProjectQuickView({
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent
+        onCloseAutoFocus={(event) => {
+          if (!onRestoreFocus) return;
+          event.preventDefault();
+          onRestoreFocus();
+        }}
         className={`max-w-2xl ${styles.dialog}`}
         style={{ "--preview-ratio": activeRatio ?? 16 / 9 } as CSSProperties}
       >
@@ -305,6 +312,8 @@ export function ProjectQuickView({
           {project.homepage && (
             <Button
               href={project.homepage}
+              aria-label={`Live site for ${project.title}`}
+              className="min-h-11 min-w-11"
               size="sm"
               target="_blank"
               rel="noopener noreferrer"
@@ -320,6 +329,8 @@ export function ProjectQuickView({
           )}
           <Button
             href={githubUrl}
+            aria-label={`Code for ${project.title}`}
+            className="min-h-11 min-w-11"
             variant="secondary"
             size="sm"
             target="_blank"

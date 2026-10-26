@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Merienda } from "next/font/google";
 import { m, type Variants } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
@@ -90,6 +91,7 @@ export function Contact({
   const [name, setName] = useState("");
   const [from, setFrom] = useState("");
   const [subject, setSubject] = useState("");
+  const [website, setWebsite] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState("");
@@ -132,7 +134,7 @@ export function Contact({
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email: from, subject, message }),
+        body: JSON.stringify({ name, email: from, subject, message, website }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -144,6 +146,7 @@ export function Contact({
       setFrom("");
       setSubject("");
       setMessage("");
+      setWebsite("");
       setStatus("success");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -347,6 +350,8 @@ export function Contact({
                   </label>
                   <input
                     id="contact-name"
+                    name="name"
+                    autoComplete="name"
                     type="text"
                     required
                     value={name}
@@ -361,6 +366,8 @@ export function Contact({
                   </label>
                   <input
                     id="contact-email"
+                    name="email"
+                    autoComplete="email"
                     type="email"
                     required
                     value={from}
@@ -378,6 +385,8 @@ export function Contact({
                 <div className="relative">
                   <select
                     id="contact-subject"
+                    name="subject"
+                    autoComplete="off"
                     required
                     value={subject}
                     onChange={(event) => setSubject(event.target.value)}
@@ -402,6 +411,8 @@ export function Contact({
                 </label>
                 <textarea
                   id="contact-message"
+                  name="message"
+                  autoComplete="off"
                   required
                   minLength={10}
                   value={message}
@@ -411,6 +422,26 @@ export function Contact({
                 />
               </div>
             </div>
+
+            <div aria-hidden="true" className="absolute top-0 -left-[10000px]">
+              <label htmlFor="contact-website">Website</label>
+              <input
+                id="contact-website"
+                name="website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(event) => setWebsite(event.target.value)}
+              />
+            </div>
+            <p className="text-muted mt-4 text-xs leading-relaxed">
+              Read the{" "}
+              <Link href="/privacy" className="text-brand-bright underline">
+                Privacy policy
+              </Link>{" "}
+              for details about how your message is handled.
+            </p>
 
             <Magnetic className="mt-5 block w-full">
               <Button

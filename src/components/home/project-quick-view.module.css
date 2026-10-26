@@ -53,7 +53,7 @@
   }
 
   .footer > a {
-    min-height: 32px;
+    min-height: 44px;
     padding: 6px 8px;
     gap: 5px;
     font-size: 12px;
@@ -164,7 +164,7 @@
   }
 
   .footer > a {
-    min-height: 30px;
+    min-height: 44px;
     padding: 5px 8px;
     gap: 4px;
     font-size: 12px;

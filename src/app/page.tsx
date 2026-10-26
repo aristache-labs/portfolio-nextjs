@@ -10,6 +10,7 @@ import {
   getFundingLinks,
 } from "@/lib/queries";
 import { Hero } from "@/components/home/Hero";
+import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
 import { sectionNumbers } from "@/lib/section-numbers";
@@ -74,12 +75,14 @@ export default async function Home() {
       data-site="cinematic"
       className={`${sora.variable} dark bg-background text-foreground relative min-h-screen`}
     >
+      <SkipLink />
       <SiteNav
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
         hidden={Object.entries(vis)
           .filter(([, v]) => v === false)
           .map(([k]) => k)}
       />
+      <div id="page-content" tabIndex={-1} className="scroll-mt-24 outline-none" />
 
       <Hero
         profile={{ name: profile.name, roles: profile.roles }}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, ShieldCheck } from "lucide-react";
+import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
@@ -106,12 +107,14 @@ export default async function GdprPage() {
 
   return (
     <>
+      <SkipLink />
       <SiteNav
         socials={[]}
         hidden={Object.entries(profile.sectionVisibility)
           .filter(([, visible]) => visible === false)
           .map(([id]) => id)}
       />
+      <div id="page-content" tabIndex={-1} className="scroll-mt-24 outline-none" />
       <div className={styles.backdropSection}>
         <SectionBackdrop
           video="/media/about-v2.mp4"

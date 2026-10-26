@@ -66,7 +66,6 @@ describe("Hero", () => {
       paragraphs.find((element) => element.textContent === IDENTITY.summary),
       paragraphs.find((element) => element.textContent === "// HELLO, I'M"),
       paragraphs.find((element) => element.textContent?.includes("Available for projects")),
-      paragraphs.find((element) => element.textContent?.includes(profile.roles[0])),
       ...paragraphs.filter((element) => element.textContent === "// scope"),
     ];
 
@@ -108,9 +107,10 @@ describe("Hero", () => {
     expect(screen.queryByText(/building ai-native products/i)).not.toBeInTheDocument();
   });
 
-  it("renders the roles under the headline", () => {
+  it("omits the decorative roles without changing the profile", () => {
     render(<Hero profile={profile} />);
-    expect(screen.getByText(/full stack developer/i)).toBeInTheDocument();
+    expect(screen.queryByText(/full stack developer/i)).not.toBeInTheDocument();
+    expect(profile.roles).toEqual(["Full Stack Developer", "Flutter Developer"]);
   });
 
   it("renders Explore Projects, Get in Touch, and Resume, with no sponsor action", () => {
