@@ -51,6 +51,17 @@ describe("AvatarPortrait", () => {
     expect(screen.getByAltText(`Portrait of ${NAME}`)).toHaveAttribute("src", SOURCE);
   });
 
+  it("adds the decorative border beside the photo without animating its frame", () => {
+    const { container } = render(<AvatarPortrait src={SOURCE} name={NAME} />);
+    const image = screen.getByAltText(`Portrait of ${NAME}`);
+    const border = container.querySelector('div[style*="--shine-width"]');
+    expect(border).toHaveAttribute("aria-hidden", "true");
+    expect(border?.parentElement).toBe(image.parentElement?.parentElement);
+    expect(container.querySelectorAll("img")).toHaveLength(1);
+    expect(image.parentElement?.parentElement).not.toHaveAttribute("style");
+    expect(image).toHaveClass("object-cover");
+  });
+
   it("is not interactive", () => {
     render(<AvatarPortrait src={SOURCE} name={NAME} />);
     expect(screen.queryByRole("button")).not.toBeInTheDocument();

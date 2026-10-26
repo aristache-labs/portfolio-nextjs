@@ -15,12 +15,12 @@ const mockProfile = {
 };
 
 describe("About", () => {
-  it("keeps the portrait outside animated wrappers", () => {
+  it("keeps the portrait visible and in its layout position with reduced motion", () => {
     const { container } = render(
       <About profile={{ ...mockProfile, avatarUrl: "https://example.com/portrait.webp" }} />,
     );
     const portrait = container.getElementsByClassName(styles.portrait)[0];
-    expect(portrait).not.toHaveAttribute("style");
+    expect(portrait).not.toHaveStyle({ opacity: "0" });
     expect(portrait.parentElement).toHaveClass(styles.biography);
     expect(portrait.parentElement).not.toHaveAttribute("style");
   });

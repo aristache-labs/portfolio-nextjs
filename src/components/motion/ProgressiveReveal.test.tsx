@@ -111,7 +111,7 @@ describe("ProgressiveReveal", () => {
     expect(controls.start).toHaveBeenCalledWith({
       opacity: [0, 1],
       y: [distance, 0],
-      transition: { duration, delay: 0, ease: [0.44, 2, 0.72, 2] },
+      transition: { duration, delay: 0.3, ease: [0.44, 2, 0.72, 2] },
     });
     expect(disconnect).toHaveBeenCalled();
     intersect(container.firstElementChild!);
@@ -184,7 +184,7 @@ describe("ProgressiveReveal", () => {
     expect(controls.start).toHaveBeenCalledWith({
       opacity: [0, 1],
       x: [desktop ? -24 : -12, 0],
-      transition: { duration: 1, delay: 0, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
     });
     change(REDUCED_MOTION_QUERY, true);
     expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0 });
@@ -195,8 +195,58 @@ describe("ProgressiveReveal", () => {
     intersect(container.firstElementChild!);
     expect(controls.start).toHaveBeenCalledWith({
       opacity: [0, 1],
-      transition: { duration: 1, delay: 0, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
     });
+  });
+
+  it.each([false, true])(
+    "slides the portrait from the right without changing opacity (desktop=%s)",
+    (desktop) => {
+      matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+      vi.stubGlobal("innerWidth", desktop ? 1440 : 390);
+      const left = desktop ? 900 : 80;
+      vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+        top: 2000,
+        left,
+      } as DOMRect);
+      const distance = window.innerWidth - left + 24;
+      const { container } = render(
+        <ProgressiveReveal effect="slide-from-right">Portrait</ProgressiveReveal>,
+      );
+      expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: distance, y: 0 });
+      intersect(container.firstElementChild!);
+      expect(controls.start).toHaveBeenCalledWith({
+        opacity: 1,
+        x: [distance, 0],
+        transition: { duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
+      });
+      intersect(container.firstElementChild!);
+      expect(controls.start).toHaveBeenCalledTimes(1);
+      change(REDUCED_MOTION_QUERY, true);
+      expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0 });
+    },
+  );
+
+  it("updates the offscreen start after resizing without transforming the observed box", () => {
+    vi.stubGlobal("innerWidth", 390);
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+      top: 2000,
+      left: 80,
+    } as DOMRect);
+    const { container } = render(
+      <ProgressiveReveal effect="slide-from-right">Portrait</ProgressiveReveal>,
+    );
+    expect(observe).toHaveBeenCalledWith(container.firstElementChild);
+    expect(container.firstElementChild).not.toHaveAttribute("style");
+    vi.stubGlobal("innerWidth", 932);
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+      top: 2000,
+      left: 620,
+    } as DOMRect);
+    act(() => window.dispatchEvent(new Event("resize")));
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 336, y: 0 });
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledWith(expect.objectContaining({ x: [336, 0] }));
   });
 
   it("draws a decorative line and resets it immediately for reduced motion", () => {
@@ -205,7 +255,7 @@ describe("ProgressiveReveal", () => {
     expect(controls.start).toHaveBeenCalledWith({
       opacity: [0, 1],
       scaleX: [0, 1],
-      transition: { duration: 1, delay: 0, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
     });
     change(REDUCED_MOTION_QUERY, true);
     expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0, scaleX: 1 });
@@ -218,7 +268,7 @@ describe("ProgressiveReveal", () => {
     expect(controls.start).toHaveBeenCalledWith({
       opacity: [0, 1],
       scale: [desktop ? 0.97 : 0.99, 1],
-      transition: { duration: 1, delay: 0, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
     });
     change(REDUCED_MOTION_QUERY, true);
     expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0, scale: 1 });
@@ -232,7 +282,7 @@ describe("ProgressiveReveal", () => {
     intersect(container.firstElementChild!);
     expect(controls.start).toHaveBeenCalledWith(
       expect.objectContaining({
-        transition: expect.objectContaining({ delay: desktop ? 0.12 : 0 }),
+        transition: expect.objectContaining({ delay: desktop ? 0.12 : 0.3 }),
       }),
     );
   });

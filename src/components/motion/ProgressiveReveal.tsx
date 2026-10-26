@@ -15,7 +15,7 @@ export function ProgressiveReveal({
   children: ReactNode;
   className?: string;
   desktopDelay?: number;
-  effect?: "rise" | "fade" | "slide" | "focus" | "cascade" | "line";
+  effect?: "rise" | "fade" | "slide" | "slide-from-right" | "focus" | "cascade" | "line";
 }) {
   const { mode, ready } = useAnimationPolicy();
   const controls = useAnimationControls();
@@ -27,6 +27,12 @@ export function ProgressiveReveal({
     const node = element.current;
     let observer: IntersectionObserver | undefined;
     let active = true;
+    let rightStart = 0;
+    const prepareRightSlide = () => {
+      if (!active || finished.current) return;
+      rightStart = Math.max(0, window.innerWidth - node.getBoundingClientRect().left) + 24;
+      controls.set({ opacity: 1, x: rightStart, y: 0 });
+    };
     const show = () => {
       finished.current = true;
       observer?.disconnect();
@@ -79,9 +85,10 @@ export function ProgressiveReveal({
             return;
           }
           void controls.start({
-            opacity: [0, 1],
+            opacity: effect === "slide-from-right" ? 1 : [0, 1],
             ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
             ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
+            ...(effect === "slide-from-right" ? { x: [rightStart, 0] } : {}),
             ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
             ...(effect === "line" ? { scaleX: [0, 1] } : {}),
             transition: {
@@ -97,7 +104,12 @@ export function ProgressiveReveal({
         },
       );
       // Prepare only offscreen content, before it can be seen during scrolling.
-      controls.set(effect === "cascade" ? "hidden" : { opacity: 0, x: 0, y: 0 });
+      if (effect === "slide-from-right") {
+        prepareRightSlide();
+        window.addEventListener("resize", prepareRightSlide);
+      } else {
+        controls.set(effect === "cascade" ? "hidden" : { opacity: 0, x: 0, y: 0 });
+      }
       observer.observe(node);
       window.addEventListener("scrollend", onScrollEnd);
       node.addEventListener("focusin", onFocus);
@@ -107,10 +119,22 @@ export function ProgressiveReveal({
       active = false;
       observer?.disconnect();
       window.removeEventListener("scrollend", onScrollEnd);
+      window.removeEventListener("resize", prepareRightSlide);
       node.removeEventListener("focusin", onFocus);
       controls.stop();
     };
   }, [controls, desktopDelay, effect, mode, ready]);
+
+  // Observe the stationary layout box: an offscreen translated target cannot intersect.
+  if (effect === "slide-from-right") {
+    return (
+      <div ref={element} className={className}>
+        <m.div initial={false} animate={controls}>
+          {children}
+        </m.div>
+      </div>
+    );
+  }
 
   return (
     <m.div

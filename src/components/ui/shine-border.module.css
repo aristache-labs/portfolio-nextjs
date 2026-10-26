@@ -1,0 +1,32 @@
+.border {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: var(--shine-width);
+  border-radius: inherit;
+  pointer-events: none;
+  background-size: 50% 50%;
+  background-position: 0% 0%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: border-shine var(--shine-duration) ease-in-out infinite;
+}
+
+@keyframes border-shine {
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .border {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}

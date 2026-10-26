@@ -100,9 +100,9 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
     >
       <div className={statsCss.biography}>
         {profile.avatarUrl && (
-          <div className={statsCss.portrait}>
+          <ProgressiveReveal className={statsCss.portrait} effect="slide-from-right">
             <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? SITE.name} />
-          </div>
+          </ProgressiveReveal>
         )}
         <ProgressiveReveal className={statsCss.heading} effect="slide">
           <div className="mb-8">
