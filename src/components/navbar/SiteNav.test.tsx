@@ -61,7 +61,7 @@ describe("SiteNav", () => {
   it("renders the home link, inline sections, and connect CTA", () => {
     render(<SiteNav socials={socials} />);
     expect(screen.getAllByRole("link", { name: /^home$/i })[0]).toHaveAttribute("href", "#hero");
-    expect(document.querySelector('img[src="/brand/aristache-text.svg"]')).toBeInTheDocument();
+    expect(document.querySelector('img[src="/brand/aristache-text.webp"]')).toBeInTheDocument();
     expect(screen.queryByText("Cristache Adrian")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "About" })).toHaveAttribute("href", "#about");
     expect(screen.getByRole("link", { name: "Contact" })).toHaveAttribute("href", "#contact");

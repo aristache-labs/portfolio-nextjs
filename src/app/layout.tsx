@@ -1,35 +1,15 @@
 import "./globals.css";
 import { GeistSans } from "geist/font/sans";
-import localFont from "next/font/local";
 import { ReactNode } from "react";
 import { Metadata, Viewport } from "next";
 import dynamic from "next/dynamic";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { HashScrollFix } from "@/components/util/HashScrollFix";
+import { LateMonoFont } from "@/components/util/LateMonoFont";
 import { AmbientBackgroundGate } from "@/components/background/AmbientBackgroundGate";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE } from "@/lib/seo/site";
-
-// Use the package's exact font and fallback settings, without its default preload.
-const GeistMono = localFont({
-  src: "../../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2",
-  variable: "--font-geist-mono",
-  preload: false,
-  adjustFontFallback: false,
-  fallback: [
-    "ui-monospace",
-    "SFMono-Regular",
-    "Roboto Mono",
-    "Menlo",
-    "Monaco",
-    "Liberation Mono",
-    "DejaVu Sans Mono",
-    "Courier New",
-    "monospace",
-  ],
-  weight: "100 900",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -91,7 +71,7 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
       suppressHydrationWarning
       // Obsidian dark on every route. Static, so no OS preference or stored choice can switch
       // a route to light. `dark` keeps the `dark:` variant working; tokens live in :root.
-      className={`dark ${GeistSans.variable} ${GeistMono.variable}`}
+      className={`dark ${GeistSans.variable}`}
     >
       <head>
         {/* Match the portrait hero's screen floor before its first paint, so hydration
@@ -112,6 +92,7 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
           <ScrollToTop />
         </MotionProvider>
         <HashScrollFix />
+        <LateMonoFont />
         <VercelAnalytics />
       </body>
     </html>

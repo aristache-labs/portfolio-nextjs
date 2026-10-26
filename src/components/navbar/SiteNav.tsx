@@ -39,7 +39,7 @@ const SECTION_ICONS: Record<string, LucideIcon> = {
   contact: Send,
 };
 
-const WORDMARK = { src: "/brand/aristache-text.svg", width: 992, height: 175 } as const;
+const WORDMARK = { src: "/brand/aristache-text.webp", width: 704, height: 124 } as const;
 
 const SECTIONS: MenuSection[] = [
   { id: "hero", label: "Home" },

@@ -63,6 +63,11 @@
   --accent-on-chip: #76f5e1;
   /* Opaque elevated chip surface that blocks the moving gradient. */
   --chip-surface: #182225;
+  /* Geist Mono is registered after page load by LateMonoFont; the system stack covers the
+     labels until then, so the font never competes with the first screen. */
+  --font-geist-mono:
+    "Geist Mono", ui-monospace, SFMono-Regular, "Roboto Mono", Menlo, Monaco, "Liberation Mono",
+    "DejaVu Sans Mono", "Courier New", monospace;
   /* Legacy aliases kept for existing components */
   --background: var(--bg);
   --foreground: var(--fg);

@@ -35,7 +35,7 @@ export function Projects({
             deferUntilNearViewport
             responsivePoster={{
               srcSet:
-                "/media/projects-640.webp 640w, /media/projects-960.webp 960w, /media/projects.webp 1600w",
+                "/media/projects-640.webp 640w, /media/projects-960.webp 960w, /media/projects-1600.webp 1600w",
               aspectRatio: 16 / 9,
             }}
           />

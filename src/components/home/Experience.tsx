@@ -162,7 +162,7 @@ export function Experience({
           deferUntilNearViewport
           responsivePoster={{
             srcSet:
-              "/media/experience-640.webp 640w, /media/experience-960.webp 960w, /media/experience.webp 1600w",
+              "/media/experience-640.webp 640w, /media/experience-960.webp 960w, /media/experience-1600.webp 1600w",
             aspectRatio: 16 / 9,
           }}
           scrim="bg-background/90 absolute inset-0"
