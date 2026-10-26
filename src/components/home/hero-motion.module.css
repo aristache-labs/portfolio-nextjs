@@ -153,8 +153,43 @@
   display: inline-block;
 }
 
-/* Touch layouts stay static in both orientations. Desktop entrances begin at first paint. */
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+/* Portrait keeps copy fully visible; only individual elements move slightly at first paint. */
+@media (pointer: coarse) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  .enter {
+    animation-duration: 1s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation-fill-mode: both;
+  }
+
+  .name {
+    animation: portrait-name-settle 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .greeting {
+    animation: portrait-slide 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .headline,
+  .socialLinks {
+    animation-name: portrait-slide;
+  }
+
+  .copy {
+    animation-name: portrait-copy-settle;
+  }
+
+  .actions {
+    animation-name: portrait-actions-settle;
+  }
+
+  .enter:focus-within {
+    animation: none;
+  }
+}
+
+/* Landscape touch devices share desktop entrances. Pointer tracking stays desktop-only in React. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference),
+  (pointer: coarse) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .enter {
     animation-name: copy-enter;
     animation-duration: 1s;
@@ -182,12 +217,68 @@
     animation-name: social-enter;
   }
 
+  .focusEntrance {
+    animation: focus-zoom-in-left 1s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+  }
+
   .focus {
-    animation: focus-float 8s ease-in-out infinite;
+    animation:
+      focus-zoom-in-left 1s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both,
+      focus-float 8s ease-in-out 1.12s infinite both;
   }
 
   .enter:focus-within {
     animation: none;
+  }
+}
+
+/* Individual transforms keep the entrance separate from the floating transform. */
+@keyframes focus-zoom-in-left {
+  from {
+    opacity: 0;
+    translate: -36px 0;
+    scale: 0.88;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+
+@keyframes portrait-name-settle {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes portrait-slide {
+  from {
+    transform: translateX(-8px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes portrait-copy-settle {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes portrait-actions-settle {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: none;
   }
 }
 

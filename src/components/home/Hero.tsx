@@ -241,7 +241,7 @@ export function Hero({
           className={`${PLATE} hidden lg:block [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:block`}
         >
           <div
-            className={`${styles.focus} glass bg-background/70 absolute top-[45%] left-[73%] max-w-[300px] rounded-2xl border border-(--brand-mid)/25 px-5 py-6 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:top-[37%] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:left-[71.5%]`}
+            className={`${styles.focus} ${styles.focusEntrance} glass bg-background/70 absolute top-[45%] left-[73%] max-w-[300px] rounded-2xl border border-(--brand-mid)/25 px-5 py-6 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:top-[37%] [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:left-[71.5%]`}
           >
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
               {"// scope"}
@@ -410,7 +410,9 @@ export function Hero({
             )}
           </div>
 
-          <div className="glass bg-background/70 mx-auto mt-6 max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md lg:hidden portrait:hidden [@media(max-height:500px)]:hidden">
+          <div
+            className={`${styles.focusEntrance} glass bg-background/70 mx-auto mt-6 max-w-[240px] rounded-2xl border border-(--brand-mid)/25 px-5 py-4 shadow-[0_0_40px_rgb(var(--brand-mid-rgb)/0.25)] backdrop-blur-md lg:hidden portrait:hidden [@media(max-height:500px)]:hidden`}
+          >
             <p className="font-mono text-[11px] tracking-[0.25em] text-(--brand-bright)/70 uppercase">
               {"// scope"}
             </p>
