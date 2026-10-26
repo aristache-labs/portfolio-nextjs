@@ -227,6 +227,38 @@ describe("ProgressiveReveal", () => {
     },
   );
 
+  it.each([
+    [1440, 1000, true],
+    [430, 250, false],
+    [932, 650, false],
+  ])("fades from beyond the right edge at width %s", (width, left, desktop) => {
+    matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+    vi.stubGlobal("innerWidth", width);
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+      top: 2000,
+      left,
+    } as DOMRect);
+    const { container } = render(
+      <ProgressiveReveal effect="fade-from-right" duration={1.3} delay={0.4}>
+        Quote
+      </ProgressiveReveal>,
+    );
+    const distance = width - left + 24;
+    expect(observe).toHaveBeenCalledWith(container.firstElementChild);
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 0, x: distance, y: 0 });
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledWith({
+      opacity: [0, 1],
+      x: [distance, 0],
+      transition: { duration: 1.3, delay: 0.4, ease: [0.22, 1, 0.36, 1] },
+    });
+    act(() => window.dispatchEvent(new Event("resize")));
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledTimes(1);
+    change(REDUCED_MOTION_QUERY, true);
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0 });
+  });
+
   it("updates the offscreen start after resizing without transforming the observed box", () => {
     vi.stubGlobal("innerWidth", 390);
     vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({

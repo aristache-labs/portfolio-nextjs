@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
+import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { Skills } from "./Skills";
 
 vi.mock("next/image", () => ({
@@ -95,6 +96,17 @@ describe("Skills", () => {
     });
   });
 
+  it("keeps the section label and title in one entrance, separate from the quote", () => {
+    const { container } = render(<Skills skills={mockSkills} />);
+    const title = screen.getByRole("heading", { name: "Tools I trust" });
+    const entrance = title.parentElement!;
+    expect(entrance.querySelector("[data-scroll-anchor]")).toHaveTextContent("02Skills");
+    expect(entrance.querySelector("blockquote")).toBeNull();
+    expect(container.querySelector("aside blockquote")).toHaveTextContent(
+      "Tools evolve.Problem-solving endures.",
+    );
+  });
+
   it("renders skill names", () => {
     render(<Skills skills={mockSkills} />);
     expect(screen.getByText("React")).toBeInTheDocument();
@@ -133,6 +145,56 @@ describe("Skills", () => {
     expect(screen.getByRole("tab", { name: "Frontend" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Backend" })).toBeInTheDocument();
   });
+
+  it.each([
+    ["desktop", true, false],
+    ["mobile portrait", false, false],
+    ["mobile landscape", false, false],
+    ["reduced motion", true, true],
+  ])("retains shared cards while changing their order on %s", (_profile, desktop, reduced) => {
+    installMatchMedia({
+      [EXPRESSIVE_MOTION_QUERY]: desktop,
+      [REDUCED_MOTION_QUERY]: reduced,
+    });
+    const skills = [
+      { ...mockSkills[0], category: "Development", level: "55", order: 0 },
+      { ...mockSkills[1], category: "Development", level: "90", order: 1 },
+      { ...mockSkills[2], category: "Infrastructure", level: "75", order: 2 },
+    ];
+    const { container } = render(<Skills skills={skills} />);
+    const reactCard = screen.getByTitle("React");
+    const typescriptCard = screen.getByTitle("TypeScript");
+    const names = () =>
+      [...container.querySelectorAll("[title]")].map((node) => node.getAttribute("title"));
+    expect(names()).toEqual(["TypeScript", "Node.js", "React"]);
+    fireEvent.click(screen.getByRole("tab", { name: "Development" }));
+    expect(names()).toEqual(["React", "TypeScript"]);
+    expect(screen.getByTitle("React")).toBe(reactCard);
+    expect(screen.getByTitle("TypeScript")).toBe(typescriptCard);
+    const mostUsed = screen.getByRole("tab", { name: "Most Used" });
+    act(() => mostUsed.focus());
+    fireEvent.click(mostUsed);
+    expect(names()).toEqual(["TypeScript", "Node.js", "React"]);
+    expect(screen.getByTitle("React")).toBe(reactCard);
+    expect(screen.getByTitle("TypeScript")).toBe(typescriptCard);
+    expect(screen.getByRole("tab", { name: "Most Used" })).toHaveFocus();
+  });
+
+  it.each([false, true])(
+    "shows newly added cards after filtering (reduced=%s)",
+    async (reduced) => {
+      installMatchMedia({ [REDUCED_MOTION_QUERY]: reduced });
+      render(<Skills skills={mockSkills} />);
+      fireEvent.click(screen.getByRole("tab", { name: "Backend" }));
+      fireEvent.click(screen.getByRole("tab", { name: "Frontend" }));
+      const entrance = screen.getByTitle("React").closest(".h-full")!.parentElement!;
+      if (reduced) expect(entrance).toHaveStyle({ opacity: "1" });
+      await waitFor(() => expect(entrance).toHaveStyle({ opacity: "1" }));
+      expect(screen.queryByTitle("Node.js")).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole("tab", { name: "Frontend" }));
+      expect(screen.getByTitle("React").closest(".h-full")!.parentElement).toBe(entrance);
+    },
+  );
 
   it("renders section heading", () => {
     render(<Skills skills={mockSkills} />);

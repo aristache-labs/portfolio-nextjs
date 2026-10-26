@@ -10,17 +10,30 @@ export function ProgressiveReveal({
   children,
   className,
   desktopDelay = 0.3,
+  duration = 1,
+  delay,
   effect = "rise",
 }: {
   children: ReactNode;
   className?: string;
   desktopDelay?: number;
-  effect?: "rise" | "fade" | "slide" | "slide-from-right" | "focus" | "cascade" | "line";
+  duration?: number;
+  delay?: number;
+  effect?:
+    | "rise"
+    | "fade"
+    | "slide"
+    | "slide-from-right"
+    | "fade-from-right"
+    | "focus"
+    | "cascade"
+    | "line";
 }) {
   const { mode, ready } = useAnimationPolicy();
   const controls = useAnimationControls();
   const element = useRef<HTMLDivElement>(null);
   const finished = useRef(false);
+  const fromRight = effect === "slide-from-right" || effect === "fade-from-right";
 
   useEffect(() => {
     if (!ready || !element.current) return;
@@ -31,7 +44,7 @@ export function ProgressiveReveal({
     const prepareRightSlide = () => {
       if (!active || finished.current) return;
       rightStart = Math.max(0, window.innerWidth - node.getBoundingClientRect().left) + 24;
-      controls.set({ opacity: 1, x: rightStart, y: 0 });
+      controls.set({ opacity: effect === "fade-from-right" ? 0 : 1, x: rightStart, y: 0 });
     };
     const show = () => {
       finished.current = true;
@@ -88,12 +101,12 @@ export function ProgressiveReveal({
             opacity: effect === "slide-from-right" ? 1 : [0, 1],
             ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
             ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
-            ...(effect === "slide-from-right" ? { x: [rightStart, 0] } : {}),
+            ...(fromRight ? { x: [rightStart, 0] } : {}),
             ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
             ...(effect === "line" ? { scaleX: [0, 1] } : {}),
             transition: {
-              duration: 1,
-              delay: expressive ? desktopDelay : 0.3,
+              duration,
+              delay: delay ?? (expressive ? desktopDelay : 0.3),
               ease: effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1],
             },
           });
@@ -104,7 +117,7 @@ export function ProgressiveReveal({
         },
       );
       // Prepare only offscreen content, before it can be seen during scrolling.
-      if (effect === "slide-from-right") {
+      if (fromRight) {
         prepareRightSlide();
         window.addEventListener("resize", prepareRightSlide);
       } else {
@@ -123,10 +136,10 @@ export function ProgressiveReveal({
       node.removeEventListener("focusin", onFocus);
       controls.stop();
     };
-  }, [controls, desktopDelay, effect, mode, ready]);
+  }, [controls, delay, desktopDelay, duration, effect, fromRight, mode, ready]);
 
   // Observe the stationary layout box: an offscreen translated target cannot intersect.
-  if (effect === "slide-from-right") {
+  if (fromRight) {
     return (
       <div ref={element} className={className}>
         <m.div initial={false} animate={controls}>
@@ -149,8 +162,9 @@ export function ProgressiveReveal({
               visible: {
                 opacity: 1,
                 transition: {
-                  duration: mode === "static" ? 0 : 1,
-                  staggerChildren: mode === "expressive" ? 0.045 : 0,
+                  duration: mode === "static" ? 0 : duration,
+                  delay: mode === "static" ? 0 : (delay ?? 0.3),
+                  staggerChildren: mode === "expressive" ? 0.245 : 0,
                   ease: [0.22, 1, 0.36, 1],
                 },
               },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { m } from "framer-motion";
+import { LazyMotion, domMax, m } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Quote, Zap } from "lucide-react";
@@ -76,6 +76,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   }, [ordered]);
 
   const [filter, setFilter] = useState(MOST_USED);
+  const [hasFiltered, setHasFiltered] = useState(false);
   const active = filter !== MOST_USED && categories.includes(filter) ? filter : MOST_USED;
   const visible =
     active === MOST_USED ? mostUsedSkills(ordered) : ordered.filter((s) => s.category === active);
@@ -108,31 +109,39 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
         <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
           <div aria-hidden className="hidden lg:block" />
           <div className={`${responsiveCss.heading} min-w-0 text-left`}>
-            <div className={`${labelCss.label} ${responsiveCss.sectionLabel}`} data-scroll-anchor>
-              <span className={labelCss.number}>{number}</span>
-              <span>Skills</span>
-              <span aria-hidden className={labelCss.rule} />
-            </div>
+            <ProgressiveReveal
+              effect="focus"
+              duration={1.3}
+              delay={0.4}
+              className={responsiveCss.title}
+            >
+              <div className={`${labelCss.label} ${responsiveCss.sectionLabel}`} data-scroll-anchor>
+                <span className={labelCss.number}>{number}</span>
+                <span>Skills</span>
+                <span aria-hidden className={labelCss.rule} />
+              </div>
 
-            <ProgressiveReveal effect="focus" className={responsiveCss.title}>
               <h2 className="font-display mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance sm:whitespace-nowrap">
                 Tools I <span className="gradient-text">trust</span>
               </h2>
             </ProgressiveReveal>
             <aside className={responsiveCss.quoteAnchor}>
-              <blockquote className={responsiveCss.quote}>
-                <Quote aria-hidden className={responsiveCss.quoteIcon} />
-                <p>
-                  Tools evolve.
-                  <br />
-                  Problem-solving endures.
-                </p>
-                <span aria-hidden className={responsiveCss.quoteAccent} />
-              </blockquote>
+              <ProgressiveReveal effect="fade-from-right" duration={1.3} delay={0.4}>
+                <blockquote className={responsiveCss.quote}>
+                  <Quote aria-hidden className={responsiveCss.quoteIcon} />
+                  <p>
+                    Tools evolve.
+                    <br />
+                    Problem-solving endures.
+                  </p>
+                  <span aria-hidden className={responsiveCss.quoteAccent} />
+                </blockquote>
+              </ProgressiveReveal>
             </aside>
             <ProgressiveReveal
               effect="fade"
-              desktopDelay={0.08}
+              duration={1.3}
+              delay={0.4}
               className={responsiveCss.description}
             >
               <p className={`${subtitleCss.subtitle} mt-4 max-w-xl`}>
@@ -146,7 +155,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           <div aria-hidden className="hidden lg:block" />
 
           <div className="min-w-0">
-            <ProgressiveReveal effect="fade">
+            <ProgressiveReveal effect="fade" duration={1.3} delay={0.4}>
               <div className="mb-5 text-center">
                 <span className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium">
                   <Zap className="fill-brand-mid text-brand-mid size-3.5" />
@@ -167,7 +176,11 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                         type="button"
                         role="tab"
                         aria-selected={selected}
-                        onClick={() => setFilter(value)}
+                        onClick={() => {
+                          if (value === active) return;
+                          setHasFiltered(true);
+                          setFilter(value);
+                        }}
                         whileHover={mode === "expressive" ? { y: -2 } : undefined}
                         whileTap={mode === "static" ? undefined : { scale: 0.98 }}
                         className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
@@ -184,38 +197,60 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
               )}
             </ProgressiveReveal>
 
-            <ProgressiveReveal
-              effect="cascade"
-              className="mt-4 grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4 [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:mx-auto [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:max-w-[640px]"
-            >
-              {/* Keep the entrance wrapper stable while replacing category contents immediately. */}
-              {visible.map((skill) => (
-                <m.div
-                  key={`${active}-${skill.category}-${skill.name}`}
-                  initial={false}
-                  variants={{
-                    hidden: mode === "expressive" ? { opacity: 0, y: 16 } : { opacity: 1, y: 0 },
-                    visible: {
-                      opacity: 1,
-                      y: 0,
-                      transition: {
-                        duration: mode === "expressive" ? 0.8 : 0,
-                        ease: [0.22, 1, 0.36, 1],
+            {/* Layout features stay inside the dynamically loaded Skills section. */}
+            <LazyMotion features={domMax}>
+              <ProgressiveReveal
+                effect="cascade"
+                duration={1.3}
+                delay={0.4}
+                className="mt-4 grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4 [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:mx-auto [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:max-w-[640px]"
+              >
+                {/* Stable keys let shared cards move between their old and new grid positions. */}
+                {visible.map((skill) => (
+                  <m.div
+                    key={`${skill.category}-${skill.name}`}
+                    layout={mode === "static" ? false : "position"}
+                    transition={{ layout: { type: "spring", damping: 20, stiffness: 300 } }}
+                    initial={false}
+                    variants={{
+                      hidden:
+                        mode === "static"
+                          ? { opacity: 1, y: 0 }
+                          : { opacity: 0, y: mode === "expressive" ? 16 : 8 },
+                      visible: {
+                        opacity: 1,
+                        y: 0,
+                        transition: {
+                          duration: mode === "static" ? 0 : 1.3,
+                          ease: [0.22, 1, 0.36, 1],
+                        },
                       },
-                    },
-                  }}
-                  className="min-w-0"
-                >
-                  <SkillCard
-                    name={skill.name}
-                    iconPath={skill.iconPath}
-                    category={skill.category}
-                    level={skill.level}
-                    loadIcon={iconsNear}
-                  />
-                </m.div>
-              ))}
-            </ProgressiveReveal>
+                    }}
+                    className="min-w-0"
+                  >
+                    <m.div
+                      className="h-full"
+                      initial={
+                        hasFiltered && mode !== "static" ? { opacity: 0, scale: 0.96 } : false
+                      }
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        duration: mode === "static" ? 0 : 0.35,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                    >
+                      <SkillCard
+                        name={skill.name}
+                        iconPath={skill.iconPath}
+                        category={skill.category}
+                        level={skill.level}
+                        loadIcon={iconsNear}
+                      />
+                    </m.div>
+                  </m.div>
+                ))}
+              </ProgressiveReveal>
+            </LazyMotion>
           </div>
         </div>
       </div>
