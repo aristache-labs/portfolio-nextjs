@@ -4,10 +4,8 @@ import Image from "next/image";
 import { useHeroPosterReady } from "@/hooks/useHeroPosterReady";
 import { ShineBorder } from "@/components/ui/shine-border";
 
-// Auto follows the actual layout, including the About portrait cap and root font size.
-// Fallbacks match the outer CSS widths; the browser applies pixel density itself.
+// Match the outer CSS widths; the browser applies pixel density itself.
 const PORTRAIT_SIZES = [
-  "auto",
   "(orientation: portrait) and (max-width: 767px) 192px",
   "(orientation: landscape) and (max-height: 500px) and (pointer: coarse) 176px",
   "(orientation: landscape) and (max-height: 500px) 256px",
@@ -41,7 +39,7 @@ export function AvatarPortrait({ src, name }: { src: string; name: string }) {
               alt={`Portrait of ${name}`}
               fill
               quality={90}
-              loading="lazy"
+              loading="eager"
               sizes={PORTRAIT_SIZES}
               className="object-cover"
             />

@@ -1,8 +1,9 @@
 "use client";
 
 import { m, useAnimationControls } from "framer-motion";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { createRevealSequence, RevealSequence } from "./RevealSequence";
 
 const VISIBLE = { opacity: 1, x: 0, y: 0 };
 
@@ -28,6 +29,7 @@ export function ProgressiveReveal({
     | "slide-from-right"
     | "fade-from-right"
     | "focus"
+    | "zoom"
     | "cascade"
     | "line";
 }) {
@@ -35,6 +37,7 @@ export function ProgressiveReveal({
   const controls = useAnimationControls();
   const element = useRef<HTMLDivElement>(null);
   const finished = useRef(false);
+  const sequence = useMemo(() => createRevealSequence(), []);
   const fromRight = effect === "slide-from-right" || effect === "fade-from-right";
 
   useEffect(() => {
@@ -42,6 +45,7 @@ export function ProgressiveReveal({
     const node = element.current;
     let observer: IntersectionObserver | undefined;
     let active = true;
+    let settled = false;
     let rightStart = 0;
     const prepareRightSlide = () => {
       if (!active || finished.current) return;
@@ -49,18 +53,20 @@ export function ProgressiveReveal({
       controls.set({ opacity: effect === "fade-from-right" ? 0 : 1, x: rightStart, y: 0 });
     };
     const show = () => {
+      settled = true;
       finished.current = true;
       observer?.disconnect();
       controls.stop();
       controls.set(
         effect === "cascade"
           ? "visible"
-          : effect === "focus"
+          : effect === "focus" || effect === "zoom"
             ? { ...VISIBLE, scale: 1 }
             : effect === "line"
               ? { ...VISIBLE, scaleX: 1 }
               : VISIBLE,
       );
+      sequence.publish("static");
     };
     const onScrollEnd = () => {
       // A jump can skip the observer's intersection entirely. Check once after scrolling.
@@ -99,12 +105,13 @@ export function ProgressiveReveal({
             void controls.start("visible");
             return;
           }
-          void controls.start({
+          const entrance = controls.start({
             opacity: effect === "slide-from-right" ? 1 : [0, 1],
             ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
             ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
             ...(fromRight ? { x: [rightStart, 0] } : {}),
             ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
+            ...(effect === "zoom" ? { scale: [0.9, 1] } : {}),
             ...(effect === "line" ? { scaleX: [0, 1] } : {}),
             transition: {
               duration,
@@ -112,6 +119,11 @@ export function ProgressiveReveal({
               ease: effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1],
             },
           });
+          if (effect === "zoom") {
+            void entrance.then(() => {
+              if (active && !settled) sequence.publish("complete");
+            });
+          }
         },
         {
           // Wait until the element has moved beyond the bottom edge of the screen.
@@ -125,6 +137,7 @@ export function ProgressiveReveal({
       } else {
         controls.set(effect === "cascade" ? "hidden" : { opacity: 0, x: 0, y: 0 });
       }
+      sequence.publish("prepared");
       observer.observe(node);
       window.addEventListener("scrollend", onScrollEnd);
       node.addEventListener("focusin", onFocus);
@@ -138,7 +151,7 @@ export function ProgressiveReveal({
       node.removeEventListener("focusin", onFocus);
       controls.stop();
     };
-  }, [controls, delay, desktopDelay, duration, effect, fromRight, mode, ready]);
+  }, [controls, delay, desktopDelay, duration, effect, fromRight, mode, ready, sequence]);
 
   // Observe the stationary layout box: an offscreen translated target cannot intersect.
   if (fromRight) {
@@ -177,7 +190,11 @@ export function ProgressiveReveal({
           : undefined
       }
     >
-      {children}
+      {effect === "zoom" ? (
+        <RevealSequence.Provider value={sequence}>{children}</RevealSequence.Provider>
+      ) : (
+        children
+      )}
     </m.div>
   );
 }

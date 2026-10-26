@@ -77,10 +77,11 @@ describe("About", () => {
 
   it("renders the documented outcomes independently of the GitHub stats", () => {
     render(<About profile={mockProfile} />);
-    expect(screen.getByText("8+")).toBeInTheDocument();
-    expect(screen.getByText("60%")).toBeInTheDocument();
-    expect(screen.getByText("1,600+")).toBeInTheDocument();
-    expect(screen.getByText("5")).toBeInTheDocument();
+    for (const value of ["8+", "60%", "1,600+", "5"]) {
+      const copies = screen.getAllByText(value);
+      expect(copies).toHaveLength(2);
+      expect(copies.filter((node) => node.getAttribute("aria-hidden") !== "true")).toHaveLength(1);
+    }
     expect(screen.queryByText("120+")).not.toBeInTheDocument();
   });
 

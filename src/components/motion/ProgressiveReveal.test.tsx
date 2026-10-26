@@ -4,10 +4,13 @@ import { hydrateRoot } from "react-dom/client";
 import { forwardRef, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ProgressiveReveal } from "./ProgressiveReveal";
+import { SpringCount } from "./SpringCount";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 
 const controls = vi.hoisted(() => ({ set: vi.fn(), start: vi.fn(), stop: vi.fn() }));
+const count = vi.hoisted(() => ({ animate: vi.fn(), stop: vi.fn() }));
 vi.mock("framer-motion", () => ({
+  animate: count.animate,
   useAnimationControls: () => controls,
   m: {
     div: forwardRef<HTMLDivElement, { children: ReactNode; className?: string }>(
@@ -53,6 +56,8 @@ function intersect(node: Element, top = 100, isIntersecting = true) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  controls.start.mockResolvedValue(undefined);
+  count.animate.mockReturnValue({ stop: count.stop });
   matches = {};
   listeners = new Set();
   vi.stubGlobal("matchMedia", (query: string) => ({
@@ -83,6 +88,86 @@ afterEach(() => {
 });
 
 describe("ProgressiveReveal", () => {
+  it.each([
+    [1440, 900, true],
+    [390, 844, false],
+    [844, 390, false],
+  ])("starts all counters only after zoom completes at %sx%s", async (width, height, desktop) => {
+    vi.stubGlobal("innerWidth", width);
+    vi.stubGlobal("innerHeight", height);
+    matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+    let complete!: () => void;
+    controls.start.mockReturnValue(
+      new Promise<void>((resolve) => {
+        complete = resolve;
+      }),
+    );
+    const { container } = render(
+      <ProgressiveReveal effect="zoom">
+        <SpringCount value="60%" />
+        <SpringCount value="1,600+" />
+      </ProgressiveReveal>,
+    );
+    expect(observe).toHaveBeenCalledTimes(1);
+    expect(container.querySelectorAll("[aria-hidden]")[0]).toHaveTextContent("0%");
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledTimes(1);
+    expect(count.animate).not.toHaveBeenCalled();
+    await act(async () => {
+      complete();
+    });
+    expect(count.animate).toHaveBeenCalledTimes(2);
+    expect(count.animate).toHaveBeenCalledWith(
+      0,
+      60,
+      expect.objectContaining({ type: "spring", delay: 0 }),
+    );
+    expect(count.animate).toHaveBeenCalledWith(
+      0,
+      1600,
+      expect.objectContaining({ type: "spring", delay: 0 }),
+    );
+    intersect(container.firstElementChild!);
+    change(EXPRESSIVE_MOTION_QUERY, !desktop);
+    expect(count.animate).toHaveBeenCalledTimes(2);
+  });
+
+  it("ignores late zoom completion after reduced motion interrupts it", async () => {
+    let complete!: () => void;
+    controls.start.mockReturnValue(
+      new Promise<void>((resolve) => {
+        complete = resolve;
+      }),
+    );
+    const { container } = render(
+      <ProgressiveReveal effect="zoom">
+        <SpringCount value="60%" />
+      </ProgressiveReveal>,
+    );
+    intersect(container.firstElementChild!);
+    change(REDUCED_MOTION_QUERY, true);
+    await act(async () => {
+      complete();
+    });
+    expect(count.animate).not.toHaveBeenCalled();
+    expect(container.querySelector("[aria-hidden]")).toHaveTextContent("60%");
+  });
+
+  it.each([false, true])("zooms metrics once without a vertical bounce (desktop=%s)", (desktop) => {
+    matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+    const { container } = render(<ProgressiveReveal effect="zoom">Metrics</ProgressiveReveal>);
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledWith({
+      opacity: [0, 1],
+      scale: [0.9, 1],
+      transition: { duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] },
+    });
+    intersect(container.firstElementChild!);
+    change(EXPRESSIVE_MOTION_QUERY, !desktop);
+    expect(controls.start).toHaveBeenCalledTimes(1);
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0, scale: 1 });
+  });
+
   it("serves visible HTML and hydrates without mismatches", async () => {
     const content = <ProgressiveReveal className="metrics">Metrics</ProgressiveReveal>;
     const html = renderToString(content);
