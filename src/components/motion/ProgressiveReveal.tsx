@@ -102,7 +102,9 @@ export function ProgressiveReveal({
           finished.current = true;
           observer?.disconnect();
           if (effect === "cascade") {
-            void controls.start("visible");
+            void controls.start("visible").then(() => {
+              if (active && !settled) sequence.publish("complete");
+            });
             return;
           }
           const entrance = controls.start({
@@ -190,7 +192,7 @@ export function ProgressiveReveal({
           : undefined
       }
     >
-      {effect === "zoom" ? (
+      {effect === "zoom" || effect === "cascade" ? (
         <RevealSequence.Provider value={sequence}>{children}</RevealSequence.Provider>
       ) : (
         children

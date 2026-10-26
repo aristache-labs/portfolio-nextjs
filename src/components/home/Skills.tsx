@@ -6,6 +6,7 @@ import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Quote, Zap } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
+import { SkillEntrance } from "./SkillEntrance";
 import { SectionBackdrop } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
 import labelCss from "@/components/ui/section-label.module.css";
@@ -220,51 +221,20 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 effect="cascade"
                 duration={1.3}
                 delay={0.4}
+                staggerChildren={0.18}
                 className="mt-4 grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4 [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:mx-auto [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:max-w-[640px]"
               >
                 {/* Stable keys let shared cards move between their old and new grid positions. */}
                 {visible.map((skill) => (
-                  <m.div
-                    key={`${skill.category}-${skill.name}`}
-                    layout={mode === "static" ? false : "position"}
-                    transition={{ layout: { type: "spring", damping: 20, stiffness: 300 } }}
-                    initial={false}
-                    variants={{
-                      hidden:
-                        mode === "static"
-                          ? { opacity: 1, y: 0 }
-                          : { opacity: 0, y: mode === "expressive" ? 16 : 8 },
-                      visible: {
-                        opacity: 1,
-                        y: 0,
-                        transition: {
-                          duration: mode === "static" ? 0 : 1.3,
-                          ease: [0.22, 1, 0.36, 1],
-                        },
-                      },
-                    }}
-                    className="min-w-0"
-                  >
-                    <m.div
-                      className="h-full"
-                      initial={
-                        hasFiltered && mode !== "static" ? { opacity: 0, scale: 0.96 } : false
-                      }
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{
-                        duration: mode === "static" ? 0 : 0.35,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                    >
-                      <SkillCard
-                        name={skill.name}
-                        iconPath={skill.iconPath}
-                        category={skill.category}
-                        level={skill.level}
-                        loadIcon={iconsNear}
-                      />
-                    </m.div>
-                  </m.div>
+                  <SkillEntrance key={`${skill.category}-${skill.name}`} filtered={hasFiltered}>
+                    <SkillCard
+                      name={skill.name}
+                      iconPath={skill.iconPath}
+                      category={skill.category}
+                      level={skill.level}
+                      loadIcon={iconsNear}
+                    />
+                  </SkillEntrance>
                 ))}
               </ProgressiveReveal>
             </LazyMotion>

@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { m } from "framer-motion";
+import { animate, m } from "framer-motion";
+import { useContext, useEffect, useRef } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { RevealSequence } from "@/components/motion/RevealSequence";
 
 const LEVEL_PERCENT: Record<string, number> = {
   Expert: 90,
@@ -36,9 +38,86 @@ export function SkillCard({
   level?: string | null;
   loadIcon?: boolean;
 }) {
-  const { mode } = useAnimationPolicy();
+  const { mode, ready } = useAnimationPolicy();
+  const sequence = useContext(RevealSequence);
   const src = skillIconSrc(iconPath);
   const percent = skillPercent(level);
+  const card = useRef<HTMLDivElement>(null);
+  const bar = useRef<HTMLSpanElement>(null);
+  const label = useRef<HTMLSpanElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (!ready || percent == null || !card.current || !bar.current || !label.current) return;
+    const node = card.current;
+    const fill = bar.current;
+    const text = label.current;
+    let active = true;
+    let observer: IntersectionObserver | undefined;
+    let animation: ReturnType<typeof animate> | undefined;
+    const update = (current: number) => {
+      fill.style.width = `${current}%`;
+      text.textContent = `${current === percent ? percent : Math.round(current)}%`;
+    };
+    const finish = () => {
+      started.current = true;
+      observer?.disconnect();
+      animation?.stop();
+      update(percent);
+    };
+    const onScrollEnd = () => {
+      if (!started.current && node.getBoundingClientRect().top < window.innerHeight) finish();
+    };
+    const start = (delay: number) => {
+      if (started.current) return;
+      started.current = true;
+      observer?.disconnect();
+      animation = animate(0, percent, {
+        duration: 1.3,
+        delay,
+        ease: [0.22, 1, 0.36, 1],
+        onUpdate: (current) => {
+          if (active) update(current);
+        },
+        onComplete: () => {
+          if (active) update(percent);
+        },
+      });
+    };
+    let unsubscribe: (() => void) | undefined;
+
+    if (started.current || mode === "static" || typeof IntersectionObserver !== "function") {
+      finish();
+    } else if (sequence) {
+      unsubscribe = sequence.subscribe((phase) => {
+        if (phase === "prepared") update(0);
+        if (phase === "complete") start(0);
+        if (phase === "static") finish();
+      });
+    } else {
+      update(0);
+      observer = new IntersectionObserver((entries) => {
+        if (!active || started.current) return;
+        const entry = entries.find((item) => item.target === node);
+        if (!entry) return;
+        if (!entry.isIntersecting) {
+          if (entry.boundingClientRect.bottom <= 0) finish();
+          return;
+        }
+        start(0.4);
+      });
+      observer.observe(node);
+      window.addEventListener("scrollend", onScrollEnd);
+    }
+    return () => {
+      active = false;
+      unsubscribe?.();
+      observer?.disconnect();
+      animation?.stop();
+      window.removeEventListener("scrollend", onScrollEnd);
+      update(percent);
+    };
+  }, [mode, ready, percent, sequence]);
   const icon = (
     <Image
       src={src}
@@ -52,6 +131,7 @@ export function SkillCard({
 
   return (
     <m.div
+      ref={card}
       transition={{ duration: 0.2 }}
       whileHover={mode === "expressive" ? { y: -3 } : undefined}
       className="group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5"
@@ -68,15 +148,28 @@ export function SkillCard({
           {name}
         </span>
         {percent != null && (
-          <span className="text-foreground/60 shrink-0 font-mono text-[11px] sm:text-xs">
+          <span
+            ref={label}
+            aria-hidden
+            style={{ minWidth: `${String(percent).length + 1}ch` }}
+            className="text-foreground/60 shrink-0 text-right font-mono text-[11px] tabular-nums sm:text-xs"
+          >
             {percent}%
           </span>
         )}
       </span>
 
       {percent != null && (
-        <span className="mt-2 block h-1 w-full overflow-hidden rounded-full bg-white/10">
+        <span
+          role="progressbar"
+          aria-label={`${name} proficiency`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={percent}
+          className="mt-2 block h-1 w-full overflow-hidden rounded-full bg-white/10"
+        >
           <span
+            ref={bar}
             style={{ width: `${percent}%` }}
             className="block h-full rounded-full bg-(image:--gradient-brand) shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.6)]"
           />

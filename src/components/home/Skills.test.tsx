@@ -255,6 +255,7 @@ describe("Skills", () => {
   });
 
   it("shows the level as a percent", () => {
+    installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
     render(<Skills skills={mockSkills} />);
     expect(screen.getByText("90%")).toBeInTheDocument();
   });

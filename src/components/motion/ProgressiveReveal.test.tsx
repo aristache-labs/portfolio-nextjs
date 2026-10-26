@@ -5,23 +5,36 @@ import { forwardRef, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ProgressiveReveal } from "./ProgressiveReveal";
 import { SpringCount } from "./SpringCount";
+import { SkillCard } from "@/components/home/SkillCard";
+import { SkillEntrance } from "@/components/home/SkillEntrance";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 
 const controls = vi.hoisted(() => ({ set: vi.fn(), start: vi.fn(), stop: vi.fn() }));
-const count = vi.hoisted(() => ({ animate: vi.fn(), stop: vi.fn() }));
+const count = vi.hoisted(() => ({
+  animate: vi.fn(),
+  stop: vi.fn(),
+  entries: [] as ((definition: string) => void)[],
+}));
 vi.mock("framer-motion", () => ({
   animate: count.animate,
   useAnimationControls: () => controls,
   m: {
-    div: forwardRef<HTMLDivElement, { children: ReactNode; className?: string }>(
-      function MockMotionDiv({ children, className }, ref) {
-        return (
-          <div ref={ref} className={className}>
-            {children}
-          </div>
-        );
-      },
-    ),
+    div: forwardRef<
+      HTMLDivElement,
+      {
+        children: ReactNode;
+        className?: string;
+        onAnimationComplete?: (definition: string) => void;
+        variants?: unknown;
+      }
+    >(function MockMotionDiv({ children, className, onAnimationComplete, variants }, ref) {
+      if (variants && onAnimationComplete) count.entries.push(onAnimationComplete);
+      return (
+        <div ref={ref} className={className}>
+          {children}
+        </div>
+      );
+    }),
   },
 }));
 
@@ -56,6 +69,7 @@ function intersect(node: Element, top = 100, isIntersecting = true) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  count.entries = [];
   controls.start.mockResolvedValue(undefined);
   count.animate.mockReturnValue({ stop: count.stop });
   matches = {};
@@ -88,6 +102,59 @@ afterEach(() => {
 });
 
 describe("ProgressiveReveal", () => {
+  it.each([
+    [1440, 900, true],
+    [390, 844, false],
+    [844, 390, false],
+  ])(
+    "starts skill progress after its card completes while the cascade is still running at %sx%s",
+    async (width, height, desktop) => {
+      vi.stubGlobal("innerWidth", width);
+      vi.stubGlobal("innerHeight", height);
+      matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+      let complete!: () => void;
+      controls.start.mockReturnValue(
+        new Promise<void>((resolve) => {
+          complete = resolve;
+        }),
+      );
+      const { container } = render(
+        <ProgressiveReveal effect="cascade" duration={1.3} delay={0.4}>
+          <SkillEntrance filtered={false}>
+            <SkillCard
+              name="React"
+              iconPath="/skills/react.svg"
+              category="Development"
+              level="90"
+            />
+          </SkillEntrance>
+        </ProgressiveReveal>,
+      );
+      const fill = container.querySelector("[role='progressbar']")!.firstElementChild!;
+      expect(fill).toHaveStyle({ width: "0%" });
+      intersect(container.firstElementChild!);
+      expect(controls.start).toHaveBeenCalledWith("visible");
+      expect(count.animate).not.toHaveBeenCalled();
+      act(() => count.entries.at(-1)!("visible"));
+      expect(count.animate).toHaveBeenCalledWith(
+        0,
+        90,
+        expect.objectContaining({ duration: 1.3, delay: 0 }),
+      );
+      const options = count.animate.mock.calls[0][2];
+      act(() => options.onUpdate(45));
+      expect(fill).toHaveStyle({ width: "45%" });
+      expect(container).toHaveTextContent("45%");
+      await act(async () => {
+        complete();
+      });
+      expect(count.animate).toHaveBeenCalledTimes(1);
+      change(REDUCED_MOTION_QUERY, true);
+      expect(fill).toHaveStyle({ width: "90%" });
+      expect(count.stop).toHaveBeenCalled();
+    },
+  );
+
   it.each([
     [1440, 900, true],
     [390, 844, false],

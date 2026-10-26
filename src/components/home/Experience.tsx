@@ -260,18 +260,16 @@ export function Experience({
           on a wide monitor. Stacks to one column below lg. */}
       <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
         <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start">
-          <div className="mb-5">
+          <ProgressiveReveal effect="fade" className="mb-5">
             <p className={labelCss.label}>
               <span className={labelCss.number}>{number}</span>
               <span>Experience</span>
               <span aria-hidden className={labelCss.rule} />
             </p>
-            <ProgressiveReveal effect="fade">
-              <h2 className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap">
-                Where I&apos;ve <span className="gradient-text">worked</span>
-              </h2>
-            </ProgressiveReveal>
-          </div>
+            <h2 className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap">
+              Where I&apos;ve <span className="gradient-text">worked</span>
+            </h2>
+          </ProgressiveReveal>
           <ProgressiveReveal effect="slide" desktopDelay={0.08}>
             <p className={`${subtitleCss.subtitle} max-w-md`}>
               Enterprise deployments, infrastructure operations and automation across international

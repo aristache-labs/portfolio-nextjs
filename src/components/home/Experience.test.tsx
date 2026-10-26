@@ -48,6 +48,14 @@ const mockExperiences: ExperienceRow[] = [
 ];
 
 describe("Experience", () => {
+  it("groups the numbered section label and title in one entrance", () => {
+    render(<Experience experiences={mockExperiences} />);
+    const title = screen.getByRole("heading", { name: "Where I've worked" });
+    expect(title.parentElement).toHaveClass("mb-5");
+    expect(title.parentElement?.querySelector("p")).toHaveTextContent("03Experience");
+    expect(title.parentElement?.querySelector("h2")).toBe(title);
+  });
+
   it.each([
     ["desktop", true, 1440, 900],
     ["mobile portrait", false, 430, 932],
