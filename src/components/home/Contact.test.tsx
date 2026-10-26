@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { Contact, platformIcon } from "./Contact";
 import type { SocialRow } from "./Contact";
@@ -7,7 +8,7 @@ import { Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 
 vi.mock("next/font/google", () => ({
-  Merienda: () => ({ className: "quote-font" }),
+  Merienda: () => ({ className: "quote-font", style: { fontFamily: "Merienda" } }),
 }));
 
 // Mock framer-motion to avoid jsdom animation issues
@@ -89,6 +90,65 @@ describe("platformIcon", () => {
 
 describe("Contact", () => {
   const email = "hello@example.com";
+
+  describe("deferred quote font", () => {
+    const originalObserver = globalThis.IntersectionObserver;
+    let notify: IntersectionObserverCallback;
+    const disconnect = vi.fn();
+
+    beforeEach(() => {
+      disconnect.mockClear();
+      vi.stubGlobal(
+        "IntersectionObserver",
+        class {
+          constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+            if (options?.rootMargin === "1200px 0px") notify = callback;
+          }
+          observe() {}
+          unobserve() {}
+          disconnect = disconnect;
+        },
+      );
+    });
+
+    afterEach(() => {
+      cleanup();
+      vi.stubGlobal("IntersectionObserver", originalObserver);
+    });
+
+    it("keeps the font inactive until Contact approaches, then keeps it active", () => {
+      const { container } = render(<Contact socials={mockSocials} email={email} />);
+      const quote = container.querySelector("blockquote p");
+      const emit = (isIntersecting: boolean) =>
+        act(() =>
+          notify([{ isIntersecting } as IntersectionObserverEntry], {} as IntersectionObserver),
+        );
+
+      expect(quote).not.toHaveClass("quote-font");
+      emit(false);
+      expect(quote).not.toHaveClass("quote-font");
+      emit(true);
+      expect(quote).toHaveClass("quote-font");
+      expect(disconnect).toHaveBeenCalled();
+      emit(false);
+      expect(quote).toHaveClass("quote-font");
+    });
+
+    it("uses the original font when IntersectionObserver is unavailable", async () => {
+      vi.stubGlobal("IntersectionObserver", undefined);
+      const { container } = render(<Contact socials={mockSocials} email={email} />);
+      await waitFor(() =>
+        expect(container.querySelector("blockquote p")).toHaveClass("quote-font"),
+      );
+    });
+
+    it("preserves the quote and its font for visitors without JavaScript", () => {
+      const html = renderToString(<Contact socials={mockSocials} email={email} />);
+      expect(html).toContain("The beginning is the most important part of any work.");
+      expect(html).toContain("<noscript><style>#contact blockquote p { font-family: Merienda; }");
+      expect(html).not.toContain('class="quote-font');
+    });
+  });
 
   it("attributes the conversation quote to its source", () => {
     const { container } = render(<Contact socials={mockSocials} email={email} />);

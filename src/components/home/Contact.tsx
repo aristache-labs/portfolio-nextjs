@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Merienda } from "next/font/google";
 import { m } from "framer-motion";
 import { useReducedMotionProps } from "@/hooks/useReducedMotion";
@@ -84,6 +84,29 @@ export function Contact({
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState("");
   const inFlight = useRef(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [quoteFontNear, setQuoteFontNear] = useState(false);
+
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const frame = requestAnimationFrame(() => setQuoteFontNear(true));
+      return () => cancelAnimationFrame(frame);
+    }
+    // Start early enough for the quote's font to load before Contact enters view.
+    // preload:false alone still fetches a font used by offscreen server-rendered text.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        setQuoteFontNear(true);
+        observer.disconnect();
+      },
+      { rootMargin: "1200px 0px" },
+    );
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
 
   const inputClass =
     "mt-2 h-10 w-full rounded-lg border border-white/15 bg-black/40 px-3 text-base text-white placeholder:text-white/50 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
@@ -155,7 +178,13 @@ export function Contact({
         </>
       }
     >
-      <div className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10 [@media(orientation:landscape)_and_(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-height:500px)]:items-start [@media(orientation:landscape)_and_(max-height:500px)]:justify-between [@media(orientation:landscape)_and_(max-height:500px)]:gap-x-8 [@media(orientation:landscape)_and_(max-height:500px)]:gap-y-0">
+      <noscript>
+        <style>{`#contact blockquote p { font-family: ${quoteFont.style.fontFamily}; }`}</style>
+      </noscript>
+      <div
+        ref={contentRef}
+        className="flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10 [@media(orientation:landscape)_and_(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-height:500px)]:items-start [@media(orientation:landscape)_and_(max-height:500px)]:justify-between [@media(orientation:landscape)_and_(max-height:500px)]:gap-x-8 [@media(orientation:landscape)_and_(max-height:500px)]:gap-y-0"
+      >
         <div className="min-w-0 lg:w-[42%] lg:max-w-[640px] [@media(orientation:landscape)_and_(max-height:500px)]:w-[42%]">
           <m.p
             initial={{ opacity: 0, y: 16 }}
@@ -256,7 +285,7 @@ export function Contact({
           >
             <blockquote cite="https://classics.mit.edu/Plato/republic.3.ii.html">
               <p
-                className={`${quoteFont.className} ${quoteCss.text} text-[12px] leading-[1.55] text-white/90 sm:text-[16px]`}
+                className={`${quoteFontNear ? quoteFont.className : ""} ${quoteCss.text} text-[12px] leading-[1.55] text-white/90 sm:text-[16px]`}
               >
                 &ldquo;The beginning is the most important part of any work.&rdquo;
               </p>

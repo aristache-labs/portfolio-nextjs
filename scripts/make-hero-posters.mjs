@@ -3,6 +3,10 @@ import sharp from "sharp";
 // Derive every variant from the currently approved full-resolution poster.
 // The smaller PNG is not the source: using it would lose existing image detail.
 const source = "public/media/hero.webp";
+// Every variant sits under the vignette and noise, and on phones under a 70% scrim, so 75 is
+// visually identical to 95 at less than half the bytes. The portrait crop is the mobile LCP
+// element: at 95 it took ~4s on Slow 4G.
+const QUALITY = 75;
 const { width, height } = await sharp(source).metadata();
 if (!width || !height) throw new Error("Hero poster dimensions are missing");
 
@@ -10,7 +14,7 @@ for (const target of [960, 1280]) {
   const output = `public/media/hero-${target}.webp`;
   const info = await sharp(source)
     .resize({ width: target, withoutEnlargement: true })
-    .webp({ quality: 95, effort: 6 })
+    .webp({ quality: QUALITY, effort: 6 })
     .toFile(output);
   console.log(`${output}: ${info.width}x${info.height}, ${info.size} bytes`);
 }
@@ -29,6 +33,6 @@ const info = await sharp(source)
     width: portraitWidth,
     height,
   })
-  .webp({ quality: 95, effort: 6 })
+  .webp({ quality: QUALITY, effort: 6 })
   .toFile(portrait);
 console.log(`${portrait}: ${info.width}x${info.height}, ${info.size} bytes`);
