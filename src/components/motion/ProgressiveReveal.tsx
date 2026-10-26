@@ -9,7 +9,7 @@ const VISIBLE = { opacity: 1, x: 0, y: 0 };
 export function ProgressiveReveal({
   children,
   className,
-  desktopDelay = 0,
+  desktopDelay = 0.3,
   effect = "rise",
 }: {
   children: ReactNode;
@@ -86,7 +86,7 @@ export function ProgressiveReveal({
             ...(effect === "line" ? { scaleX: [0, 1] } : {}),
             transition: {
               duration: 1,
-              delay: expressive ? desktopDelay : 0,
+              delay: expressive ? desktopDelay : 0.3,
               ease: effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1],
             },
           });
