@@ -95,6 +95,45 @@ it.each([
   [1440, 900, true],
   [390, 844, false],
   [844, 390, false],
+])("starts each card's progress independently at %sx%s", (width, height, desktop) => {
+  installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+  vi.stubGlobal("innerWidth", width);
+  vi.stubGlobal("innerHeight", height);
+  const sequence = createRevealSequence();
+  sequence.publish("prepared");
+  render(
+    <RevealSequence.Provider value={sequence}>
+      <SkillEntrance filtered={false}>{card}</SkillEntrance>
+      <SkillEntrance filtered={false}>
+        <SkillCard
+          name="TypeScript"
+          iconPath="/skills/typescript.svg"
+          category="Development"
+          level="75"
+        />
+      </SkillEntrance>
+    </RevealSequence.Provider>,
+  );
+  const [first, second] = progress.entries.slice(-2);
+  const secondFill = screen.getByRole("progressbar", {
+    name: "TypeScript proficiency",
+  }).firstElementChild!;
+  expect(progress.animate).not.toHaveBeenCalled();
+  act(() => first("visible"));
+  expect(progress.animate).toHaveBeenCalledTimes(1);
+  expect(progress.animate).toHaveBeenLastCalledWith(0, 90, expect.objectContaining({ delay: 0 }));
+  expect(secondFill).toHaveStyle({ width: "0%" });
+  act(() => sequence.publish("complete"));
+  expect(progress.animate).toHaveBeenCalledTimes(1);
+  act(() => second("visible"));
+  expect(progress.animate).toHaveBeenCalledTimes(2);
+  expect(progress.animate).toHaveBeenLastCalledWith(0, 75, expect.objectContaining({ delay: 0 }));
+});
+
+it.each([
+  [1440, 900, true],
+  [390, 844, false],
+  [844, 390, false],
 ])("keeps the percentage and fill synchronized at %sx%s", (width, height, desktop) => {
   installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
   vi.stubGlobal("innerWidth", width);
