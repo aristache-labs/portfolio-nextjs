@@ -1,3 +1,67 @@
+.hero {
+  /* Shared curve sampled from Motion's spring({ visualDuration: 0.4, bounce: 0.5 }). */
+  --scope-spring: linear(
+    0,
+    0.04773,
+    0.16835,
+    0.33058,
+    0.50814,
+    0.68066,
+    0.83394,
+    0.95948,
+    1.05364,
+    1.11667,
+    1.15155,
+    1.16297,
+    1.15645,
+    1.13759,
+    1.11154,
+    1.08266,
+    1.05436,
+    1.02904,
+    1.00815,
+    0.99236,
+    0.98167,
+    0.97562,
+    0.97346,
+    0.97431,
+    0.97725,
+    0.98143,
+    0.98612,
+    0.99076,
+    0.99494,
+    0.99841,
+    1.00106,
+    1.00287,
+    1.00392,
+    1
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .actionFirst {
+    --action-delay: 0s;
+  }
+
+  .actionSecond {
+    --action-delay: 0.5s;
+  }
+
+  .actionThird {
+    --action-delay: 1s;
+  }
+
+  .actionEntrance {
+    animation:
+      focus-fade-in 0.4s ease-out var(--action-delay) both,
+      focus-spring-in 1s var(--scope-spring) var(--action-delay) both;
+  }
+
+  .actionEntrance:focus-within {
+    animation: none;
+  }
+}
+
 @keyframes focus-float {
   0%,
   100% {
@@ -174,10 +238,6 @@
     animation-name: portrait-copy-settle;
   }
 
-  .actions {
-    animation-name: portrait-actions-settle;
-  }
-
   .enter:focus-within {
     animation: none;
   }
@@ -201,53 +261,11 @@
     animation-name: greeting-reveal;
   }
 
-  .actions {
-    animation-name: desktop-actions-settle;
-  }
-
   .socialLinks {
     animation-name: social-enter;
   }
 
   .focusEntrance {
-    /* Sampled from Motion's spring({ visualDuration: 0.4, bounce: 0.5 }).
-       The visible arrival takes 400ms; the remaining time settles the spring. */
-    --scope-spring: linear(
-      0,
-      0.04773,
-      0.16835,
-      0.33058,
-      0.50814,
-      0.68066,
-      0.83394,
-      0.95948,
-      1.05364,
-      1.11667,
-      1.15155,
-      1.16297,
-      1.15645,
-      1.13759,
-      1.11154,
-      1.08266,
-      1.05436,
-      1.02904,
-      1.00815,
-      0.99236,
-      0.98167,
-      0.97562,
-      0.97346,
-      0.97431,
-      0.97725,
-      0.98143,
-      0.98612,
-      0.99076,
-      0.99494,
-      0.99841,
-      1.00106,
-      1.00287,
-      1.00392,
-      1
-    );
     animation:
       focus-fade-in 0.4s ease-out both,
       focus-spring-in 1s var(--scope-spring) both;
@@ -311,15 +329,6 @@
   }
 }
 
-@keyframes portrait-actions-settle {
-  from {
-    transform: translateY(8px);
-  }
-  to {
-    transform: none;
-  }
-}
-
 @keyframes copy-enter {
   from {
     opacity: 0;
@@ -334,17 +343,6 @@
     transform: translateY(20px);
   }
   to {
-    transform: none;
-  }
-}
-
-@keyframes desktop-actions-settle {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
     transform: none;
   }
 }

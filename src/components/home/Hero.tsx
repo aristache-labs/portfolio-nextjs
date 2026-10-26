@@ -318,10 +318,9 @@ export function Hero({
           )}
 
           <div
-            style={entranceStyle(0.8)}
-            className={`${styles.enter} ${styles.actions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
+            className={`${styles.actions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
           >
-            <Magnetic className="max-sm:w-full">
+            <Magnetic className={`${styles.actionEntrance} ${styles.actionFirst} max-sm:w-full`}>
               <Button
                 variant="primary"
                 size="lg"
@@ -334,7 +333,9 @@ export function Hero({
               </Button>
             </Magnetic>
             <div className="flex gap-3 sm:contents">
-              <Magnetic className="max-sm:min-w-0 max-sm:flex-1">
+              <Magnetic
+                className={`${styles.actionEntrance} ${styles.actionSecond} max-sm:min-w-0 max-sm:flex-1`}
+              >
                 <Button
                   variant="secondary"
                   size="lg"
@@ -346,7 +347,9 @@ export function Hero({
                 </Button>
               </Magnetic>
               {resumeUrl && (
-                <Magnetic className="max-sm:min-w-0 max-sm:flex-1">
+                <Magnetic
+                  className={`${styles.actionEntrance} ${styles.actionThird} max-sm:min-w-0 max-sm:flex-1`}
+                >
                   <Button
                     variant="secondary"
                     size="lg"
