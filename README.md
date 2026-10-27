@@ -157,12 +157,15 @@ cp .env.example .env.local
 | `BLOB_READ_WRITE_TOKEN`                 | Yes (prod)  | Vercel Blob token for avatar, skill icons, and project media                                  |
 | `RESEND_API_KEY`                        | Yes (prod)  | Resend API key for contact notifications                                                      |
 | `RESEND_FROM_EMAIL`                     | Yes (prod)  | From address, e.g. `Aristache <noreply@aristache.dev>` (verified domain)                      |
+| `RESEND_CONTACT_TEMPLATE_ID`            | Yes (prod)  | Published Resend contact template ID or alias                                                  |
 | `CONTACT_EMAIL`                         | Yes (prod)  | Inbox that receives contact-form mail                                                         |
 | `REVALIDATE_SECRET`                     | Yes (prod)  | Secret for the `/api/revalidate` on-demand revalidation endpoint                              |
 | `NEXT_PUBLIC_SITE_URL`                  | Yes         | Canonical site URL. Local: `http://localhost:4000`. Production: `https://www.aristache.dev`   |
 | `NEXT_PUBLIC_GOOGLE_VERIFICATION_TOKEN` | Optional    | Google Search Console site verification token                                                 |
 
 > The resume link is stored in the database (`profile.resumeUrl`) and managed from the admin panel, not via an environment variable.
+
+The contact template must be published in Resend and define four string variables: `CONTACT_NAME`, `CONTACT_EMAIL`, `CONTACT_SUBJECT`, and `CONTACT_MESSAGE`. Use triple braces such as `{{{CONTACT_NAME}}}` in its HTML. The route supplies the subject and sender, and sets the visitor's email as `replyTo`. Set `RESEND_CONTACT_TEMPLATE_ID` locally and in Vercel before deploying this integration.
 
 ### 3. Database setup
 

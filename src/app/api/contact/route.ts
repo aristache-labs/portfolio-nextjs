@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { BRAND } from "@/lib/brand";
 import { clientIpFromHeaders, createRateLimiter } from "@/lib/rate-limit";
 
 const limit = createRateLimiter({ limit: 5, windowMs: 60 * 60 * 1000 });
@@ -61,8 +60,18 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_EMAIL;
   const from = process.env.RESEND_FROM_EMAIL;
-  if (!apiKey || !to || !from) {
+  const templateId = process.env.RESEND_CONTACT_TEMPLATE_ID;
+  if (!apiKey || !to || !from || !templateId) {
     return NextResponse.json({ error: "Messages are not set up yet." }, { status: 503 });
+  }
+
+  const escapedMessage = escapeHtml(message);
+  // Resend limits each template variable to 2000 characters, including HTML entities.
+  if (escapedMessage.length > 2000) {
+    return NextResponse.json(
+      { error: "Message is too long after HTML encoding. Please shorten it." },
+      { status: 400 },
+    );
   }
 
   const resend = new Resend(apiKey);
@@ -71,15 +80,15 @@ export async function POST(req: NextRequest) {
     to,
     replyTo: email,
     subject: `Contact: ${subject}`,
-    html: `
-      <h2>New message from the site</h2>
-      <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-      <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-      <p><strong>Subject:</strong> ${escapeHtml(subject)}</p>
-      <blockquote style="border-left:3px solid ${BRAND.deep};padding-left:12px;color:#444">
-        ${escapeHtml(message)}
-      </blockquote>
-    `,
+    template: {
+      id: templateId,
+      variables: {
+        CONTACT_NAME: escapeHtml(name),
+        CONTACT_EMAIL: escapeHtml(email),
+        CONTACT_SUBJECT: escapeHtml(subject),
+        CONTACT_MESSAGE: escapedMessage,
+      },
+    },
   });
 
   if (error) {
