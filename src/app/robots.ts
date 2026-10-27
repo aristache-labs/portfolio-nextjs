@@ -20,10 +20,9 @@ export default function robots(): MetadataRoute.Robots {
       ...aiCrawlers.map((ua) => ({
         userAgent: ua,
         allow: "/",
-        disallow: "/admin",
+        disallow: ["/admin", "/api"],
       })),
     ],
-    sitemap: `${SITE.url}/sitemap.xml`,
-    host: SITE.url,
+    sitemap: new URL("/sitemap.xml", SITE.url).toString(),
   };
 }

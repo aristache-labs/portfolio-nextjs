@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE.name}`,
   },
   description: SITE.description,
-  authors: [{ name: SITE.name, url: SITE.url }],
+  authors: [{ name: SITE.name, url: new URL("/", SITE.url).toString() }],
   creator: SITE.name,
   robots: {
     index: true,
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: SITE.url,
+    url: new URL("/", SITE.url).toString(),
     siteName: SITE.name,
     title: SITE.title,
     description: SITE.description,

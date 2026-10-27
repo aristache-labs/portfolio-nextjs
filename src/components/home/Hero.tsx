@@ -174,6 +174,8 @@ export function Hero({
     return match ? [match] : [];
   });
 
+  const [firstName, ...remainingName] = profile.name.trim().split(/\s+/);
+
   const toggleVideo = () => {
     const node = videoRef.current;
     if (!node) return;
@@ -284,7 +286,13 @@ export function Hero({
             <span
               className={`${styles.name} font-display block cursor-default bg-[linear-gradient(92deg,#f7fffd_6%,#76f5e1_46%,#58e5d0_82%)] bg-clip-text text-[clamp(2.5rem,4.8vw,4.5rem)] leading-[1] font-extrabold tracking-tight text-transparent [@media(max-height:500px)]:text-[clamp(1.8rem,3.6vw,2.75rem)]`}
             >
-              {profile.name.trim().split(/\s+/)[0]}
+              {firstName}
+              {remainingName.length > 0 && (
+                <>
+                  {" "}
+                  <span className="sr-only">{remainingName.join(" ")}</span>
+                </>
+              )}
             </span>{" "}
             <span
               style={entranceStyle(0.45)}

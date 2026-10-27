@@ -13,6 +13,7 @@ describe("JSON-LD", () => {
     const data = parse(script.innerHTML);
     expect(data["@type"]).toBe("Person");
     expect(data.name).toBe("Adrian Cristache");
+    expect(data.alternateName).toEqual(["Cristache Adrian", "Aristache", "aristache-labs"]);
     expect(data.jobTitle).toBe("IT Specialist · Web & Mobile Developer");
     expect(data.description).toContain("Web and mobile projects in my spare time.");
     expect(Array.isArray(data.sameAs)).toBe(true);

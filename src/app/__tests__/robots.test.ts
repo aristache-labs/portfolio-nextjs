@@ -18,6 +18,14 @@ describe("robots", () => {
     expect(agents).toContain("Google-Extended");
   });
 
+  it("blocks both private prefixes for every crawler and omits the nonstandard host field", () => {
+    for (const rule of rules) {
+      expect(rule.disallow).toEqual(["/admin", "/api"]);
+      expect(rule.allow).toBe("/");
+    }
+    expect(r).not.toHaveProperty("host");
+  });
+
   it("references the sitemap", () => {
     expect(r.sitemap).toMatch(/\/sitemap\.xml$/);
   });

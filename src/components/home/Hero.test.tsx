@@ -86,7 +86,9 @@ describe("Hero", () => {
   it("renders only the first name, complete greeting and deployment proof immediately", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1).not.toHaveTextContent("Cristache");
+    expect(h1).toHaveTextContent("Adrian Cristache");
+    expect(h1.firstElementChild?.firstChild?.textContent).toBe("Adrian");
+    expect(h1.querySelector(".sr-only")).toHaveTextContent("Cristache");
     expect(h1).toHaveTextContent("Adrian");
     expect(h1.lastElementChild).not.toBeEmptyDOMElement();
     expect(
@@ -95,6 +97,24 @@ describe("Hero", () => {
       ),
     ).toHaveTextContent("In my spare time, I build web and mobile applications.");
     expect(screen.getByText("// HELLO, I'M")).toBeInTheDocument();
+  });
+
+  it.each([
+    ["Cristache Adrian", "Cristache", "Adrian"],
+    ["  Adrian   Cristache  ", "Adrian", "Cristache"],
+    ["Adrian", "Adrian", null],
+  ])("preserves the profile name accessibly for %s", (name, first, remainder) => {
+    render(<Hero profile={{ ...profile, name }} />);
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1.firstElementChild?.firstChild?.textContent).toBe(first);
+    if (remainder) {
+      expect(h1.querySelector(".sr-only")).toHaveTextContent(remainder);
+      expect(h1).toHaveAccessibleName(
+        first + " " + remainder + " Infrastructure meets innovation.",
+      );
+    } else {
+      expect(h1.querySelector(".sr-only")).toBeNull();
+    }
   });
 
   it("renders the hero tagline chip", () => {

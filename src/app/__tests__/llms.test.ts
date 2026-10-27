@@ -20,6 +20,10 @@ describe("llms.txt", () => {
     expect(text).toContain("## Optional");
     expect(text).toMatch(/- \[Full profile\]\(https?:\/\/.+\/llms-full\.txt\):/);
     expect(text).toMatch(/- \[GitHub\]\(https:\/\/github\.com\/aristache-labs\):/);
+    expect(text).toContain(
+      "- [LinkedIn](https://www.linkedin.com/in/adrian-cristache-727773444): Professional profile for Adrian Cristache",
+    );
+    expect(text.match(/- \[GitHub\]/g)).toHaveLength(1);
     expect(text).not.toContain("## Identity");
   });
 });

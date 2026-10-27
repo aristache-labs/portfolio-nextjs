@@ -5,9 +5,10 @@ export const dynamic = "force-static";
 export function GET() {
   // llmstxt.org order: H1, blockquote, prose with no headings, then H2 file lists.
   // Each H2 item is a markdown link, optionally followed by ": notes".
-  const optional = SITE.sameAs
-    .map((url) => `- [GitHub](${url}): Public repositories for aristache-labs`)
-    .join("\n");
+  const optional = [
+    `- [GitHub](${SITE.sameAs[0]}): Public repositories for aristache-labs`,
+    `- [LinkedIn](${SITE.sameAs[1]}): Professional profile for ${SITE.name}`,
+  ].join("\n");
 
   const body = `# ${SITE.name}
 
@@ -17,8 +18,8 @@ Personal site for ${SITE.name} (aristache-labs). ${SITE.positioning}. Start with
 
 ## Profile
 
-- [Full profile](${SITE.url}/llms-full.txt): Experience, projects, skills, and contact in one document
-- [Portfolio](${SITE.url}): Public homepage
+- [Full profile](${new URL("/llms-full.txt", SITE.url)}): Experience, projects, skills, and contact in one document
+- [Portfolio](${new URL("/", SITE.url)}): Public homepage
 
 ## Optional
 

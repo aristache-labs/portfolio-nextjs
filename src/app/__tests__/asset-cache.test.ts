@@ -8,7 +8,15 @@ const config = require("../../../next.config.js") as {
 
 describe("asset caching", () => {
   it("caches only the asset directories without immutable", async () => {
-    const rules = await config.headers();
+    const allRules = await config.headers();
+    const rules = allRules.filter(({ headers }) =>
+      headers.some(({ key }) => key === "Cache-Control"),
+    );
+    expect(
+      allRules
+        .filter(({ source }) => source === "/:path*")
+        .flatMap(({ headers }) => headers.map(({ key }) => key)),
+    ).not.toContain("Cache-Control");
     expect(rules.map(({ source }) => source)).toEqual([
       "/media/:path*",
       "/brand/:path*",
