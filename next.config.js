@@ -1,4 +1,4 @@
-// Keep the report-only image allowlist aligned with next/image, including wildcard apex hosts.
+// Keep the CSP image allowlist aligned with next/image, including wildcard apex hosts.
 const remoteImagePatterns = [
   { protocol: "https", hostname: "**.githubusercontent.com" },
   { protocol: "https", hostname: "**.github.com" },
@@ -19,8 +19,8 @@ const imageSources = remoteImagePatterns.flatMap(({ protocol, hostname }) => {
 });
 
 // No nonce: the homepage must retain static rendering and its 12h ISR window.
-// Reports are visible in browser diagnostics; no report collector is configured yet.
-const reportOnlyCsp = [
+// Inline scripts/styles remain allowed for Next hydration and Motion; external sources stay restricted.
+const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
   "style-src 'self' 'unsafe-inline'",
@@ -65,7 +65,7 @@ const nextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "X-Frame-Options", value: "DENY" },
-          { key: "Content-Security-Policy-Report-Only", value: reportOnlyCsp },
+          { key: "Content-Security-Policy", value: contentSecurityPolicy },
         ],
       },
       ...["media", "brand", "fonts", "icons", "pwa"].map((directory) => ({

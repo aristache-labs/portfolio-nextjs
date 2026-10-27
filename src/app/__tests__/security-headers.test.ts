@@ -27,15 +27,15 @@ afterEach(() => {
 });
 
 describe("security headers", () => {
-  it("protects all routes without enabling CSP enforcement or replacing platform HSTS", async () => {
+  it("protects all routes with CSP enforcement without replacing platform HSTS", async () => {
     const headers = await security(loadConfig("production"));
     expect(headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
     expect(headers.get("Permissions-Policy")).toBe("camera=(), microphone=(), geolocation=()");
     expect(headers.get("X-Frame-Options")).toBe("DENY");
-    expect(headers.has("Content-Security-Policy")).toBe(false);
+    expect(headers.has("Content-Security-Policy-Report-Only")).toBe(false);
     expect(headers.has("Strict-Transport-Security")).toBe(false);
-    const csp = headers.get("Content-Security-Policy-Report-Only")!;
+    const csp = headers.get("Content-Security-Policy")!;
     expect(csp).not.toMatch(/nonce-|unsafe-eval|upgrade-insecure-requests/);
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toContain("object-src 'none'");
@@ -44,7 +44,7 @@ describe("security headers", () => {
 
   it("covers every image host, including wildcard apex hosts, and Quick View badges", async () => {
     const config = loadConfig("production");
-    const csp = (await security(config)).get("Content-Security-Policy-Report-Only")!;
+    const csp = (await security(config)).get("Content-Security-Policy")!;
     const images = csp
       .split("; ")
       .find((part) => part.startsWith("img-src "))!
@@ -65,9 +65,7 @@ describe("security headers", () => {
   });
 
   it("keeps production analytics and uploads on the same origin and allows GitHub sign-in", async () => {
-    const csp = (await security(loadConfig("production"))).get(
-      "Content-Security-Policy-Report-Only",
-    )!;
+    const csp = (await security(loadConfig("production"))).get("Content-Security-Policy")!;
     const directives = csp.split("; ");
     expect(directives).toContain("connect-src 'self'");
     expect(directives).toContain("script-src 'self' 'unsafe-inline'");
@@ -79,15 +77,11 @@ describe("security headers", () => {
   });
 
   it("allows the development runtime without relaxing the production policy", async () => {
-    const dev = (await security(loadConfig("development"))).get(
-      "Content-Security-Policy-Report-Only",
-    )!;
+    const dev = (await security(loadConfig("development"))).get("Content-Security-Policy")!;
     expect(dev).toContain("'unsafe-eval'");
     expect(dev).toContain("https://va.vercel-scripts.com");
     expect(dev).toContain("ws://localhost:*");
-    const production = (await security(loadConfig("production"))).get(
-      "Content-Security-Policy-Report-Only",
-    )!;
+    const production = (await security(loadConfig("production"))).get("Content-Security-Policy")!;
     expect(production).not.toContain("'unsafe-eval'");
     expect(production).not.toContain("ws://");
   });

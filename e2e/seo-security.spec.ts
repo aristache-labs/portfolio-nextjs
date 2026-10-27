@@ -29,9 +29,9 @@ test("security headers cover public, private, API and missing routes", async ({ 
     expect(headers["x-frame-options"], path).toBe("DENY");
     expect(headers["referrer-policy"], path).toBe("strict-origin-when-cross-origin");
     expect(headers["permissions-policy"], path).toBe("camera=(), microphone=(), geolocation=()");
-    expect(headers["content-security-policy"], path).toBeUndefined();
-    expect(headers["content-security-policy-report-only"], path).toContain("connect-src 'self'");
-    expect(headers["content-security-policy-report-only"], path).not.toContain("nonce-");
+    expect(headers["content-security-policy-report-only"], path).toBeUndefined();
+    expect(headers["content-security-policy"], path).toContain("connect-src 'self'");
+    expect(headers["content-security-policy"], path).not.toContain("nonce-");
   }
   const admin = await request.get("/admin", { maxRedirects: 0 });
   const body = await admin.text();
@@ -97,7 +97,7 @@ test("H1 retains the visible first name and exposes the rest to assistive techno
   await expect(page.locator("#page-content")).toBeFocused();
 });
 
-test("Report-Only observes a disallowed source without blocking it", async ({ page }) => {
+test("CSP enforcement blocks disallowed images and connections", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.addInitScript(() => {
@@ -110,12 +110,14 @@ test("Report-Only observes a disallowed source without blocking it", async ({ pa
   await page.goto("/");
   await page.waitForTimeout(600);
   expect(await page.evaluate(() => window.phase3Violations)).toEqual([]);
-  await page.route("https://csp-probe.invalid/pixel.svg", (route) =>
-    route.fulfill({
+  let probeRequested = false;
+  await page.route("https://csp-probe.invalid/**", (route) => {
+    probeRequested = true;
+    return route.fulfill({
       contentType: "image/svg+xml",
       body: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>',
-    }),
-  );
+    });
+  });
   const probe = await page.evaluate(async () => {
     const violation = new Promise<string>((resolve) => {
       document.addEventListener("securitypolicyviolation", (event) => {
@@ -130,7 +132,183 @@ test("Report-Only observes a disallowed source without blocking it", async ({ pa
     });
     return Promise.all([violation, loaded]);
   });
-  expect(probe).toEqual(["report", true]);
+  expect(probe).toEqual(["enforce", false]);
+  const connected = await page.evaluate(async () => {
+    try {
+      await fetch("https://csp-probe.invalid/connect");
+      return true;
+    } catch {
+      return false;
+    }
+  });
+  expect(connected).toBe(false);
+  await expect
+    .poll(() => page.evaluate(() => window.phase3Violations))
+    .toContain("connect-src:enforce");
+  expect(probeRequested).toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test("allowed image hosts load under enforcement, including Blob previews and Shields badges", async ({
+  page,
+}) => {
+  const urls = [
+    "https://csp-fixture.public.blob.vercel-storage.com/preview.svg",
+    "https://avatars.githubusercontent.com/csp-fixture.svg",
+    "https://img.shields.io/github/stars/aristache-labs/csp-fixture.svg",
+  ];
+  for (const url of urls) {
+    await page.route(url, (route) =>
+      route.fulfill({
+        contentType: "image/svg+xml",
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>',
+      }),
+    );
+  }
+  await page.goto("/");
+  const loaded = await page.evaluate(
+    async (sources) =>
+      Promise.all(
+        sources.map(
+          (src) =>
+            new Promise<boolean>((resolve) => {
+              const image = new Image();
+              image.onload = () => resolve(true);
+              image.onerror = () => resolve(false);
+              image.src = src;
+            }),
+        ),
+      ),
+    urls,
+  );
+  expect(loaded).toEqual(urls.map(() => true));
+});
+
+test("external scripts are blocked before a network request", async ({ page }) => {
+  let requested = false;
+  await page.route("https://csp-probe.invalid/script.js", (route) => {
+    requested = true;
+    return route.fulfill({
+      contentType: "application/javascript",
+      body: "throw new Error('Unexpected script execution')",
+    });
+  });
+  await page.goto("/");
+  const result = await page.evaluate(async () => {
+    const violation = new Promise<string>((resolve) => {
+      document.addEventListener("securitypolicyviolation", (event) => {
+        if (event.blockedURI.includes("csp-probe.invalid")) resolve(event.disposition);
+      });
+    });
+    const loaded = new Promise<boolean>((resolve) => {
+      const script = document.createElement("script");
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      script.src = "https://csp-probe.invalid/script.js";
+      document.head.append(script);
+    });
+    return Promise.all([violation, loaded]);
+  });
+  expect(result).toEqual(["enforce", false]);
+  expect(requested).toBe(false);
+});
+
+test("contact, upload and analytics requests reach their same-origin endpoints", async ({
+  page,
+}) => {
+  const seen = new Set<string>();
+  await page.route("**/api/contact", (route) => {
+    expect(route.request().postDataJSON().website).toBe("");
+    seen.add("contact");
+    return route.fulfill({ json: { ok: true } });
+  });
+  await page.route("**/api/admin/upload", (route) => {
+    expect(route.request().headers()["content-type"]).toContain("multipart/form-data; boundary=");
+    expect(route.request().postDataBuffer()!.toString()).toContain('name="folder"');
+    seen.add("upload");
+    return route.fulfill({
+      status: 201,
+      json: { url: "https://csp-fixture.public.blob.vercel-storage.com/preview.svg" },
+    });
+  });
+  await page.route("**/_vercel/insights/view", (route) => {
+    seen.add("analytics");
+    return route.fulfill({ status: 204 });
+  });
+  await page.goto("/");
+  const results = await page.evaluate(async () => {
+    const contact = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "CSP Test",
+        email: "csp@example.com",
+        subject: "General Question",
+        message: "Controlled CSP validation.",
+        website: "",
+      }),
+    });
+    const body = new FormData();
+    body.append("folder", "projects");
+    body.append(
+      "file",
+      new File(['<svg xmlns="http://www.w3.org/2000/svg"/>'], "fixture.svg", {
+        type: "image/svg+xml",
+      }),
+    );
+    const upload = await fetch("/api/admin/upload", { method: "POST", body });
+    const beacon = navigator.sendBeacon(
+      "/_vercel/insights/view",
+      new Blob(["{}"], { type: "application/json" }),
+    );
+    return [contact.status, upload.status, beacon];
+  });
+  expect(results).toEqual([200, 201, true]);
+  await expect.poll(() => [...seen].sort()).toEqual(["analytics", "contact", "upload"]);
+});
+
+test("enforcement does not bypass the real upload authentication boundary", async ({ page }) => {
+  await page.goto("/login");
+  const result = await page.evaluate(async () => {
+    const response = await fetch("/api/admin/upload", { method: "POST", body: new FormData() });
+    return { status: response.status, data: await response.json() };
+  });
+  expect(result).toEqual({ status: 401, data: { error: "Unauthorized" } });
+});
+
+test("public pages and any visible project gallery run without CSP violations", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.addInitScript(() => {
+    window.phase3Violations = [];
+    document.addEventListener("securitypolicyviolation", (event) => {
+      window.phase3Violations.push(event.effectiveDirective + ":" + event.blockedURI);
+    });
+  });
+  for (const path of ["/", "/privacy", "/gdpr", "/login"]) {
+    await page.goto(path);
+    await page.evaluate(() => document.fonts.ready);
+    if (path === "/") {
+      // Admin may hide any section. Never require a project or contact section in live data.
+      const open = page
+        .locator("#projects article")
+        .getByRole("button", { name: /^View / })
+        .first();
+      if (await open.count()) {
+        await open.click();
+        await expect(page.getByRole("dialog")).toBeVisible();
+        await page.getByRole("button", { name: "Close", exact: true }).click();
+      }
+      const contact = page.locator("#contact");
+      if (await contact.count()) await contact.scrollIntoViewIfNeeded();
+    }
+    const footer = page.locator("footer");
+    if (await footer.count()) await footer.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(400);
+    expect(await page.evaluate(() => window.phase3Violations), path).toEqual([]);
+  }
   expect(errors).toEqual([]);
 });
 
