@@ -15,6 +15,8 @@ import { SectionBackdrop } from "@/components/home/SectionBackdrop";
 import { getNavigationProfile, getFundingLinks, getSocialLinks } from "@/lib/queries";
 import styles from "./privacy.module.css";
 import { SITE } from "@/lib/seo/site";
+import { LEGAL } from "@/lib/legal";
+import { LegalLink } from "@/components/legal/LegalLink";
 
 const privacyDescription = `How ${SITE.name} handles information submitted through this site.`;
 
@@ -39,12 +41,6 @@ export const metadata: Metadata = {
   },
 };
 
-const sections = [
-  { id: "overview", label: "Overview", icon: ShieldCheck },
-  { id: "contact-information", label: "Contact information", icon: Mail },
-  { id: "analytics", label: "Analytics", icon: ChartNoAxesCombined },
-];
-
 export const revalidate = 43200;
 
 export default async function PrivacyPage() {
@@ -53,6 +49,199 @@ export default async function PrivacyPage() {
     getFundingLinks(),
     getSocialLinks(),
   ]);
+  const contactEmail = profile.email?.trim() || LEGAL.contactEmail;
+  const contactHref = `mailto:${contactEmail}`;
+  const sections = [
+    {
+      id: "overview",
+      label: "Operator and contact",
+      icon: ShieldCheck,
+      content: (
+        <>
+          This personal portfolio is operated by {SITE.name}, an individual based in {LEGAL.country}
+          , who is the controller of personal data handled through this site. Privacy questions and
+          requests can be sent directly to{" "}
+          <a href={contactHref} className="text-brand-bright underline underline-offset-4">
+            {contactEmail}
+          </a>
+          . You do not need an account to browse the portfolio or exercise your rights.
+        </>
+      ),
+    },
+    {
+      id: "contact-information",
+      label: "Contact messages",
+      icon: Mail,
+      content: (
+        <>
+          The contact form asks for your name, email address, subject and message so I can
+          understand and answer your inquiry. Resend handles email delivery and message records. The
+          form handler does not save submissions in the portfolio database or publish them on the
+          site. Providing these details is voluntary, but I cannot handle a form inquiry without the
+          required fields or reply by email without a usable address. Do not include passwords,
+          identity documents or sensitive personal information. Messages are not used for
+          newsletters or advertising.
+        </>
+      ),
+    },
+    {
+      id: "legal-bases",
+      label: "Purposes and legal bases",
+      icon: ShieldCheck,
+      content: (
+        <>
+          Ordinary correspondence is handled to pursue my legitimate interest in responding to
+          people who contact me (Article 6(1)(f) GDPR). When you request specific steps towards a
+          possible contract with you, the necessary processing instead relies on Article 6(1)(b).
+          Operating and securing the portfolio, preventing abuse and understanding basic site usage
+          rely on legitimate interests under Article 6(1)(f), balanced against visitors&apos;
+          rights. These interests do not authorise unrelated marketing. Submitting a message is not
+          treated as blanket consent. Where consent is the applicable basis for any separate
+          processing, it can be withdrawn without affecting earlier lawful processing.
+        </>
+      ),
+    },
+    {
+      id: "hosting-security",
+      label: "Hosting and security",
+      icon: ShieldCheck,
+      content: (
+        <>
+          Vercel hosts the site and serves its files, including uploads stored in Vercel Blob.
+          Requests can expose IP addresses, browser information, requested URLs, timestamps and
+          diagnostic or security information to the hosting infrastructure. The contact endpoint
+          uses IP-based counters in server memory to limit repeated submissions; its counting window
+          is one hour. Infrastructure logs are separate from those counters. Neon stores portfolio
+          content and administrator account records. Contact messages are not written to Neon by the
+          contact endpoint.
+        </>
+      ),
+    },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: ChartNoAxesCombined,
+      content: (
+        <>
+          Vercel Web Analytics provides aggregate reports about visits, pages, referrers,
+          approximate location, browsers and devices. Vercel describes a request-derived visitor
+          hash with a 24-hour lifetime, without third-party analytics cookies or identifiers used
+          across sites. That lifetime is not the retention period for aggregate reports. Page URLs
+          and filtered query parameters can form part of analytics events. I do not send
+          contact-form fields as custom analytics events. Google Analytics, Statsig and session
+          replay are not enabled. See{" "}
+          <LegalLink href="https://vercel.com/docs/analytics/privacy-policy">
+            Vercel&apos;s analytics privacy information
+          </LegalLink>
+          .
+        </>
+      ),
+    },
+    {
+      id: "cookies",
+      label: "Cookies and local storage",
+      icon: ShieldCheck,
+      content: (
+        <>
+          The site does not use advertising cookies. Administrator sign-in uses essential
+          authentication and security cookies through Auth.js and GitHub. The default administrator
+          session expires after 30 days of inactivity; short-lived sign-in checks have their own
+          expiry. The administrator interface also saves its sidebar preference in local storage.
+          These functions are distinct from public-page analytics. Hosting security checks may use
+          additional necessary mechanisms. Browser controls can remove stored data, but removing
+          authentication cookies signs you out.
+        </>
+      ),
+    },
+    {
+      id: "recipients",
+      label: "Providers and external content",
+      icon: ShieldCheck,
+      content: (
+        <>
+          Service providers receive data needed for their roles: Vercel for hosting, files and
+          analytics; Resend for email handling; Neon for the database; and GitHub for administrator
+          authentication. Their terms describe their processing and subprocessors:{" "}
+          <LegalLink href="https://vercel.com/legal/dpa">Vercel</LegalLink>,{" "}
+          <LegalLink href="https://resend.com/legal/dpa">Resend</LegalLink> and{" "}
+          <LegalLink href="https://neon.com/platform-terms">Neon</LegalLink>. Project previews may
+          request images from GitHub or badges from Shields.io, exposing network information such as
+          your IP address to those services. Their notices are available at{" "}
+          <LegalLink href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">
+            GitHub
+          </LegalLink>{" "}
+          and <LegalLink href="https://shields.io/privacy">Shields.io</LegalLink>. Following
+          external project, social or support links takes you to services with their own privacy
+          practices. I do not sell personal data.
+        </>
+      ),
+    },
+    {
+      id: "international-transfers",
+      label: "International processing",
+      icon: ShieldCheck,
+      content: (
+        <>
+          The Vercel application functions are configured for Frankfurt, Germany. This does not
+          confine every service, backup or network request to Germany or the European Economic Area
+          (EEA): Vercel uses a global network, and Resend stores message content and delivery
+          records in the United States. Resend&apos;s choice of sending region does not change that
+          storage location. The providers&apos; data-processing terms describe their international
+          transfer arrangements, including Standard Contractual Clauses where applicable. You can
+          contact me for information about the safeguards relevant to your data and how to obtain a
+          copy. See{" "}
+          <LegalLink href="https://resend.com/security/gdpr">
+            Resend&apos;s storage and transfer details
+          </LegalLink>{" "}
+          and{" "}
+          <LegalLink href="https://www.edpb.europa.eu/sme/be-compliant/international-data-transfers_en">
+            the EDPB transfer guidance
+          </LegalLink>
+          .
+        </>
+      ),
+    },
+    {
+      id: "retention",
+      label: "How long data is kept",
+      icon: ShieldCheck,
+      content: (
+        <>
+          Resend currently documents 30-day retention for email and log data on its Free plan, with
+          a separate seven-day backup period. This is a provider retention window, not an automatic
+          deletion rule for every reply, forwarded message or exported copy. Separate correspondence
+          is kept according to the need to resolve the inquiry and necessary follow-up, or to meet a
+          specific legal obligation or handle a legal claim; it should be removed when those reasons
+          no longer apply. The application has no automatic mailbox cleanup job. Hosting records,
+          database backups and analytics reports have separate provider retention windows. Ask about
+          a particular record or request erasure using the contact above. See{" "}
+          <LegalLink href="https://resend.com/security/gdpr">
+            Resend&apos;s retention details
+          </LegalLink>
+          .
+        </>
+      ),
+    },
+    {
+      id: "your-rights",
+      label: "Your rights and updates",
+      icon: ShieldCheck,
+      content: (
+        <>
+          The{" "}
+          <Link href="/gdpr" className="text-brand-bright underline underline-offset-4">
+            data rights page
+          </Link>{" "}
+          explains access, correction, erasure, restriction, portability, objection and how to
+          complain to a supervisory authority. I do not use your data for solely automated decisions
+          producing legal or similarly significant effects, or for advertising profiles. Spam
+          controls can reject submissions but do not make those kinds of decisions about you. This
+          notice may change when the site or its providers change; the review date below identifies
+          this version.
+        </>
+      ),
+    },
+  ];
   return (
     <>
       <SkipLink />
@@ -91,6 +280,9 @@ export default async function PrivacyPage() {
               </h1>
               <p className="text-foreground/70 mx-auto mt-2 max-w-2xl text-sm leading-relaxed sm:text-base">
                 How information is handled when you visit this portfolio or get in touch.
+              </p>
+              <p className="text-muted mt-3 text-xs">
+                Last reviewed: <time dateTime={LEGAL.updatedAt}>{LEGAL.updatedLabel}</time>
               </p>
             </header>
 
@@ -142,7 +334,7 @@ export default async function PrivacyPage() {
               </nav>
 
               <div>
-                {sections.map(({ id, label, icon: Icon }) => (
+                {sections.map(({ id, label, icon: Icon, content }) => (
                   <section
                     key={id}
                     id={id}
@@ -160,41 +352,20 @@ export default async function PrivacyPage() {
                       />
                       {label}
                     </h2>
-                    <p className="text-muted mt-4 text-base leading-7">
-                      {id === "overview" && (
-                        <>
-                          This site is the portfolio of {SITE.name}. It does not sell personal
-                          information.
-                        </>
-                      )}
-                      {id === "contact-information" && (
-                        <>
-                          The contact form collects your name, email, subject, and message so I can
-                          reply. Those details are sent to me by email and are not added to a public
-                          page.
-                        </>
-                      )}
-                      {id === "analytics" && (
-                        <>
-                          The site uses Vercel Web Analytics to measure page views and navigation.
-                          Google Analytics, Statsig and session replay are not enabled. Contact form
-                          messages are used only to reply to your inquiry.
-                        </>
-                      )}
-                    </p>
+                    <p className="text-muted mt-4 text-base leading-7">{content}</p>
                   </section>
                 ))}
                 <div className="border-brand-mid/20 bg-brand-mid/5 mt-4 rounded-2xl border p-5 sm:p-6">
                   <h2 className="text-lg font-medium">Questions about privacy?</h2>
                   <p className="text-muted mt-2 text-sm leading-relaxed">
-                    Questions about this page can go through the contact section.
+                    Contact me directly about this notice or your personal data.
                   </p>
-                  <Link
-                    href="/#contact"
+                  <a
+                    href={contactHref}
                     className="text-brand-bright focus-visible:ring-brand-mid mt-3 inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
                   >
-                    Contact section <ArrowUpRight aria-hidden className="size-4" />
-                  </Link>
+                    {contactEmail} <ArrowUpRight aria-hidden className="size-4" />
+                  </a>
                 </div>
               </div>
             </div>

@@ -3,7 +3,7 @@ import { defineConfig } from "@playwright/test";
 // Run after bun run build. This config never starts the development server.
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: "seo-security.spec.ts",
+  testMatch: ["seo-security.spec.ts", "legal-pages.spec.ts"],
   fullyParallel: true,
   workers: 2,
   reporter: "list",

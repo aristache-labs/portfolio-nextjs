@@ -7,6 +7,8 @@ import { Footer } from "@/components/layout/Footer";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
 import { getNavigationProfile, getFundingLinks, getSocialLinks } from "@/lib/queries";
 import { SITE } from "@/lib/seo/site";
+import { LEGAL } from "@/lib/legal";
+import { LegalLink } from "@/components/legal/LegalLink";
 import styles from "../privacy/privacy.module.css";
 
 const description = "Your personal data rights and how to make a request about this portfolio.";
@@ -40,19 +42,26 @@ export default async function GdprPage() {
     getFundingLinks(),
     getSocialLinks(),
   ]);
-  const contactHref = profile.email ? `mailto:${profile.email}` : "/#contact";
+  const contactEmail = profile.email?.trim() || LEGAL.contactEmail;
+  const contactHref = `mailto:${contactEmail}`;
   const sections = [
     {
       id: "about-your-data",
       title: "About your data",
       content: (
         <>
-          This portfolio is operated by {SITE.name}. The{" "}
+          {SITE.name}, an individual based in {LEGAL.country}, is the controller for this portfolio.
+          Send privacy requests to{" "}
+          <a href={contactHref} className="text-brand-bright underline underline-offset-4">
+            {contactEmail}
+          </a>
+          . The{" "}
           <Link href="/privacy" className="text-brand-bright underline underline-offset-4">
             Privacy policy
           </Link>{" "}
-          explains how the contact form and site analytics handle information. This page explains
-          how to raise a request under the General Data Protection Regulation (GDPR).
+          describes the data handled, its purposes and legal bases, providers, international
+          processing and retention. There is no need to sign in or create an account to make a
+          request.
         </>
       ),
     },
@@ -61,11 +70,15 @@ export default async function GdprPage() {
       title: "Your rights",
       content: (
         <>
-          Depending on the circumstances, you can request access to your personal data, correction
-          of inaccurate information, deletion, restriction of processing, or a portable copy. You
-          can object to processing where the GDPR provides that right. Where processing relies on
-          consent, you can withdraw it without affecting earlier lawful processing. These rights are
-          subject to the conditions and exceptions in the GDPR.
+          You can ask what personal data I hold, obtain a copy, and correct inaccurate information.
+          You can request erasure or restriction where the GDPR conditions apply. Portability
+          applies to data you provided where processing is automated and based on consent or a
+          contract. These rights have legal conditions and exceptions; if I cannot fulfil a request,
+          I will explain why.{" "}
+          <LegalLink href="https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en">
+            The European Commission explains these rights
+          </LegalLink>
+          .
         </>
       ),
     },
@@ -74,12 +87,44 @@ export default async function GdprPage() {
       title: "Make a request",
       content: (
         <>
-          Contact me using the link below. Describe your request and the email address you used when
-          contacting this site. Please avoid sending identity documents or other sensitive
-          information with your initial message. Identity verification may be needed before data is
-          disclosed. Under the GDPR, requests generally require a response within one month; complex
-          or numerous requests may allow an extension of up to two further months, with notice
-          during the first month.
+          Where possible, email me from the address you used to contact the site, explain which
+          right you want to exercise, and give enough context to locate the relevant message or
+          record. Include only what is needed; do not send identity documents with your initial
+          request. If there are reasonable doubts about identity, I may ask for proportionate
+          additional information before disclosing personal data. Requests are normally free. A
+          reasonable fee or refusal is possible only for manifestly unfounded or excessive requests,
+          with reasons explained.
+        </>
+      ),
+    },
+    {
+      id: "objection-and-consent",
+      title: "Objection and withdrawal",
+      content: (
+        <>
+          Where processing relies on legitimate interests, you may object for reasons relating to
+          your particular situation. I must stop unless the GDPR permits continued processing, for
+          example because compelling legitimate grounds or legal claims justify it. If separate
+          processing relies on consent, you can withdraw that consent using the same email address;
+          withdrawal does not undo earlier lawful processing. Sending a contact message does not
+          itself create a marketing subscription or blanket consent.
+        </>
+      ),
+    },
+    {
+      id: "response-time",
+      title: "When I will respond",
+      content: (
+        <>
+          I will respond without undue delay and normally within one month of receiving your
+          request. Where its complexity or the number of requests justifies an extension, the GDPR
+          allows up to two further months; I will tell you within the first month and explain the
+          delay. If I cannot act on a request, I will explain the reasons and the available
+          complaint or judicial remedies.{" "}
+          <LegalLink href="https://www.edpb.europa.eu/sme/be-compliant/respect-individuals-rights_en">
+            EDPB guidance explains the response rules
+          </LegalLink>
+          .
         </>
       ),
     },
@@ -88,18 +133,15 @@ export default async function GdprPage() {
       title: "Raise a concern",
       content: (
         <>
-          You can lodge a complaint with a data protection supervisory authority, particularly in
-          the EU country where you live, work, or where an alleged infringement occurred. More
-          information about your rights is available from the{" "}
-          <a
-            href="https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-brand-bright underline underline-offset-4"
-          >
-            European Commission
-          </a>
-          .
+          You can complain to a data protection authority, particularly in the EU country where you
+          live, work or where an alleged infringement happened. In Romania, this is the National
+          Supervisory Authority for Personal Data Processing (ANSPDCP). Its{" "}
+          <LegalLink href="https://www.dataprotection.ro/?page=Plangeri_pagina_principala">
+            official complaints page
+          </LegalLink>{" "}
+          explains how to submit a complaint. You can also seek a judicial remedy where the GDPR
+          provides one. Contacting me can help resolve an issue but does not remove your right to
+          complain.
         </>
       ),
     },
@@ -139,6 +181,9 @@ export default async function GdprPage() {
               </h1>
               <p className="text-foreground/70 mx-auto mt-2 max-w-2xl text-sm leading-relaxed sm:text-base">
                 How to ask about, access, or correct your personal information.
+              </p>
+              <p className="text-muted mt-3 text-xs">
+                Last reviewed: <time dateTime={LEGAL.updatedAt}>{LEGAL.updatedLabel}</time>
               </p>
             </header>
             <div
@@ -180,7 +225,8 @@ export default async function GdprPage() {
                   href={contactHref}
                   className="text-brand-bright focus-visible:ring-brand-mid mt-3 inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
                 >
-                  Contact about your data <ArrowUpRight aria-hidden className="size-4" />
+                  Contact about your data: {contactEmail}{" "}
+                  <ArrowUpRight aria-hidden className="size-4" />
                 </a>
               </div>
             </div>

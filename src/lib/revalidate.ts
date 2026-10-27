@@ -8,6 +8,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 export function revalidatePortfolio(): void {
   revalidatePath("/");
   revalidatePath("/privacy");
+  revalidatePath("/gdpr");
   revalidatePath("/llms.txt");
   revalidatePath("/llms-full.txt");
   // Next 16: revalidateTag requires a cacheLife profile as the 2nd arg.
