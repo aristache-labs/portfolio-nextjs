@@ -111,3 +111,23 @@ it("explains rights, response timing and the Romanian complaints route", async (
     "https://www.dataprotection.ro/?page=Plangeri_pagina_principala",
   );
 });
+
+it("describes the verified analytics retention and enabled measurement categories", async () => {
+  const doc = await documentFor(PrivacyPage);
+  const analytics = doc.querySelector("#analytics");
+  expect(analytics).toHaveTextContent("14 months");
+  expect(analytics).not.toHaveTextContent("either 2 or 14");
+  for (const event of [
+    "page_view",
+    "scroll",
+    "click",
+    "file_download",
+    "first_visit",
+    "session_start",
+    "user_engagement",
+  ])
+    expect(analytics).toHaveTextContent(event);
+  expect(analytics).toHaveTextContent(
+    "Automatic form interactions, site search and video engagement measurement are disabled",
+  );
+});

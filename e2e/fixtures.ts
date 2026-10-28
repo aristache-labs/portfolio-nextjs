@@ -12,14 +12,20 @@ type AnalyticsTraffic = {
   events: AnalyticsEvent[];
   requests: { url: string; body: string | null }[];
   unexpectedRequests: string[];
+  blockedDiagnostics: string[];
 };
 
 // Every browser spec uses this fixture, before any navigation or saved consent can load GA.
 export const test = base.extend<{ analyticsTraffic: AnalyticsTraffic }>({
   serviceWorkers: "block",
   analyticsTraffic: [
-    async ({ context }, use) => {
-      const traffic: AnalyticsTraffic = { events: [], requests: [], unexpectedRequests: [] };
+    async ({ context }, use, testInfo) => {
+      const traffic: AnalyticsTraffic = {
+        events: [],
+        requests: [],
+        unexpectedRequests: [],
+        blockedDiagnostics: [],
+      };
       await context.route(
         /^https?:\/\/(?:[^/]+\.)?(?:google-analytics\.com|googletagmanager\.com|analytics\.google\.com|google\.[a-z.]+|doubleclick\.net|googleadservices\.com|googlesyndication\.com)\//,
         async (route) => {
@@ -31,6 +37,16 @@ export const test = base.extend<{ analyticsTraffic: AnalyticsTraffic }>({
             request.resourceType() === "script"
           ) {
             await route.fallback();
+            return;
+          }
+          // The SDK occasionally samples its own diagnostics. Acknowledge locally and report it.
+          if (url.hostname === "www.googletagmanager.com" && url.pathname === "/a") {
+            traffic.blockedDiagnostics.push(request.url());
+            testInfo.annotations.push({
+              type: "blocked-google-diagnostic",
+              description: `${url.origin}${url.pathname} was answered locally with 204`,
+            });
+            await route.fulfill({ status: 204 });
             return;
           }
           // Unknown Google endpoints never reach the network, even when the test fails.

@@ -129,10 +129,13 @@ export default async function PrivacyPage() {
           Article 6(1)(a) GDPR and Article 4(5) of Romanian Law 506/2004. Google Ireland Ltd.
           processes analytics data. Processing may involve transfers to the United States under the
           EU-US Data Privacy Framework. Google Signals and advertising personalization are disabled.
-          I do not send contact-form fields as custom analytics events. Event-level analytics data
-          is kept for the period selected in the GA4 property: either 2 or 14 months for a standard
-          property. Contact me to confirm the current period. Aggregate reports have separate
-          retention. You can withdraw consent anytime using Cookie settings in the footer. See{" "}
+          Analytics records page views (page_view), scrolls (scroll), outbound link clicks (click)
+          and file downloads (file_download). GA4 also generates visit, session and engagement
+          events such as first_visit, session_start and user_engagement. Automatic form
+          interactions, site search and video engagement measurement are disabled. I do not send
+          contact-form fields as custom analytics events. Event-level analytics data is retained for
+          14 months, as configured in the GA4 property. Aggregate reports have separate retention.
+          You can withdraw consent anytime using Cookie settings in the footer. See{" "}
           <LegalLink href="https://policies.google.com/privacy">
             Google&apos;s privacy policy
           </LegalLink>

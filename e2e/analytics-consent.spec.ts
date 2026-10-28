@@ -172,3 +172,87 @@ test("footer preferences reflect consent and return keyboard focus", async ({ pa
   await expect(trigger).toBeFocused();
   expect(await page.evaluate(() => localStorage.getItem("analytics-consent-v2"))).toBe("accepted");
 });
+
+test("manual page views measure navigation and reacceptance exactly once", async ({
+  page,
+  analyticsTraffic,
+}) => {
+  test.setTimeout(90000);
+  const views = () => analyticsTraffic.events.filter((event) => event.name === "page_view");
+  await page.goto("/");
+  const homeTitle = await page.title();
+  await panel(page).getByRole("button", { name: "Accept", exact: true }).click();
+  await expect.poll(() => views().length, { timeout: 25000 }).toBe(1);
+  expect(new URL(views()[0].location!).pathname).toBe("/");
+  expect(views()[0].title).toBe(homeTitle);
+  await page.locator("footer").getByRole("link", { name: "Privacy", exact: true }).click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect.poll(() => views().length, { timeout: 25000 }).toBe(2);
+  expect(new URL(views()[1].location!).pathname).toBe("/privacy");
+  expect(views()[1].title).toBe(await page.title());
+  const cookiesLink = page.locator('a[href="#cookies"]:visible');
+  if ((await cookiesLink.count()) === 0) {
+    await page.locator("summary").filter({ hasText: "On this page" }).click();
+  }
+  await cookiesLink.first().click();
+  await page.waitForTimeout(8000);
+  expect(views()).toHaveLength(2);
+  await page.getByRole("button", { name: "Cookie settings", exact: true }).click();
+  await panel(page).getByRole("button", { name: "Reject", exact: true }).click();
+  await page.getByRole("button", { name: "Cookie settings", exact: true }).click();
+  await panel(page).getByRole("checkbox", { name: "Optional analytics", exact: true }).check();
+  await panel(page).getByRole("button", { name: "Save analytics preferences" }).click();
+  await expect.poll(() => views().length, { timeout: 25000 }).toBe(3);
+  await page.waitForTimeout(8000);
+  expect(views().map((event) => new URL(event.location!).pathname)).toEqual([
+    "/",
+    "/privacy",
+    "/privacy",
+  ]);
+});
+
+test("the initial consent banner does not prefetch Privacy", async ({ page }) => {
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      (url.pathname === "/privacy" && url.searchParams.has("_rsc")) ||
+      /app\/privacy\/page-[^/]+\.js$/.test(url.pathname)
+    )
+      requests.push(url.href);
+  });
+  await page.goto("/");
+  await expect(panel(page)).toBeVisible();
+  await page.waitForTimeout(1500);
+  expect(requests).toEqual([]);
+});
+
+test("contact form interactions are excluded from analytics and do not send mail in tests", async ({
+  page,
+  analyticsTraffic,
+}) => {
+  test.setTimeout(60000);
+  await page.route("**/api/contact", (route) => route.fulfill({ json: { ok: true } }));
+  await page.goto("/");
+  const form = page.locator("#contact form");
+  test.skip((await form.count()) === 0, "The contact section is disabled in content settings");
+  await panel(page).getByRole("button", { name: "Accept", exact: true }).click();
+  await expect
+    .poll(() => analyticsTraffic.events.some((event) => event.name === "page_view"), {
+      timeout: 25000,
+    })
+    .toBe(true);
+  await form.locator('[name="name"]').fill("Analytics Test");
+  await form.locator('[name="email"]').fill("analytics@example.com");
+  await form.locator('[name="subject"]').selectOption({ label: "General Question" });
+  await form
+    .locator('[name="message"]')
+    .fill("Controlled analytics verification without sending a real contact message.");
+  const response = page.waitForResponse((response) => response.url().endsWith("/api/contact"));
+  await form.locator('button[type="submit"]').click();
+  await response;
+  await page.waitForTimeout(10000);
+  expect(
+    analyticsTraffic.events.filter((event) => ["form_start", "form_submit"].includes(event.name)),
+  ).toEqual([]);
+});
