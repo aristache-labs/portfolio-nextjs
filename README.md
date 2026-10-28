@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/aristache-labs/portfolio-nextjs/refs/heads/master/public/brand/logo.svg" width="76" alt="Adrian Cristache">
+<img src="https://raw.githubusercontent.com/aristache-labs/portfolio-nextjs/refs/heads/master/public/brand/logo-full-v2.webp" width="76" alt="Adrian Cristache">
 
 # Adrian Cristache · Portfolio
 
@@ -70,24 +70,24 @@ Aristache is the personal portfolio of Adrian Cristache: IT Specialist · Web & 
 
 ## Stack
 
-| Layer           | Technology                                                          |
-| --------------- | ------------------------------------------------------------------- |
-| Framework       | [Next.js 16](https://nextjs.org/) (App Router, Turbopack in dev)    |
-| UI library      | [React 19](https://react.dev/)                                      |
-| Language        | TypeScript                                                          |
-| Styling         | [Tailwind CSS v4](https://tailwindcss.com/), Geist, Sora, Caveat    |
-| Animation       | [Framer Motion](https://www.framer-motion.com/)                     |
-| Icons           | [Lucide React](https://lucide.dev/)                                 |
-| Database        | PostgreSQL via [postgres-js](https://github.com/porsager/postgres)  |
-| ORM             | [Drizzle ORM](https://orm.drizzle.team/)                            |
-| Auth            | [Auth.js v5](https://authjs.dev/) - GitHub OAuth                    |
-| File storage    | [Vercel Blob](https://vercel.com/docs/storage/vercel-blob)          |
-| Email           | [Resend](https://resend.com/)                                       |
-| Analytics       | [Vercel Analytics](https://vercel.com/analytics) |
-| Package manager | [Bun](https://bun.sh/)                                              |
-| Unit tests      | [Vitest](https://vitest.dev/) + Testing Library                     |
-| E2E tests       | [Playwright](https://playwright.dev/)                               |
-| Deployment      | [Vercel](https://vercel.com/)                                       |
+| Layer           | Technology                                                         |
+| --------------- | ------------------------------------------------------------------ |
+| Framework       | [Next.js 16](https://nextjs.org/) (App Router, Turbopack in dev)   |
+| UI library      | [React 19](https://react.dev/)                                     |
+| Language        | TypeScript                                                         |
+| Styling         | [Tailwind CSS v4](https://tailwindcss.com/), Geist, Sora, Caveat   |
+| Animation       | [Framer Motion](https://www.framer-motion.com/)                    |
+| Icons           | [Lucide React](https://lucide.dev/)                                |
+| Database        | PostgreSQL via [postgres-js](https://github.com/porsager/postgres) |
+| ORM             | [Drizzle ORM](https://orm.drizzle.team/)                           |
+| Auth            | [Auth.js v5](https://authjs.dev/) - GitHub OAuth                   |
+| File storage    | [Vercel Blob](https://vercel.com/docs/storage/vercel-blob)         |
+| Email           | [Resend](https://resend.com/)                                      |
+| Analytics       | [Vercel Analytics](https://vercel.com/analytics)                   |
+| Package manager | [Bun](https://bun.sh/)                                             |
+| Unit tests      | [Vitest](https://vitest.dev/) + Testing Library                    |
+| E2E tests       | [Playwright](https://playwright.dev/)                              |
+| Deployment      | [Vercel](https://vercel.com/)                                      |
 
 ---
 
@@ -146,23 +146,23 @@ Copy `.env.example` to `.env.local` and fill in the values:
 cp .env.example .env.local
 ```
 
-| Variable                                | Required    | Description                                                                                   |
-| --------------------------------------- | ----------- | --------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                          | Yes         | PostgreSQL connection string, e.g. `postgres://user:pass@localhost:5432/portfolio`            |
-| `AUTH_SECRET`                           | Yes         | Random secret for Auth.js session encryption (`openssl rand -base64 32`)                      |
-| `AUTH_GITHUB_ID`                        | Yes         | GitHub OAuth App client ID                                                                    |
-| `AUTH_GITHUB_SECRET`                    | Yes         | GitHub OAuth App client secret                                                                |
-| `ADMIN_GITHUB_LOGIN`                    | Yes         | GitHub username allowed into admin. This site uses `aristache-labs`                           |
-| `GITHUB_TOKEN`                          | Recommended | GitHub personal access token for project metadata (higher rate limits)                        |
-| `BLOB_READ_WRITE_TOKEN`                 | Yes (prod)  | Vercel Blob token for avatar, skill icons, and project media                                  |
-| `RESEND_API_KEY`                        | Yes (prod)  | Resend API key for contact notifications                                                      |
-| `RESEND_FROM_EMAIL`                     | Yes (prod)  | From address, e.g. `Aristache <noreply@aristache.dev>` (verified domain)                      |
-| `RESEND_CONTACT_TEMPLATE_ID`            | Yes (prod)  | Published Resend contact template ID or alias                                                  |
-| `RESEND_WEBHOOK_SECRET`                 | Forwarding  | Resend signing secret for `/api/webhooks/resend`                                               |
-| `CONTACT_EMAIL`                         | Yes (prod)  | Inbox that receives contact-form mail                                                         |
-| `REVALIDATE_SECRET`                     | Yes (prod)  | Secret for the `/api/revalidate` on-demand revalidation endpoint                              |
-| `NEXT_PUBLIC_SITE_URL`                  | Yes         | Canonical site URL. Local: `http://localhost:4000`. Production: `https://www.aristache.dev`   |
-| `NEXT_PUBLIC_GOOGLE_VERIFICATION_TOKEN` | Optional    | Google Search Console site verification token                                                 |
+| Variable                                | Required    | Description                                                                                 |
+| --------------------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                          | Yes         | PostgreSQL connection string, e.g. `postgres://user:pass@localhost:5432/portfolio`          |
+| `AUTH_SECRET`                           | Yes         | Random secret for Auth.js session encryption (`openssl rand -base64 32`)                    |
+| `AUTH_GITHUB_ID`                        | Yes         | GitHub OAuth App client ID                                                                  |
+| `AUTH_GITHUB_SECRET`                    | Yes         | GitHub OAuth App client secret                                                              |
+| `ADMIN_GITHUB_LOGIN`                    | Yes         | GitHub username allowed into admin. This site uses `aristache-labs`                         |
+| `GITHUB_TOKEN`                          | Recommended | GitHub personal access token for project metadata (higher rate limits)                      |
+| `BLOB_READ_WRITE_TOKEN`                 | Yes (prod)  | Vercel Blob token for avatar, skill icons, and project media                                |
+| `RESEND_API_KEY`                        | Yes (prod)  | Resend API key for contact notifications                                                    |
+| `RESEND_FROM_EMAIL`                     | Yes (prod)  | From address, e.g. `Aristache <noreply@aristache.dev>` (verified domain)                    |
+| `RESEND_CONTACT_TEMPLATE_ID`            | Yes (prod)  | Published Resend contact template ID or alias                                               |
+| `RESEND_WEBHOOK_SECRET`                 | Forwarding  | Resend signing secret for `/api/webhooks/resend`                                            |
+| `CONTACT_EMAIL`                         | Yes (prod)  | Inbox that receives contact-form mail                                                       |
+| `REVALIDATE_SECRET`                     | Yes (prod)  | Secret for the `/api/revalidate` on-demand revalidation endpoint                            |
+| `NEXT_PUBLIC_SITE_URL`                  | Yes         | Canonical site URL. Local: `http://localhost:4000`. Production: `https://www.aristache.dev` |
+| `NEXT_PUBLIC_GOOGLE_VERIFICATION_TOKEN` | Optional    | Google Search Console site verification token                                               |
 
 > The resume link is stored in the database (`profile.resumeUrl`) and managed from the admin panel, not via an environment variable.
 

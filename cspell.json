@@ -3,6 +3,13 @@
   "version": "0.2",
   "language": "en,en-GB",
   "words": [
+    "faststart",
+    "lanczos",
+    "libx",
+    "movflags",
+    "setpts",
+    "setsar",
+    "STARTPTS",
     "Hazlitt",
     "EDPB",
     "ANSPDCP",

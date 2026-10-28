@@ -3,7 +3,7 @@ import { mkdir } from "node:fs/promises";
 
 // Current CA mark from the full logo. The wordmark begins below y=800 in the
 // 906x939 source; y=790 ends inside the transparent gap without clipping the mark.
-const renderedLogo = await sharp("public/brand/logo.svg").png().toBuffer();
+const renderedLogo = await sharp("assets/source/logo.svg").png().toBuffer();
 const symbol = await sharp(renderedLogo)
   .extract({ left: 0, top: 0, width: 906, height: 790 })
   .png()
@@ -43,7 +43,7 @@ await tile(512, "public/pwa/icon-512-v2.png");
 // Keep the mark inside the central safe circle for maskable icons.
 await tile(512, "public/pwa/icon-maskable-512-v2.png", 0.56);
 
-const logo = await sharp("public/brand/logo.svg")
+const logo = await sharp("assets/source/logo.svg")
   .resize({ width: 400 })
   .webp({ quality: 90, alphaQuality: 100, effort: 6 })
   .toFile("public/brand/logo-full-v2.webp");
@@ -51,7 +51,7 @@ console.log(`Footer logo: ${logo.width}x${logo.height}, ${logo.size} bytes`);
 
 // Nav wordmark. The SVG source wraps a 1232px PNG behind a luminance mask, so it shipped ~45KB
 // on the first screen. The nav shows it at most 14rem wide: 704px covers a 3x phone screen.
-const wordmark = await sharp("public/brand/aristache-text.svg", { density: 144 })
+const wordmark = await sharp("assets/source/aristache-text.svg", { density: 144 })
   .resize({ width: 704 })
   .webp({ quality: 90, alphaQuality: 100, effort: 6 })
   .toFile("public/brand/aristache-text.webp");
