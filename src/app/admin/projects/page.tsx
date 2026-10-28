@@ -18,7 +18,7 @@ const fields: AdminField[] = [
     label: "Custom blurb",
     type: "textarea",
     rows: 2,
-    hint: "Optional — overrides the GitHub description.",
+    hint: "Optional - fallback when the README has no description.",
   },
   {
     name: "category",

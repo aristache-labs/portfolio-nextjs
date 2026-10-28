@@ -29,6 +29,7 @@ export function mergeProjects(
       const live = byName.get(c.repo.toLowerCase());
       const language = live ? live.language : null;
       const pushed = live ? Date.parse(live.pushed_at) : Number.NaN;
+      const readmeExcerpt = readmeExcerpts.get(c.repo.toLowerCase())?.trim() || null;
       return {
         ...c,
         // The language is rendered as its own chip, so a tag repeating it is a visible
@@ -38,10 +39,10 @@ export function mergeProjects(
         stars: live ? live.stargazers_count : null,
         forks: live ? live.forks_count : null,
         language,
-        description: c.customBlurb ?? (live ? live.description : null),
+        description: readmeExcerpt ?? (c.customBlurb?.trim() || live?.description || null),
         homepage: live ? live.homepage : null,
         htmlUrl: live ? live.html_url : null,
-        readmeExcerpt: readmeExcerpts.get(c.repo.toLowerCase()) ?? null,
+        readmeExcerpt,
         pushedAt: Number.isNaN(pushed) ? null : new Date(pushed),
       };
     });

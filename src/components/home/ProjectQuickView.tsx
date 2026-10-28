@@ -144,7 +144,7 @@ export function ProjectQuickView({
     const paragraph = span?.parentElement;
     const container = paragraph?.parentElement;
     if (!span || !paragraph || !container) return;
-    const text = project?.readmeExcerpt?.trim() || "Read the project documentation on GitHub.";
+    const text = project?.description?.trim() || "Read the project documentation on GitHub.";
     const fit = () => {
       span.replaceChildren(document.createTextNode(text));
       const available = Math.max(0, container.clientHeight - 2);
@@ -212,7 +212,7 @@ export function ProjectQuickView({
 
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
   const blurb = project.description ?? "";
-  const excerpt = project.readmeExcerpt?.trim() || null;
+  const excerpt = blurb.trim() || null;
   const tags =
     project.language || project.tags.length > 0 ? (
       <div className="flex flex-wrap items-center justify-end gap-1.5">

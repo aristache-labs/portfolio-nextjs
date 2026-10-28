@@ -96,10 +96,24 @@ describe("mergeProjects", () => {
     expect(out.find((p) => p.repo === "b")?.readmeExcerpt).toBeNull();
   });
 
-  it("prefers customBlurb over github description, falls back when null", () => {
+  it("prefers README prose over stale custom and GitHub descriptions", () => {
+    const [project] = mergeProjects(
+      [curation({ repo: "Alpha", customBlurb: "Old custom description" })],
+      [repo("Alpha", 0)],
+      new Map([["alpha", "  Current Overview.  "]]),
+    );
+    expect(project.description).toBe("Current Overview.");
+    expect(project.readmeExcerpt).toBe(project.description);
+  });
+
+  it("falls back to customBlurb then GitHub when README prose is empty", () => {
     const out = mergeProjects(
       [curation({ repo: "a", customBlurb: "Custom" }), curation({ repo: "b" })],
       [repo("a", 0), repo("b", 0)],
+      new Map([
+        ["a", ""],
+        ["b", "   "],
+      ]),
     );
     expect(out.find((p) => p.repo === "a")?.description).toBe("Custom");
     expect(out.find((p) => p.repo === "b")?.description).toBe("b desc");
