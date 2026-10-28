@@ -25,8 +25,8 @@ node .\scripts\record-portfolio.mjs
 Each run writes to `screenshots/video` (replacing the previous outputs):
 
 - `aristache-presentation.mp4`: approximately 56 seconds, 1920 x 1080, desktop first, then a centered mobile view on an obsidian background, with short fades.
-- `desktop.mp4`: approximately 26 seconds, 1920 x 1080.
-- `mobile.mp4`: approximately 30 seconds, 432 x 864.
+- `desktop.mp4`: approximately 26 seconds, 1920 x 880.
+- `mobile.mp4`: approximately 30 seconds, 432 x 760.
 - Raw WebM recordings, including initial loading, for recovery or editing.
 
 Each finished pass holds the hero for two seconds, scrolls from top to bottom, and holds the footer for two seconds. Only initial loading is trimmed out. There is no preliminary scroll: sections are visited for the first time during the recording so one-time entrance animations remain visible. Lazy media loads as the page scrolls. Both layouts use dark browser color preference and preserve the live site's background videos and animations. No sound or music is added.
@@ -72,5 +72,17 @@ If a previous PowerShell session still has a slower multiplier set, reset it bef
 
 ```powershell
 $env:SCROLL_MULTIPLIER = '1'
+node .\scripts\record-portfolio.mjs
+```
+
+## Visible browser area
+
+Desktop uses a 1920 x 1080 screen with a 1920 x 880 webpage viewport. Mobile uses a 432 x 864 screen with a 432 x 760 webpage viewport. The difference approximates space occupied by browser and system controls; those controls are not drawn in the recording. The combined presentation keeps a 1920 x 1080 canvas and preserves each recording's aspect ratio with padding.
+
+For an exact match to your browser, read `window.innerHeight` in its developer console at 100% zoom and set the corresponding height (use an even number):
+
+```powershell
+$env:DESKTOP_VIEWPORT_HEIGHT = '880'
+$env:MOBILE_VIEWPORT_HEIGHT = '760'
 node .\scripts\record-portfolio.mjs
 ```
