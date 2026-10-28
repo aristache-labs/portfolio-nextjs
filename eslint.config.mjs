@@ -9,7 +9,15 @@ const eslintConfig = [
   ...coreWebVitals,
   ...nextTypescript,
   {
-    ignores: ["**/.next/**", "node_modules/**", "next-env.d.ts", ".claude/**", "drizzle/**"],
+    ignores: [
+      "**/.next/**",
+      "node_modules/**",
+      "next-env.d.ts",
+      ".claude/**",
+      "drizzle/**",
+      "playwright-report*/**",
+      "test-results/**",
+    ],
   },
 ];
 
