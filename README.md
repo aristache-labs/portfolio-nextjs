@@ -12,7 +12,7 @@
 
 <br />
 
-<img src="./public/brand/portfolio-nextjs-poster.webp" width="100%" alt="Aristache portfolio on laptop and phones">
+<img src="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/projects/c270f0ae-005b-4396-ae95-4f29faec63ab.webp" width="100%" alt="Aristache portfolio on laptop and phones">
 
 <br />
 
