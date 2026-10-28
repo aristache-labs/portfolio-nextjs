@@ -1,6 +1,6 @@
 {
   "name": "portfolio-nextjs",
-  "version": "2.4.33",
+  "version": "2.4.34",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 4000",
@@ -22,7 +22,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "bun run src/db/seed.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "node node_modules/@playwright/test/cli.js test"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

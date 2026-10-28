@@ -5,8 +5,9 @@ export default defineConfig({
   testDir: "./e2e",
   testMatch: ["seo-security.spec.ts", "legal-pages.spec.ts"],
   fullyParallel: true,
+  retries: process.env.CI ? 2 : 0,
   workers: 2,
-  reporter: "list",
+  reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report-production" }]],
   use: {
     baseURL: process.env.BASE_URL ?? "http://localhost:4100",
     channel: process.env.PLAYWRIGHT_CHANNEL,
@@ -24,7 +25,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "bun run start -- -p 4100",
+    command: "bun run start --port 4100",
     url: "http://localhost:4100",
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,

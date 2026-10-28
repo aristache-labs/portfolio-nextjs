@@ -134,20 +134,36 @@ jobs:
           NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
 
       - name: Install Playwright browsers
-        run: bunx playwright install --with-deps chromium
+        run: node node_modules/@playwright/test/cli.js install --with-deps chromium webkit
 
       - name: Run e2e tests
-        run: bunx playwright test
+        run: bun run test:e2e
         env:
           DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
           AUTH_SECRET: ci-dummy-secret
           NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
           CI: true
 
-      - name: Upload Playwright report
+      - name: Upload development Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-development
           path: playwright-report/
+          retention-days: 7
+
+      - name: Run production e2e tests
+        run: bun run test:e2e --config=playwright.production.config.ts
+        env:
+          DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
+          AUTH_SECRET: ci-dummy-secret
+          NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
+          CI: true
+
+      - name: Upload production Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-production
+          path: playwright-report-production/
           retention-days: 7
