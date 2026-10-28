@@ -8,6 +8,16 @@ import { SiteNav } from "./SiteNav";
 
 vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/") }));
 
+vi.mock("next/link", () => ({
+  default: ({
+    prefetch,
+    scroll,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { prefetch?: boolean; scroll?: boolean }) => (
+    <a {...props} data-prefetch={prefetch === false ? "false" : undefined} data-scroll={scroll} />
+  ),
+}));
+
 beforeEach(() => {
   vi.mocked(usePathname).mockReturnValue("/");
   installMatchMedia({ "(prefers-reduced-motion: reduce)": true });
@@ -20,6 +30,23 @@ const socials = [
 ];
 
 describe("SiteNav", () => {
+  it("disables prefetch for the homepage logo, desktop links, mobile links and CTAs", () => {
+    const { container } = render(<SiteNav socials={socials} />);
+    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+    const anchors = container.querySelectorAll('a[href^="#"]');
+    expect(anchors).toHaveLength(17);
+    anchors.forEach((anchor) => expect(anchor).toHaveAttribute("data-prefetch", "false"));
+  });
+
+  it.each(["/privacy", "/gdpr"])("preserves native section navigation from %s", (pathname) => {
+    vi.mocked(usePathname).mockReturnValue(pathname);
+    const { container } = render(<SiteNav socials={socials} />);
+    fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
+    const anchors = container.querySelectorAll('a[href^="/#"]');
+    expect(anchors).toHaveLength(17);
+    anchors.forEach((anchor) => expect(anchor).not.toHaveAttribute("data-prefetch"));
+  });
+
   it("hydrates rewritten homepage links without replacing the server navigation", async () => {
     vi.mocked(usePathname).mockReturnValue("/index");
     const container = document.createElement("div");

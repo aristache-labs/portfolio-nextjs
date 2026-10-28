@@ -13,9 +13,20 @@ vi.mock("next/link", () => ({
   default: ({
     children,
     href,
+    prefetch,
+    scroll,
     ...props
-  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
-    <a href={href} {...props}>
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    href: string;
+    prefetch?: boolean;
+    scroll?: boolean;
+  }) => (
+    <a
+      href={href}
+      data-prefetch={prefetch === false ? "false" : undefined}
+      data-scroll={scroll}
+      {...props}
+    >
       {children}
     </a>
   ),
@@ -43,6 +54,20 @@ const mockSocials: SocialRow[] = [
 ];
 
 describe("Footer", () => {
+  it("disables homepage anchor prefetch including the logo and preserves legal links", () => {
+    const { container } = render(<Footer socials={mockSocials} />);
+    const anchors = container.querySelectorAll('a[href^="#"]');
+    expect(anchors.length).toBeGreaterThan(1);
+    anchors.forEach((anchor) => expect(anchor).toHaveAttribute("data-prefetch", "false"));
+    expect(screen.getByRole("link", { name: /aristache, back to top/i })).toHaveAttribute(
+      "data-prefetch",
+      "false",
+    );
+    for (const name of ["Privacy", "GDPR"]) {
+      expect(screen.getByRole("link", { name })).not.toHaveAttribute("data-prefetch");
+    }
+  });
+
   beforeEach(() => installMatchMedia());
   afterEach(() => vi.restoreAllMocks());
 
@@ -186,6 +211,12 @@ describe("Footer", () => {
       "/#contact",
     );
     expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+    for (const link of navigation.querySelectorAll('a[href^="/#"]')) {
+      expect(link).not.toHaveAttribute("data-prefetch");
+    }
+    expect(screen.getByRole("link", { name: /aristache, back to top/i })).not.toHaveAttribute(
+      "data-prefetch",
+    );
   });
 
   it("keeps the footer static with reduced motion", () => {
@@ -291,6 +322,7 @@ describe("Footer", () => {
       expect(support.getAttribute("href")).toBe("https://example.com/sponsor");
       expect(support.getAttribute("target")).toBe("_blank");
       expect(support).toHaveAttribute("rel", "noopener noreferrer");
+      expect(support).not.toHaveAttribute("data-prefetch");
       expect(screen.queryByText("Fuel Future Projects")).not.toBeInTheDocument();
       expect(screen.queryByText("Support My Work")).not.toBeInTheDocument();
       expect(screen.getByRole("navigation", { name: "Explore" })).toContainElement(support);
