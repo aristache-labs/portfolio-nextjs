@@ -158,6 +158,7 @@ cp .env.example .env.local
 | `RESEND_API_KEY`                        | Yes (prod)  | Resend API key for contact notifications                                                      |
 | `RESEND_FROM_EMAIL`                     | Yes (prod)  | From address, e.g. `Aristache <noreply@aristache.dev>` (verified domain)                      |
 | `RESEND_CONTACT_TEMPLATE_ID`            | Yes (prod)  | Published Resend contact template ID or alias                                                  |
+| `RESEND_WEBHOOK_SECRET`                 | Forwarding  | Resend signing secret for `/api/webhooks/resend`                                               |
 | `CONTACT_EMAIL`                         | Yes (prod)  | Inbox that receives contact-form mail                                                         |
 | `REVALIDATE_SECRET`                     | Yes (prod)  | Secret for the `/api/revalidate` on-demand revalidation endpoint                              |
 | `NEXT_PUBLIC_SITE_URL`                  | Yes         | Canonical site URL. Local: `http://localhost:4000`. Production: `https://www.aristache.dev`   |
@@ -166,6 +167,15 @@ cp .env.example .env.local
 > The resume link is stored in the database (`profile.resumeUrl`) and managed from the admin panel, not via an environment variable.
 
 The contact template must be published in Resend and define four string variables: `CONTACT_NAME`, `CONTACT_EMAIL`, `CONTACT_SUBJECT`, and `CONTACT_MESSAGE`. Use triple braces such as `{{{CONTACT_NAME}}}` in its HTML. The route supplies the subject and sender, and sets the visitor's email as `replyTo`. Set `RESEND_CONTACT_TEMPLATE_ID` locally and in Vercel before deploying this integration.
+
+#### Incoming email forwarding
+
+`POST /api/webhooks/resend` forwards received mail addressed to `contact@aristache.dev` or `no-reply@aristache.dev` to `ad.cristache@gmail.com`. Other recipients and event types are ignored. The Resend SDK retrieves the original content and attachments. Forwarded messages use the verified `RESEND_FROM_EMAIL` sender. The SDK helper does not set Reply-To to the original sender, so check the original sender in Resend before replying. A message addressed to both inboxes is forwarded once per received email ID.
+
+1. Enable receiving for `aristache.dev` in Resend Domains and publish the exact receiving MX record shown there. Wait for receiving verification. Check existing MX records before changing mail routing. See [custom receiving domains](https://resend.com/docs/dashboard/receiving/custom-domains).
+2. Use a `RESEND_API_KEY` with full access, including receiving and sending, and a verified `RESEND_FROM_EMAIL` in Vercel.
+3. Create a Resend webhook for `email.received` pointing to `https://www.aristache.dev/api/webhooks/resend`. Copy its signing secret into `RESEND_WEBHOOK_SECRET` in Vercel and redeploy. The endpoint rejects requests without a valid signature over the original request body.
+4. Send a message with an attachment to each inbox and confirm delivery in Gmail and a successful webhook response in Resend. Failed forwarding returns 502 so Resend can retry. Retries reuse the received email ID as the sending idempotency key, which Resend retains for 24 hours; a manual replay after that window can deliver another copy.
 
 ### 3. Database setup
 
