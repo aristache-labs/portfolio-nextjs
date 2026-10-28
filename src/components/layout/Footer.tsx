@@ -49,14 +49,15 @@ export function Footer({
     { label: "Privacy", href: "/privacy", external: false },
     { label: "GDPR", href: "/gdpr", external: false },
   ];
-  const visibleLinks = [
-    ...LINKS.filter(
-      (link) => link.href === "#hero" || sectionVisibility[link.href.slice(1)] !== false,
-    ).map((link) => ({ ...link, href: `${homeHrefPrefix}${link.href}`, external: false })),
-    ...(sponsorUrl?.trim()
-      ? [{ label: "Buy me a coffee", href: sponsorUrl.trim(), external: true }]
-      : []),
-  ];
+  const visibleLinks = LINKS.filter(
+    (link) => link.href === "#hero" || sectionVisibility[link.href.slice(1)] !== false,
+  ).map((link) => ({ ...link, href: `${homeHrefPrefix}${link.href}`, external: false }));
+  // The sections fill two balanced columns; the support link sits alone, centered beneath them.
+  const exploreRows = Math.ceil(visibleLinks.length / 2);
+  const supportUrl = sponsorUrl?.trim();
+  const supportLink = supportUrl
+    ? { label: "Buy me a coffee", href: supportUrl, external: true }
+    : null;
   const { mode } = useAnimationPolicy();
   const itemVariants: Variants = {
     hidden: mode === "static" ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 },
@@ -177,15 +178,14 @@ export function Footer({
               </m.h3>
               <ul
                 className={`${layout.links} mx-auto mt-2 grid w-full max-w-[280px] grid-flow-col grid-cols-2 gap-x-2 gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-4`}
-                style={{ gridTemplateRows: `repeat(${Math.ceil(visibleLinks.length / 2)}, auto)` }}
+                style={{ gridTemplateRows: `repeat(${exploreRows}, auto)` }}
               >
                 {visibleLinks.map((link) => (
                   <m.li key={link.href} initial={false} variants={itemVariants}>
                     <SectionLink
-                      crossPage={!link.external && !!homeHrefPrefix}
-                      scroll={link.external ? undefined : !homeHrefPrefix}
+                      crossPage={!!homeHrefPrefix}
+                      scroll={!homeHrefPrefix}
                       href={link.href}
-                      {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
                     >
                       <ChevronRight
@@ -196,6 +196,28 @@ export function Footer({
                     </SectionLink>
                   </m.li>
                 ))}
+                {supportLink && (
+                  <m.li
+                    initial={false}
+                    variants={itemVariants}
+                    className="justify-self-center"
+                    style={{ gridColumn: "1 / -1", gridRow: exploreRows + 1 }}
+                  >
+                    <SectionLink
+                      crossPage={false}
+                      href={supportLink.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`group flex min-h-11 items-center justify-center gap-1.5 rounded-md py-1 text-[14px] whitespace-nowrap text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
+                    >
+                      <ChevronRight
+                        className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+                        aria-hidden
+                      />
+                      <span>{supportLink.label}</span>
+                    </SectionLink>
+                  </m.li>
+                )}
               </ul>
             </nav>
           </ProgressiveReveal>

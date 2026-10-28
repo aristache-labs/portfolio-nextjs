@@ -131,3 +131,10 @@ it("describes the verified analytics retention and enabled measurement categorie
     "Automatic form interactions, site search and video engagement measurement are disabled",
   );
 });
+
+it("lists the 13-month analytics cookie lifetime that the tag enforces", async () => {
+  const doc = await documentFor(PrivacyPage);
+  const cookies = doc.querySelector("#cookies");
+  expect(cookies).toHaveTextContent("13 months, renewed on visits");
+  expect(cookies).not.toHaveTextContent("2 years");
+});

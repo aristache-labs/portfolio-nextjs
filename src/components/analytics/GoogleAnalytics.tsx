@@ -10,6 +10,10 @@ import {
   useAnalyticsConsent,
 } from "@/lib/analytics-consent";
 
+// 13 months, the ceiling CNIL recommends for analytics cookies. It is also shorter than the
+// 14-month GA4 data retention, so a cookie never outlives the data it points to.
+const ANALYTICS_COOKIE_LIFETIME_SECONDS = 60 * 60 * 24 * 395;
+
 function isPrivatePath(path: string) {
   return path.startsWith("/admin") || path === "/login";
 }
@@ -111,6 +115,7 @@ export function GoogleAnalytics() {
             allow_google_signals: false,
             send_page_view: false,
             allow_ad_personalization_signals: false,
+            cookie_expires: ANALYTICS_COOKIE_LIFETIME_SECONDS,
           });
         }
         schedulePageView();

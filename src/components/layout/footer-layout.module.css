@@ -6,6 +6,13 @@
   }
 }
 
+/* Phones in landscape: the 90px gap above overflows the card, so it follows the screen width. */
+@media (orientation: landscape) and (max-width: 1024px) {
+  .links {
+    column-gap: clamp(20px, 5vw, 60px);
+  }
+}
+
 @media (orientation: portrait) and (max-width: 639px) {
   .footer > div:last-child {
     padding-bottom: max(88px, env(safe-area-inset-bottom));
@@ -15,10 +22,22 @@
     display: none;
   }
 
+  /* Legal takes only the width of its longest link; Explore keeps the rest for two section
+     columns (Experience is the widest label) with the support link centered beneath them. */
   .columns {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 16px;
     margin-top: 0;
+  }
+
+  .explore {
+    padding-inline: 10px;
+  }
+
+  .links {
+    width: fit-content;
+    grid-template-columns: repeat(2, max-content);
+    column-gap: 6px;
   }
 
   .identity img {
@@ -79,6 +98,17 @@
 
   .legal > div > span:first-child {
     text-align: center;
+  }
+}
+
+/* Below ~350px the two section columns no longer fit beside Legal, so Legal drops underneath. */
+@media (orientation: portrait) and (max-width: 349px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .resources::before {
+    display: none;
   }
 }
 

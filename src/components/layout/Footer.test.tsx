@@ -356,6 +356,33 @@ describe("Footer", () => {
     },
   );
 
+  it("keeps the section links balanced and centers the support link beneath both columns", () => {
+    render(
+      <Footer
+        socials={mockSocials}
+        sponsorUrl="https://example.com/sponsor"
+        sectionVisibility={{ services: false }}
+      />,
+    );
+    const list = within(screen.getByRole("navigation", { name: "Explore" })).getByRole("list");
+    const items = [...list.querySelectorAll(":scope > li")] as HTMLElement[];
+    const support = screen.getByRole("link", { name: "Buy me a coffee" });
+    // Six sections flow into three rows of two; the support link is the only item after them.
+    expect(items).toHaveLength(7);
+    expect(items.at(-1)).toContainElement(support);
+    expect(items.slice(0, -1).map((item) => item.textContent)).toEqual([
+      "Home",
+      "About",
+      "Skills",
+      "Experience",
+      "Projects",
+      "Contact",
+    ]);
+    expect(list).toHaveStyle({ gridTemplateRows: "repeat(3, auto)" });
+    expect(items.at(-1)).toHaveClass("justify-self-center");
+    expect(support).toHaveClass("whitespace-nowrap");
+  });
+
   it("renders empty socials gracefully", () => {
     render(<Footer socials={[]} />);
     expect(screen.getByRole("link", { name: /aristache, back to top/i })).toBeTruthy();

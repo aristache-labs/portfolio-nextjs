@@ -90,6 +90,8 @@ describe("Google Analytics consent", () => {
           allow_google_signals: false,
           send_page_view: false,
           allow_ad_personalization_signals: false,
+          // 13 months: shorter than the 14-month GA4 retention, never the 2-year default.
+          cookie_expires: 60 * 60 * 24 * 395,
         },
       ],
     ]);

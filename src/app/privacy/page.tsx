@@ -173,13 +173,13 @@ export default async function PrivacyPage() {
                     "_ga",
                     "Analytics visitor identifier",
                     "Consent",
-                    "2 years by default, renewed on visits",
+                    "13 months, renewed on visits",
                   ],
                   [
                     "_ga_<ID>",
                     "Analytics session state",
                     "Consent",
-                    "2 years by default, renewed on visits",
+                    "13 months, renewed on visits",
                   ],
                   [
                     "analytics-consent-v2",
