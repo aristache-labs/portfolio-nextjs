@@ -33,12 +33,14 @@ describe("cookie preferences", () => {
     });
     expect(screen.queryByRole("region", { name: "Cookie preferences" })).toBeNull();
   });
-  it("offers equal accept and reject actions and unchecked optional analytics", async () => {
+  it("offers accept and reject side by side and unchecked optional analytics", async () => {
     render(<AnalyticsPreferences />);
     await screen.findByRole("region", { name: "Cookie preferences" });
-    expect(screen.getByRole("button", { name: "Accept" }).className).toBe(
-      screen.getByRole("button", { name: "Reject" }).className,
-    );
+    const accept = screen.getByRole("button", { name: "Accept" });
+    const reject = screen.getByRole("button", { name: "Reject" });
+    expect(reject.parentElement).toBe(accept.parentElement);
+    // Reject keeps the base action styling; Accept only adds the brand fill on top of it.
+    expect(accept.className.startsWith(reject.className)).toBe(true);
     fireEvent.click(screen.getByRole("button", { name: "Preferences" }));
     expect(screen.getByRole("checkbox")).not.toBeChecked();
     fireEvent.click(screen.getByRole("button", { name: "Save analytics preferences" }));

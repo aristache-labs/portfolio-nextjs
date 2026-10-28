@@ -1,31 +1,483 @@
+/* Type and spacing are fixed pixels so the panel stays readable when the site's root scales
+   down in phone landscape. Glows use the brand channel lists so a palette change reaches them. */
 .panel {
-  right: max(12px, env(safe-area-inset-right));
-  bottom: max(12px, env(safe-area-inset-bottom));
-  width: min(400px, calc(100% - 24px));
-  max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  position: fixed;
+  z-index: 60;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  width: min(360px, calc(100% - 40px));
+  max-height: calc(100dvh - 40px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+  border: 1px solid rgb(var(--brand-mid-rgb) / 0.16);
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgb(var(--brand-deep-rgb) / 0.22), transparent 62%),
+    color-mix(in srgb, var(--bg) 86%, transparent);
+  color: var(--fg);
+  box-shadow:
+    0 24px 60px -18px rgb(0 0 0 / 0.65),
+    0 0 0 1px rgb(0 0 0 / 0.35),
+    0 0 40px -12px rgb(var(--brand-mid-rgb) / 0.18),
+    inset 0 1px 0 rgb(255 255 255 / 0.05);
+  backdrop-filter: blur(20px) saturate(140%);
+  scrollbar-width: thin;
 }
 
-/* Phone landscape scales the root font down. Keep touch targets at their physical size. */
-.control {
-  min-height: 36px;
+/* A hairline of light along the top edge, the same glass language as the hero cards. */
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 24px;
+  left: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(var(--brand-bright-rgb) / 0.55), transparent);
+  pointer-events: none;
 }
 
-@media (pointer: coarse) {
-  .control {
-    min-height: 44px;
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.badge {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid rgb(var(--brand-mid-rgb) / 0.25);
+  border-radius: 10px;
+  background: linear-gradient(
+    145deg,
+    rgb(var(--brand-mid-rgb) / 0.16),
+    rgb(var(--brand-deep-rgb) / 0.08)
+  );
+  box-shadow: 0 0 18px -6px rgb(var(--brand-mid-rgb) / 0.45);
+  color: var(--brand-bright);
+}
+
+.badgeIcon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.6;
+}
+
+.heading {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 2px;
+  color: rgb(var(--brand-bright-rgb) / 0.7);
+  font-family: var(--font-geist-mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  line-height: 12px;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--fg);
+  font-family: var(--font-display, inherit);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 18px;
+}
+
+.copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 18px;
+  text-wrap: pretty;
+}
+
+.privacyLink {
+  border-radius: 3px;
+  color: var(--brand-bright);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--brand-bright-rgb) / 0.35);
+  text-underline-offset: 3px;
+  white-space: nowrap;
+  transition: text-decoration-color 160ms ease;
+}
+
+.privacyLink:hover {
+  text-decoration-color: currentColor;
+}
+
+/* The optional category, shown only while editing. The whole row is the switch's hit area. */
+.option {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: rgb(var(--brand-mid-rgb) / 0.03);
+  cursor: pointer;
+  animation: option-enter 220ms ease-out both;
+}
+
+.optionText {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.optionTitle {
+  color: var(--fg);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.optionHint {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 15px;
+}
+
+/* A native checkbox drawn as a switch, so the role and keyboard behaviour stay native. The thumb
+   is a background layer rather than a pseudo-element, which form controls do not all render. */
+.switch {
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+  margin: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background-color: var(--surface-2);
+  background-image: radial-gradient(circle, var(--fg) 0 7px, transparent 7.5px);
+  background-position: 2px 50%;
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  appearance: none;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    background-position 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.switch:checked {
+  border-color: rgb(var(--brand-mid-rgb) / 0.7);
+  background-color: rgb(var(--brand-mid-rgb) / 0.85);
+  background-position: 18px 50%;
+  box-shadow: 0 0 14px -4px rgb(var(--brand-mid-rgb) / 0.7);
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.action,
+.manage {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.action {
+  border-color: rgb(var(--brand-mid-rgb) / 0.3);
+  background: rgb(var(--brand-mid-rgb) / 0.07);
+  color: var(--fg);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+.action:hover {
+  border-color: rgb(var(--brand-mid-rgb) / 0.6);
+  background: rgb(var(--brand-mid-rgb) / 0.14);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 6px 20px -10px rgb(var(--brand-mid-rgb) / 0.6);
+}
+
+/* The confirming action: the hero's primary gradient, shifted on hover like Button primary. */
+.primary {
+  border-color: rgb(var(--brand-bright-rgb) / 0.35);
+  background: var(--gradient-brand) 0% 50% / 160% 160%;
+  color: #fff;
+  font-weight: 600;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 8px 24px -10px rgb(var(--brand-mid-rgb) / 0.6);
+  transition:
+    background-position 300ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.primary:hover {
+  border-color: rgb(var(--brand-bright-rgb) / 0.6);
+  background: var(--gradient-brand) 90% 50% / 160% 160%;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    0 10px 28px -8px rgb(var(--brand-mid-rgb) / 0.75);
+}
+
+.manage {
+  padding-inline: 10px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.manage:hover {
+  background: rgb(255 255 255 / 0.04);
+  color: var(--fg);
+}
+
+.manageIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  stroke-width: 1.6;
+}
+
+.action:focus-visible,
+.manage:focus-visible,
+.privacyLink:focus-visible,
+.switch:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Desktop trades width for height: at 520px the copy fits two lines, so the panel stays low.
+   The width follows the viewport on smaller laptops so the card keeps clear of the hero. */
+@media (min-width: 1025px) {
+  .panel {
+    width: clamp(380px, 38vw, 520px);
+    padding: 16px 18px;
+  }
+
+  .header {
+    gap: 12px;
+  }
+
+  .badge {
+    width: 36px;
+    height: 36px;
+  }
+
+  .eyebrow {
+    margin-bottom: 6px;
+  }
+
+  /* A fine pointer does not need full-row buttons: Preferences sits left, and Reject and
+     Accept keep one fixed size on the right. */
+  .actions {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    margin-top: 12px;
+  }
+
+  .manage {
+    justify-self: start;
+  }
+
+  .action,
+  .manage {
+    min-height: 36px;
+    border-radius: 10px;
+  }
+
+  .action {
+    width: 104px;
   }
 }
 
+/* Portrait phones: a full-width sheet docked above the home indicator. */
+@media (max-width: 480px) {
+  .panel {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: calc(100% - 24px);
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .copy {
+    font-size: 12px;
+  }
+
+  .actions {
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .action,
+  .manage {
+    padding-inline: 10px;
+  }
+
+  .manage {
+    padding-inline: 8px;
+  }
+}
+
+/* Phone landscape: the hero owns the left half, so the panel stays a short card on the right. */
 @media (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) {
   .panel {
-    width: min(448px, calc(100% - 24px));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: min(340px, calc(100% - 376px));
+    min-width: 180px;
+    padding: 10px 12px 12px;
+    border-radius: 14px;
+  }
+
+  .header {
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+  }
+
+  .badgeIcon {
+    width: 13px;
+    height: 13px;
+  }
+
+  .eyebrow {
+    display: none;
+  }
+
+  .title {
+    font-size: 13px;
+  }
+
+  .copy {
+    font-size: 11.5px;
+    line-height: 16px;
+  }
+
+  .option {
+    min-height: 44px;
+    margin-top: 8px;
+    padding-block: 4px;
+  }
+
+  .actions {
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  /* The desktop proportions: Preferences left, Reject and Accept one fixed size on the right. */
+  .actions {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .manage {
+    justify-self: start;
+  }
+
+  .action,
+  .manage {
+    min-height: 36px;
+    padding-inline: 8px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  .action {
+    width: 84px;
   }
 }
 
-/* Leave the hero action row available on smaller landscape phones. */
+/* Narrower phones keep Preferences as an icon so all three actions fit their targets. */
 @media (orientation: landscape) and (max-width: 740px) and (max-height: 500px) {
+  .manageLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+}
+
+@keyframes preferences-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes option-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
   .panel {
-    width: min(280px, calc(100% - 384px));
-    min-width: 180px;
+    animation: preferences-enter 520ms 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .action:active,
+  .manage:active {
+    transform: translateY(1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action,
+  .manage,
+  .switch,
+  .privacyLink {
+    transition: none;
+  }
+
+  .option {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .panel {
+    background: var(--bg);
+    backdrop-filter: none;
   }
 }

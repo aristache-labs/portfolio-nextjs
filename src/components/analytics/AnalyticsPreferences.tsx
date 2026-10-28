@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SlidersHorizontal } from "lucide-react";
+import { Cookie, SlidersHorizontal } from "lucide-react";
 import {
   PREFERENCES_EVENT,
   saveAnalyticsConsent,
@@ -11,11 +11,15 @@ import {
 } from "@/lib/analytics-consent";
 import styles from "./analytics-preferences.module.css";
 
-const action = `${styles.control} min-w-[76px] rounded-full border border-brand-mid/30 px-2 text-[12px] font-medium text-foreground transition-colors hover:border-brand-mid/55 hover:bg-brand-mid/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-mid`;
+// Accept and Reject share one size and stay equally reachable; only the confirming action is
+// filled with the brand gradient.
+const action = styles.action;
+const primary = `${styles.action} ${styles.primary}`;
 
 export function AnalyticsPreferences() {
   const consent = useAnalyticsConsent();
   const pathname = usePathname();
+  const id = useId();
   const [ready, setReady] = useState(false);
   const [editing, setEditing] = useState(false);
   const [enabled, setEnabled] = useState(false);
@@ -34,6 +38,27 @@ export function AnalyticsPreferences() {
     return () => window.removeEventListener(PREFERENCES_EVENT, open);
   }, []);
 
+  // Publishes how far the panel reaches up from the viewport bottom, so other fixed controls
+  // (Scroll to top) can sit above it instead of underneath. Measured without the entrance
+  // transform, and cleared when the panel closes.
+  const trackInset = useCallback((panel: HTMLElement | null) => {
+    if (!panel) return;
+    const root = document.documentElement;
+    const update = () => {
+      const inset = panel.offsetHeight + parseFloat(getComputedStyle(panel).bottom);
+      root.style.setProperty("--consent-inset", `${inset}px`);
+    };
+    update();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
+    observer?.observe(panel);
+    window.addEventListener("resize", update);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", update);
+      root.style.removeProperty("--consent-inset");
+    };
+  }, []);
+
   if (
     !process.env.NEXT_PUBLIC_GTAG_ID ||
     !ready ||
@@ -50,68 +75,85 @@ export function AnalyticsPreferences() {
 
   return (
     <section
+      ref={trackInset}
       role="region"
       aria-label="Cookie preferences"
-      className={`${styles.panel} border-brand-mid/25 bg-background/95 text-foreground fixed z-[60] overflow-y-auto overscroll-contain rounded-2xl border p-[14px] shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.16)] backdrop-blur-xl`}
+      aria-describedby={`${id}-copy`}
+      className={styles.panel}
     >
-      <h2 className="flex items-center gap-2 text-[14px] leading-[20px] font-semibold tracking-tight">
-        <SlidersHorizontal aria-hidden className="text-brand-bright size-[14px] shrink-0" />
-        Your analytics preferences
-      </h2>
-      <p className="text-muted mt-1.5 text-[12px] leading-[18px]">
-        Optional analytics: with your permission, Google Analytics sets cookies to measure visits.
-        Nothing loads until you choose. Change your choice anytime under Cookie settings in the
-        footer.{" "}
-        <Link
-          href="/privacy"
-          className="text-brand-bright focus-visible:ring-brand-mid hover:text-foreground rounded-sm underline underline-offset-2 focus-visible:ring-2 focus-visible:outline-none"
-        >
+      <header className={styles.header}>
+        <span aria-hidden className={styles.badge}>
+          <Cookie className={styles.badgeIcon} />
+        </span>
+        <div className={styles.heading}>
+          <p aria-hidden className={styles.eyebrow}>
+            {"// Privacy"}
+          </p>
+          <h2 className={styles.title}>Your analytics choice</h2>
+        </div>
+      </header>
+
+      <p id={`${id}-copy`} className={styles.copy}>
+        Google Analytics cookies measure visits, only with your consent. Nothing loads until you
+        choose; change it anytime from Cookie settings in the footer.{" "}
+        <Link href="/privacy" className={styles.privacyLink}>
           Privacy policy
         </Link>
       </p>
-      <div className="border-brand-mid/15 mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 border-t pt-2">
+
+      {editing && (
+        // The whole row toggles; the name stays the title alone, with the hint as description.
+        <label className={styles.option}>
+          <span className={styles.optionText}>
+            <span id={`${id}-analytics`} className={styles.optionTitle}>
+              Optional analytics
+            </span>
+            <span id={`${id}-analytics-hint`} className={styles.optionHint}>
+              Google Analytics 4 · visit measurement
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            checked={enabled}
+            aria-labelledby={`${id}-analytics`}
+            aria-describedby={`${id}-analytics-hint`}
+            onChange={(event) => setEnabled(event.target.checked)}
+            className={styles.switch}
+          />
+        </label>
+      )}
+
+      <div className={styles.actions}>
         {editing ? (
           <>
-            <label
-              className={`${styles.control} flex cursor-pointer items-center gap-2 text-[12px]`}
-            >
-              <input
-                type="checkbox"
-                checked={enabled}
-                onChange={(event) => setEnabled(event.target.checked)}
-                className="focus-visible:ring-brand-mid focus-visible:ring-offset-background size-[16px] shrink-0 accent-(--brand-mid) focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-              />
-              Optional analytics
-            </label>
-            <div className="ml-auto flex gap-1.5">
-              <button
-                type="button"
-                aria-label="Save analytics preferences"
-                onClick={() => save(enabled)}
-                className={action}
-              >
-                Save
-              </button>
-              <button type="button" onClick={() => save(false)} className={action}>
-                Reject
-              </button>
-              <button type="button" onClick={() => setEditing(false)} className={action}>
-                Cancel
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-wrap gap-1.5">
-            <button type="button" onClick={() => save(true)} className={action}>
-              Accept
+            <button type="button" onClick={() => setEditing(false)} className={styles.manage}>
+              Cancel
             </button>
             <button type="button" onClick={() => save(false)} className={action}>
               Reject
             </button>
-            <button type="button" onClick={() => setEditing(true)} className={action}>
-              Preferences
+            <button
+              type="button"
+              aria-label="Save analytics preferences"
+              onClick={() => save(enabled)}
+              className={primary}
+            >
+              Save
             </button>
-          </div>
+          </>
+        ) : (
+          <>
+            <button type="button" onClick={() => setEditing(true)} className={styles.manage}>
+              <SlidersHorizontal aria-hidden className={styles.manageIcon} />
+              <span className={styles.manageLabel}>Preferences</span>
+            </button>
+            <button type="button" onClick={() => save(false)} className={action}>
+              Reject
+            </button>
+            <button type="button" onClick={() => save(true)} className={primary}>
+              Accept
+            </button>
+          </>
         )}
       </div>
     </section>

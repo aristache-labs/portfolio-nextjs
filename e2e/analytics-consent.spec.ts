@@ -79,18 +79,22 @@ for (const path of ["/admin", "/login"]) {
   });
 }
 
-test("equal actions, unchecked preferences and fixed compact panel", async ({ page }) => {
+test("equal-size actions, unchecked preferences and fixed compact panel", async ({ page }) => {
   await page.goto("/");
   const preferences = panel(page);
   const accept = preferences.getByRole("button", { name: "Accept", exact: true });
   const reject = preferences.getByRole("button", { name: "Reject", exact: true });
   await expect(accept).toBeVisible();
-  expect(await accept.getAttribute("class")).toBe(await reject.getAttribute("class"));
+  await expect(reject).toBeVisible();
   const acceptBox = (await accept.boundingBox())!;
   const rejectBox = (await reject.boundingBox())!;
   expect(acceptBox.width).toBe(rejectBox.width);
   expect(acceptBox.height).toBe(rejectBox.height);
-  if (test.info().project.name !== "desktop") expect(acceptBox.height).toBeGreaterThanOrEqual(44);
+  const viewport = page.viewportSize()!;
+  // Desktop and phone landscape use compact 36px actions; portrait phones keep 44px targets.
+  const landscape =
+    viewport.width > viewport.height && viewport.width <= 1024 && viewport.height <= 500;
+  expect(acceptBox.height).toBeGreaterThanOrEqual(landscape || viewport.width > 1024 ? 36 : 44);
   expect(await preferences.evaluate((element) => getComputedStyle(element).position)).toBe("fixed");
   await preferences.getByRole("button", { name: "Preferences", exact: true }).click();
   await expect(preferences.getByRole("checkbox", { name: "Optional analytics" })).not.toBeChecked();

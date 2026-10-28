@@ -1,3 +1,21 @@
+/* While the cookie panel is open it publishes --consent-inset (its reach from the viewport
+   bottom), and the button rises 12px above it instead of hiding underneath. */
+.button {
+  bottom: max(1.5rem, env(safe-area-inset-bottom), calc(var(--consent-inset, 0px) + 12px));
+}
+
+@media (min-width: 640px) {
+  .button {
+    bottom: max(2rem, calc(var(--consent-inset, 0px) + 12px));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button {
+    transition: bottom 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 @media (min-width: 1024px) and (pointer: fine) {
   .button {
     width: 56px;
