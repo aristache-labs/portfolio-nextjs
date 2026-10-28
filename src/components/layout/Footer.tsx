@@ -157,7 +157,7 @@ export function Footer({
               </SectionLink>
               {heroTagline && (
                 <p className="mt-2 max-w-[290px] sm:mt-2.5">
-                  <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm [@media(orientation:landscape)_and_(max-width:740px)]:px-2.5 [@media(orientation:landscape)_and_(max-width:740px)]:tracking-[0.1em]">
+                  <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm [@media(orientation:landscape)_and_(max-width:740px)]:px-2.5 [@media(orientation:landscape)_and_(max-width:740px)]:text-[9px] [@media(orientation:landscape)_and_(max-width:740px)]:tracking-[0.08em]">
                     {heroTagline}
                   </span>
                 </p>
