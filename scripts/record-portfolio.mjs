@@ -10,12 +10,11 @@ import { fileURLToPath } from 'node:url';
 const url = process.env.PORTFOLIO_URL || 'https://www.aristache.dev/';
 const ffmpeg = process.env.FFMPEG_PATH || 'ffmpeg';
 const multiplier = Number(process.env.SCROLL_MULTIPLIER || 1);
-const fps = 30;
-const videoFilter = 'fps=30,setsar=1';
+const presentationFps = 35;
 if (!Number.isFinite(multiplier) || multiplier <= 0) throw new Error('SCROLL_MULTIPLIER must be positive.');
 // Screen includes browser chrome; viewport is only the visible webpage.
-const desktopScreen = { width: 1920, height: 1080 };
-const mobileScreen = { width: 432, height: 864 };
+const desktopScreen = { width: 1920, height: 1200 };
+const mobileScreen = { width: 440, height: 956 };
 function viewportHeight(name, fallback, screenHeight) {
   const height = Number(process.env[name] || fallback);
   if (!Number.isInteger(height) || height < 320 || height > screenHeight || height % 2 !== 0) {
@@ -25,11 +24,11 @@ function viewportHeight(name, fallback, screenHeight) {
 }
 const desktopViewport = {
   width: desktopScreen.width,
-  height: viewportHeight('DESKTOP_VIEWPORT_HEIGHT', 880, desktopScreen.height),
+  height: viewportHeight('DESKTOP_VIEWPORT_HEIGHT', 1000, desktopScreen.height),
 };
 const mobileViewport = {
   width: mobileScreen.width,
-  height: viewportHeight('MOBILE_VIEWPORT_HEIGHT', 760, mobileScreen.height),
+  height: viewportHeight('MOBILE_VIEWPORT_HEIGHT', 852, mobileScreen.height),
 };
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(scriptDir, '..', 'screenshots/video');
@@ -40,7 +39,7 @@ function encode(args) {
   if (result.status !== 0) throw new Error(`FFmpeg failed (exit ${result.status}). Raw recordings remain in ${root}`);
 }
 
-async function capture(browser, name, viewport, scrollSeconds, mobile, screen) {
+async function capture(browser, name, viewport, scrollSeconds, mobile, screen, fps) {
   const context = await browser.newContext({
     viewport,
     screen,
@@ -118,7 +117,7 @@ async function capture(browser, name, viewport, scrollSeconds, mobile, screen) {
     const output = path.join(root, `${name}.mp4`);
     console.log(`Exporting ${name} at ${fps} fps...`);
     encode(['-ss', String(start), '-i', raw, '-t', String(duration), '-an',
-      '-vf', videoFilter, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18',
+      '-vf', `fps=${fps},setsar=1`, '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18',
       '-pix_fmt', 'yuv420p', '-movflags', '+faststart', output]);
     return { output, duration };
   } catch (error) {
@@ -137,19 +136,19 @@ async function main() {
   });
   try {
     console.log(`Recording desktop: viewport ${desktopViewport.width} x ${desktopViewport.height}...`);
-    const desktop = await capture(browser, 'desktop', desktopViewport, 22, false, desktopScreen);
+    const desktop = await capture(browser, 'desktop', desktopViewport, 22, false, desktopScreen, 35);
     console.log(`Recording mobile: viewport ${mobileViewport.width} x ${mobileViewport.height}...`);
-    const mobile = await capture(browser, 'mobile', mobileViewport, 26, true, mobileScreen);
+    const mobile = await capture(browser, 'mobile', mobileViewport, 26, true, mobileScreen, 30);
     console.log('Building the combined presentation...');
     const presentation = path.join(root, 'aristache-presentation.mp4');
     const fade = (length) => `fade=t=in:st=0:d=0.35,fade=t=out:st=${Math.max(0, length - 0.35)}:d=0.35`;
     const filter = [
-      `[0:v]setpts=PTS-STARTPTS,scale=1920:1080:force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x080c0d,${fade(desktop.duration)}[desktop]`,
-      `[1:v]setpts=PTS-STARTPTS,scale=480:-2:flags=lanczos,setsar=1,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x080c0d,${fade(mobile.duration)}[mobile]`,
+      `[0:v]setpts=PTS-STARTPTS,scale=1920:1200:force_original_aspect_ratio=decrease:force_divisible_by=2,setsar=1,pad=1920:1200:(ow-iw)/2:(oh-ih)/2:color=0x080c0d,${fade(desktop.duration)}[desktop]`,
+      `[1:v]setpts=PTS-STARTPTS,scale=480:-2:flags=lanczos,setsar=1,pad=1920:1200:(ow-iw)/2:(oh-ih)/2:color=0x080c0d,${fade(mobile.duration)}[mobile]`,
       '[desktop][mobile]concat=n=2:v=1:a=0[out]',
     ].join(';');
     encode(['-i', desktop.output, '-i', mobile.output, '-filter_complex', filter,
-      '-map', '[out]', '-an', '-r', String(fps), '-c:v', 'libx264', '-preset', 'veryfast',
+      '-map', '[out]', '-an', '-r', String(presentationFps), '-c:v', 'libx264', '-preset', 'veryfast',
       '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', presentation]);
     console.log(`\nFinished. Videos saved in:\n${root}\n\nPresentation: ${presentation}`);
   } finally {
