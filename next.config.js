@@ -1,3 +1,5 @@
+const isDev = process.env.NODE_ENV === "development";
+
 // Keep the CSP image allowlist aligned with next/image, including wildcard apex hosts.
 const remoteImagePatterns = [
   { protocol: "https", hostname: "**.githubusercontent.com" },
@@ -11,12 +13,13 @@ const remoteImagePatterns = [
   { protocol: "https", hostname: "portfolio-nextjs-aristache-projects.vercel.app" },
 ];
 
-const isDev = process.env.NODE_ENV === "development";
-const imageSources = remoteImagePatterns.flatMap(({ protocol, hostname }) => {
-  const host = hostname.replace("**.", "*.");
-  const source = `${protocol}://${host}${protocol === "http" ? ":*" : ""}`;
-  return hostname.startsWith("**.") ? [source, `${protocol}://${hostname.slice(3)}`] : [source];
-});
+const imageSources = remoteImagePatterns
+  .filter(({ hostname }) => isDev || hostname !== "localhost")
+  .flatMap(({ protocol, hostname }) => {
+    const host = hostname.replace("**.", "*.");
+    const source = `${protocol}://${host}${protocol === "http" ? ":*" : ""}`;
+    return hostname.startsWith("**.") ? [source, `${protocol}://${hostname.slice(3)}`] : [source];
+  });
 
 // No nonce: the homepage must retain static rendering and its 12h ISR window.
 // Inline scripts/styles remain allowed for Next hydration and Motion; external sources stay restricted.

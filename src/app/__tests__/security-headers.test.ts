@@ -42,7 +42,7 @@ describe("security headers", () => {
     expect(csp).toContain("base-uri 'self'");
   });
 
-  it("covers every image host, including wildcard apex hosts, and Quick View badges", async () => {
+  it("covers production image hosts, including wildcard apex hosts, and Quick View badges", async () => {
     const config = loadConfig("production");
     const csp = (await security(config)).get("Content-Security-Policy")!;
     const images = csp
@@ -53,6 +53,7 @@ describe("security headers", () => {
       expect.arrayContaining(["'self'", "data:", "blob:", "https://img.shields.io"]),
     );
     for (const { protocol, hostname } of config.images.remotePatterns) {
+      if (hostname === "localhost") continue;
       const source =
         protocol + "://" + hostname.replace("**.", "*.") + (protocol === "http" ? ":*" : "");
       expect(images).toContain(source);
@@ -81,8 +82,10 @@ describe("security headers", () => {
     expect(dev).toContain("'unsafe-eval'");
     expect(dev).toContain("https://va.vercel-scripts.com");
     expect(dev).toContain("ws://localhost:*");
+    expect(dev).toContain("http://localhost:*");
     const production = (await security(loadConfig("production"))).get("Content-Security-Policy")!;
     expect(production).not.toContain("'unsafe-eval'");
     expect(production).not.toContain("ws://");
+    expect(production).not.toContain("localhost");
   });
 });

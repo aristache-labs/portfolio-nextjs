@@ -1,6 +1,6 @@
 {
   "name": "portfolio-nextjs",
-  "version": "2.4.25",
+  "version": "2.4.26",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 4000",
@@ -77,5 +77,22 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11"
-  }
+  },
+  "description": "<div align=\"center\">",
+  "main": "next.config.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aristache-labs/portfolio-nextjs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aristache-labs/portfolio-nextjs/issues"
+  },
+  "homepage": "https://github.com/aristache-labs/portfolio-nextjs#readme"
 }
