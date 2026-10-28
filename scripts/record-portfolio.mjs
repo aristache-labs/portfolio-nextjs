@@ -31,7 +31,7 @@ async function capture(browser, name, viewport, scrollSeconds, mobile) {
     reducedMotion: 'no-preference',
     recordVideo: { dir: path.join(root, 'raw'), size: viewport },
   });
-  // Playwright records from page creation; trim the loading and warm-up later.
+  // Playwright records from page creation; trim only the initial loading later.
   const recordingEpoch = performance.now();
   const page = await context.newPage();
   const video = page.video();
@@ -46,21 +46,18 @@ async function capture(browser, name, viewport, scrollSeconds, mobile) {
     ` });
     await page.mouse.move(1, 1);
 
-    // Visit the whole page so lazy images, videos and scroll reveals can load.
+    // Keep sections unvisited: their one-time reveals must run during the capture.
+    // Decode only images in the opening viewport; lazy media loads during scrolling.
     await page.evaluate(async () => {
       const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-      for (let step = 0; step < 150; step++) {
-        const bottom = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - innerHeight;
-        if (scrollY >= bottom - 2) break;
-        scrollTo(0, Math.min(bottom, scrollY + innerHeight * 0.8));
-        await delay(140);
-      }
-      await Promise.all([...document.images].map(image =>
+      const visibleImages = [...document.images].filter(image => {
+        const rect = image.getBoundingClientRect();
+        return rect.bottom > 0 && rect.top < innerHeight && rect.right > 0 && rect.left < innerWidth;
+      });
+      await Promise.all(visibleImages.map(image =>
         Promise.race([image.decode().catch(() => {}), delay(5_000)])
       ));
-      scrollTo(0, 0);
     });
-    await page.waitForTimeout(2_500);
 
     const start = (performance.now() - recordingEpoch) / 1000;
     const contentStart = performance.now();

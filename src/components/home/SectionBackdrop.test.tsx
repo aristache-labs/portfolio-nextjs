@@ -131,7 +131,7 @@ describe("SectionBackdrop", () => {
     const image = installHero(false);
     const { container } = render(
       <SectionBackdrop
-        video="/media/about-v2.mp4"
+        video="/media/about-v3.mp4"
         poster="/media/about.webp"
         deferUntilHeroLoaded
       />,

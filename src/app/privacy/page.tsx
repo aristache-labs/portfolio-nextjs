@@ -254,7 +254,7 @@ export default async function PrivacyPage() {
       <div id="page-content" tabIndex={-1} className="scroll-mt-24 outline-none" />
       <div className={styles.backdropSection}>
         <SectionBackdrop
-          video="/media/about-v2.mp4"
+          video="/media/about-v3.mp4"
           poster="/media/services.webp"
           scrim="absolute inset-0 bg-background/80"
         />

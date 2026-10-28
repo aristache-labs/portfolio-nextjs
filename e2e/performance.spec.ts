@@ -103,7 +103,7 @@ test.describe("reduced motion", () => {
 test("below-fold desktop video waits for visibility and pauses offscreen", async ({ page }) => {
   const requests: string[] = [];
   page.on("request", (request) => {
-    if (new URL(request.url()).pathname.endsWith("/about-v2.mp4")) requests.push(request.url());
+    if (new URL(request.url()).pathname.endsWith("/about-v3.mp4")) requests.push(request.url());
   });
   await page.goto("/");
   await expect(page.locator("#hero")).toBeVisible();

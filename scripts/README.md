@@ -22,14 +22,14 @@ node .\scripts\record-portfolio.mjs
 
 ## Outputs
 
-Each run creates a timestamped folder inside `portfolio-video`:
+Each run writes to `screenshots` (replacing the previous outputs):
 
 - `aristache-presentation.mp4`: approximately 56 seconds, 1920 x 1080, desktop first, then a centered mobile view on an obsidian background, with short fades.
 - `desktop.mp4`: approximately 26 seconds, 1920 x 1080.
 - `mobile.mp4`: approximately 30 seconds, 432 x 864.
-- Raw WebM recordings, including loading and warm-up, for recovery or editing.
+- Raw WebM recordings, including initial loading, for recovery or editing.
 
-Each finished pass holds the hero for two seconds, scrolls from top to bottom, and holds the footer for two seconds. The warm-up pass is trimmed out. Both layouts use dark browser color preference and preserve the live site's background videos and animations. No sound or music is added.
+Each finished pass holds the hero for two seconds, scrolls from top to bottom, and holds the footer for two seconds. Only initial loading is trimmed out. There is no preliminary scroll: sections are visited for the first time during the recording so one-time entrance animations remain visible. Lazy media loads as the page scrolls. Both layouts use dark browser color preference and preserve the live site's background videos and animations. No sound or music is added.
 
 ## Adjustments
 

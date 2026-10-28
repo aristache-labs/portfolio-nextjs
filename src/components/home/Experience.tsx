@@ -241,7 +241,7 @@ export function Experience({
       backdrop={
         <SectionBackdrop
           frame="desktop-screen"
-          video="/media/experience-v2.mp4"
+          video="/media/experience-v3.mp4"
           poster="/media/experience.webp"
           fetchPriority="low"
           deferUntilHeroLoaded
