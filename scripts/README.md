@@ -58,7 +58,7 @@ Edit the 22 and 26 second scroll durations in the script to set separate desktop
 
 ## Validation and limits
 
-The JavaScript syntax and video composition were checked. The live recording has not been run in this environment, which lacks the required recording controls. Run locally and review the result before publishing. Playwright's recorder does not guarantee 30 unique captured frames per second; desktop export normalizes to 35 fps and mobile to 30 fps without interpolation. The combined presentation uses 35 fps. These rates can duplicate captured frames and do not guarantee additional unique frames. Encoding uses the veryfast preset to reduce export time. Loading trim uses an approximate page-creation timestamp: if the beginning needs a small adjustment, the complete raw recordings are retained. Cloud/network loading, consent banners, hardware speed, and browser autoplay behavior can affect the result. The script does not dismiss dialogs or modify the deployed website. If you encounter a banner, handle it in your own capture setup before publishing.
+The JavaScript syntax and video composition were checked. The live recording has not been run in this environment, which lacks the required recording controls. Run locally and review the result before publishing. Playwright's recorder does not guarantee 30 unique captured frames per second; desktop export normalizes to 25 fps and mobile to 30 fps without interpolation. The combined presentation uses 30 fps. These rates can duplicate captured frames and do not guarantee additional unique frames. Encoding uses the veryfast preset to reduce export time. Loading trim uses an approximate page-creation timestamp: if the beginning needs a small adjustment, the complete raw recordings are retained. Cloud/network loading, consent banners, hardware speed, and browser autoplay behavior can affect the result. The script does not dismiss dialogs or modify the deployed website. If you encounter a banner, handle it in your own capture setup before publishing.
 
 Playwright recording documentation: https://playwright.dev/docs/videos
 
@@ -66,7 +66,7 @@ Playwright recording documentation: https://playwright.dev/docs/videos
 
 The recorder suppresses `scrollend` in its own browser context: repeated scripted scroll updates can otherwise activate the site's skipped-content fallback before entrance animations start. Intersection observers and entrance animations remain enabled. This does not change the deployed website.
 
-The default scroll multiplier is 1: 22 seconds of scrolling on desktop and 26 seconds on mobile, plus the opening and closing holds. Compared with the previous default of 1.5, scrolling takes one third less time. Exports use 35 fps on desktop and 30 fps on mobile without motion interpolation and with the veryfast encoding preset. `SMOOTH_VIDEO` is no longer used.
+The default scroll multiplier is 1: 22 seconds of scrolling on desktop and 26 seconds on mobile, plus the opening and closing holds. Compared with the previous default of 1.5, scrolling takes one third less time. Exports use 25 fps on desktop and 30 fps on mobile without motion interpolation and with the veryfast encoding preset. `SMOOTH_VIDEO` is no longer used.
 
 If a previous PowerShell session still has a slower multiplier set, reset it before recording:
 
@@ -86,3 +86,9 @@ $env:DESKTOP_VIEWPORT_HEIGHT = '1000'
 $env:MOBILE_VIEWPORT_HEIGHT = '852'
 node .\scripts\record-portfolio.mjs
 ```
+
+## Desktop capture window
+
+Desktop recording opens a visible Chromium window. Keep it visible and avoid interacting with it during capture. Mobile recording still runs headless. A local ten-second desktop diagnostic reduced near-duplicate frames from approximately 43% in the original raw sample to 10% in the visible-window sample; these samples cover different scroll intervals and are not a controlled benchmark. Desktop export uses the raw recorder's 25 fps cadence rather than adding duplicates at 35 fps. The combined presentation uses 30 fps to accommodate the mobile export.
+
+Desktop trimming starts when navigation commits, before waiting for the heading, fonts, and opening images, so the hero entrance is included. This may retain a brief initial loading frame. Mobile keeps its existing trim after those readiness checks. Export duration includes the earlier desktop opening so the footer hold is preserved.

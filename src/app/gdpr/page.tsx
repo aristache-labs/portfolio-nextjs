@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronDown, ShieldCheck } from "lucide-react";
 import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
@@ -193,19 +193,47 @@ export default async function GdprPage() {
                 aria-label="GDPR page contents"
                 className={`${styles.contentsNav} lg:sticky lg:top-8 lg:self-start`}
               >
-                <p className="text-muted mb-4 text-sm">On this page</p>
-                <ul className="border-brand-mid/20 grid gap-1 border-l pl-3">
-                  {sections.map(({ id, title }) => (
-                    <li key={id}>
-                      <a
-                        href={`#${id}`}
-                        className="text-muted hover:text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center rounded-md px-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                      >
-                        {title}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <div className={styles.contentsDesktop}>
+                  <p className="text-muted mb-4 text-sm">On this page</p>
+                  <ul className="border-brand-mid/20 grid gap-1 border-l pl-3">
+                    {sections.map(({ id, title }) => (
+                      <li key={id}>
+                        <a
+                          href={`#${id}`}
+                          className="text-muted hover:text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center rounded-md px-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                        >
+                          {title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <details
+                  className={`${styles.contentsMobile} group border-brand-mid/20 bg-background/60 rounded-xl border`}
+                >
+                  <summary className="text-foreground focus-visible:ring-brand-mid flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
+                    On this page
+                    <ChevronDown
+                      aria-hidden
+                      className="size-4 transition-transform group-open:rotate-180 motion-reduce:transition-none"
+                    />
+                  </summary>
+                  <div className="px-4 pb-3">
+                    {" "}
+                    <ul className="border-brand-mid/20 grid gap-1 border-l pl-3">
+                      {sections.map(({ id, title }) => (
+                        <li key={id}>
+                          <a
+                            href={`#${id}`}
+                            className="text-muted hover:text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center rounded-md px-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                          >
+                            {title}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </details>
               </nav>
               <div>
                 {sections.map(({ id, title, content }) => (

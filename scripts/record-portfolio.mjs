@@ -7,10 +7,10 @@ import { fileURLToPath } from 'node:url';
 // Run: node record-portfolio.mjs
 // Optional: PORTFOLIO_URL, CHROME_CHANNEL=chrome, FFMPEG_PATH, SCROLL_MULTIPLIER=2
 // A larger multiplier gives visitors longer to see each section.
-const url = process.env.PORTFOLIO_URL || 'https://www.aristache.dev/';
+const url = process.env.PORTFOLIO_URL || 'http://localhost:4000/';
 const ffmpeg = process.env.FFMPEG_PATH || 'ffmpeg';
 const multiplier = Number(process.env.SCROLL_MULTIPLIER || 1);
-const presentationFps = 35;
+const presentationFps = 30;
 if (!Number.isFinite(multiplier) || multiplier <= 0) throw new Error('SCROLL_MULTIPLIER must be positive.');
 // Screen includes browser chrome; viewport is only the visible webpage.
 const desktopScreen = { width: 1920, height: 1200 };
@@ -61,7 +61,10 @@ async function capture(browser, name, viewport, scrollSeconds, mobile, screen, f
   const page = await context.newPage();
   const video = page.video();
   try {
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 90_000 });
+    // Keep desktop's first paint: hero entrances start before fonts/images settle.
+    // Mobile retains its existing loading trim.
+    await page.goto(url, { waitUntil: mobile ? 'domcontentloaded' : 'commit', timeout: 90_000 });
+    const openingStart = (performance.now() - recordingEpoch) / 1000;
     await page.locator('h1').waitFor({ state: 'visible', timeout: 60_000 });
     await page.evaluate(() => document.fonts.ready);
     await page.addStyleTag({ content: `
@@ -84,8 +87,7 @@ async function capture(browser, name, viewport, scrollSeconds, mobile, screen, f
       ));
     });
 
-    const start = (performance.now() - recordingEpoch) / 1000;
-    const contentStart = performance.now();
+    const start = mobile ? (performance.now() - recordingEpoch) / 1000 : openingStart;
     await page.waitForTimeout(2_000);
     // Smooth continuous scroll with a short acceleration/deceleration at the ends.
     await page.evaluate(async milliseconds => {
@@ -110,7 +112,7 @@ async function capture(browser, name, viewport, scrollSeconds, mobile, screen, f
       });
     }, scrollSeconds * multiplier * 1000);
     await page.waitForTimeout(2_000);
-    const duration = (performance.now() - contentStart) / 1000;
+    const duration = (performance.now() - recordingEpoch) / 1000 - start;
     await context.close();
     const raw = path.join(root, `${name}-raw.webm`);
     await video.saveAs(raw);
@@ -130,15 +132,22 @@ async function main() {
   // Check dependencies before spending time recording.
   encode(['-version']);
   await mkdir(root, { recursive: true });
-  const browser = await chromium.launch({
-    headless: true,
-    ...(process.env.CHROME_CHANNEL ? { channel: process.env.CHROME_CHANNEL } : {}),
-  });
-  try {
-    console.log(`Recording desktop: viewport ${desktopViewport.width} x ${desktopViewport.height}...`);
-    const desktop = await capture(browser, 'desktop', desktopViewport, 22, false, desktopScreen, 35);
-    console.log(`Recording mobile: viewport ${mobileViewport.width} x ${mobileViewport.height}...`);
-    const mobile = await capture(browser, 'mobile', mobileViewport, 26, true, mobileScreen, 30);
+  async function recordLayout(name, viewport, seconds, mobile, screen, fps) {
+    // Desktop screencasting drops frames in headless mode at this resolution.
+    // Keep its visible window unobstructed while recording. Mobile stays headless.
+    const browser = await chromium.launch({
+      headless: mobile,
+      ...(process.env.CHROME_CHANNEL ? { channel: process.env.CHROME_CHANNEL } : {}),
+    });
+    try {
+      console.log(`Recording ${name}: viewport ${viewport.width} x ${viewport.height}...`);
+      return await capture(browser, name, viewport, seconds, mobile, screen, fps);
+    } finally {
+      await browser.close();
+    }
+  }
+  const desktop = await recordLayout('desktop', desktopViewport, 22, false, desktopScreen, 25);
+  const mobile = await recordLayout('mobile', mobileViewport, 26, true, mobileScreen, 30);
     console.log('Building the combined presentation...');
     const presentation = path.join(root, 'aristache-presentation.mp4');
     const fade = (length) => `fade=t=in:st=0:d=0.35,fade=t=out:st=${Math.max(0, length - 0.35)}:d=0.35`;
@@ -151,9 +160,6 @@ async function main() {
       '-map', '[out]', '-an', '-r', String(presentationFps), '-c:v', 'libx264', '-preset', 'veryfast',
       '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', presentation]);
     console.log(`\nFinished. Videos saved in:\n${root}\n\nPresentation: ${presentation}`);
-  } finally {
-    await browser.close();
-  }
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; });
