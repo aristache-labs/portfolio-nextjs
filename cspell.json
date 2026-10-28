@@ -115,7 +115,8 @@
     "yourhandle",
     "yourprofile",
     "yoursite",
-    "yourusername"
+    "yourusername",
+    "authjs"
   ],
   "ignoreRegExpList": ["/#[0-9a-f]{3,8}(?![a-z0-9])/gi"],
   "ignorePaths": [

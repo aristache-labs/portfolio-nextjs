@@ -25,13 +25,13 @@ const imageSources = remoteImagePatterns
 // Inline scripts/styles remain allowed for Next hydration and Motion; external sources stay restricted.
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: https://img.shields.io ${imageSources.join(" ")}`,
+  `img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com https://img.shields.io ${imageSources.join(" ")}`,
   "font-src 'self'",
   "media-src 'self'",
-  // Analytics, contact, auth and Blob uploads all use same-origin browser requests.
-  `connect-src 'self'${isDev ? " ws://localhost:* ws://127.0.0.1:*" : ""}`,
+  // Google Analytics is allowed here but only loaded after explicit consent.
+  `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com${isDev ? " ws://localhost:* ws://127.0.0.1:*" : ""}`,
   "form-action 'self' https://github.com",
   "frame-ancestors 'none'",
   "frame-src 'none'",

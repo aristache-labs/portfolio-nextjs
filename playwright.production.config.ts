@@ -1,9 +1,17 @@
 import { defineConfig } from "@playwright/test";
+import { loadEnvConfig } from "@next/env";
+
+loadEnvConfig(process.cwd());
 
 // Run after bun run build. This config never starts the development server.
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: ["seo-security.spec.ts", "legal-pages.spec.ts", "section-navigation.spec.ts"],
+  testMatch: [
+    "analytics-consent.spec.ts",
+    "seo-security.spec.ts",
+    "legal-pages.spec.ts",
+    "section-navigation.spec.ts",
+  ],
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   workers: 2,

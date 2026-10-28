@@ -73,7 +73,9 @@ export default async function GdprPage() {
           You can ask what personal data I hold, obtain a copy, and correct inaccurate information.
           You can request erasure or restriction where the GDPR conditions apply. Portability
           applies to data you provided where processing is automated and based on consent or a
-          contract. These rights have legal conditions and exceptions; if I cannot fulfil a request,
+          contract. You may withdraw consent at any time without affecting the lawfulness of
+          processing before withdrawal. Use Cookie settings in the footer to withdraw analytics
+          consent. These rights have legal conditions and exceptions; if I cannot fulfil a request,
           I will explain why.{" "}
           <LegalLink href="https://commission.europa.eu/law/law-topic/data-protection/information-individuals_en">
             The European Commission explains these rights

@@ -50,7 +50,14 @@ describe("security headers", () => {
       .find((part) => part.startsWith("img-src "))!
       .split(" ");
     expect(images).toEqual(
-      expect.arrayContaining(["'self'", "data:", "blob:", "https://img.shields.io"]),
+      expect.arrayContaining([
+        "'self'",
+        "data:",
+        "blob:",
+        "https://img.shields.io",
+        "https://*.google-analytics.com",
+        "https://*.googletagmanager.com",
+      ]),
     );
     for (const { protocol, hostname } of config.images.remotePatterns) {
       if (hostname === "localhost") continue;
@@ -65,11 +72,15 @@ describe("security headers", () => {
     expect(images).not.toContain("*");
   });
 
-  it("keeps production analytics and uploads on the same origin and allows GitHub sign-in", async () => {
+  it("allows only the required Google analytics hosts and GitHub sign-in", async () => {
     const csp = (await security(loadConfig("production"))).get("Content-Security-Policy")!;
     const directives = csp.split("; ");
-    expect(directives).toContain("connect-src 'self'");
-    expect(directives).toContain("script-src 'self' 'unsafe-inline'");
+    expect(directives).toContain(
+      "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
+    );
+    expect(directives).toContain(
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+    );
     expect(directives).toContain("style-src 'self' 'unsafe-inline'");
     expect(directives).toContain("font-src 'self'");
     expect(directives).toContain("media-src 'self'");
@@ -80,7 +91,7 @@ describe("security headers", () => {
   it("allows the development runtime without relaxing the production policy", async () => {
     const dev = (await security(loadConfig("development"))).get("Content-Security-Policy")!;
     expect(dev).toContain("'unsafe-eval'");
-    expect(dev).toContain("https://va.vercel-scripts.com");
+    expect(dev).not.toContain("https://va.vercel-scripts.com");
     expect(dev).toContain("ws://localhost:*");
     expect(dev).toContain("http://localhost:*");
     const production = (await security(loadConfig("production"))).get("Content-Security-Policy")!;

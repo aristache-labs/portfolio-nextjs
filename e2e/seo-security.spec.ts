@@ -220,9 +220,7 @@ test("external scripts are blocked before a network request", async ({ page }) =
   expect(requested).toBe(false);
 });
 
-test("contact, upload and analytics requests reach their same-origin endpoints", async ({
-  page,
-}) => {
+test("contact and upload requests reach their same-origin endpoints", async ({ page }) => {
   const seen = new Set<string>();
   await page.route("**/api/contact", (route) => {
     expect(route.request().postDataJSON().website).toBe("");
@@ -237,10 +235,6 @@ test("contact, upload and analytics requests reach their same-origin endpoints",
       status: 201,
       json: { url: "https://csp-fixture.public.blob.vercel-storage.com/preview.svg" },
     });
-  });
-  await page.route("**/_vercel/insights/view", (route) => {
-    seen.add("analytics");
-    return route.fulfill({ status: 204 });
   });
   await page.goto("/");
   const results = await page.evaluate(async () => {
@@ -264,14 +258,10 @@ test("contact, upload and analytics requests reach their same-origin endpoints",
       }),
     );
     const upload = await fetch("/api/admin/upload", { method: "POST", body });
-    const beacon = navigator.sendBeacon(
-      "/_vercel/insights/view",
-      new Blob(["{}"], { type: "application/json" }),
-    );
-    return [contact.status, upload.status, beacon];
+    return [contact.status, upload.status];
   });
-  expect(results).toEqual([200, 201, true]);
-  await expect.poll(() => [...seen].sort()).toEqual(["analytics", "contact", "upload"]);
+  expect(results).toEqual([200, 201]);
+  await expect.poll(() => [...seen].sort()).toEqual(["contact", "upload"]);
 });
 
 test("enforcement does not bypass the real upload authentication boundary", async ({ page }) => {

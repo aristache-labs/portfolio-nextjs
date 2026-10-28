@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
+import { PREFERENCES_EVENT } from "@/lib/analytics-consent";
 import { Footer } from "./Footer";
 import type { SocialRow } from "@/components/home/Contact";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
@@ -54,6 +55,22 @@ const mockSocials: SocialRow[] = [
 ];
 
 describe("Footer", () => {
+  it("opens cookie preferences only when Google Analytics is configured", () => {
+    vi.stubEnv("NEXT_PUBLIC_GTAG_ID", "");
+    const { rerender } = render(<Footer socials={mockSocials} />);
+    expect(screen.queryByRole("button", { name: "Cookie settings" })).toBeNull();
+    vi.stubEnv("NEXT_PUBLIC_GTAG_ID", "G-TEST123");
+    rerender(<Footer socials={mockSocials} />);
+    const listener = vi.fn();
+    window.addEventListener(PREFERENCES_EVENT, listener);
+    act(() => screen.getByRole("button", { name: "Cookie settings" }).click());
+    expect(listener).toHaveBeenCalledOnce();
+    expect(screen.getByRole("navigation", { name: "Legal" })).toContainElement(
+      screen.getByRole("button", { name: "Cookie settings" }),
+    );
+    window.removeEventListener(PREFERENCES_EVENT, listener);
+    vi.unstubAllEnvs();
+  });
   it("disables homepage anchor prefetch including the logo and preserves legal links", () => {
     const { container } = render(<Footer socials={mockSocials} />);
     const anchors = container.querySelectorAll('a[href^="#"]');

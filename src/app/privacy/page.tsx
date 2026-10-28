@@ -93,11 +93,11 @@ export default async function PrivacyPage() {
           Ordinary correspondence is handled to pursue my legitimate interest in responding to
           people who contact me (Article 6(1)(f) GDPR). When you request specific steps towards a
           possible contract with you, the necessary processing instead relies on Article 6(1)(b).
-          Operating and securing the portfolio, preventing abuse and understanding basic site usage
-          rely on legitimate interests under Article 6(1)(f), balanced against visitors&apos;
-          rights. These interests do not authorise unrelated marketing. Submitting a message is not
-          treated as blanket consent. Where consent is the applicable basis for any separate
-          processing, it can be withdrawn without affecting earlier lawful processing.
+          Operating and securing the portfolio and preventing abuse rely on legitimate interests
+          under Article 6(1)(f), balanced against visitors&apos; rights. These interests do not
+          authorise unrelated marketing. Submitting a message is not treated as blanket consent.
+          Where consent is the applicable basis for any separate processing, it can be withdrawn
+          without affecting earlier lawful processing.
         </>
       ),
     },
@@ -123,15 +123,18 @@ export default async function PrivacyPage() {
       icon: ChartNoAxesCombined,
       content: (
         <>
-          Vercel Web Analytics provides aggregate reports about visits, pages, referrers,
-          approximate location, browsers and devices. Vercel describes a request-derived visitor
-          hash with a 24-hour lifetime, without third-party analytics cookies or identifiers used
-          across sites. That lifetime is not the retention period for aggregate reports. Page URLs
-          and filtered query parameters can form part of analytics events. I do not send
-          contact-form fields as custom analytics events. Google Analytics, Statsig and session
-          replay are not enabled. See{" "}
-          <LegalLink href="https://vercel.com/docs/analytics/privacy-policy">
-            Vercel&apos;s analytics privacy information
+          Google Analytics 4 (GA4) measures visits, pages, referrers, approximate location, browsers
+          and devices using cookies, only after you explicitly accept optional analytics. No Google
+          tag or analytics request loads before acceptance. The legal basis is your consent under
+          Article 6(1)(a) GDPR and Article 4(5) of Romanian Law 506/2004. Google Ireland Ltd.
+          processes analytics data. Processing may involve transfers to the United States under the
+          EU-US Data Privacy Framework. Google Signals and advertising personalization are disabled.
+          I do not send contact-form fields as custom analytics events. Event-level analytics data
+          is kept for the period selected in the GA4 property: either 2 or 14 months for a standard
+          property. Contact me to confirm the current period. Aggregate reports have separate
+          retention. You can withdraw consent anytime using Cookie settings in the footer. See{" "}
+          <LegalLink href="https://policies.google.com/privacy">
+            Google&apos;s privacy policy
           </LegalLink>
           .
         </>
@@ -143,13 +146,70 @@ export default async function PrivacyPage() {
       icon: ShieldCheck,
       content: (
         <>
-          The site does not use advertising cookies. Administrator sign-in uses essential
-          authentication and security cookies through Auth.js and GitHub. The default administrator
-          session expires after 30 days of inactivity; short-lived sign-in checks have their own
-          expiry. The administrator interface also saves its sidebar preference in local storage.
-          These functions are distinct from public-page analytics. Hosting security checks may use
-          additional necessary mechanisms. Browser controls can remove stored data, but removing
-          authentication cookies signs you out.
+          The site does not use advertising cookies. Optional analytics cookies require consent.
+          Cookie settings in the footer lets you accept or reject analytics at any time. Rejecting
+          disables collection and deletes existing _ga cookies for this site. Browser controls can
+          also remove stored data, but removing authentication cookies signs you out.
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <caption className="mb-2 text-left">
+                Cookies and local storage used by this site
+              </caption>
+              <thead>
+                <tr>
+                  {["Name", "Purpose", "Basis", "Expiry"].map((label) => (
+                    <th key={label} scope="col" className="border-brand-mid/20 border-b p-2">
+                      {label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  [
+                    "_ga",
+                    "Analytics visitor identifier",
+                    "Consent",
+                    "2 years by default, renewed on visits",
+                  ],
+                  [
+                    "_ga_<ID>",
+                    "Analytics session state",
+                    "Consent",
+                    "2 years by default, renewed on visits",
+                  ],
+                  [
+                    "analytics-consent-v2",
+                    "Local storage remembering your choice",
+                    "Strictly necessary",
+                    "Until cleared in browser storage",
+                  ],
+                  [
+                    "authjs.session-token (or __Secure-authjs.session-token)",
+                    "Admin authentication",
+                    "Strictly necessary",
+                    "30 days of inactivity by default",
+                  ],
+                  [
+                    "Auth.js sign-in security cookies",
+                    "Admin sign-in checks",
+                    "Strictly necessary",
+                    "Short-lived or session-specific",
+                  ],
+                ].map((row) => (
+                  <tr key={row[0]}>
+                    {row.map((cell, index) => (
+                      <td key={index} className="border-brand-mid/15 border-b p-2 align-top">
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          Administrator sign-in uses Auth.js and GitHub. The administrator interface also saves its
+          sidebar preference in local storage. Hosting security checks may use necessary mechanisms.
         </>
       ),
     },
@@ -159,11 +219,13 @@ export default async function PrivacyPage() {
       icon: ShieldCheck,
       content: (
         <>
-          Service providers receive data needed for their roles: Vercel for hosting, files and
-          analytics; Resend for email handling; Neon for the database; and GitHub for administrator
-          authentication. Their terms describe their processing and subprocessors:{" "}
+          Service providers receive data needed for their roles: Vercel for hosting and files;
+          Google Ireland Ltd. for consent-based analytics; Resend for email handling; Neon for the
+          database; and GitHub for administrator authentication. Their terms describe their
+          processing and subprocessors:{" "}
           <LegalLink href="https://vercel.com/legal/dpa">Vercel</LegalLink>,{" "}
-          <LegalLink href="https://resend.com/legal/dpa">Resend</LegalLink> and{" "}
+          <LegalLink href="https://resend.com/legal/dpa">Resend</LegalLink>,{" "}
+          <LegalLink href="https://business.safety.google/adsprocessorterms/">Google</LegalLink> and{" "}
           <LegalLink href="https://neon.com/platform-terms">Neon</LegalLink>. Project previews may
           request images from GitHub or badges from Shields.io, exposing network information such as
           your IP address to those services. Their notices are available at{" "}
@@ -355,7 +417,7 @@ export default async function PrivacyPage() {
                       />
                       {label}
                     </h2>
-                    <p className="text-muted mt-4 text-base leading-7">{content}</p>
+                    <div className="text-muted mt-4 text-base leading-7">{content}</div>
                   </section>
                 ))}
                 <div className="border-brand-mid/20 bg-brand-mid/5 mt-4 rounded-2xl border p-5 sm:p-6">

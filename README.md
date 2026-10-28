@@ -83,7 +83,7 @@ Aristache is the personal portfolio of Adrian Cristache: IT Specialist · Web & 
 | Auth            | [Auth.js v5](https://authjs.dev/) - GitHub OAuth                   |
 | File storage    | [Vercel Blob](https://vercel.com/docs/storage/vercel-blob)         |
 | Email           | [Resend](https://resend.com/)                                      |
-| Analytics       | [Vercel Analytics](https://vercel.com/analytics)                   |
+| Analytics       | [Google Analytics 4](https://analytics.google.com/) (opt-in)                   |
 | Package manager | [Bun](https://bun.sh/)                                             |
 | Unit tests      | [Vitest](https://vitest.dev/) + Testing Library                    |
 | E2E tests       | [Playwright](https://playwright.dev/)                              |

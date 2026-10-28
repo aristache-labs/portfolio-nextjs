@@ -21,9 +21,9 @@ test("does not load Google, Statsig or replay even with legacy accepted consent"
   );
   await page.goto("/");
   await expect(page.locator("#hero")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Analytics preferences" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Cookie preferences" })).toBeVisible();
   await scrollSections(page);
-  await expect(page.getByRole("button", { name: "Analytics", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Cookie settings", exact: true })).toBeAttached();
   expect(requests).toEqual([]);
   expect(
     await page.evaluate(() =>
@@ -31,7 +31,7 @@ test("does not load Google, Statsig or replay even with legacy accepted consent"
     ),
   ).toEqual([]);
   await page.goto("/privacy");
-  await expect(page.locator("#analytics")).toContainText("Vercel Web Analytics");
+  await expect(page.locator("#analytics")).toContainText("Google Analytics 4");
   expect(requests).toEqual([]);
 });
 

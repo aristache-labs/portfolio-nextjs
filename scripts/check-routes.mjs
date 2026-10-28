@@ -179,16 +179,6 @@ await group("/admin redirects anonymous requests and leaks no curated data", asy
   }
 });
 
-// Vercel serves this only in production, so a local 404 is expected; only a wrong redirect
-// is actionable.
-{
-  const res = await fetch(`${base}/_vercel/insights/script.js`, { redirect: "manual" });
-  const location = res.headers.get("location") ?? "";
-  if (location && !location.includes("/_vercel")) {
-    fail(`analytics script redirected to ${location}, so Web Analytics would collect nothing`);
-  }
-}
-
 if (failures > 0) {
   console.error(`\n${failures} check(s) failed.`);
   process.exit(1);

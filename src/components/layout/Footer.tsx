@@ -10,6 +10,7 @@ import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import type { SocialRow } from "@/components/home/social-icons";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
 import subtitleCss from "@/components/home/section-subtitle.module.css";
+import { PREFERENCES_EVENT } from "@/lib/analytics-consent";
 import { SITE } from "@/lib/seo/site";
 import layout from "./footer-layout.module.css";
 
@@ -232,6 +233,21 @@ export function Footer({
                     </Link>
                   </m.li>
                 ))}
+                {process.env.NEXT_PUBLIC_GTAG_ID && (
+                  <m.li initial={false} variants={itemVariants} className="col-start-1 row-start-3">
+                    <button
+                      type="button"
+                      onClick={() => window.dispatchEvent(new Event(PREFERENCES_EVENT))}
+                      className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
+                    >
+                      <ChevronRight
+                        aria-hidden
+                        className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
+                      />
+                      Cookie settings
+                    </button>
+                  </m.li>
+                )}
               </ul>
             </nav>
           </ProgressiveReveal>
