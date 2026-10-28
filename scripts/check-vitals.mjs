@@ -13,7 +13,7 @@ async function get(url) {
   }
 }
 
-// Re-measured 2026-10-24: ~735KB after removing Google/Statsig and splitting the ambient canvas.
+// Re-measured 2026-10-28: ~761KB with consent-based GA4 and the split ambient canvas.
 // Keep 800KB as the ceiling so those root-layout costs cannot silently return.
 const BUDGETS = [
   { path: "/", js: 800, ttfb: 800 },

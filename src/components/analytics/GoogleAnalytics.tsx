@@ -50,6 +50,7 @@ export function GoogleAnalytics() {
         googleCommand("config", id, {
           anonymize_ip: true,
           allow_google_signals: false,
+          send_page_view: false,
           allow_ad_personalization_signals: false,
         });
       }}

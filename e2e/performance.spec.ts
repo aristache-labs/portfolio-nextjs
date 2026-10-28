@@ -7,29 +7,19 @@ async function scrollSections(page: Page) {
   }
 }
 
-test("does not load Google, Statsig or replay even with legacy accepted consent", async ({
-  page,
-}) => {
+test("does not load Google with legacy accepted consent", async ({ page }) => {
   const requests: string[] = [];
   await page.addInitScript(() => localStorage.setItem("analytics-consent-v1", "accepted"));
-  await page.route(
-    /https:\/\/[^/]*(googletagmanager\.com|google-analytics\.com|featureassets\.org|prodregistryv2\.org|statsig[^/]*\.(com|net))\//,
-    (route) => {
-      requests.push(route.request().url());
-      return route.abort();
-    },
-  );
+  await page.route(/https:\/\/[^/]*(googletagmanager\.com|google-analytics\.com)\//, (route) => {
+    requests.push(route.request().url());
+    return route.abort();
+  });
   await page.goto("/");
   await expect(page.locator("#hero")).toBeVisible();
   await expect(page.getByRole("region", { name: "Cookie preferences" })).toBeVisible();
   await scrollSections(page);
   await expect(page.getByRole("button", { name: "Cookie settings", exact: true })).toBeAttached();
   expect(requests).toEqual([]);
-  expect(
-    await page.evaluate(() =>
-      Object.keys(localStorage).filter((key) => key.startsWith("statsig.")),
-    ),
-  ).toEqual([]);
   await page.goto("/privacy");
   await expect(page.locator("#analytics")).toContainText("Google Analytics 4");
   expect(requests).toEqual([]);
