@@ -205,6 +205,152 @@ describe("Experience", () => {
     expect(scrollHook).not.toHaveBeenCalled();
   });
 
+  it("tracks only nearby lists and cleans up entry markers before remounting", () => {
+    const originalObserver = globalThis.IntersectionObserver;
+    const observers: {
+      callback: IntersectionObserverCallback;
+      options?: IntersectionObserverInit;
+      target?: Element;
+      disconnect: () => void;
+    }[] = [];
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        record: (typeof observers)[number];
+        constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+          this.record = { callback, options, disconnect: vi.fn() };
+          observers.push(this.record);
+        }
+        observe(target: Element) {
+          this.record.target = target;
+        }
+        unobserve() {}
+        disconnect() {
+          this.record.disconnect();
+        }
+      },
+    );
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
+    const { container, unmount } = render(<Experience experiences={mockExperiences} />);
+    try {
+      const nearby = observers.find((observer) => observer.options?.rootMargin === "200px 0px")!;
+      const emit = (visible: boolean) =>
+        act(() =>
+          nearby.callback(
+            [{ target: nearby.target, isIntersecting: visible } as IntersectionObserverEntry],
+            {} as IntersectionObserver,
+          ),
+        );
+      expect(nearby.target).toBe(container.querySelector("ol")?.parentElement);
+      expect(container.querySelector(".origin-top")).toBeNull();
+      expect(container.querySelector("[data-timeline-track]")).not.toBeNull();
+      expect(scrollHook).not.toHaveBeenCalled();
+      emit(false);
+      expect(scrollHook).not.toHaveBeenCalled();
+
+      emit(true);
+      expect(scrollHook).toHaveBeenCalledWith(expect.objectContaining({ trackContentSize: true }));
+      const rail = container.querySelector(".origin-top");
+      expect(rail).not.toBeNull();
+      act(() => scrollProgress.current!.set(1));
+      expect(container.querySelector("[data-timeline-filled]")).not.toBeNull();
+      const highlighting = observers.find((observer) => observer.target?.matches("li"))!;
+      act(() =>
+        highlighting.callback(
+          [{ target: highlighting.target, isIntersecting: true } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        ),
+      );
+      expect(container.querySelector("[data-timeline-active]")).not.toBeNull();
+
+      emit(false);
+      expect(container.querySelector(".origin-top")).toBeNull();
+      expect(container.querySelector("[data-timeline-filled]")).toBeNull();
+      expect(container.querySelector("[data-timeline-active]")).toBeNull();
+      expect(highlighting.disconnect).toHaveBeenCalled();
+
+      scrollHook.mockClear();
+      emit(true);
+      expect(scrollHook).toHaveBeenCalled();
+      expect(container.querySelector(".origin-top")).not.toBe(rail);
+      unmount();
+      expect(nearby.disconnect).toHaveBeenCalled();
+      scrollHook.mockClear();
+      emit(true);
+      expect(scrollHook).not.toHaveBeenCalled();
+    } finally {
+      unmount();
+      vi.stubGlobal("IntersectionObserver", originalObserver);
+    }
+  });
+
+  it("keeps scroll tracking available without IntersectionObserver", () => {
+    const originalObserver = globalThis.IntersectionObserver;
+    vi.stubGlobal("IntersectionObserver", undefined);
+    const { container, unmount } = render(<Experience experiences={mockExperiences} />);
+    try {
+      expect(container.querySelector(".origin-top")).not.toBeNull();
+      expect(scrollHook).toHaveBeenCalledWith(expect.objectContaining({ trackContentSize: true }));
+    } finally {
+      unmount();
+      vi.stubGlobal("IntersectionObserver", originalObserver);
+    }
+  });
+
+  it("remeasures filled dots when mobile details resize the nearby list", () => {
+    const originalObserver = globalThis.ResizeObserver;
+    let measure: ResizeObserverCallback | undefined;
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(private callback: ResizeObserverCallback) {}
+        observe(target: Element) {
+          if (target.querySelector("[data-timeline-track]")) measure = this.callback;
+        }
+        disconnect = disconnect;
+      },
+    );
+    let expanded = false;
+    const trackHeight = vi
+      .spyOn(HTMLElement.prototype, "offsetHeight", "get")
+      .mockImplementation(function (this: HTMLElement) {
+        return this.hasAttribute("data-timeline-track") ? (expanded ? 1400 : 1000) : 0;
+      });
+    const trackTop = vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockReturnValue(0);
+    const bounds = vi
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        const second = this.closest("li")?.dataset.experienceId === "2";
+        return {
+          top: second ? (expanded ? 900 : 400) : 0,
+          height: this.hasAttribute("data-timeline-dot") ? 12 : 1400,
+        } as DOMRect;
+      });
+    const { container, unmount } = render(<Experience experiences={mockExperiences} />);
+    try {
+      const secondDot = container.querySelectorAll("[data-timeline-dot]")[1];
+      act(() => scrollProgress.current!.set(0.5));
+      expect(secondDot).toHaveAttribute("data-timeline-filled");
+      const details = screen.getAllByText("More details")[0].closest("details")!;
+      fireEvent.click(screen.getAllByText("More details")[0]);
+      expect(details.open).toBe(true);
+      expanded = true;
+      act(() => measure!([], {} as ResizeObserver));
+      expect(secondDot).not.toHaveAttribute("data-timeline-filled");
+      act(() => scrollProgress.current!.set(1));
+      expect(secondDot).toHaveAttribute("data-timeline-filled");
+      unmount();
+      expect(disconnect).toHaveBeenCalled();
+    } finally {
+      unmount();
+      bounds.mockRestore();
+      trackTop.mockRestore();
+      trackHeight.mockRestore();
+      vi.stubGlobal("ResizeObserver", originalObserver);
+    }
+  });
+
   it("highlights the central entry on desktop and clears it when reduced motion is enabled", () => {
     const originalObserver = globalThis.IntersectionObserver;
     let notify: IntersectionObserverCallback;
@@ -213,8 +359,17 @@ describe("Experience", () => {
     vi.stubGlobal(
       "IntersectionObserver",
       class {
-        constructor(private callback: IntersectionObserverCallback) {}
+        constructor(
+          private callback: IntersectionObserverCallback,
+          private options?: IntersectionObserverInit,
+        ) {}
         observe(target: Element) {
+          if (this.options?.rootMargin === "200px 0px") {
+            this.callback(
+              [{ target, isIntersecting: true } as IntersectionObserverEntry],
+              this as unknown as IntersectionObserver,
+            );
+          }
           if (target.matches("[data-experience-id]")) {
             observed.push(target);
             notify = this.callback;

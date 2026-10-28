@@ -17,6 +17,37 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const TIMELINE_SPRING = { stiffness: 120, damping: 30, restDelta: 0.001 };
 
+/** Keep frame-based content measurements local to the visible timeline. */
+function NearbyTimelineRail({
+  listRef,
+  highlightEntries,
+}: {
+  listRef: RefObject<HTMLDivElement | null>;
+  highlightEntries: boolean;
+}) {
+  const [near, setNear] = useState(() => typeof IntersectionObserver !== "function");
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    if (typeof IntersectionObserver !== "function") return;
+    let active = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (active && entry) setNear(entry.isIntersecting);
+      },
+      { rootMargin: "200px 0px" },
+    );
+    observer.observe(list);
+    return () => {
+      active = false;
+      observer.disconnect();
+    };
+  }, [listRef]);
+
+  return near ? <ScrollTimelineRail listRef={listRef} highlightEntries={highlightEntries} /> : null;
+}
+
 /** Share scroll progress across orientations; entry highlighting remains desktop-only. */
 function ScrollTimelineRail({
   listRef,
@@ -293,7 +324,7 @@ export function Experience({
                 className={`${styles.rail} absolute top-6 bottom-6 w-px bg-(image:--gradient-brand) opacity-30`}
               />
               {sorted.length > 1 && mode !== "static" && (
-                <ScrollTimelineRail listRef={listRef} highlightEntries={mode === "expressive"} />
+                <NearbyTimelineRail listRef={listRef} highlightEntries={mode === "expressive"} />
               )}
             </>
           )}
