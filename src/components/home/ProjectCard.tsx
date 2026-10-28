@@ -5,7 +5,7 @@ import type { MouseEventHandler } from "react";
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
 
-import { Star, GitFork, ExternalLink, Github, Maximize2 } from "lucide-react";
+import { GitFork, ExternalLink, Github, Maximize2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
@@ -42,14 +42,6 @@ export function ProjectCard({
         <div className="flex items-start justify-between gap-3">
           <h3 className="min-w-0 text-[15px] leading-snug font-semibold">{project.title}</h3>
           <div className="text-muted flex shrink-0 items-center gap-3 text-xs">
-            {(project.stars ?? 0) > 0 && (
-              <span
-                className="flex items-center gap-1"
-                aria-label={pluralize(project.stars ?? 0, "star")}
-              >
-                <Star className="size-3.5" aria-hidden /> {project.stars ?? "—"}
-              </span>
-            )}
             {(project.forks ?? 0) > 0 && (
               <span
                 className="flex items-center gap-1"

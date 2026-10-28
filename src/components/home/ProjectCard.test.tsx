@@ -25,15 +25,15 @@ const base: MergedProject = {
 };
 
 describe("ProjectCard", () => {
-  it("renders live stars and forks", () => {
+  it("keeps stars in quick preview only and renders live forks", () => {
     render(<ProjectCard project={base} />);
-    expect(screen.getByLabelText("42 stars")).toBeInTheDocument();
+    expect(screen.queryByLabelText("42 stars")).not.toBeInTheDocument();
     expect(screen.getByLabelText("7 forks")).toBeInTheDocument();
   });
 
-  it("labels a single star or fork in the singular", () => {
+  it("labels a single fork in the singular", () => {
     render(<ProjectCard project={{ ...base, stars: 1, forks: 1 }} />);
-    expect(screen.getByLabelText("1 star")).toBeInTheDocument();
+    expect(screen.queryByLabelText("1 star")).not.toBeInTheDocument();
     expect(screen.getByLabelText("1 fork")).toBeInTheDocument();
   });
 

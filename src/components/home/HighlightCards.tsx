@@ -6,7 +6,7 @@ import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
 
 import Image from "next/image";
-import { ExternalLink, GitFork, Github, Maximize2, Star } from "lucide-react";
+import { ExternalLink, GitFork, Github, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
@@ -72,14 +72,6 @@ function Cover({
 function Stats({ project }: { project: MergedProject }) {
   return (
     <div className="text-muted flex shrink-0 items-center gap-3 text-xs">
-      {(project.stars ?? 0) > 0 && (
-        <span
-          className="flex items-center gap-1"
-          aria-label={pluralize(project.stars ?? 0, "star")}
-        >
-          <Star className="size-3.5" aria-hidden /> {project.stars ?? "—"}
-        </span>
-      )}
       {(project.forks ?? 0) > 0 && (
         <span
           className="flex items-center gap-1"
@@ -209,7 +201,7 @@ export function FeaturedCard({
           </h3>
           <Tags project={project} />
         </div>
-        {((project.stars ?? 0) > 0 || (project.forks ?? 0) > 0) && (
+        {(project.forks ?? 0) > 0 && (
           <div className="mt-2">
             <Stats project={project} />
           </div>
@@ -283,7 +275,7 @@ export function RecentCard({
               </div>
             )}
           </div>
-          {((project.stars ?? 0) > 0 || (project.forks ?? 0) > 0) && <Stats project={project} />}
+          {(project.forks ?? 0) > 0 && <Stats project={project} />}
           {project.description && (
             <p
               className={`${actionStyles.recentDescription} text-muted mt-1.5 line-clamp-2 text-sm leading-relaxed text-pretty`}
