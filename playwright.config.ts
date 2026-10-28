@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   // These specs require the production server configured in playwright.production.config.ts.
-  testIgnore: ["seo-security.spec.ts", "legal-pages.spec.ts"],
+  testIgnore: ["seo-security.spec.ts", "legal-pages.spec.ts", "section-navigation.spec.ts"],
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   reporter: "html",

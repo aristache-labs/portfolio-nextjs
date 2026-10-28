@@ -3,6 +3,7 @@
 import { ChevronRight, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { SectionLink } from "@/components/common/SectionLink";
 import { m, type Variants } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
@@ -135,7 +136,8 @@ export function Footer({
             className={`${layout.identity} flex min-w-0 flex-col items-center justify-center`}
           >
             <div className="flex flex-col items-center text-center">
-              <Link
+              <SectionLink
+                crossPage={!!homeHrefPrefix}
                 href={`${homeHrefPrefix}#hero`}
                 aria-label="Aristache, back to top"
                 className={`inline-block rounded-lg ${FOCUS}`}
@@ -150,7 +152,7 @@ export function Footer({
                   style={{ aspectRatio: "400 / 415" }}
                   className="h-32 w-auto sm:h-35 [@media(orientation:landscape)_and_(max-width:1024px)]:h-45"
                 />
-              </Link>
+              </SectionLink>
               {heroTagline && (
                 <p className="mt-2 max-w-[290px] sm:mt-2.5">
                   <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
@@ -178,7 +180,8 @@ export function Footer({
               >
                 {visibleLinks.map((link) => (
                   <m.li key={link.href} initial={false} variants={itemVariants}>
-                    <Link
+                    <SectionLink
+                      crossPage={!link.external && !!homeHrefPrefix}
                       scroll={link.external ? undefined : !homeHrefPrefix}
                       href={link.href}
                       {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
@@ -189,7 +192,7 @@ export function Footer({
                         aria-hidden
                       />
                       <span>{link.label}</span>
-                    </Link>
+                    </SectionLink>
                   </m.li>
                 ))}
               </ul>

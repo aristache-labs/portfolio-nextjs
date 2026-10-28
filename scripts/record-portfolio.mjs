@@ -61,10 +61,7 @@ async function capture(browser, name, viewport, scrollSeconds, mobile, screen, f
   const page = await context.newPage();
   const video = page.video();
   try {
-    // Keep desktop's first paint: hero entrances start before fonts/images settle.
-    // Mobile retains its existing loading trim.
-    await page.goto(url, { waitUntil: mobile ? 'domcontentloaded' : 'commit', timeout: 90_000 });
-    const openingStart = (performance.now() - recordingEpoch) / 1000;
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 90_000 });
     await page.locator('h1').waitFor({ state: 'visible', timeout: 60_000 });
     await page.evaluate(() => document.fonts.ready);
     await page.addStyleTag({ content: `
@@ -87,7 +84,28 @@ async function capture(browser, name, viewport, scrollSeconds, mobile, screen, f
       ));
     });
 
-    const start = mobile ? (performance.now() - recordingEpoch) / 1000 : openingStart;
+    // Rewind the loaded hero after hydration, including completed fill-mode animations.
+    await page.evaluate(() => {
+      const marker = document.createElement('div');
+      marker.id = 'recording-start-marker';
+      marker.style.cssText = 'position:fixed;left:0;top:0;width:8px;height:8px;background:#ff00ff;z-index:2147483647;pointer-events:none';
+      document.body.append(marker);
+      for (const animation of document.querySelector('#hero')?.getAnimations({ subtree: true }) ?? []) {
+        if (animation instanceof CSSAnimation) {
+          animation.pause();
+          animation.currentTime = 0;
+        }
+      }
+    });
+    await page.waitForTimeout(200);
+    let start = (performance.now() - recordingEpoch) / 1000;
+    await page.waitForTimeout(160);
+    await page.evaluate(() => {
+      for (const animation of document.querySelector('#hero')?.getAnimations({ subtree: true }) ?? []) {
+        if (animation instanceof CSSAnimation) animation.play();
+      }
+      document.getElementById('recording-start-marker')?.remove();
+    });
     await page.waitForTimeout(2_000);
     // Smooth continuous scroll with a short acceleration/deceleration at the ends.
     await page.evaluate(async milliseconds => {
@@ -116,6 +134,22 @@ async function capture(browser, name, viewport, scrollSeconds, mobile, screen, f
     await context.close();
     const raw = path.join(root, `${name}-raw.webm`);
     await video.saveAs(raw);
+    // Recorder timestamps begin at its first delivered frame, not page creation.
+    // Locate the temporary marker in the actual video instead of using wall time.
+    const probe = spawnSync(ffmpeg, ['-v', 'error', '-i', raw, '-vf',
+      'fps=25,crop=8:8:0:0,format=rgb24', '-f', 'rawvideo', '-'], { maxBuffer: 16 * 1024 * 1024 });
+    if (probe.error || probe.status !== 0) throw new Error('Cannot locate recording opening marker.');
+    const bytesPerFrame = 8 * 8 * 3;
+    let lastMarker = -1;
+    for (let offset = 0; offset + bytesPerFrame <= probe.stdout.length; offset += bytesPerFrame) {
+      let pixels = 0;
+      for (let pixel = offset; pixel < offset + bytesPerFrame; pixel += 3) {
+        if (probe.stdout[pixel] > 200 && probe.stdout[pixel + 1] < 70 && probe.stdout[pixel + 2] > 200) pixels++;
+      }
+      if (pixels > 48) lastMarker = offset / bytesPerFrame;
+    }
+    if (lastMarker < 0) throw new Error('Recording opening marker was not captured.');
+    start = (lastMarker + 1) / 25;
     const output = path.join(root, `${name}.mp4`);
     console.log(`Exporting ${name} at ${fps} fps...`);
     encode(['-ss', String(start), '-i', raw, '-t', String(duration), '-an',

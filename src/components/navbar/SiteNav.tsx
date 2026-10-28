@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { SectionLink } from "@/components/common/SectionLink";
 import { useHydratedPathname } from "@/hooks/useHydratedPathname";
 import { AnimatePresence, m } from "framer-motion";
 import {
@@ -199,7 +199,8 @@ export function SiteNav({
           aria-label="Primary"
           className={`${navStyles.bar} site-container flex h-[72px] items-center justify-between`}
         >
-          <Link
+          <SectionLink
+            crossPage={!onHomepage}
             scroll={onHomepage}
             href={sectionHref("hero")}
             onClick={(event) => goToSection(event, "hero")}
@@ -216,14 +217,15 @@ export function SiteNav({
               unoptimized
               className={`${navStyles.wordmark} h-auto w-[min(42vw,14rem)]`}
             />
-          </Link>
+          </SectionLink>
 
           <ul className="hidden items-center gap-8 xl:flex">
             {visibleSections.map((section) => {
               const isActive = section.id === active;
               return (
                 <li key={section.id}>
-                  <Link
+                  <SectionLink
+                    crossPage={!onHomepage}
                     scroll={onHomepage}
                     href={sectionHref(section.id)}
                     onClick={(event) => goToSection(event, section.id)}
@@ -243,21 +245,22 @@ export function SiteNav({
                           : "w-0 group-hover:w-full",
                       )}
                     />
-                  </Link>
+                  </SectionLink>
                 </li>
               );
             })}
           </ul>
 
           {navCta && (
-            <Link
+            <SectionLink
+              crossPage={!onHomepage}
               href={navCta.href}
               onClick={(event) => goToSection(event, "contact")}
               className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
             >
               {navCta.label}
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
+            </SectionLink>
           )}
 
           <button
@@ -291,7 +294,8 @@ export function SiteNav({
                       const Icon = SECTION_ICONS[section.id] ?? Layers;
                       return (
                         <li key={section.id} data-section={section.id}>
-                          <Link
+                          <SectionLink
+                            crossPage={!onHomepage}
                             scroll={onHomepage}
                             href={sectionHref(section.id)}
                             data-testid="mobile-section-link"
@@ -307,7 +311,7 @@ export function SiteNav({
                             </span>
                             <span>{section.label}</span>
                             <ArrowUpRight aria-hidden className={panelStyles.arrow} />
-                          </Link>
+                          </SectionLink>
                         </li>
                       );
                     })}
@@ -320,14 +324,15 @@ export function SiteNav({
                     <p className={panelStyles.actionDescription}>
                       Share the scope, stack and timeline.
                     </p>
-                    <Link
+                    <SectionLink
+                      crossPage={!onHomepage}
                       href={navCta.href}
                       onClick={(event) => goToSection(event, "contact")}
                       className={panelStyles.cta}
                     >
                       {navCta.label}
                       <ArrowRight className="ml-auto size-4" aria-hidden />
-                    </Link>
+                    </SectionLink>
                   </div>
                 )}
               </div>
