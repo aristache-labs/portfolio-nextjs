@@ -26,6 +26,7 @@ test("security headers cover public, private, API and missing routes", async ({ 
     const response = await request.get(path, { maxRedirects: 0 });
     const headers = response.headers();
     expect(headers["x-content-type-options"], path).toBe("nosniff");
+    expect(headers["strict-transport-security"], path).toBe("max-age=63072000; includeSubDomains");
     expect(headers["x-frame-options"], path).toBe("DENY");
     expect(headers["referrer-policy"], path).toBe("strict-origin-when-cross-origin");
     expect(headers["permissions-policy"], path).toBe("camera=(), microphone=(), geolocation=()");

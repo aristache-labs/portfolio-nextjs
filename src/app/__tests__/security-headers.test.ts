@@ -27,14 +27,14 @@ afterEach(() => {
 });
 
 describe("security headers", () => {
-  it("protects all routes with CSP enforcement without replacing platform HSTS", async () => {
+  it("protects all routes with CSP enforcement and HSTS including subdomains without preload", async () => {
     const headers = await security(loadConfig("production"));
     expect(headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
     expect(headers.get("Permissions-Policy")).toBe("camera=(), microphone=(), geolocation=()");
     expect(headers.get("X-Frame-Options")).toBe("DENY");
     expect(headers.has("Content-Security-Policy-Report-Only")).toBe(false);
-    expect(headers.has("Strict-Transport-Security")).toBe(false);
+    expect(headers.get("Strict-Transport-Security")).toBe("max-age=63072000; includeSubDomains");
     const csp = headers.get("Content-Security-Policy")!;
     expect(csp).not.toMatch(/nonce-|unsafe-eval|upgrade-insecure-requests/);
     expect(csp).toContain("frame-ancestors 'none'");

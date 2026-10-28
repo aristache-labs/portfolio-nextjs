@@ -57,6 +57,9 @@ describe("audit assets and server HTML", () => {
       const png = readFileSync(resolve("public", icon.src.slice(1)));
       expect(png.subarray(1, 4).toString()).toBe("PNG");
       expect(`${png.readUInt32BE(16)}x${png.readUInt32BE(20)}`).toBe(icon.sizes);
+      if (icon.sizes === "512x512") {
+        expect(png.length).toBeLessThan(70_000);
+      }
     }
   });
 });

@@ -28,7 +28,7 @@ async function tile(size, out, scale = 0.78) {
     },
   })
     .composite([{ input: mark, gravity: "centre" }])
-    .png()
+    .png({ palette: true, quality: 90, compressionLevel: 9, effort: 10 })
     .toFile(out);
 }
 
@@ -38,10 +38,10 @@ if (process.argv.includes("--metadata-icons")) {
   await tile(180, "src/app/apple-icon.png");
 }
 await mkdir("public/pwa", { recursive: true });
-await tile(192, "public/pwa/icon-192-v2.png");
-await tile(512, "public/pwa/icon-512-v2.png");
+await tile(192, "public/pwa/icon-192-v3.png");
+await tile(512, "public/pwa/icon-512-v3.png");
 // Keep the mark inside the central safe circle for maskable icons.
-await tile(512, "public/pwa/icon-maskable-512-v2.png", 0.56);
+await tile(512, "public/pwa/icon-maskable-512-v3.png", 0.56);
 
 const logo = await sharp("assets/source/logo.svg")
   .resize({ width: 400 })
