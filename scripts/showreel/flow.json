@@ -1,0 +1,38 @@
+{
+  "holdBeforeS": 2.6,
+  "holdAfterS": 3.0,
+  "anchors": [
+    [
+      "#about",
+      4.5
+    ],
+    [
+      "#skills",
+      9.5
+    ],
+    [
+      "#experience",
+      15.0
+    ],
+    [
+      "#projects",
+      22.5
+    ],
+    [
+      "#contact",
+      32.0
+    ],
+    [
+      "bottom",
+      36.5
+    ]
+  ],
+  "probes": [
+    6.5,
+    8.0,
+    11.5,
+    17.0,
+    25.0,
+    34.0
+  ]
+}

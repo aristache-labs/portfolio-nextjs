@@ -16,6 +16,10 @@
 
 <br />
 
+<a href="https://www.aristache.dev"><img src="assets/showreel/showreel-preview.webp" width="100%" alt="Animated tour of aristache.dev: about, skills and projects scrolling on a laptop and a phone at the same time"></a>
+
+<br />
+
 ![CI](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/ci.yml?branch=master&style=flat-square&label=CI&labelColor=0f6e68)
 ![Lighthouse](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/lighthouse.yml?style=flat-square&label=Lighthouse&labelColor=0f6e68)
 ![Stars](https://shields.io/github/stars/aristache-labs/portfolio-nextjs?style=flat-square&labelColor=0f6e68&color=76f5e1)
