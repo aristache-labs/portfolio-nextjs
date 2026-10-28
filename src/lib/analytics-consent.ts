@@ -8,6 +8,7 @@ export const PREFERENCES_EVENT = "analytics-preferences-open";
 export const CHANGE_EVENT = "analytics-consent-change";
 let memoryConsent: AnalyticsConsent = null;
 let memoryOnly = false;
+const subscribers = new Set<() => void>();
 
 type AnalyticsWindow = Window & {
   dataLayer?: unknown[];
@@ -40,8 +41,9 @@ export function applyAnalyticsConsent(consent: AnalyticsConsent) {
   if (!id) return;
   const privateRoute =
     window.location.pathname.startsWith("/admin") || window.location.pathname === "/login";
-  const accepted = consent === "accepted" && !privateRoute;
-  (window as unknown as Record<string, unknown>)[`ga-disable-${id}`] = !accepted;
+  const accepted = consent === "accepted";
+  // Consent is global to the visit; private-route suppression is a separate collection gate.
+  (window as unknown as Record<string, unknown>)[`ga-disable-${id}`] = privateRoute || !accepted;
   // Do not create a Google queue before any script has been allowed to load.
   if ((window as AnalyticsWindow).gtag) {
     googleCommand("consent", "update", {
@@ -76,16 +78,29 @@ export function saveAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
   window.dispatchEvent(new Event(CHANGE_EVENT));
 }
 
+function notifySubscribers() {
+  subscribers.forEach((notify) => notify());
+}
+
+function handleStorage(event: StorageEvent) {
+  if (event.key !== CONSENT_KEY && event.key !== null) return;
+  if (event.storageArea && event.storageArea !== window.localStorage) return;
+  applyAnalyticsConsent(readConsent());
+  window.dispatchEvent(new Event(CHANGE_EVENT));
+}
+
 function subscribe(onChange: () => void) {
-  const notify = () => {
-    applyAnalyticsConsent(readConsent());
-    onChange();
-  };
-  window.addEventListener(CHANGE_EVENT, notify);
-  window.addEventListener("storage", notify);
+  if (subscribers.size === 0) {
+    window.addEventListener(CHANGE_EVENT, notifySubscribers);
+    window.addEventListener("storage", handleStorage);
+  }
+  subscribers.add(onChange);
   return () => {
-    window.removeEventListener(CHANGE_EVENT, notify);
-    window.removeEventListener("storage", notify);
+    subscribers.delete(onChange);
+    if (subscribers.size === 0) {
+      window.removeEventListener(CHANGE_EVENT, notifySubscribers);
+      window.removeEventListener("storage", handleStorage);
+    }
   };
 }
 

@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 test.describe("section navigation", () => {
   test.use({ reducedMotion: "reduce" });

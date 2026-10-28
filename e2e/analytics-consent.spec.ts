@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { SITE } from "../src/lib/seo/site";
 
 function googleRequests(page: Page) {
@@ -35,6 +35,7 @@ test("no Google traffic before consent, after rejection or after reload", async 
 test("real Google tag sets cookies only after Accept and withdrawal removes them", async ({
   page,
   context,
+  analyticsTraffic,
 }) => {
   const requests = googleRequests(page);
   const violations: string[] = [];
@@ -49,6 +50,11 @@ test("real Google tag sets cookies only after Accept and withdrawal removes them
     .toBe(true);
   await expect
     .poll(async () => (await context.cookies()).some(({ name }) => name === "_ga"), {
+      timeout: 20000,
+    })
+    .toBe(true);
+  await expect
+    .poll(() => analyticsTraffic.events.some((event) => event.name === "page_view"), {
       timeout: 20000,
     })
     .toBe(true);
