@@ -38,7 +38,7 @@ export function AvatarPortrait({ src, name }: { src: string; name: string }) {
               src={src}
               alt={`Portrait of ${name}`}
               fill
-              quality={90}
+              quality={75}
               loading="eager"
               sizes={PORTRAIT_SIZES}
               className="object-cover"

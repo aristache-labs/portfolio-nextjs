@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
-import Image from "next/image";
+import { preload } from "react-dom";
 import { SectionLink } from "@/components/common/SectionLink";
 import { useHydratedPathname } from "@/hooks/useHydratedPathname";
 import { AnimatePresence, m } from "framer-motion";
@@ -39,7 +39,16 @@ const SECTION_ICONS: Record<string, LucideIcon> = {
   contact: Send,
 };
 
-const WORDMARK = { src: "/brand/aristache-text.webp", width: 704, height: 124 } as const;
+const WORDMARK = {
+  src: "/brand/aristache-text.webp",
+  width: 704,
+  height: 124,
+  srcSet:
+    "/brand/aristache-text-224.webp 224w, /brand/aristache-text-448.webp 448w, /brand/aristache-text.webp 704w",
+  // Short touch landscape uses a smaller wordmark and an 11px root font size.
+  sizes:
+    "(orientation: landscape) and (max-height: 500px) and (pointer: coarse) min(38vw, 137.5px), min(42vw, 224px)",
+} as const;
 
 const SECTIONS: MenuSection[] = [
   { id: "hero", label: "Home" },
@@ -63,6 +72,12 @@ export function SiteNav({
   hidden?: string[];
   sections?: MenuSection[];
 }) {
+  preload(WORDMARK.src, {
+    as: "image",
+    imageSrcSet: WORDMARK.srcSet,
+    imageSizes: WORDMARK.sizes,
+    fetchPriority: "high",
+  });
   const visibleSections = useMemo(
     () => sections.filter((s) => !hidden.includes(s.id)),
     [sections, hidden],
@@ -208,13 +223,17 @@ export function SiteNav({
             className={cn("flex min-w-0 items-center gap-2.5", open && panelStyles.dimmedLogo)}
           >
             <Logo className={navStyles.logo} />
-            <Image
+            {/* Custom responsive assets share the same candidates as their priority preload. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={WORDMARK.src}
               alt=""
               width={WORDMARK.width}
               height={WORDMARK.height}
-              priority
-              unoptimized
+              srcSet={WORDMARK.srcSet}
+              sizes={WORDMARK.sizes}
+              fetchPriority="high"
+              style={{ aspectRatio: `${WORDMARK.width} / ${WORDMARK.height}` }}
               className={`${navStyles.wordmark} h-auto w-[min(42vw,14rem)]`}
             />
           </SectionLink>

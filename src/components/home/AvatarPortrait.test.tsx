@@ -1,7 +1,27 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
-import { afterEach, describe, expect, it } from "vitest";
+import { createElement, type ComponentProps } from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AvatarPortrait } from "./AvatarPortrait";
+
+vi.mock("next/image", () => ({
+  default: ({
+    src,
+    alt,
+    quality,
+    sizes,
+    loading,
+    className,
+  }: ComponentProps<"img"> & { quality?: number }) =>
+    createElement("img", {
+      src,
+      alt,
+      "data-quality": quality,
+      sizes,
+      loading,
+      className,
+    }),
+}));
 
 const SOURCE = "/images/aristache.webp";
 const NAME = "Cristache Adrian";
@@ -46,9 +66,16 @@ describe("AvatarPortrait", () => {
     expect(screen.getByAltText(`Portrait of ${NAME}`)).toHaveAttribute("src", SOURCE);
   });
 
-  it("shows the portrait when the hero is absent", () => {
+  it("shows the portrait at quality 75 with responsive sizes when the hero is absent", () => {
     render(<AvatarPortrait src={SOURCE} name={NAME} />);
-    expect(screen.getByAltText(`Portrait of ${NAME}`)).toHaveAttribute("src", SOURCE);
+    const image = screen.getByAltText(`Portrait of ${NAME}`);
+    expect(image).toHaveAttribute("src", SOURCE);
+    expect(image).toHaveAttribute("data-quality", "75");
+    expect(image).toHaveAttribute("loading", "eager");
+    expect(image.getAttribute("sizes")).toContain(
+      "(orientation: portrait) and (max-width: 767px) 192px",
+    );
+    expect(image.getAttribute("sizes")).toContain("(min-width: 1024px) 384px");
   });
 
   it("adds the decorative border beside the photo without animating its frame", () => {

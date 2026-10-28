@@ -166,9 +166,25 @@ describe("SectionBackdrop", () => {
     "waits for both the hero and the nearby viewport (%s)",
     (order) => {
       installMatchMedia();
+      vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+        width: 390,
+        height: 1200,
+      } as DOMRect);
       const heroImage = installHero(false);
       const { container } = render(
-        <SectionBackdrop poster="/media/about.webp" deferUntilHeroLoaded deferUntilNearViewport />,
+        <SectionBackdrop
+          poster="/media/about.webp"
+          deferUntilHeroLoaded
+          deferUntilNearViewport
+          responsivePoster={{
+            srcSet: "/media/about-640.webp 640w, /media/about.webp 1600w",
+            aspectRatio: 16 / 9,
+            portrait: {
+              srcSet: "/media/about-640.webp 640w, /media/about-960.webp 960w",
+              maxWidth: 960,
+            },
+          }}
+        />,
       );
       const root = container.firstElementChild!.firstElementChild!;
       const finishHero = () => {
@@ -177,12 +193,19 @@ describe("SectionBackdrop", () => {
       };
       const approach = () => act(() => FakeIO.emit(root, "600px 0px", true));
       expect(container.querySelector("img")).toBeNull();
+      expect(container.querySelector("source")).toBeNull();
       if (order === "hero first") finishHero();
       else approach();
       expect(container.querySelector("img")).toBeNull();
+      expect(container.querySelector("source")).toBeNull();
       if (order === "hero first") approach();
       else finishHero();
       expect(container.querySelector("img")).toHaveAttribute("src", "/media/about.webp");
+      expect(container.querySelector("source")).toHaveAttribute("sizes", "960px");
+      expect(container.querySelector("source")).toHaveAttribute(
+        "srcset",
+        "/media/about-640.webp 640w, /media/about-960.webp 960w",
+      );
       act(() => FakeIO.emit(root, "600px 0px", false));
       expect(container.querySelectorAll("img")).toHaveLength(1);
     },
@@ -221,6 +244,7 @@ describe("SectionBackdrop", () => {
     const image = container.querySelector("img")!;
     expect(image).toHaveAttribute("sizes", "1600px");
     expect(image).toHaveAttribute("srcset", "/small.webp 640w, /original.webp 1600w");
+    expect(container.querySelector("picture")).toBeNull();
     act(() => {
       notifyResize!(
         [{ contentRect: { width: 932, height: 200 } } as ResizeObserverEntry],
@@ -230,6 +254,52 @@ describe("SectionBackdrop", () => {
     expect(image).toHaveAttribute("sizes", "932px");
     unmount();
     expect(disconnect).toHaveBeenCalledOnce();
+  });
+
+  it("limits portrait candidates and sizes while preserving the full source after resizing", () => {
+    installMatchMedia();
+    vi.stubGlobal("ResizeObserver", undefined);
+    let width = 360;
+    let height = 900;
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      () => ({ width, height }) as DOMRect,
+    );
+    const fullSources = "/small.webp 640w, /medium.webp 960w, /original.webp 1600w";
+    const portraitSources = "/small.webp 640w, /medium.webp 960w";
+    const { container } = render(
+      <SectionBackdrop
+        poster="/original.webp"
+        responsivePoster={{
+          srcSet: fullSources,
+          aspectRatio: 16 / 9,
+          portrait: { srcSet: portraitSources, maxWidth: 960 },
+        }}
+      />,
+    );
+    const image = container.querySelector("img")!;
+    const source = container.querySelector("picture > source")!;
+    expect(source).toHaveAttribute("media", "(max-width: 767px) and (orientation: portrait)");
+    expect(source).toHaveAttribute("srcset", portraitSources);
+    expect(source).toHaveAttribute("sizes", "960px");
+    expect(image).toHaveAttribute("sizes", "1600px");
+    expect(image).toHaveAttribute("loading", "lazy");
+
+    for (const [nextWidth, nextHeight, fullSize, portraitSize] of [
+      [360, 300, "534px", "534px"],
+      [932, 430, "932px", "932px"],
+      [1440, 900, "1600px", "960px"],
+      [390, 1200, "2134px", "960px"],
+    ] as const) {
+      width = nextWidth;
+      height = nextHeight;
+      act(() => window.dispatchEvent(new Event("resize")));
+      expect(image).toHaveAttribute("sizes", fullSize);
+      expect(image).toHaveAttribute("srcset", fullSources);
+      expect(source).toHaveAttribute("sizes", portraitSize);
+      expect(source).toHaveAttribute("srcset", portraitSources);
+      expect(container.querySelector("img")).toBe(image);
+      expect(container.querySelectorAll("img")).toHaveLength(1);
+    }
   });
 
   it("accounts for the landscape scale and recalculates after rotating to portrait", () => {

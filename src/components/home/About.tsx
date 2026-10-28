@@ -93,6 +93,10 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
               srcSet:
                 "/media/about-640.webp 640w, /media/about-960.webp 960w, /media/about.webp 1600w",
               aspectRatio: 16 / 9,
+              portrait: {
+                srcSet: "/media/about-640.webp 640w, /media/about-960.webp 960w",
+                maxWidth: 960,
+              },
             }}
           />
           <div

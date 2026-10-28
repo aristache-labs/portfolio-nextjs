@@ -73,7 +73,12 @@ export function SectionBackdrop({
   deferUntilHeroLoaded?: boolean;
   /** Opt in per section, so its image URLs stay absent until the backdrop is nearby. */
   deferUntilNearViewport?: boolean;
-  responsivePoster?: { srcSet: string; aspectRatio: number };
+  responsivePoster?: {
+    srcSet: string;
+    aspectRatio: number;
+    /** Limit available pixels on portrait phones, including high-density screens. */
+    portrait?: { srcSet: string; maxWidth: number };
+  };
   frame?: "fill" | "screen" | "desktop-screen";
   /** Overlay tint. Defaults stay with each frame. */
   scrim?: string;
@@ -180,6 +185,23 @@ export function SectionBackdrop({
       ? "bg-background/95 absolute inset-0 md:bg-background/50 [@media(orientation:landscape)_and_(max-height:500px)]:bg-background/90"
       : "bg-background/70 absolute inset-0");
 
+  // Decorative poster. A missing local file hides without an image optimizer error.
+  // Stays on top of the video until it has a frame, so no blank or poster flash.
+  const posterImage = (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={poster}
+      srcSet={responsivePoster?.srcSet}
+      sizes={responsivePoster && posterWidth !== null ? `${posterWidth}px` : undefined}
+      alt=""
+      loading="lazy"
+      fetchPriority={fetchPriority}
+      decoding="async"
+      onError={() => setPosterOk(false)}
+      className={showVideo && ready ? `${still} hidden` : still}
+    />
+  );
+
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
       <div
@@ -209,22 +231,19 @@ export function SectionBackdrop({
           posterOk &&
           posterReady &&
           (!deferUntilNearViewport || posterNear) &&
-          (!responsivePoster || posterWidth !== null) && (
-            // Decorative poster. next/image 400s a missing local file; a plain img just hides.
-            // Stays on top of the video until it has a frame, so no blank or poster flash.
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={poster}
-              srcSet={responsivePoster?.srcSet}
-              sizes={responsivePoster && posterWidth !== null ? `${posterWidth}px` : undefined}
-              alt=""
-              loading="lazy"
-              fetchPriority={fetchPriority}
-              decoding="async"
-              onError={() => setPosterOk(false)}
-              className={showVideo && ready ? `${still} hidden` : still}
-            />
-          )}
+          (!responsivePoster || posterWidth !== null) &&
+          (responsivePoster?.portrait ? (
+            <picture>
+              <source
+                media="(max-width: 767px) and (orientation: portrait)"
+                srcSet={responsivePoster.portrait.srcSet}
+                sizes={`${Math.min(posterWidth ?? responsivePoster.portrait.maxWidth, responsivePoster.portrait.maxWidth)}px`}
+              />
+              {posterImage}
+            </picture>
+          ) : (
+            posterImage
+          ))}
         <div className={scrimClass} />
         {screen && (
           <div className="to-background/40 absolute inset-0 bg-gradient-to-r from-transparent via-transparent" />
