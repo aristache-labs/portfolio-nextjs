@@ -16,8 +16,13 @@
     grid-template-columns: 170px minmax(0, 1fr);
     gap: 32px;
   }
-  .content > nav {
+  .content > .contentsNav {
+    position: sticky;
+    top: 2rem;
     align-self: start;
+    max-height: calc(100dvh - 4rem);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
   }
   .content section {
     padding-top: 20px;

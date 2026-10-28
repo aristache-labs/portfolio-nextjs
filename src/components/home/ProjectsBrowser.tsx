@@ -50,9 +50,9 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
       opacity: 1,
       scale: 1,
       transition: {
-        duration: mode === "static" ? 0 : hasInteracted ? 0.45 : 0.7,
-        delay: mode === "static" ? 0 : hasInteracted ? 0.1 : 0.3,
-        ease: [0.6, -0.28, 0.735, 0.045],
+        duration: mode === "static" ? 0 : 0.55,
+        delay: mode === "static" ? 0 : 0.1,
+        ease: [0.22, 1, 0.36, 1],
       },
     },
   };
@@ -222,7 +222,8 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             effect="cascade"
             duration={0}
             delay={0}
-            staggerChildren={0.18}
+            staggerChildren={0.1}
+            viewportInset={0}
             className="grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2"
           >
             {visible.map((p) => (

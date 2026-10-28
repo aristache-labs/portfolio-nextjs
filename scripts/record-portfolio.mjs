@@ -121,8 +121,8 @@ async function main() {
     ...(process.env.CHROME_CHANNEL ? { channel: process.env.CHROME_CHANNEL } : {}),
   });
   try {
-    console.log('Recording desktop: full page at 1920 x 1200...');
-    const desktop = await capture(browser, 'desktop', { width: 1920, height: 1200 }, 22, false);
+    console.log('Recording desktop: full page at 1920 x 1080...');
+    const desktop = await capture(browser, 'desktop', { width: 1920, height: 1080 }, 22, false);
     console.log('Recording mobile: full page at 432 x 864...');
     const mobile = await capture(browser, 'mobile', { width: 432, height: 864 }, 26, true);
     console.log('Building the combined presentation...');
@@ -130,7 +130,7 @@ async function main() {
     const fade = (length) => `fade=t=in:st=0:d=0.35,fade=t=out:st=${Math.max(0, length - 0.35)}:d=0.35`;
     const filter = [
       `[0:v]setpts=PTS-STARTPTS,setsar=1,${fade(desktop.duration)}[desktop]`,
-      `[1:v]setpts=PTS-STARTPTS,scale=480:960:flags=lanczos,setsar=1,pad=1920:1200:(ow-iw)/2:(oh-ih)/2:color=0x080c0d,${fade(mobile.duration)}[mobile]`,
+      `[1:v]setpts=PTS-STARTPTS,scale=480:960:flags=lanczos,setsar=1,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=0x080c0d,${fade(mobile.duration)}[mobile]`,
       '[desktop][mobile]concat=n=2:v=1:a=0[out]',
     ].join(';');
     encode(['-i', desktop.output, '-i', mobile.output, '-filter_complex', filter,

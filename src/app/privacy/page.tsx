@@ -289,7 +289,10 @@ export default async function PrivacyPage() {
             <div
               className={`${styles.content} mt-10 grid gap-10 sm:mt-14 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-16`}
             >
-              <nav aria-label="Privacy page contents" className="lg:sticky lg:top-8 lg:self-start">
+              <nav
+                aria-label="Privacy page contents"
+                className={`${styles.contentsNav} lg:sticky lg:top-8 lg:self-start`}
+              >
                 <div className={styles.contentsDesktop}>
                   <p className="text-muted mb-4 text-sm">On this page</p>
                   <ul className="border-brand-mid/20 grid gap-1 border-l pl-3">
