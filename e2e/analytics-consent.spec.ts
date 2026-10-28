@@ -135,3 +135,40 @@ test.describe("phone hero actions", () => {
     });
   }
 });
+
+test("footer preferences reflect consent and return keyboard focus", async ({ page }) => {
+  await page.goto("/");
+  await expect(panel(page)).toBeVisible();
+  expect(await panel(page).evaluate((element) => element.contains(document.activeElement))).toBe(
+    false,
+  );
+  await page.keyboard.press("Escape");
+  await expect(panel(page)).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("analytics-consent-v2"))).toBeNull();
+  const accept = panel(page).getByRole("button", { name: "Accept", exact: true });
+  const reject = panel(page).getByRole("button", { name: "Reject", exact: true });
+  expect(await accept.getAttribute("class")).toBe(await reject.getAttribute("class"));
+  await accept.click();
+  const trigger = page.getByRole("button", { name: "Cookie settings", exact: true });
+  await trigger.click();
+  const checkbox = panel(page).getByRole("checkbox", { name: "Optional analytics", exact: true });
+  await expect(checkbox).toBeChecked();
+  await expect(checkbox).toBeFocused();
+  expect(
+    await page.evaluate(() => document.documentElement.style.getPropertyValue("--consent-inset")),
+  ).toBe("");
+  const top = page.getByRole("button", { name: "Scroll to top", exact: true });
+  await expect(top).toBeVisible();
+  await expect
+    .poll(() =>
+      top.evaluate((element) => parseFloat(element.style.getPropertyValue("--consent-inset"))),
+    )
+    .toBeGreaterThan(0);
+  await page.keyboard.press("Escape");
+  await expect(panel(page)).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await panel(page).getByRole("button", { name: "Save analytics preferences" }).click();
+  await expect(trigger).toBeFocused();
+  expect(await page.evaluate(() => localStorage.getItem("analytics-consent-v2"))).toBe("accepted");
+});

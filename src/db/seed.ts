@@ -35,7 +35,7 @@ const projectRows: (typeof projects.$inferInsert)[] = [
   {
     repo: "portfolio-nextjs",
     title: "Aristache Portfolio",
-    coverImage: "/brand/portfolio-nextjs-poster.webp",
+    coverImage: "/media/hero.webp",
     customBlurb:
       "This site: a database-driven portfolio with an admin area, built on Next.js and React 19.",
     tags: ["Next.js", "React 19", "TypeScript"],

@@ -237,7 +237,13 @@ export function Footer({
                   <m.li initial={false} variants={itemVariants} className="col-start-1 row-start-3">
                     <button
                       type="button"
-                      onClick={() => window.dispatchEvent(new Event(PREFERENCES_EVENT))}
+                      onClick={(event) =>
+                        window.dispatchEvent(
+                          new CustomEvent(PREFERENCES_EVENT, {
+                            detail: { opener: event.currentTarget },
+                          }),
+                        )
+                      }
                       className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
                     >
                       <ChevronRight

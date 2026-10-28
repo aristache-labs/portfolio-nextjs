@@ -1,18 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Cookie, SlidersHorizontal } from "lucide-react";
 import {
   PREFERENCES_EVENT,
+  readConsent,
   saveAnalyticsConsent,
   useAnalyticsConsent,
 } from "@/lib/analytics-consent";
+import { setConsentInset } from "@/lib/consent-inset";
 import styles from "./analytics-preferences.module.css";
 
-// Accept and Reject share one size and stay equally reachable; only the confirming action is
-// filled with the brand gradient.
+// Accept and Reject share the same styling. Only Save uses the brand gradient.
 const action = styles.action;
 const primary = `${styles.action} ${styles.primary}`;
 
@@ -29,9 +30,42 @@ export function AnalyticsPreferences() {
     return () => cancelAnimationFrame(timer);
   }, []);
 
+  const checkbox = useRef<HTMLInputElement>(null);
+  const preferencesButton = useRef<HTMLButtonElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
+  const focusOnOpen = useRef(false);
+
+  const close = useCallback(() => {
+    setEditing(false);
+    requestAnimationFrame(() => {
+      const target = opener.current?.isConnected ? opener.current : preferencesButton.current;
+      target?.focus({ preventScroll: true });
+      opener.current = null;
+    });
+  }, []);
+
   useEffect(() => {
-    const open = () => {
-      setEnabled(false);
+    if (editing && ready && focusOnOpen.current) {
+      checkbox.current?.focus({ preventScroll: true });
+      focusOnOpen.current = false;
+    }
+    if (!editing) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      close();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [editing, ready, close]);
+
+  useEffect(() => {
+    const open = (event: Event) => {
+      const source = (event as CustomEvent<{ opener?: HTMLElement }>).detail?.opener;
+      opener.current =
+        source ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+      focusOnOpen.current = true;
+      setEnabled(readConsent() === "accepted");
       setEditing(true);
     };
     window.addEventListener(PREFERENCES_EVENT, open);
@@ -43,10 +77,9 @@ export function AnalyticsPreferences() {
   // transform, and cleared when the panel closes.
   const trackInset = useCallback((panel: HTMLElement | null) => {
     if (!panel) return;
-    const root = document.documentElement;
     const update = () => {
-      const inset = panel.offsetHeight + parseFloat(getComputedStyle(panel).bottom);
-      root.style.setProperty("--consent-inset", `${inset}px`);
+      const inset = panel.offsetHeight + (parseFloat(getComputedStyle(panel).bottom) || 0);
+      setConsentInset(inset);
     };
     update();
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
@@ -55,7 +88,7 @@ export function AnalyticsPreferences() {
     return () => {
       observer?.disconnect();
       window.removeEventListener("resize", update);
-      root.style.removeProperty("--consent-inset");
+      setConsentInset(0);
     };
   }, []);
 
@@ -70,7 +103,7 @@ export function AnalyticsPreferences() {
 
   const save = (accepted: boolean) => {
     saveAnalyticsConsent(accepted ? "accepted" : "rejected");
-    setEditing(false);
+    close();
   };
 
   return (
@@ -96,7 +129,7 @@ export function AnalyticsPreferences() {
       <p id={`${id}-copy`} className={styles.copy}>
         Google Analytics cookies measure visits, only with your consent. Nothing loads until you
         choose; change it anytime from Cookie settings in the footer.{" "}
-        <Link href="/privacy" className={styles.privacyLink}>
+        <Link href="/privacy" prefetch={false} className={styles.privacyLink}>
           Privacy policy
         </Link>
       </p>
@@ -113,6 +146,7 @@ export function AnalyticsPreferences() {
             </span>
           </span>
           <input
+            ref={checkbox}
             type="checkbox"
             checked={enabled}
             aria-labelledby={`${id}-analytics`}
@@ -126,7 +160,7 @@ export function AnalyticsPreferences() {
       <div className={styles.actions}>
         {editing ? (
           <>
-            <button type="button" onClick={() => setEditing(false)} className={styles.manage}>
+            <button type="button" onClick={close} className={styles.manage}>
               Cancel
             </button>
             <button type="button" onClick={() => save(false)} className={action}>
@@ -143,14 +177,19 @@ export function AnalyticsPreferences() {
           </>
         ) : (
           <>
-            <button type="button" onClick={() => setEditing(true)} className={styles.manage}>
+            <button
+              ref={preferencesButton}
+              type="button"
+              onClick={() => setEditing(true)}
+              className={styles.manage}
+            >
               <SlidersHorizontal aria-hidden className={styles.manageIcon} />
               <span className={styles.manageLabel}>Preferences</span>
             </button>
             <button type="button" onClick={() => save(false)} className={action}>
               Reject
             </button>
-            <button type="button" onClick={() => save(true)} className={primary}>
+            <button type="button" onClick={() => save(true)} className={action}>
               Accept
             </button>
           </>

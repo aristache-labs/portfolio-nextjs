@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type CSSProperties } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useConsentInset } from "@/lib/consent-inset";
 import styles from "./scroll-to-top.module.css";
 
 const ScrollToTop = () => {
   const [show, setShow] = useState(false);
   const reduce = useReducedMotion();
+  const inset = useConsentInset();
 
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 400);
@@ -28,6 +30,7 @@ const ScrollToTop = () => {
     <AnimatePresence>
       {show && (
         <m.button
+          style={{ "--consent-inset": `${inset}px` } as CSSProperties}
           type="button"
           onClick={goToTop}
           aria-label="Scroll to top"

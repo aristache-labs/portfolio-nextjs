@@ -32,6 +32,7 @@ export default defineConfig({
     env: {
       DATABASE_URL: process.env.DATABASE_URL ?? "postgres://build:build@localhost:5432/build",
       AUTH_SECRET: process.env.AUTH_SECRET ?? "ci-dummy-secret",
+      NEXT_PUBLIC_GTAG_ID: process.env.NEXT_PUBLIC_GTAG_ID || "G-E2E000000",
     },
   },
 });

@@ -125,6 +125,7 @@ jobs:
         env:
           DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
           NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
+          NEXT_PUBLIC_GTAG_ID: G-E2E000000
 
       - name: Build
         run: bun run build
@@ -132,6 +133,7 @@ jobs:
           DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
           AUTH_SECRET: ci-dummy-secret
           NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
+          NEXT_PUBLIC_GTAG_ID: G-E2E000000
 
       - name: Install Playwright browsers
         run: node node_modules/@playwright/test/cli.js install --with-deps chromium webkit
@@ -142,6 +144,7 @@ jobs:
           DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
           AUTH_SECRET: ci-dummy-secret
           NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
+          NEXT_PUBLIC_GTAG_ID: G-E2E000000
           CI: true
 
       - name: Upload development Playwright report
@@ -158,6 +161,7 @@ jobs:
           DATABASE_URL: postgres://e2e:e2e@localhost:5432/portfolio_e2e
           AUTH_SECRET: ci-dummy-secret
           NEXT_PUBLIC_SITE_URL: https://www.aristache.dev
+          NEXT_PUBLIC_GTAG_ID: G-E2E000000
           CI: true
 
       - name: Upload production Playwright report

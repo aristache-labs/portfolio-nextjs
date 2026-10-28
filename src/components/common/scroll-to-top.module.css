@@ -1,5 +1,4 @@
-/* While the cookie panel is open it publishes --consent-inset (its reach from the viewport
-   bottom), and the button rises 12px above it instead of hiding underneath. */
+/* The inset is scoped to this button so banner changes do not invalidate the whole document. */
 .button {
   bottom: max(1.5rem, env(safe-area-inset-bottom), calc(var(--consent-inset, 0px) + 12px));
 }
