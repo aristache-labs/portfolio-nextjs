@@ -13,7 +13,9 @@ export function PersonJsonLd() {
         "@context": "https://schema.org",
         "@type": "Person",
         name: SITE.name,
-        alternateName: SITE.alternateNames,
+        givenName: SITE.givenName,
+        familyName: SITE.familyName,
+        alternateName: SITE.personAlternateNames,
         url: new URL("/", SITE.url).toString(),
         image: new URL("/opengraph-image", SITE.url).toString(),
         jobTitle: SITE.jobTitle,
@@ -31,7 +33,7 @@ export function WebSiteJsonLd() {
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: SITE.name,
-        alternateName: SITE.alternateNames,
+        alternateName: SITE.siteAlternateNames,
         url: new URL("/", SITE.url).toString(),
       }}
     />

@@ -57,9 +57,15 @@ test("canonical, structured identity and discovery files agree", async ({ page, 
     .evaluateAll((nodes) => nodes.map((node) => JSON.parse(node.textContent!)));
   const person = identity.find((item) => item["@type"] === "Person");
   expect(person.name).toBe("Adrian Cristache");
-  expect(person.alternateName).toEqual(["Cristache Adrian", "Aristache", "aristache-labs"]);
+  expect(person.givenName).toBe("Adrian");
+  expect(person.familyName).toBe("Cristache");
+  expect(person.alternateName).toEqual(["Cristache Adrian", "Aristache"]);
+  expect(person.sameAs).toContain("https://github.com/aristache-labs");
   expect(person.url).toBe(rootUrl);
   expect(person.image).toBe(new URL("/opengraph-image", canonical!).toString());
+  const website = identity.find((item) => item["@type"] === "WebSite");
+  expect(website.alternateName).toEqual(["Aristache"]);
+  expect(website.url).toBe(rootUrl);
   const sitemap = await (await request.get("/sitemap.xml")).text();
   expect(sitemap).toContain("<loc>" + rootUrl + "</loc>");
   const robots = await (await request.get("/robots.txt")).text();

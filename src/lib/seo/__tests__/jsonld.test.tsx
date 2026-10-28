@@ -13,7 +13,9 @@ describe("JSON-LD", () => {
     const data = parse(script.innerHTML);
     expect(data["@type"]).toBe("Person");
     expect(data.name).toBe("Adrian Cristache");
-    expect(data.alternateName).toEqual(["Cristache Adrian", "Aristache", "aristache-labs"]);
+    expect(data.givenName).toBe("Adrian");
+    expect(data.familyName).toBe("Cristache");
+    expect(data.alternateName).toEqual(["Cristache Adrian", "Aristache"]);
     expect(data.jobTitle).toBe("IT Specialist · Web & Mobile Developer");
     expect(data.description).toContain("Web and mobile projects in my spare time.");
     expect(Array.isArray(data.sameAs)).toBe(true);
@@ -27,6 +29,9 @@ describe("JSON-LD", () => {
     const { container } = render(<WebSiteJsonLd />);
     const data = parse(container.querySelector("script")!.innerHTML);
     expect(data["@type"]).toBe("WebSite");
+    expect(data.alternateName).toEqual(["Aristache"]);
+    expect(data).not.toHaveProperty("givenName");
+    expect(data).not.toHaveProperty("familyName");
     expect(data.url).toMatch(/^https?:\/\//);
   });
 });

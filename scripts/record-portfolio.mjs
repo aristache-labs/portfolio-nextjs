@@ -12,7 +12,7 @@ const ffmpeg = process.env.FFMPEG_PATH || 'ffmpeg';
 const multiplier = Number(process.env.SCROLL_MULTIPLIER || 1);
 if (!Number.isFinite(multiplier) || multiplier <= 0) throw new Error('SCROLL_MULTIPLIER must be positive.');
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(scriptDir, '..', 'screenshots');
+const root = path.resolve(scriptDir, '..', 'screenshots/video');
 
 function encode(args) {
   const result = spawnSync(ffmpeg, ['-hide_banner', '-loglevel', 'warning', '-y', ...args], { stdio: 'inherit' });

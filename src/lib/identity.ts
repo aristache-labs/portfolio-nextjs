@@ -4,7 +4,10 @@ const deploymentLocations = "1,600+";
 
 export const IDENTITY = {
   name,
-  alternateNames: ["Cristache Adrian", "Aristache", "aristache-labs"],
+  personAlternateNames: ["Cristache Adrian", "Aristache"],
+  siteAlternateNames: ["Aristache"],
+  givenName: "Adrian",
+  familyName: "Cristache",
   roles,
   jobTitle: roles.slice(0, 2).join(" · "),
   positioning: roles.join(" · "),
