@@ -22,7 +22,7 @@ node .\scripts\record-portfolio.mjs
 
 ## Outputs
 
-Each run writes to `screenshots` (replacing the previous outputs):
+Each run writes to `screenshots/video` (replacing the previous outputs):
 
 - `aristache-presentation.mp4`: approximately 56 seconds, 1920 x 1080, desktop first, then a centered mobile view on an obsidian background, with short fades.
 - `desktop.mp4`: approximately 26 seconds, 1920 x 1080.
@@ -58,6 +58,17 @@ Edit the 22 and 26 second scroll durations in the script to set separate desktop
 
 ## Validation and limits
 
-The JavaScript syntax and video composition were checked. The live recording has not been run in this environment, which lacks the required recording controls. Run locally and review the result before publishing. Playwright's recorder does not guarantee 30 unique captured frames per second; the MP4 export is normalized to 30 fps. Loading trim uses an approximate page-creation timestamp: if the beginning needs a small adjustment, the complete raw recordings are retained. Cloud/network loading, consent banners, hardware speed, and browser autoplay behavior can affect the result. The script does not dismiss dialogs or modify the deployed website. If you encounter a banner, handle it in your own capture setup before publishing.
+The JavaScript syntax and video composition were checked. The live recording has not been run in this environment, which lacks the required recording controls. Run locally and review the result before publishing. Playwright's recorder does not guarantee 30 unique captured frames per second; the default MP4 export interpolates motion to 60 fps; `SMOOTH_VIDEO=0` normalizes to 30 fps without interpolation. Loading trim uses an approximate page-creation timestamp: if the beginning needs a small adjustment, the complete raw recordings are retained. Cloud/network loading, consent banners, hardware speed, and browser autoplay behavior can affect the result. The script does not dismiss dialogs or modify the deployed website. If you encounter a banner, handle it in your own capture setup before publishing.
 
 Playwright recording documentation: https://playwright.dev/docs/videos
+
+## Scroll animation capture
+
+The recorder suppresses `scrollend` in its own browser context: repeated scripted scroll updates can otherwise activate the site's skipped-content fallback before entrance animations start. Intersection observers and entrance animations remain enabled. This does not change the deployed website.
+
+The default scroll multiplier is 1.5. Exports use FFmpeg motion interpolation at 60 fps to smooth the recorder's irregular frame delivery. Interpolation can take several minutes and can introduce artifacts around moving text or video. It does not provide native 60 fps capture. To export the original cadence normalized to 30 fps instead:
+
+```powershell
+$env:SMOOTH_VIDEO = '0'
+node .\scripts\record-portfolio.mjs
+```

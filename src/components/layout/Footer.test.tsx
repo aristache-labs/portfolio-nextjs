@@ -154,7 +154,7 @@ describe("Footer", () => {
         window.dispatchEvent(new Event("resize"));
       });
       for (const group of groups) expect(group).toHaveStyle({ opacity: "1", transform: "none" });
-      expect(screen.getByRole("link", { name: "Support" })).toBeVisible();
+      expect(screen.getByRole("link", { name: "Buy me a coffee" })).toBeVisible();
     } finally {
       unmount();
       vi.restoreAllMocks();
@@ -273,18 +273,39 @@ describe("Footer", () => {
     expect(within(legal).getByRole("link", { name: "GDPR" })).toHaveAttribute("href", "/gdpr");
   });
 
-  it("moves Support into Legal only when configured", () => {
-    const { rerender } = render(<Footer socials={mockSocials} />);
-    expect(screen.queryByRole("link", { name: "Support" })).toBeNull();
-    rerender(<Footer socials={mockSocials} sponsorUrl="https://example.com/sponsor" />);
-    const support = screen.getByRole("link", { name: "Support" });
-    expect(support.getAttribute("href")).toBe("https://example.com/sponsor");
-    expect(support.getAttribute("target")).toBe("_blank");
-    expect(screen.queryByText("Fuel Future Projects")).not.toBeInTheDocument();
-    expect(screen.queryByText("Support My Work")).not.toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Legal" })).toContainElement(support);
-    expect(screen.getByRole("link", { name: "Contact" }).getAttribute("href")).toBe("#contact");
-  });
+  it.each(["", "/"])(
+    "places Buy me a coffee in Explore with prefix %s only when configured",
+    (prefix) => {
+      const { rerender } = render(<Footer socials={mockSocials} homeHrefPrefix={prefix} />);
+      expect(screen.queryByRole("link", { name: "Buy me a coffee" })).toBeNull();
+      rerender(<Footer socials={mockSocials} homeHrefPrefix={prefix} sponsorUrl="   " />);
+      expect(screen.queryByRole("link", { name: "Buy me a coffee" })).toBeNull();
+      rerender(
+        <Footer
+          socials={mockSocials}
+          homeHrefPrefix={prefix}
+          sponsorUrl=" https://example.com/sponsor "
+        />,
+      );
+      const support = screen.getByRole("link", { name: "Buy me a coffee" });
+      expect(support.getAttribute("href")).toBe("https://example.com/sponsor");
+      expect(support.getAttribute("target")).toBe("_blank");
+      expect(support).toHaveAttribute("rel", "noopener noreferrer");
+      expect(screen.queryByText("Fuel Future Projects")).not.toBeInTheDocument();
+      expect(screen.queryByText("Support My Work")).not.toBeInTheDocument();
+      expect(screen.getByRole("navigation", { name: "Explore" })).toContainElement(support);
+      const legal = screen.getByRole("navigation", { name: "Legal" });
+      expect(legal).not.toContainElement(support);
+      expect(
+        within(legal)
+          .getAllByRole("link")
+          .map((link) => link.textContent),
+      ).toEqual(["Privacy", "GDPR"]);
+      expect(screen.getByRole("link", { name: "Contact" }).getAttribute("href")).toBe(
+        `${prefix}#contact`,
+      );
+    },
+  );
 
   it("renders empty socials gracefully", () => {
     render(<Footer socials={[]} />);

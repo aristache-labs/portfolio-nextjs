@@ -46,11 +46,15 @@ export function Footer({
   const legalLinks = [
     { label: "Privacy", href: "/privacy", external: false },
     { label: "GDPR", href: "/gdpr", external: false },
-    ...(sponsorUrl?.trim() ? [{ label: "Support", href: sponsorUrl.trim(), external: true }] : []),
   ];
-  const visibleLinks = LINKS.filter(
-    (link) => link.href === "#hero" || sectionVisibility[link.href.slice(1)] !== false,
-  );
+  const visibleLinks = [
+    ...LINKS.filter(
+      (link) => link.href === "#hero" || sectionVisibility[link.href.slice(1)] !== false,
+    ).map((link) => ({ ...link, href: `${homeHrefPrefix}${link.href}`, external: false })),
+    ...(sponsorUrl?.trim()
+      ? [{ label: "Buy me a coffee", href: sponsorUrl.trim(), external: true }]
+      : []),
+  ];
   const { mode } = useAnimationPolicy();
   const itemVariants: Variants = {
     hidden: mode === "static" ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 },
@@ -175,8 +179,9 @@ export function Footer({
                 {visibleLinks.map((link) => (
                   <m.li key={link.href} initial={false} variants={itemVariants}>
                     <Link
-                      scroll={!homeHrefPrefix}
-                      href={`${homeHrefPrefix}${link.href}`}
+                      scroll={link.external ? undefined : !homeHrefPrefix}
+                      href={link.href}
+                      {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
                     >
                       <ChevronRight

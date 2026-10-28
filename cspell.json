@@ -3,6 +3,10 @@
   "version": "0.2",
   "language": "en,en-GB",
   "words": [
+    "aobmc",
+    "bidir",
+    "minterpolate",
+    "vsbmc",
     "faststart",
     "lanczos",
     "libx",

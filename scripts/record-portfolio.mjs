@@ -9,7 +9,12 @@ import { fileURLToPath } from 'node:url';
 // A larger multiplier gives visitors longer to see each section.
 const url = process.env.PORTFOLIO_URL || 'https://www.aristache.dev/';
 const ffmpeg = process.env.FFMPEG_PATH || 'ffmpeg';
-const multiplier = Number(process.env.SCROLL_MULTIPLIER || 1);
+const multiplier = Number(process.env.SCROLL_MULTIPLIER || 1.5);
+const smoothVideo = process.env.SMOOTH_VIDEO !== '0';
+const fps = smoothVideo ? 60 : 30;
+const videoFilter = smoothVideo
+  ? 'minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1,setsar=1'
+  : 'fps=30,setsar=1';
 if (!Number.isFinite(multiplier) || multiplier <= 0) throw new Error('SCROLL_MULTIPLIER must be positive.');
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(scriptDir, '..', 'screenshots/video');
@@ -30,6 +35,12 @@ async function capture(browser, name, viewport, scrollSeconds, mobile) {
     colorScheme: 'dark',
     reducedMotion: 'no-preference',
     recordVideo: { dir: path.join(root, 'raw'), size: viewport },
+  });
+  // Repeated scripted scrollTo calls can emit scrollend between animation frames.
+  // Suppress that fallback during this automated capture so the site's observers
+  // can run entrances at their intended viewport inset. Real visitors are unaffected.
+  await context.addInitScript(() => {
+    window.addEventListener('scrollend', event => event.stopImmediatePropagation(), true);
   });
   // Playwright records from page creation; trim only the initial loading later.
   const recordingEpoch = performance.now();
@@ -90,8 +101,9 @@ async function capture(browser, name, viewport, scrollSeconds, mobile) {
     const raw = path.join(root, `${name}-raw.webm`);
     await video.saveAs(raw);
     const output = path.join(root, `${name}.mp4`);
+    console.log(`Exporting ${name} at ${fps} fps${smoothVideo ? ' with motion interpolation (may take several minutes)' : ''}...`);
     encode(['-ss', String(start), '-i', raw, '-t', String(duration), '-an',
-      '-vf', 'fps=30,setsar=1', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18',
+      '-vf', videoFilter, '-c:v', 'libx264', '-preset', 'medium', '-crf', '18',
       '-pix_fmt', 'yuv420p', '-movflags', '+faststart', output]);
     return { output, duration };
   } catch (error) {
@@ -122,7 +134,7 @@ async function main() {
       '[desktop][mobile]concat=n=2:v=1:a=0[out]',
     ].join(';');
     encode(['-i', desktop.output, '-i', mobile.output, '-filter_complex', filter,
-      '-map', '[out]', '-an', '-r', '30', '-c:v', 'libx264', '-preset', 'medium',
+      '-map', '[out]', '-an', '-r', String(fps), '-c:v', 'libx264', '-preset', 'medium',
       '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', presentation]);
     console.log(`\nFinished. Videos saved in:\n${root}\n\nPresentation: ${presentation}`);
   } finally {
