@@ -157,7 +157,7 @@ export function Footer({
               </SectionLink>
               {heroTagline && (
                 <p className="mt-2 max-w-[290px] sm:mt-2.5">
-                  <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm">
+                  <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[10px] tracking-[0.18em] uppercase backdrop-blur-sm [@media(orientation:landscape)_and_(max-width:740px)]:px-2.5 [@media(orientation:landscape)_and_(max-width:740px)]:tracking-[0.1em]">
                     {heroTagline}
                   </span>
                 </p>
@@ -227,7 +227,7 @@ export function Footer({
             duration={0}
             delay={0.1}
             staggerChildren={0.08}
-            className={`${layout.resources} ${DIVIDER} sm:col-span-2 lg:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1`}
+            className={`${layout.resources} ${DIVIDER} sm:col-span-2 lg:col-span-1 lg:self-start [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:self-start`}
           >
             <nav aria-label="Legal" className="w-full">
               <m.h3 initial={false} variants={itemVariants} className={`${HEADING} text-center`}>
@@ -292,7 +292,7 @@ export function Footer({
           <m.div
             initial={false}
             variants={itemVariants}
-            className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px]"
+            className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px] [@media(orientation:landscape)_and_(max-width:1024px)]:order-none [@media(orientation:landscape)_and_(max-width:1024px)]:text-left"
           >
             <span className="max-md:block">
               <span className="text-brand-bright">&copy; {year}</span> {SITE.name}. All rights
@@ -314,7 +314,7 @@ export function Footer({
           <m.p
             initial={false}
             variants={itemVariants}
-            className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right"
+            className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right [@media(orientation:landscape)_and_(max-width:1024px)]:order-none [@media(orientation:landscape)_and_(max-width:1024px)]:text-right [@media(orientation:landscape)_and_(max-width:740px)]:hidden"
           >
             DESIGNED &amp; BUILT WITH <span className="text-brand-bright">CARE</span>
           </m.p>
