@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 // Run: node record-portfolio.mjs
 // Optional: PORTFOLIO_URL, CHROME_CHANNEL=chrome, FFMPEG_PATH, SCROLL_MULTIPLIER=2
 // A larger multiplier gives visitors longer to see each section.
-const url = process.env.PORTFOLIO_URL || 'http://localhost:4000/';
+const url = process.env.PORTFOLIO_URL || 'https://www.aristache.dev';
 const ffmpeg = process.env.FFMPEG_PATH || 'ffmpeg';
 const multiplier = Number(process.env.SCROLL_MULTIPLIER || 1);
 const presentationFps = 30;

@@ -17,7 +17,12 @@ const ScrollToTop = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const goToTop = () => window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  const goToTop = () => {
+    const url = new URL(window.location.href);
+    url.hash = "";
+    window.history.replaceState(null, "", url);
+    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+  };
 
   return (
     <AnimatePresence>

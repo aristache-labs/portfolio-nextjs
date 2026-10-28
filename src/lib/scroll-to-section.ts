@@ -27,7 +27,11 @@ export function scrollToSection(id: string, reducedMotion: boolean): () => void 
       document.documentElement.scrollHeight - window.innerHeight,
     ),
   );
-  window.history.replaceState(window.history.state, "", `#${id}`);
+  const url = new URL(window.location.href);
+  url.hash = id;
+  // Let Next copy its internal history state and synchronize the router URL.
+  // Passing history.state back would bypass its public replaceState integration.
+  window.history.replaceState(null, "", url);
   if (reducedMotion || Math.abs(destination - start) < 2) {
     window.scrollTo({ top: destination, behavior: "instant" });
     return () => {};

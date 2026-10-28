@@ -1,9 +1,27 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { sectionScrollPosition } from "./scroll-to-section";
+import { scrollToSection, sectionScrollPosition } from "./scroll-to-section";
 
 afterEach(() => {
   document.body.innerHTML = "";
   vi.restoreAllMocks();
+  window.history.replaceState(null, "", "/");
+});
+
+it("replaces an old anchor without bypassing Next's history integration", () => {
+  document.body.innerHTML = '<section id="skills"></section>';
+  window.history.replaceState({ __NA: true }, "", "/?preview=1#contact");
+  vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(4000);
+  vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+  const replace = vi.spyOn(window.history, "replaceState");
+
+  scrollToSection("skills", true);
+
+  expect(replace).toHaveBeenCalledWith(
+    null,
+    "",
+    new URL("/?preview=1#skills", window.location.origin),
+  );
+  expect(window.location.hash).toBe("#skills");
 });
 
 describe("sectionScrollPosition", () => {
