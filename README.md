@@ -36,7 +36,7 @@
 
 <sub><b>AI agents / LLMs:</b> the deployed site is machine-readable at <code>/llms.txt</code>, or as one blob at <code>/llms-full.txt</code>. Repo conventions and pitfalls live in <a href="AGENTS.md"><code>AGENTS.md</code></a>.</sub>
 <br><br/>
-<video src="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-v3-full-1280p20.webm" controls muted width="100%"></video>
+<video src="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-v3-full-1280p20.webm" controls muted width="50%"></video>
 
 <sub>A laptop and a phone scrolling through every section &middot; <a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v3.mp4">Watch the full 58 second tour in 1080p, 60 fps</a></sub>
 
