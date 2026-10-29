@@ -85,6 +85,7 @@ export default async function Home() {
       <div id="page-content" tabIndex={-1} className="scroll-mt-24 outline-none" />
 
       <Hero
+        transitionToAbout={show("about")}
         profile={{ name: profile.name, roles: profile.roles }}
         heroTagline={profile.heroTagline}
         resumeUrl={profile.resumeUrl}
