@@ -16,9 +16,9 @@
 
 <br />
 
-<a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v2.mp4"><img src="assets/showreel/showreel-poster.jpg" width="100%" alt="Play the 47 second tour of aristache.dev: a laptop and a phone scrolling through every section"></a>
+<a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v2.mp4"><img src="assets/showreel/showreel-loop.webp" width="100%" alt="Looping preview of aristache.dev on a laptop and a phone. Click to play the full 47 second tour"></a>
 
-<sub><a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v2.mp4">Watch the 47 second tour</a> &middot; 1080p, 60 fps</sub>
+<sub><a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v2.mp4">Click for the full 47 second tour</a> &middot; 1080p, 60 fps</sub>
 
 <br />
 
