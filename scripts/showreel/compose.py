@@ -208,23 +208,30 @@ def frame_at(video, seconds, size, name):
     return Image.open(target).convert("RGB")
 
 
-def scroll_start(video):
-    """Seconds into a recording at which the scroll begins: just after the sync marker goes away."""
+def marker_span(video):
+    """(first, end) seconds during which the magenta sync marker is on screen."""
     raw = subprocess.run(
         ["ffmpeg", "-v", "error", "-i", str(video), "-vf", "fps=60,crop=8:8:0:0,format=rgb24", "-f", "rawvideo", "-"],
         capture_output=True, check=True,
     ).stdout
     size = 8 * 8 * 3
-    last = -1
+    first, last = -1, -1
     for i in range(len(raw) // size):
         chunk = raw[i * size:(i + 1) * size]
         # The encoder blends some edge pixels, so judge the whole 8x8 square by its mean colour.
         red, green, blue = sum(chunk[0::3]) / 64, sum(chunk[1::3]) / 64, sum(chunk[2::3]) / 64
         if red > 120 and blue > 120 and green < 90:
+            if first < 0:
+                first = i
             last = i
     if last < 0:
         raise SystemExit("sync marker not found in " + video.name)
-    return (last + 1) / 60.0 + 0.3
+    return first / 60.0, (last + 1) / 60.0
+
+
+def scroll_start(video):
+    """Seconds into a recording at which the scroll begins: just after the sync marker goes away."""
+    return marker_span(video)[1] + 0.3
 
 
 def label_name(selector):
@@ -271,9 +278,14 @@ def render():
             index += 1
     filters = []
     for side, size, name in (("d", LAP_SCREEN[2:], "desktop.mkv"), ("m", PH_SCREEN[2:], "mobile.mkv")):
-        cmd += ["-ss", str(round(starts[side] - before, 3)), "-t", str(main + 1), "-i", str(RAW / name)]
+        window = round(starts[side] - before, 3)
+        cmd += ["-ss", str(window), "-t", str(main + 1), "-i", str(RAW / name)]
+        # The sync marker is inside the pre-roll: paint over it with the page's own dark corner.
+        seen_from, seen_to = marker_span(RAW / name)
+        hide = f"between(t,{round(seen_from - window - 0.06, 3)},{round(seen_to - window + 0.06, 3)})"
         filters.append(
-            f"[{index}:v]setpts=PTS-STARTPTS,scale={size[0]}:{size[1]}:flags=lanczos,fps={FPS},format=yuv420p,"
+            f"[{index}:v]drawbox=x=0:y=0:w=11:h=11:color=0x070b0c:t=fill:enable='{hide}',"
+            f"setpts=PTS-STARTPTS,scale={size[0]}:{size[1]}:flags=lanczos,fps={FPS},format=yuv420p,"
             f"tpad=stop_mode=clone:stop_duration=2,trim=duration={main},setpts=PTS-STARTPTS[{side}v]"
         )
         index += 1
