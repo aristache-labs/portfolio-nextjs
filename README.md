@@ -1,6 +1,6 @@
 
 
-https://github.com/user-attachments/assets/df7f829a-1c68-4320-b8d5-379af06a5d63
+
 
 <div align="center">
 
@@ -40,7 +40,7 @@ https://github.com/user-attachments/assets/df7f829a-1c68-4320-b8d5-379af06a5d63
 
 <sub><b>AI agents / LLMs:</b> the deployed site is machine-readable at <code>/llms.txt</code>, or as one blob at <code>/llms-full.txt</code>. Repo conventions and pitfalls live in <a href="AGENTS.md"><code>AGENTS.md</code></a>.</sub>
 <br><br/>
-https://github.com/user-attachments/assets/98d59846-5ef7-4204-83d9-113e2ece08e5
+https://github.com/user-attachments/assets/df7f829a-1c68-4320-b8d5-379af06a5d63
 <br />
 </div>
 
