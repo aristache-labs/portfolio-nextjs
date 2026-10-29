@@ -38,7 +38,7 @@
 <br><br/>
 <a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v3.mp4"><img src="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-v3-full-1280p20.webp" width="100%" alt="Looping full 58 second tour of aristache.dev: a laptop and a phone scrolling through every section. Click to watch at 1080p, 60 fps"></a>
 
-<sub>Full 58 second animated tour &middot; <a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v3.mp4">Watch at 1080p, 60 fps</a></sub>
+<sub><a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v3.mp4">Click for the full 58 second tour</a> &middot; 1080p, 60 fps</sub>
 
 <br />
 </div>
