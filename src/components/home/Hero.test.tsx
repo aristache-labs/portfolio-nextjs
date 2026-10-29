@@ -19,6 +19,13 @@ const profile = {
 };
 
 describe("Hero", () => {
+  it("reserves the cinematic transition only when About is enabled", () => {
+    const { container, rerender } = render(<Hero profile={profile} />);
+    expect(container.querySelector("#hero")).not.toHaveAttribute("data-cinematic");
+    rerender(<Hero profile={profile} transitionToAbout />);
+    expect(container.querySelector("#hero")).toHaveAttribute("data-cinematic", "true");
+  });
+
   it.each([
     [false, false, 0],
     [true, false, 1],
@@ -64,9 +71,7 @@ describe("Hero", () => {
       container.querySelector('a[aria-label="GitHub"]'),
       ...container.querySelectorAll("h1 span"),
       paragraphs.find((element) => element.textContent === IDENTITY.summary),
-      paragraphs.find((element) => element.textContent === "// HELLO, I'M"),
       paragraphs.find((element) => element.textContent?.includes("Available for projects")),
-      ...paragraphs.filter((element) => element.textContent === "// scope"),
     ];
 
     for (const element of elements) {
@@ -83,12 +88,13 @@ describe("Hero", () => {
     }
   });
 
-  it("renders only the first name, complete greeting and deployment proof immediately", () => {
+  it("renders the full name, specialization and introduction immediately", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1).toHaveTextContent("Adrian Cristache");
     expect(h1.firstElementChild?.firstChild?.textContent).toBe("Adrian");
-    expect(h1.querySelector(".sr-only")).toHaveTextContent("Cristache");
+    expect(h1).toHaveTextContent("Adrian Cristache");
+    expect(h1.querySelector(".sr-only")).toBeNull();
     expect(h1).toHaveTextContent("Adrian");
     expect(h1.lastElementChild).not.toBeEmptyDOMElement();
     expect(
@@ -96,7 +102,7 @@ describe("Hero", () => {
         /My experience spans enterprise IT, PowerShell automation and script security\./,
       ),
     ).toHaveTextContent("In my spare time, I build web and mobile applications.");
-    expect(screen.getByText("// HELLO, I'M")).toBeInTheDocument();
+    expect(screen.getByText(profile.roles.join(" · "))).toBeInTheDocument();
   });
 
   it.each([
@@ -108,7 +114,7 @@ describe("Hero", () => {
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1.firstElementChild?.firstChild?.textContent).toBe(first);
     if (remainder) {
-      expect(h1.querySelector(".sr-only")).toHaveTextContent(remainder);
+      expect(h1.firstElementChild?.lastElementChild).toHaveTextContent(remainder);
       expect(h1).toHaveAccessibleName(
         first + " " + remainder + " Infrastructure meets innovation.",
       );
@@ -127,9 +133,10 @@ describe("Hero", () => {
     expect(screen.queryByText(/building ai-native products/i)).not.toBeInTheDocument();
   });
 
-  it("omits the decorative roles without changing the profile", () => {
+  it("shows the managed roles without changing the profile", () => {
     render(<Hero profile={profile} />);
-    expect(screen.queryByText(/full stack developer/i)).not.toBeInTheDocument();
+    expect(screen.getByText(profile.roles.join(" · "))).toBeInTheDocument();
+    expect(screen.queryByText("// scope")).not.toBeInTheDocument();
     expect(profile.roles).toEqual(["Full Stack Developer", "Flutter Developer"]);
   });
 

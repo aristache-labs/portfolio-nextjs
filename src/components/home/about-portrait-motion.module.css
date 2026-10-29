@@ -1,0 +1,9 @@
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    clip-path: inset(0 0 var(--portrait-mask, 0%) 0);
+  }
+
+  .image {
+    transform: translateY(var(--portrait-image-y, 0%)) scale(var(--portrait-image-scale, 1));
+  }
+}

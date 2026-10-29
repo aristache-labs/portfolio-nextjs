@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useHeroPosterReady } from "@/hooks/useHeroPosterReady";
 import { ShineBorder } from "@/components/ui/shine-border";
+import motionStyles from "./about-portrait-motion.module.css";
 
 // Match the outer CSS widths; the browser applies pixel density itself.
 const PORTRAIT_SIZES = [
@@ -20,10 +21,18 @@ const SHAPE = "rounded-[6rem_1.75rem_6rem_1.75rem]";
 
 /**
  * Square, so the frame's height falls out of its width and both columns start at the same y.
- * Carries no Parallax for that reason - its scroll transform is exactly what pulled the frame out
- * of alignment with the text beside it. About owns its entrance; the photo has no fade or zoom.
+ * The frame stays aligned with the text. Optional scroll motion only moves the image inside
+ * its clipped silhouette; About owns the reveal and supplies the inherited motion values.
  */
-export function AvatarPortrait({ src, name }: { src: string; name: string }) {
+export function AvatarPortrait({
+  src,
+  name,
+  scrollMotion = false,
+}: {
+  src: string;
+  name: string;
+  scrollMotion?: boolean;
+}) {
   const heroReady = useHeroPosterReady();
 
   return (
@@ -41,7 +50,7 @@ export function AvatarPortrait({ src, name }: { src: string; name: string }) {
               quality={75}
               loading="eager"
               sizes={PORTRAIT_SIZES}
-              className="object-cover"
+              className={`object-cover${scrollMotion ? ` ${motionStyles.image}` : ""}`}
             />
           )}
           <span
