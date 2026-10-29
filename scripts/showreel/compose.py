@@ -42,6 +42,10 @@ LABELS = {
     "#contact": ("05", "CONTACT"),
 }
 INTRO, OUTRO, FADE = 3.0, 3.6, 0.6
+# Generated intro and outro clips (Gemini Omni), used instead of the static cards when present.
+GEN = WORK / "veo" / "out"
+GEN_INTRO, GEN_OUTRO = GEN / "intro.mp4", GEN / "outro.mp4"
+GEN_INTRO_S, GEN_OUTRO_S = 8.0, 8.6  # the clips are 10 s: the logo has settled by 8 s, the outro fades out by 8.6 s
 
 
 def font(name, size):
@@ -266,8 +270,13 @@ def render():
     cmd += ["-loop", "1", "-framerate", str(FPS), "-t", str(main), "-i", str(ASSETS / "bg.png")]
     for name in ("laptop", "phone"):
         cmd += ["-loop", "1", "-framerate", str(FPS), "-t", str(main), "-i", str(ASSETS / f"{name}.png")]
-    cmd += ["-loop", "1", "-framerate", str(FPS), "-t", str(INTRO), "-i", str(ASSETS / "intro.png")]
-    cmd += ["-loop", "1", "-framerate", str(FPS), "-t", str(OUTRO), "-i", str(ASSETS / "outro.png")]
+    generated = GEN_INTRO.exists() and GEN_OUTRO.exists()
+    intro_len, outro_len = (GEN_INTRO_S, GEN_OUTRO_S) if generated else (INTRO, OUTRO)
+    if generated:
+        cmd += ["-t", str(intro_len), "-i", str(GEN_INTRO), "-t", str(outro_len), "-i", str(GEN_OUTRO)]
+    else:
+        cmd += ["-loop", "1", "-framerate", str(FPS), "-t", str(INTRO), "-i", str(ASSETS / "intro.png")]
+        cmd += ["-loop", "1", "-framerate", str(FPS), "-t", str(OUTRO), "-i", str(ASSETS / "outro.png")]
     index = 5
     labels = []
     for selector, seconds in anchors:
@@ -303,19 +312,36 @@ def render():
         filters.append(f"[{last}][l{number}]overlay=0:0:format=auto:eof_action=pass[o{number}]")
         last = f"o{number}"
     filters.append(f"[{last}]format=yuv420p,fps={FPS},trim=duration={main},setpts=PTS-STARTPTS[main]")
-    filters.append(f"[3:v]format=yuv420p,fps={FPS},fade=t=in:st=0:d=0.8[intro]")
-    filters.append(f"[4:v]format=yuv420p,fps={FPS},fade=t=out:st={OUTRO - 0.8}:d=0.8[outro]")
-    filters.append(f"[intro][main]xfade=transition=fade:duration={FADE}:offset={INTRO - FADE}[im]")
-    offset = round(INTRO + main - 2 * FADE, 2)
+    if generated:
+        # 1280x720 at 24 fps from the model: upscale to the canvas, no extra fades (they fade themselves).
+        for tag, idx in (("intro", 3), ("outro", 4)):
+            filters.append(
+                f"[{idx}:v]scale={W}:{H}:flags=lanczos,fps={FPS},format=yuv420p,setpts=PTS-STARTPTS[{tag}]"
+            )
+    else:
+        filters.append(f"[3:v]format=yuv420p,fps={FPS},fade=t=in:st=0:d=0.8[intro]")
+        filters.append(f"[4:v]format=yuv420p,fps={FPS},fade=t=out:st={OUTRO - 0.8}:d=0.8[outro]")
+    filters.append(f"[intro][main]xfade=transition=fade:duration={FADE}:offset={round(intro_len - FADE, 2)}[im]")
+    offset = round(intro_len + main - 2 * FADE, 2)
     filters.append(f"[im][outro]xfade=transition=fade:duration={FADE}:offset={offset}[v]")
-    target = OUT / "aristache-showreel-1080p60.mp4"
+    total = round(intro_len + main + outro_len - 2 * FADE, 2)
+    audio = []
+    if generated:
+        # Loudness-match both soundtracks, fade the intro's tail into the silent middle, then place the outro.
+        filters.append(f"[3:a]loudnorm=I=-18:TP=-2:LRA=7,afade=t=out:st={round(intro_len - 1.2, 2)}:d=1.2[ia]")
+        filters.append(
+            f"[4:a]loudnorm=I=-20:TP=-2:LRA=7,afade=t=in:st=0:d=0.4,adelay={int(offset * 1000)}|{int(offset * 1000)}[oa]"
+        )
+        filters.append(f"[ia][oa]amix=inputs=2:normalize=0:duration=longest,atrim=0:{total},asetpts=PTS-STARTPTS[a]")
+        audio = ["-map", "[a]", "-c:a", "aac", "-b:a", "192k"]
+    target = OUT / ("aristache-showreel-1080p60-v3.mp4" if generated else "aristache-showreel-1080p60.mp4")
     cmd += [
-        "-filter_complex", ";".join(filters), "-map", "[v]", "-an",
+        "-filter_complex", ";".join(filters), "-map", "[v]", *(audio or ["-an"]),
         "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p",
         "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
         "-movflags", "+faststart", str(target),
     ]
-    print("rendering", target.name, "total about", round(INTRO + main + OUTRO - 2 * FADE, 1), "s")
+    print("rendering", target.name, "total about", total, "s", "(generated intro/outro)" if generated else "")
     subprocess.run(cmd, check=True)
     print("done:", target)
 
