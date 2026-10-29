@@ -16,11 +16,7 @@
 
 <br />
 
-<a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v2.mp4"><img src="assets/showreel/showreel-loop.webp" width="100%" alt="Looping preview of aristache.dev on a laptop and a phone. Click to play the full 47 second tour"></a>
 
-<sub><a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v2.mp4">Click for the full 47 second tour</a> &middot; 1080p, 60 fps</sub>
-
-<br />
 
 ![CI](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/ci.yml?branch=master&style=flat-square&label=CI&labelColor=0f6e68)
 ![Lighthouse](https://shields.io/github/actions/workflow/status/aristache-labs/portfolio-nextjs/lighthouse.yml?style=flat-square&label=Lighthouse&labelColor=0f6e68)
@@ -39,7 +35,12 @@
 [Stack](#stack) &middot; [The site](#the-site) &middot; [Local setup](#local-setup) &middot; [Admin panel](#admin-panel) &middot; [Deployment](#deployment)
 
 <sub><b>AI agents / LLMs:</b> the deployed site is machine-readable at <code>/llms.txt</code>, or as one blob at <code>/llms-full.txt</code>. Repo conventions and pitfalls live in <a href="AGENTS.md"><code>AGENTS.md</code></a>.</sub>
+<br><br/>
+<a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v2.mp4"><img src="assets/showreel/showreel-loop.webp" width="100%" alt="Looping preview of aristache.dev on a laptop and a phone. Click to play the full 47 second tour"></a>
 
+<sub><a href="https://bpg0zexep0ezobg1.public.blob.vercel-storage.com/media/aristache-showreel-1080p60-v2.mp4">Click for the full 47 second tour</a> &middot; 1080p, 60 fps</sub>
+
+<br />
 </div>
 
 ---
