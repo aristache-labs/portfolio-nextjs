@@ -25,30 +25,20 @@ describe("About", () => {
     expect(portrait.parentElement).not.toHaveAttribute("style");
   });
 
-  it("keeps the editorial groups in visible server HTML without duplicating the introduction", () => {
+  it("keeps portrait, heading and copy as direct layout children in visible server HTML", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(
-      <About
-        profile={{
-          ...mockProfile,
-          bio: `${mockProfile.bio} More about my work.`,
-          avatarUrl: "https://example.com/portrait.webp",
-        }}
-      />,
+      <About profile={{ ...mockProfile, avatarUrl: "https://example.com/portrait.webp" }} />,
     );
     const biography = container.getElementsByClassName(styles.biography)[0];
     expect(biography.children).toHaveLength(3);
-    for (const name of [styles.portrait, styles.heading, styles.introduction]) {
+    for (const name of [styles.portrait, styles.heading, styles.copy]) {
       const group = biography.getElementsByClassName(name)[0];
       expect(group.parentElement).toBe(biography);
       expect(group).not.toHaveAttribute("style");
     }
     expect(biography).toHaveTextContent(mockProfile.bio);
     expect(biography).toHaveTextContent("Behind the code.");
-    const details = container.getElementsByClassName(styles.copy)[0];
-    expect(details).not.toHaveTextContent(mockProfile.bio);
-    expect(details).toHaveTextContent("More about my work.");
-    expect(biography.contains(details)).toBe(false);
   });
 
   it("expands and collapses the remaining mobile biography", () => {
@@ -67,9 +57,10 @@ describe("About", () => {
     expect(remainder).toHaveAttribute("hidden");
   });
   it("renders the bio text", () => {
-    const { container } = render(<About profile={mockProfile} />);
-    expect(container.querySelector("#about")).toHaveTextContent(mockProfile.bio);
-    expect(container.getElementsByClassName(styles.copy)).toHaveLength(0);
+    render(<About profile={mockProfile} />);
+    expect(
+      screen.getAllByText("I build fast, accessible web apps and love open source."),
+    ).toHaveLength(2);
   });
 
   it("shows impact metrics instead of repository counts and technology categories", () => {
@@ -88,7 +79,7 @@ describe("About", () => {
     render(<About profile={mockProfile} />);
     for (const value of ["8+", "60%", "1,600+", "5"]) {
       const copies = screen.getAllByText(value);
-      expect(copies).toHaveLength(1);
+      expect(copies).toHaveLength(2);
       expect(copies.filter((node) => node.getAttribute("aria-hidden") !== "true")).toHaveLength(1);
     }
     expect(screen.queryByText("120+")).not.toBeInTheDocument();
