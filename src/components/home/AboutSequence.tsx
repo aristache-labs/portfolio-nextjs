@@ -66,28 +66,57 @@ function ScrollDriver({
   return null;
 }
 
-/** Second half of the pinned scene: the composition recedes toward the detailed biography. */
+/** Second half of the pinned scene: the composition recedes as the detailed biography rises. */
 function PinnedExit({
   target,
+  details,
   progress,
 }: {
   target: RefObject<HTMLDivElement | null>;
+  details: RefObject<HTMLDivElement | null>;
   progress: MotionValue<number>;
 }) {
   useEffect(() => {
     const stage = target.current?.firstElementChild;
     if (!(stage instanceof HTMLElement)) return;
+    const nodes = details.current ? [stage, details.current] : [stage];
     const update = (value: number) => {
       const exit = phaseProgress(value, 0.55, 1);
-      stage.style.setProperty("--about-exit", String(exit * exit * (3 - 2 * exit)));
+      for (const node of nodes)
+        node.style.setProperty("--about-exit", String(exit * exit * (3 - 2 * exit)));
     };
     update(progress.get());
     const unsubscribe = progress.on("change", update);
     return () => {
       unsubscribe();
-      stage.style.removeProperty("--about-exit");
+      for (const node of nodes) node.style.removeProperty("--about-exit");
     };
-  }, [progress, target]);
+  }, [details, progress, target]);
+  return null;
+}
+
+/** Marks which CSS column each biography paragraph landed in, so columns enter in turn. */
+function BiographyColumns({ details }: { details: RefObject<HTMLDivElement | null> }) {
+  useEffect(() => {
+    const node = details.current;
+    if (!node) return;
+    const measure = () => {
+      const paragraphs = [...node.querySelectorAll("p")].filter((p) => p.offsetParent);
+      const first = Math.min(...paragraphs.map((p) => p.getBoundingClientRect().left));
+      for (const p of paragraphs)
+        p.style.setProperty(
+          "--column-index",
+          p.getBoundingClientRect().left > first + 1 ? "1" : "0",
+        );
+    };
+    measure();
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
+    observer?.observe(node);
+    return () => {
+      observer?.disconnect();
+      for (const p of node.querySelectorAll("p")) p.style.removeProperty("--column-index");
+    };
+  }, [details]);
   return null;
 }
 
@@ -115,6 +144,7 @@ function ScrollLanding({ target }: { target: RefObject<HTMLDivElement | null> })
 
 export function AboutSequence({ children, details }: { children: ReactNode; details?: ReactNode }) {
   const target = useRef<HTMLDivElement>(null);
+  const detailsRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
   const { mode } = useAnimationPolicy();
   const pinned = useMediaQuery(ABOUT_PIN_QUERY) && mode === "expressive";
@@ -122,15 +152,20 @@ export function AboutSequence({ children, details }: { children: ReactNode; deta
     <>
       <div ref={target} className={styles.track}>
         {mode !== "static" && <ScrollDriver target={target} progress={progress} pinned={pinned} />}
-        {pinned && <PinnedExit target={target} progress={progress} />}
+        {pinned && <PinnedExit target={target} details={detailsRef} progress={progress} />}
         {pinned && <ScrollLanding target={target} />}
+        {pinned && <BiographyColumns details={detailsRef} />}
         <Sequence.Provider
           value={mode === "static" ? null : { progress, expressive: mode === "expressive", pinned }}
         >
           <div className={styles.stage}>{children}</div>
         </Sequence.Provider>
       </div>
-      {details && <div className={styles.details}>{details}</div>}
+      {details && (
+        <div ref={detailsRef} className={styles.details}>
+          {details}
+        </div>
+      )}
     </>
   );
 }

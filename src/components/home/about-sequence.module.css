@@ -8,7 +8,7 @@
   .track::after {
     content: "";
     display: block;
-    height: 38svh;
+    height: 55svh;
   }
 
   .stage {
@@ -23,15 +23,21 @@
   .details {
     border-top: 1px solid rgb(var(--brand-mid-rgb) / 0.15);
   }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  .metric {
-    position: relative;
-    isolation: isolate;
-  }
-
-  .metric svg {
-    opacity: var(--metric-opacity, 1);
+  /* While the pinned scene hands off, the left column rises from below over 0 to 0.6,
+     then the right one slides in from the side over 0.5 to 1. Without the pinned
+     progress the default keeps both fully visible. */
+  .details p {
+    --column: var(--column-index, 0);
+    --column-entry: clamp(
+      0,
+      (var(--about-exit, 1) - var(--column) * 0.5) / (0.6 - var(--column) * 0.1),
+      1
+    );
+    opacity: calc(0.1 + var(--column-entry) * 0.9);
+    transform: translate(
+      calc(var(--column) * (1 - var(--column-entry)) * min(80px, 50vw - 32rem + 16px)),
+      calc((1 - var(--column)) * (1 - var(--column-entry)) * 48px)
+    );
   }
 }

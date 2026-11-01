@@ -5,7 +5,6 @@ import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimat
 import { ABOUT_PIN_QUERY, AboutSequence } from "./AboutSequence";
 import { AboutIntroduction } from "./AboutIntroduction";
 import { AboutPortraitMotion } from "./AboutPortraitMotion";
-import { AboutMetric } from "./AboutMetric";
 
 const scroll = vi.hoisted(() => ({
   progress: null as import("framer-motion").MotionValue<number> | null,
@@ -32,58 +31,43 @@ function Scene() {
       <AboutPortraitMotion>
         <span>Portrait</span>
       </AboutPortraitMotion>
-      <AboutMetric className="metric-first" index={0}>
-        60%
-      </AboutMetric>
-      <AboutMetric className="metric-second" index={1}>
-        1,600+
-      </AboutMetric>
     </AboutSequence>
   );
 }
 
 describe("AboutSequence", () => {
-  it("uses distinct stages for pinned results and keeps the full biography outside the scene", () => {
+  it("reads and reveals the pinned scene before the hand-off and keeps the biography outside", () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [ABOUT_PIN_QUERY]: true });
-    const { container, getByTestId } = render(<Scene />);
-    const first = container.querySelector<HTMLElement>(".metric-first")!;
-    const second = container.querySelector<HTMLElement>(".metric-second")!;
-    act(() => scroll.progress!.set(0.4));
-    expect(first.style.getPropertyValue("--metric-opacity")).toBe("0.55");
-    act(() => scroll.progress!.set(0.6));
-    expect(Number.parseFloat(first.style.getPropertyValue("--metric-opacity"))).toBeGreaterThan(
-      Number.parseFloat(second.style.getPropertyValue("--metric-opacity")),
+    const { container, getByTestId, getByText } = render(<Scene />);
+    const intro = container.querySelector("p")!;
+    const portrait = getByText("Portrait").parentElement!;
+    act(() => scroll.progress!.set(0.2));
+    expect(Number(intro.style.getPropertyValue("--intro-progress"))).toBeLessThan(1);
+    expect(Number.parseFloat(portrait.style.getPropertyValue("--portrait-mask"))).toBeGreaterThan(
+      0,
     );
-    act(() => scroll.progress!.set(1));
-    expect(second.style.getPropertyValue("--metric-opacity")).toBe("1");
+    act(() => scroll.progress!.set(0.5));
+    expect(intro.style.getPropertyValue("--intro-progress")).toBe("1");
+    expect(portrait.style.getPropertyValue("--portrait-mask")).toBe("0%");
     const track = container.firstElementChild!;
     expect(track.contains(getByTestId("details"))).toBe(false);
   });
 
-  it("coordinates reading, portrait and successive metrics on the same reversible timeline", () => {
+  it("coordinates reading and portrait on the same reversible timeline", () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
     const { container, getByText } = render(<Scene />);
     const intro = container.querySelector("p")!;
     const portrait = getByText("Portrait").parentElement!;
-    const first = container.querySelector<HTMLElement>(".metric-first")!;
-    const second = container.querySelector<HTMLElement>(".metric-second")!;
     act(() => scroll.progress!.set(0.3));
     expect(Number(intro.style.getPropertyValue("--intro-progress"))).toBeGreaterThan(0.8);
     expect(Number.parseFloat(portrait.style.getPropertyValue("--portrait-mask"))).toBeGreaterThan(
       0,
     );
-    expect(first.style.getPropertyValue("--metric-opacity")).toBe("0.55");
     act(() => scroll.progress!.set(0.7));
     expect(portrait.style.getPropertyValue("--portrait-mask")).toBe("0%");
-    expect(Number(first.style.getPropertyValue("--metric-opacity"))).toBeGreaterThan(
-      Number(second.style.getPropertyValue("--metric-opacity")),
-    );
-    act(() => scroll.progress!.set(1));
-    expect(second.style.getPropertyValue("--metric-opacity")).toBe("1");
     act(() => scroll.progress!.set(0));
     expect(intro.style.getPropertyValue("--intro-progress")).toBe("0");
     expect(portrait.style.getPropertyValue("--portrait-mask")).toBe("100%");
-    expect(first).toHaveTextContent("60%");
   });
 
   it("hands the pinned scene off in its second half and reverses on the way back", () => {
@@ -100,13 +84,48 @@ describe("AboutSequence", () => {
     expect(stage.style.getPropertyValue("--about-exit")).toBe("0");
   });
 
+  it("drives the detailed biography from the same hand-off progress", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [ABOUT_PIN_QUERY]: true });
+    const { getByTestId } = render(<Scene />);
+    const details = getByTestId("details").parentElement!;
+    act(() => scroll.progress!.set(0.5));
+    expect(details.style.getPropertyValue("--about-exit")).toBe("0");
+    act(() => scroll.progress!.set(1));
+    expect(details.style.getPropertyValue("--about-exit")).toBe("1");
+  });
+
   it("leaves the hand-off out when the scene is not pinned", () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
     const { container } = render(<Scene />);
     const stage = container.firstElementChild!.firstElementChild as HTMLElement;
     act(() => scroll.progress!.set(1));
     expect(stage.style.getPropertyValue("--about-exit")).toBe("");
+    expect(container.lastElementChild!.getAttribute("style")).toBeNull();
     expect(container.querySelector("[data-scroll-landing]")).toBeNull();
+  });
+
+  it("marks which biography column each paragraph sits in", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [ABOUT_PIN_QUERY]: true });
+    vi.spyOn(HTMLElement.prototype, "offsetParent", "get").mockReturnValue(document.body);
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return { left: this.textContent === "Right" ? 600 : 200 } as DOMRect;
+    });
+    const { getByText } = render(
+      <AboutSequence
+        details={
+          <div>
+            <p>Left</p>
+            <p>Right</p>
+          </div>
+        }
+      >
+        <span>Scene</span>
+      </AboutSequence>,
+    );
+    expect(getByText("Left").style.getPropertyValue("--column-index")).toBe("0");
+    expect(getByText("Right").style.getPropertyValue("--column-index")).toBe("1");
   });
 
   it("names an end-of-pin landing offset for menu navigation", () => {
@@ -132,7 +151,6 @@ describe("AboutSequence", () => {
         "--about-exit",
       ),
     ).toBe("");
-    expect(container.querySelector<HTMLElement>(".metric-first")!.style.length).toBe(0);
-    expect(container).toHaveTextContent("1,600+");
+    expect(container).toHaveTextContent("Systems built with care.");
   });
 });
