@@ -4,6 +4,12 @@ const SECTION_NAV_GAP = 38;
 
 /** Align section content consistently below the responsive navigation bar. */
 export function sectionScrollPosition(target: HTMLElement): number {
+  // A pinned scene names the viewport offset where its track should sit.
+  const landing = target.querySelector<HTMLElement>("[data-scroll-landing]");
+  if (landing) {
+    const offset = Number(landing.dataset.scrollLanding) || 0;
+    return landing.getBoundingClientRect().top + window.scrollY - offset;
+  }
   const anchor = target.querySelector<HTMLElement>("[data-scroll-anchor]");
   if (anchor) {
     const navigation = document.querySelector<HTMLElement>('header nav[aria-label="Primary"]');

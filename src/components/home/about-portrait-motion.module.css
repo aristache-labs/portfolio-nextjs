@@ -3,7 +3,9 @@
     clip-path: inset(0 0 var(--portrait-mask, 0%) 0);
   }
 
+  /* During the pinned hand-off the image lags behind its frame for a little depth. */
   .image {
-    transform: translateY(var(--portrait-image-y, 0%)) scale(var(--portrait-image-scale, 1));
+    transform: translateY(calc(var(--portrait-image-y, 0%) + var(--about-exit, 0) * 3%))
+      scale(var(--portrait-image-scale, 1));
   }
 }

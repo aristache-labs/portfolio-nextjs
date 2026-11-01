@@ -51,6 +51,20 @@ describe("About", () => {
     expect(biography.contains(details)).toBe(false);
   });
 
+  it("places the results after the detailed biography and outside the pinned scene", () => {
+    const { container } = render(
+      <About profile={{ ...mockProfile, bio: `${mockProfile.bio} More about my work.` }} />,
+    );
+    const results = container.getElementsByClassName(styles.results)[0];
+    const details = container.getElementsByClassName(styles.copy)[0];
+    const content = container.querySelector("#about > [data-scroll-anchor]")!;
+    expect(content.lastElementChild).toBe(results);
+    expect(
+      details.compareDocumentPosition(results) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(results.closest('[class*="track"]')).toBeNull();
+  });
+
   it("expands and collapses the remaining mobile biography", () => {
     render(
       <AboutBio bio="I turn technical challenges into practical, dependable solutions. More about my work." />,
@@ -88,8 +102,7 @@ describe("About", () => {
     render(<About profile={mockProfile} />);
     for (const value of ["8+", "60%", "1,600+", "5"]) {
       const copies = screen.getAllByText(value);
-      expect(copies).toHaveLength(1);
-      expect(copies.filter((node) => node.getAttribute("aria-hidden") !== "true")).toHaveLength(1);
+      expect(copies.filter((node) => !node.closest('[aria-hidden="true"]'))).toHaveLength(1);
     }
     expect(screen.queryByText("120+")).not.toBeInTheDocument();
   });

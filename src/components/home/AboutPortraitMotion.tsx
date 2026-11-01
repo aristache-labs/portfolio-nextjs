@@ -24,7 +24,11 @@ function SequencePortrait({ target }: { target: React.RefObject<HTMLDivElement |
     const update = (value: number) =>
       paintPortrait(
         node,
-        phaseProgress(value, sequence.expressive ? 0.16 : 0.08, sequence.expressive ? 0.64 : 0.42),
+        phaseProgress(
+          value,
+          sequence.pinned ? 0.02 : sequence.expressive ? 0.16 : 0.08,
+          sequence.pinned ? 0.48 : sequence.expressive ? 0.64 : 0.42,
+        ),
         sequence.expressive,
       );
     update(sequence.progress.get());

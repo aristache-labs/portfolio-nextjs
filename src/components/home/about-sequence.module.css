@@ -4,14 +4,16 @@
 }
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .track {
-    min-height: calc(min(520px, calc(100svh - 112px)) + 38svh);
+  /* The stage hugs its content, so the biography below fits on screen with it. */
+  .track::after {
+    content: "";
+    display: block;
+    height: 38svh;
   }
 
   .stage {
     position: sticky;
     top: 80px;
-    min-height: min(520px, calc(100svh - 112px));
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -27,18 +29,9 @@
   .metric {
     position: relative;
     isolation: isolate;
-    transform: translateY(var(--metric-y, 0px)) scale(var(--metric-scale, 1));
-    transform-origin: center top;
   }
 
-  .metric::before {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    inset: -1px 0 auto;
-    height: 1px;
-    background: linear-gradient(90deg, var(--brand-mid), transparent);
-    opacity: calc((var(--metric-opacity, 0.55) - 0.55) / 0.45);
-    pointer-events: none;
+  .metric svg {
+    opacity: var(--metric-opacity, 1);
   }
 }

@@ -11,11 +11,17 @@ function SequenceReading({ target }: { target: RefObject<HTMLParagraphElement | 
   useEffect(() => {
     const node = target.current;
     if (!node || !sequence) return;
-    const update = (value: number) =>
+    const update = (value: number) => {
+      const progress = phaseProgress(
+        value,
+        0,
+        sequence.pinned ? 0.42 : sequence.expressive ? 0.34 : 0.22,
+      );
       node.style.setProperty(
         "--intro-progress",
-        String(phaseProgress(value, 0, sequence.expressive ? 0.34 : 0.22)),
+        String(sequence.pinned ? progress * progress * (3 - 2 * progress) : progress),
       );
+    };
     update(sequence.progress.get());
     const unsubscribe = sequence.progress.on("change", update);
     return () => {

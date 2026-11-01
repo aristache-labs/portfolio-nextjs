@@ -66,6 +66,53 @@ function ScrollDriver({
   return null;
 }
 
+/** Second half of the pinned scene: the composition recedes toward the detailed biography. */
+function PinnedExit({
+  target,
+  progress,
+}: {
+  target: RefObject<HTMLDivElement | null>;
+  progress: MotionValue<number>;
+}) {
+  useEffect(() => {
+    const stage = target.current?.firstElementChild;
+    if (!(stage instanceof HTMLElement)) return;
+    const update = (value: number) => {
+      const exit = phaseProgress(value, 0.55, 1);
+      stage.style.setProperty("--about-exit", String(exit * exit * (3 - 2 * exit)));
+    };
+    update(progress.get());
+    const unsubscribe = progress.on("change", update);
+    return () => {
+      unsubscribe();
+      stage.style.removeProperty("--about-exit");
+    };
+  }, [progress, target]);
+  return null;
+}
+
+/** Menu and hash navigation land at the end of the pin, with the biography right below. */
+function ScrollLanding({ target }: { target: RefObject<HTMLDivElement | null> }) {
+  useEffect(() => {
+    const track = target.current;
+    const stage = track?.firstElementChild;
+    if (!track || !stage) return;
+    const measure = () => {
+      const distance = Math.max(0, track.offsetHeight - stage.getBoundingClientRect().height);
+      track.setAttribute("data-scroll-landing", String(80 - distance));
+    };
+    measure();
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
+    observer?.observe(track);
+    observer?.observe(stage);
+    return () => {
+      observer?.disconnect();
+      track.removeAttribute("data-scroll-landing");
+    };
+  }, [target]);
+  return null;
+}
+
 export function AboutSequence({ children, details }: { children: ReactNode; details?: ReactNode }) {
   const target = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
@@ -75,6 +122,8 @@ export function AboutSequence({ children, details }: { children: ReactNode; deta
     <>
       <div ref={target} className={styles.track}>
         {mode !== "static" && <ScrollDriver target={target} progress={progress} pinned={pinned} />}
+        {pinned && <PinnedExit target={target} progress={progress} />}
+        {pinned && <ScrollLanding target={target} />}
         <Sequence.Provider
           value={mode === "static" ? null : { progress, expressive: mode === "expressive", pinned }}
         >
