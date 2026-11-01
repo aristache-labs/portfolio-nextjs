@@ -18,7 +18,7 @@ import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { HERO_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
-import { HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
+import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
 import { HeroDepth } from "./HeroDepth";
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
@@ -155,7 +155,12 @@ export function Hero({
   const reduce = useReducedMotion();
   const { mode } = useAnimationPolicy();
   const expressive = mode === "expressive";
-  const pinned = useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout;
+  const desktopPinned = useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout;
+  const touchScene =
+    useMediaQuery(HERO_LANDSCAPE_PIN_QUERY) && mode !== "static" && transitionToAbout;
+  const pinned = desktopPinned || touchScene;
+  // Portrait phones use CSS-only scroll motion, so no per-frame script is mounted for them.
+  const portraitPhone = useMediaQuery("(max-width: 767px) and (orientation: portrait)");
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopAnchorScroll.current?.(), []);
   const navigateToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -260,9 +265,10 @@ export function Hero({
       id="hero"
       ref={sectionRef}
       data-cinematic={transitionToAbout || undefined}
+      data-touch-scene={touchScene || undefined}
       className={`${styles.hero} relative scroll-mt-24`}
     >
-      {mode !== "static" && (
+      {mode !== "static" && !portraitPhone && (
         <HeroScrollMotion section={sectionRef} expressive={expressive} pinned={pinned} />
       )}
       <div
@@ -384,7 +390,7 @@ export function Hero({
                   size="lg"
                   href="#projects"
                   onClick={(event) => navigateToSection(event, "projects")}
-                  className={`${styles.primaryAction} rounded-xl px-7 py-3.5 max-sm:w-full [@media(max-height:500px)]:py-2`}
+                  className={`${styles.primaryAction} rounded-xl px-8 py-4 text-base max-sm:w-full [@media(max-height:500px)]:py-2.5`}
                 >
                   Explore Projects
                   <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -399,7 +405,7 @@ export function Hero({
                     size="lg"
                     href="#contact"
                     onClick={(event) => navigateToSection(event, "contact")}
-                    className={`${styles.contactAction} rounded-xl px-6 py-3.5 max-sm:w-full`}
+                    className={`${styles.contactAction} rounded-xl px-7 py-4 text-base max-sm:w-full`}
                   >
                     Get in Touch
                   </Button>
@@ -415,7 +421,7 @@ export function Hero({
                   rel="noopener noreferrer"
                   className={styles.textLink}
                 >
-                  Resume <ArrowUpRight className="size-3.5" aria-hidden />
+                  Resume <ArrowUpRight className="size-4" aria-hidden />
                 </a>
               )}
               {iconSocials.map((social) => (
@@ -428,7 +434,7 @@ export function Hero({
                     : {})}
                   className={styles.textLink}
                 >
-                  <SocialGlyph platform={social.platform} className="size-4 object-contain" />
+                  <SocialGlyph platform={social.platform} className="size-5 object-contain" />
                   {social.platform}
                 </a>
               ))}
@@ -439,7 +445,7 @@ export function Hero({
         <a
           href="#projects"
           onClick={(event) => navigateToSection(event, "projects")}
-          className={`${styles.sceneControl} text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:translate-y-3`}
+          className={`${styles.sceneControl} text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-translate-y-6`}
           aria-label="Scroll to explore, jump to projects"
         >
           <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">

@@ -6,6 +6,9 @@ import { useScroll } from "framer-motion";
 export const HERO_PIN_QUERY =
   "(min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover)";
 
+/** Touch phones and small tablets in landscape get a shorter version of the pinned scene. */
+export const HERO_LANDSCAPE_PIN_QUERY = "(orientation: landscape) and (pointer: coarse)";
+
 const EXIT_PHASES = [
   { name: "specialization", start: 0.18, end: 0.65 },
   { name: "title", start: 0.32, end: 0.85 },
