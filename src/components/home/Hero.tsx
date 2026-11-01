@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type MouseEvent, type RefObject } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+  type RefObject,
+} from "react";
 import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -32,7 +40,7 @@ const PLATE =
 
 // CSS owns copy entrances so mobile never waits for hydration to reveal its LCP text.
 function entranceStyle(delay: number) {
-  return { animationDelay: `${delay * 0.54}s` };
+  return { "--hero-enter-delay": `${delay * 0.54}s` } as CSSProperties;
 }
 
 /** The mask stays aligned with the text; only the reflected light moves. */
@@ -317,7 +325,7 @@ export function Hero({
             type="button"
             onClick={toggleVideo}
             aria-label={playing ? "Pause background video" : "Play background video"}
-            className="border-border bg-background/40 text-foreground/70 hover:text-foreground absolute right-6 bottom-24 z-20 hidden size-10 items-center justify-center rounded-full border backdrop-blur-md md:flex landscape:flex"
+            className={`${styles.sceneControl} border-border bg-background/40 text-foreground/70 hover:text-foreground absolute right-6 bottom-24 z-20 hidden size-10 items-center justify-center rounded-full border backdrop-blur-md md:flex landscape:flex`}
           >
             {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
           </button>
@@ -327,9 +335,11 @@ export function Hero({
           className={`${styles.content} ${styles.scrollCopy} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
         >
           <div className={`${styles.intro} min-w-0 lg:pl-8`}>
-            <p className={styles.specialization}>{profile.roles.join(" · ")}</p>
+            <p className={styles.specialization}>
+              <span className={styles.specializationEntrance}>{profile.roles.join(" · ")}</span>
+            </p>
 
-            <h1 className="max-w-3xl">
+            <h1 className={`${styles.exitTitle} max-w-3xl`}>
               <span className={`${styles.name} font-display block`}>
                 <HeroNameText text={firstName} />
                 {remainingName.length > 0 && (
@@ -347,24 +357,26 @@ export function Hero({
               </span>
             </h1>
 
-            <p
-              style={entranceStyle(0.6)}
-              className={`${styles.enter} ${styles.copy} text-foreground/95 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
-            >
-              {HERO_COPY}
-            </p>
-
-            {heroTagline && (
+            <div className={styles.exitDetails}>
               <p
-                style={entranceStyle(0.7)}
-                className={`${styles.enter} mt-4 [@media(max-height:500px)]:mt-2`}
+                style={entranceStyle(0.6)}
+                className={`${styles.enter} ${styles.copy} text-foreground/95 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
               >
-                <span className={styles.tagline}>{heroTagline}</span>
+                {HERO_COPY}
               </p>
-            )}
+
+              {heroTagline && (
+                <p
+                  style={entranceStyle(0.7)}
+                  className={`${styles.enter} mt-4 [@media(max-height:500px)]:mt-2`}
+                >
+                  <span className={styles.tagline}>{heroTagline}</span>
+                </p>
+              )}
+            </div>
 
             <div
-              className={`${styles.actions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
+              className={`${styles.actions} ${styles.exitActions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
             >
               <Magnetic className={`${styles.actionEntrance} ${styles.actionFirst} max-sm:w-full`}>
                 <Button
@@ -395,7 +407,7 @@ export function Hero({
               </div>
             </div>
 
-            <div className={styles.secondaryLinks}>
+            <div className={`${styles.secondaryLinks} ${styles.exitActions}`}>
               {resumeUrl && (
                 <a
                   href={resumeUrl}
@@ -427,7 +439,7 @@ export function Hero({
         <a
           href="#projects"
           onClick={(event) => navigateToSection(event, "projects")}
-          className="text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:translate-y-3"
+          className={`${styles.sceneControl} text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:translate-y-3`}
           aria-label="Scroll to explore, jump to projects"
         >
           <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">

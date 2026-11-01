@@ -127,14 +127,50 @@
 }
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hero {
+    --hero-pointer-travel: -24px;
+    --hero-copy-travel: 6px;
+    --hero-depth-scale: 1.04;
+    --hero-entry-distance: 18px;
+  }
+
+  .hero .specializationEntrance {
+    display: block;
+    animation: settle-in 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero .name {
+    animation-delay: 120ms;
+  }
+
+  .hero .enter {
+    animation-delay: calc(var(--hero-enter-delay, 0s) * 1.7);
+  }
+
+  .hero .actionFirst {
+    animation-delay: 760ms;
+  }
+
+  .hero .actionSecond {
+    animation-delay: 860ms;
+  }
+
+  .hero .secondaryLinks > a {
+    animation: settle-in 700ms 1000ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero .secondaryLinks > a:focus-visible {
+    animation: none;
+  }
+
   .hero[data-cinematic] .halo {
     display: block;
     position: absolute;
     inset: 8% 5% 12% 35%;
     background: radial-gradient(ellipse, rgb(var(--brand-mid-rgb) / 0.12), transparent 65%);
     transform: translate(
-      calc(var(--hero-pointer-x, 0) * 32px),
-      calc(var(--hero-pointer-y, 0) * 20px + var(--hero-light-progress, 0) * -24px)
+      calc(var(--hero-halo-x, 0) * 48px),
+      calc(var(--hero-halo-y, 0) * 32px + var(--hero-light-progress, 0) * -24px)
     );
   }
 
@@ -187,6 +223,36 @@
     top: 0;
   }
 
+  .hero[data-cinematic] .specialization {
+    transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
+    opacity: calc(1 - var(--hero-exit-specialization, 0));
+  }
+
+  .hero[data-cinematic] .exitTitle {
+    transform: translateY(calc(var(--hero-exit-title, 0) * -36px))
+      scale(calc(1 - var(--hero-exit-title, 0) * 0.025));
+    transform-origin: left center;
+    opacity: calc(1 - var(--hero-exit-title, 0));
+  }
+
+  .hero[data-cinematic] .exitDetails {
+    transform: translateY(calc(var(--hero-exit-details, 0) * -24px));
+    opacity: calc(1 - var(--hero-exit-details, 0));
+  }
+
+  .hero[data-cinematic] .exitActions {
+    transform: translateY(calc(var(--hero-exit-actions, 0) * -16px));
+    opacity: calc(1 - var(--hero-exit-actions, 0));
+  }
+
+  /* Keyboard navigation restores the entire composition, including late in the scene. */
+  .hero[data-cinematic]
+    .intro:focus-within
+    :is(.specialization, .exitTitle, .exitDetails, .exitActions) {
+    transform: none;
+    opacity: 1;
+  }
+
   .hero[data-cinematic] .scrollMedia {
     transform-origin: center;
   }
@@ -194,9 +260,33 @@
   .hero[data-cinematic] + :global(#about) {
     z-index: 1;
     margin-top: -18svh;
-    border-radius: 2.5rem 2.5rem 0 0;
-    background-color: var(--background);
-    box-shadow: 0 -32px 72px rgb(0 0 0 / 0.24);
+    /* Match the overlap so the two plates dissolve across their shared area. */
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .hero[data-cinematic] .sceneControl {
+    opacity: calc(1 - var(--hero-exit-title, 0));
+  }
+
+  .hero[data-cinematic] .sceneControl:focus-visible {
+    opacity: 1;
+  }
+
+  .hero[data-cinematic] + :global(#about) > :global([aria-hidden="true"]) {
+    mask-image: linear-gradient(to bottom, transparent, black min(18svh, 12rem));
+  }
+
+  .hero[data-cinematic] + :global(#about)::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    inset: 0 0 auto;
+    height: min(18svh, 12rem);
+    pointer-events: none;
+    backdrop-filter: blur(12px);
+    mask-image: linear-gradient(to bottom, transparent, black 45%, transparent);
   }
 }
 
@@ -210,20 +300,29 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* The picture drifts a few pixels against the cursor. The scale above already covers
-     that movement, so no edge of the plate shows. */
+  /* Desktop reserves image coverage before applying the stronger pointer movement. */
   .scrollMedia {
     transform: translate(
-        calc(var(--hero-pointer-x, 0) * -6px),
-        calc(var(--hero-media-y, 0%) + var(--hero-pointer-y, 0) * -6px)
+        calc(var(--hero-pointer-x, 0) * var(--hero-pointer-travel, -6px)),
+        calc(var(--hero-media-y, 0%) + var(--hero-pointer-y, 0) * var(--hero-pointer-travel, -6px))
       )
-      scale(var(--hero-media-scale, 1));
+      scale(calc(var(--hero-media-scale, 1) * var(--hero-depth-scale, 1)));
   }
 
   /* The copy leans toward the cursor by a couple of degrees, never enough to hurt reading. */
   .intro {
-    transform: perspective(1200px) rotateX(calc(var(--hero-pointer-y, 0) * -1.5deg))
+    transform: perspective(1200px)
+      translate3d(
+        calc(var(--hero-pointer-x, 0) * var(--hero-copy-travel, 0px)),
+        calc(var(--hero-pointer-y, 0) * var(--hero-copy-travel, 0px)),
+        0
+      )
+      rotateX(calc(var(--hero-pointer-y, 0) * -1.5deg))
       rotateY(calc(var(--hero-pointer-x, 0) * 2.5deg));
+  }
+
+  .intro:focus-within {
+    transform: none;
   }
 
   .scrollCopy {
@@ -243,6 +342,10 @@
     animation: settle-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  .enter {
+    animation-delay: var(--hero-enter-delay, 0s);
+  }
+
   .actionEntrance:focus-within {
     animation: none;
   }
@@ -250,7 +353,7 @@
 
 @keyframes settle-in {
   from {
-    transform: translateY(10px);
+    transform: translateY(var(--hero-entry-distance, 10px));
   }
   to {
     transform: translateY(0);

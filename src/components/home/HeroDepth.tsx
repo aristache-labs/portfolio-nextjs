@@ -13,6 +13,8 @@ export function HeroDepth({ section }: { section: RefObject<HTMLElement | null> 
   const y = useMotionValue(0);
   const springX = useSpring(x, { stiffness: 60, damping: 22, mass: 0.6 });
   const springY = useSpring(y, { stiffness: 60, damping: 22, mass: 0.6 });
+  const haloX = useSpring(x, { stiffness: 25, damping: 20, mass: 1.2 });
+  const haloY = useSpring(y, { stiffness: 25, damping: 20, mass: 1.2 });
 
   useEffect(() => {
     const node = section.current;
@@ -20,6 +22,10 @@ export function HeroDepth({ section }: { section: RefObject<HTMLElement | null> 
     const write = () => {
       node.style.setProperty("--hero-pointer-x", String(springX.get()));
       node.style.setProperty("--hero-pointer-y", String(springY.get()));
+    };
+    const writeHalo = () => {
+      node.style.setProperty("--hero-halo-x", String(haloX.get()));
+      node.style.setProperty("--hero-halo-y", String(haloY.get()));
     };
     // Normalising against the viewport keeps this listener free of layout reads.
     const move = (event: PointerEvent) => {
@@ -33,17 +39,23 @@ export function HeroDepth({ section }: { section: RefObject<HTMLElement | null> 
     };
     const unsubscribeX = springX.on("change", write);
     const unsubscribeY = springY.on("change", write);
+    const unsubscribeHaloX = haloX.on("change", writeHalo);
+    const unsubscribeHaloY = haloY.on("change", writeHalo);
     node.addEventListener("pointermove", move);
     node.addEventListener("pointerleave", reset);
     return () => {
       unsubscribeX();
       unsubscribeY();
+      unsubscribeHaloX();
+      unsubscribeHaloY();
       node.removeEventListener("pointermove", move);
       node.removeEventListener("pointerleave", reset);
       node.style.removeProperty("--hero-pointer-x");
       node.style.removeProperty("--hero-pointer-y");
+      node.style.removeProperty("--hero-halo-x");
+      node.style.removeProperty("--hero-halo-y");
     };
-  }, [springX, springY, x, y, section]);
+  }, [haloX, haloY, springX, springY, x, y, section]);
 
   return null;
 }

@@ -25,11 +25,15 @@ describe("HeroScrollMotion", () => {
     render(<HeroScrollMotion section={section} expressive pinned />);
     act(() => scroll.progress!.set(0.5));
     expect(section.current.style.getPropertyValue("--hero-media-y")).toBe("-1%");
-    expect(section.current.style.getPropertyValue("--hero-media-scale")).toBe("1.04");
-    expect(Number(section.current.style.getPropertyValue("--hero-copy-opacity"))).toBeCloseTo(0.5);
+    expect(section.current.style.getPropertyValue("--hero-media-scale")).toBe("1.05");
+    // Actions remain fully available while the earlier layers start their exit.
+    expect(section.current.style.getPropertyValue("--hero-copy-opacity")).toBe("1");
+    expect(section.current.style.getPropertyValue("--hero-exit-actions")).toBe("0");
+    expect(Number(section.current.style.getPropertyValue("--hero-exit-title"))).toBeGreaterThan(0);
     act(() => scroll.progress!.set(0));
     expect(section.current.style.getPropertyValue("--hero-media-scale")).toBe("1");
     expect(section.current.style.getPropertyValue("--hero-copy-opacity")).toBe("1");
+    expect(section.current.style.getPropertyValue("--hero-exit-title")).toBe("0");
   });
 
   it("reverses the desktop scene when scrolling back to the top", () => {
@@ -55,7 +59,7 @@ describe("HeroScrollMotion", () => {
 
   it("restores static styles and stops updates when motion is disabled", () => {
     const section = { current: document.createElement("section") };
-    const { unmount } = render(<HeroScrollMotion section={section} expressive />);
+    const { unmount } = render(<HeroScrollMotion section={section} expressive pinned />);
     act(() => scroll.progress!.set(0.75));
     unmount();
     act(() => scroll.progress!.set(1));
