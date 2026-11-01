@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
-import { m, useScroll, useSpring, useTransform } from "framer-motion";
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { AnimatePresence, m, useScroll } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
@@ -15,15 +15,15 @@ import subtitleCss from "./section-subtitle.module.css";
 import spacing from "./experience-projects-spacing.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
-const TIMELINE_SPRING = { stiffness: 120, damping: 30, restDelta: 0.001 };
-
 /** Keep frame-based content measurements local to the visible timeline. */
 function NearbyTimelineRail({
   listRef,
   highlightEntries,
+  onActive,
 }: {
   listRef: RefObject<HTMLDivElement | null>;
   highlightEntries: boolean;
+  onActive: (index: number) => void;
 }) {
   const [near, setNear] = useState(() => typeof IntersectionObserver !== "function");
 
@@ -45,24 +45,28 @@ function NearbyTimelineRail({
     };
   }, [listRef]);
 
-  return near ? <ScrollTimelineRail listRef={listRef} highlightEntries={highlightEntries} /> : null;
+  return near ? (
+    <ScrollTimelineRail listRef={listRef} highlightEntries={highlightEntries} onActive={onActive} />
+  ) : null;
 }
 
 /** Share scroll progress across orientations; entry highlighting remains desktop-only. */
 function ScrollTimelineRail({
   listRef,
   highlightEntries,
+  onActive,
 }: {
   listRef: RefObject<HTMLDivElement | null>;
   highlightEntries: boolean;
+  /** Reports the role in the central band, for the indicator beside the heading. */
+  onActive: (index: number) => void;
 }) {
-  const { scrollYProgress } = useScroll({
+  // The rail follows scrolling directly, so a role enters exactly when the line reaches it.
+  const { scrollYProgress: fill } = useScroll({
     target: listRef,
     offset: ["start 70%", "end 60%"],
     trackContentSize: true,
   });
-  const fill = useSpring(scrollYProgress, TIMELINE_SPRING);
-  const scaleY = useTransform(fill, [0, 1], [0, 1]);
 
   useEffect(() => {
     const list = listRef.current;
@@ -70,6 +74,8 @@ function ScrollTimelineRail({
     const track = list.querySelector<HTMLElement>("[data-timeline-track]");
     if (!track) return;
     const dots = Array.from(list.querySelectorAll<HTMLElement>("[data-timeline-dot]"));
+    const entries = Array.from(list.querySelectorAll<HTMLElement>("[data-experience-id]"));
+    if (highlightEntries) list.setAttribute("data-timeline-scroll", "");
     let positions: number[] = [];
     let length = 0;
     const update = (progress: number) => {
@@ -78,6 +84,13 @@ function ScrollTimelineRail({
           "data-timeline-filled",
           progress > 0 && progress * length >= positions[index],
         );
+      });
+      if (!highlightEntries || progress <= 0) return;
+      // A role enters slightly ahead of the rail, which then lights its marker. One way:
+      // a role that has entered stays visible when scrolling back up.
+      const lead = innerHeight * 0.3;
+      entries.forEach((entry, index) => {
+        if (progress * length + lead >= positions[index]) entry.setAttribute("data-entered", "");
       });
     };
     const measure = () => {
@@ -101,8 +114,10 @@ function ScrollTimelineRail({
       resize?.disconnect();
       window.removeEventListener("resize", measure);
       dots.forEach((dot) => dot.removeAttribute("data-timeline-filled"));
+      // Entered roles keep their state; without this attribute nothing is hidden anyway.
+      list.removeAttribute("data-timeline-scroll");
     };
-  }, [fill, listRef]);
+  }, [fill, highlightEntries, listRef]);
 
   useEffect(() => {
     const list = listRef.current;
@@ -127,6 +142,8 @@ function ScrollTimelineRail({
             if (entry === current) entry.setAttribute("data-timeline-active", "true");
             else entry.removeAttribute("data-timeline-active");
           });
+          // Between roles the indicator keeps the last one rather than going blank.
+          if (current) onActive(entries.indexOf(current));
         },
         {
           rootMargin: `-${Math.round(window.innerHeight * 0.25)}px 0px -${Math.round(window.innerHeight * 0.45)}px 0px`,
@@ -142,16 +159,22 @@ function ScrollTimelineRail({
       window.removeEventListener("resize", connect);
       entries.forEach((entry) => entry.removeAttribute("data-timeline-active"));
     };
-  }, [highlightEntries, listRef]);
+  }, [highlightEntries, listRef, onActive]);
 
   return (
     <m.span
       aria-hidden
-      style={{ scaleY }}
+      style={{ scaleY: fill }}
       className={`${styles.rail} absolute top-6 bottom-6 w-px origin-top bg-(image:--gradient-brand)`}
     />
   );
 }
+
+/** Sticky offset of the intro column (lg:top-24). */
+const INTRO_TOP = 96;
+
+/** Order of a card part in its staggered entrance. */
+const step = (order: number) => ({ "--step": order }) as CSSProperties;
 
 function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number; last: boolean }) {
   const { mode } = useAnimationPolicy();
@@ -164,16 +187,25 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
       <div aria-hidden className="w-3 shrink-0" />
 
       {/* Card content */}
-      <div className={cn("min-w-0 flex-1 pb-6 sm:pb-8", last && "pb-0")}>
+      <div className={cn("min-w-0 flex-1 pb-4 sm:pb-5", last && "pb-0")}>
         <div
-          className={`${styles.card} bg-background/100 w-full rounded-2xl border border-(--brand-mid)/25 px-4 py-4 backdrop-blur-sm sm:px-5`}
+          className={`${styles.card} w-full rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-4 py-3.5 backdrop-blur-[18px] sm:px-5`}
         >
-          <p className="font-mono text-xs leading-none tracking-[0.18em] text-(--period) uppercase">
+          <p
+            className={`${styles.step} font-mono text-xs leading-none tracking-[0.18em] text-(--period) uppercase`}
+            style={step(0)}
+          >
             {exp.period}
           </p>
-          <h3 className="mt-1.5 text-lg leading-snug font-bold sm:text-xl">{exp.role}</h3>
+          <h3
+            className={`${styles.step} mt-1.5 text-lg leading-snug font-semibold sm:text-xl`}
+            style={step(1)}
+          >
+            {exp.role}
+          </h3>
           <div
-            className={`${styles.metadata} text-muted mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm leading-snug`}
+            style={step(2)}
+            className={`${styles.metadata} ${styles.step} text-muted mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm leading-snug`}
           >
             <span>{exp.org}</span>
             {exp.location && (
@@ -184,11 +216,12 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
             )}
           </div>
           {exp.description.length > 0 && (
-            <ul className="mt-3.5 space-y-2">
+            <ul className="mt-3 space-y-1.5">
               {exp.description.slice(0, previewCount).map((d, i) => (
                 <li
                   key={`${exp.id}-bullet-${i}`}
-                  className="text-muted flex gap-2.5 text-sm leading-relaxed"
+                  style={step(3 + i)}
+                  className={`${styles.step} text-muted flex gap-2.5 text-sm leading-[1.55]`}
                 >
                   <span className="mt-2 size-1.5 shrink-0 rounded-full bg-(image:--gradient-brand)" />
                   <span className="min-w-0 break-words">{d}</span>
@@ -198,7 +231,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
           )}
           {exp.description.length > previewCount && (
             <details
-              className="group mt-2"
+              className="group mt-1.5"
               open={desktop || expanded}
               onToggle={(event) => {
                 if (!desktop) setExpanded(event.currentTarget.open);
@@ -216,11 +249,13 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
                   ⌄
                 </span>
               </summary>
-              <ul className="mt-1 space-y-2">
+              {/* On desktop the summary is hidden, so the list continues at the same rhythm. */}
+              <ul className="mt-1.5 space-y-1.5 lg:mt-0">
                 {exp.description.slice(previewCount).map((d, i) => (
                   <li
                     key={`${exp.id}-more-${i}`}
-                    className="text-muted flex gap-2.5 text-sm leading-relaxed"
+                    style={step(3 + previewCount + i)}
+                    className={`${styles.step} text-muted flex gap-2.5 text-sm leading-[1.55]`}
                   >
                     <span
                       aria-hidden
@@ -244,13 +279,51 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
         data-timeline-dot
         className={`${styles.dot} ${styles.marker} bg-background absolute top-[1.125rem] z-10 size-3 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15`}
       />
-      <ProgressiveReveal
-        effect={mode === "expressive" ? "slide" : "fade"}
-        desktopDelay={Math.min(index * 0.04, 0.12)}
-      >
-        {inner}
-      </ProgressiveReveal>
+      {mode === "expressive" ? (
+        // The timeline rail reveals this role when it reaches the marker.
+        inner
+      ) : (
+        <ProgressiveReveal effect="fade" desktopDelay={Math.min(index * 0.04, 0.12)}>
+          {inner}
+        </ProgressiveReveal>
+      )}
     </li>
+  );
+}
+
+/** Desktop companion to the timeline: the role in view, kept beside the sticky heading. */
+function CurrentRole({ experiences, active }: { experiences: ExperienceRow[]; active: number }) {
+  const index = Math.min(active, experiences.length - 1);
+  const role = experiences[index];
+  const count = (value: number) => String(value).padStart(2, "0");
+  return (
+    // The same details are in the timeline itself, so assistive technology skips this copy.
+    <div aria-hidden data-current-role className={`${styles.currentRole} hidden max-w-xs lg:block`}>
+      <p className="text-muted font-mono text-[11px] tracking-[0.18em]">
+        {count(index + 1)} / {count(experiences.length)}
+      </p>
+      <span className="mt-2 block h-px w-full overflow-hidden bg-white/10">
+        <span
+          className="block h-full origin-left bg-(image:--gradient-brand) transition-transform duration-500 ease-out motion-reduce:transition-none"
+          style={{ transform: `scaleX(${(index + 1) / experiences.length})` }}
+        />
+      </span>
+      <AnimatePresence mode="wait" initial={false}>
+        <m.div
+          key={role.id}
+          className="mt-3"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <p className="font-mono text-xs tracking-[0.18em] text-(--period) uppercase">
+            {role.period}
+          </p>
+          <p className="text-foreground/80 mt-1.5 text-sm">{role.org}</p>
+        </m.div>
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -264,6 +337,25 @@ export function Experience({
   const sorted = [...experiences].sort((a, b) => a.order - b.order);
   const { mode } = useAnimationPolicy();
   const listRef = useRef<HTMLDivElement>(null);
+  const stickStart = useRef<HTMLSpanElement>(null);
+  const [activeRole, setActiveRole] = useState(0);
+  const [stuck, setStuck] = useState(false);
+  // While the intro sticks beside the timeline, the subtitle folds and the indicator rises.
+  const folds = mode === "expressive" && sorted.length > 1;
+  const compact = folds && stuck;
+
+  useEffect(() => {
+    const marker = stickStart.current;
+    if (!folds || !marker || typeof IntersectionObserver !== "function") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry) setStuck(!entry.isIntersecting && entry.boundingClientRect.top < INTRO_TOP);
+      },
+      { rootMargin: `-${INTRO_TOP}px 0px 0px 0px` },
+    );
+    observer.observe(marker);
+    return () => observer.disconnect();
+  }, [folds]);
 
   return (
     <Section
@@ -289,24 +381,39 @@ export function Experience({
       {/* Two columns on lg+: sticky intro on the left, timeline on the right,
           both inside the shared page width so the block does not drift left
           on a wide monitor. Stacks to one column below lg. */}
-      <div className="grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
-        <div className="relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start">
+      <div className="relative grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
+        {/* Marks where the intro starts sticking (lg:top-24, matching INTRO_TOP). */}
+        <span
+          ref={stickStart}
+          aria-hidden
+          className="pointer-events-none absolute top-0 left-0 h-px w-px"
+        />
+        <div
+          data-compact={compact ? "" : undefined}
+          className={`${styles.intro} relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start`}
+        >
           <ProgressiveReveal effect="fade" className="mb-5">
             <p className={labelCss.label}>
               <span className={labelCss.number}>{number}</span>
               <span>Experience</span>
               <span aria-hidden className={labelCss.rule} />
             </p>
-            <h2 className="font-display text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight whitespace-nowrap">
-              Where I&apos;ve <span className="gradient-text">worked</span>
+            {/* Same scale and weight as the About and Skills headings. */}
+            <h2 className="font-display text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] whitespace-nowrap">
+              Where I&apos;ve <span className="text-brand-mid">worked</span>
             </h2>
           </ProgressiveReveal>
-          <ProgressiveReveal effect="slide" desktopDelay={0.08}>
-            <p className={`${subtitleCss.subtitle} max-w-md`}>
-              Enterprise deployments, infrastructure operations and automation across international
-              restaurant locations.
-            </p>
-          </ProgressiveReveal>
+          <div className={styles.subtitleFold}>
+            <div>
+              <ProgressiveReveal effect="slide" desktopDelay={0.08}>
+                <p className={`${subtitleCss.subtitle} max-w-md`}>
+                  Enterprise deployments, infrastructure operations and automation across
+                  international restaurant locations.
+                </p>
+              </ProgressiveReveal>
+            </div>
+          </div>
+          {folds && <CurrentRole experiences={sorted} active={activeRole} />}
         </div>
 
         <div ref={listRef} className="relative">
@@ -324,7 +431,11 @@ export function Experience({
                 className={`${styles.rail} absolute top-6 bottom-6 w-px bg-(image:--gradient-brand) opacity-30`}
               />
               {sorted.length > 1 && mode !== "static" && (
-                <NearbyTimelineRail listRef={listRef} highlightEntries={mode === "expressive"} />
+                <NearbyTimelineRail
+                  listRef={listRef}
+                  highlightEntries={mode === "expressive"}
+                  onActive={setActiveRole}
+                />
               )}
             </>
           )}
