@@ -44,12 +44,19 @@ export function ScrollEntrance({
       peak = current;
       element.style.setProperty("--entry", String(current));
     };
+    // Keyboard focus never lands on something still faded out.
+    const reveal = () => {
+      peak = 1;
+      element.style.setProperty("--entry", "1");
+    };
     update();
     const unsubscribe = scrollY.on("change", update);
     window.addEventListener("resize", update);
+    element.addEventListener("focusin", reveal);
     return () => {
       unsubscribe();
       window.removeEventListener("resize", update);
+      element.removeEventListener("focusin", reveal);
       element.style.removeProperty("--entry");
     };
   }, [enabled, lag, scrollY]);

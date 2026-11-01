@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+import { PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
 import { Contact, platformIcon } from "./Contact";
 import type { SocialRow } from "./Contact";
 import { Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
@@ -205,6 +206,24 @@ describe("Contact", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Message sent.");
     expect(screen.getByLabelText("Your Name")).toHaveValue("");
     expect(screen.getByLabelText("Message")).toHaveValue("");
+  });
+
+  it("brings the column in from the left and the form from the right on expressive desktops", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [PINNED_SCENE_QUERY]: true });
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    const from = (element: Element) => element.closest("[data-from]")?.getAttribute("data-from");
+    expect(from(screen.getByRole("heading", { name: "Discuss a project." }))).toBe("left");
+    for (const card of container.querySelectorAll("ul a")) {
+      expect(from(card)).toBe("left");
+      // The glass card is the element that fades, directly inside the moving wrapper.
+      expect(card.parentElement).toHaveAttribute("data-from", "left");
+    }
+    const quote = container.querySelector("figure")!.parentElement!;
+    expect(quote).toHaveClass("backdrop-blur-[18px]");
+    expect(quote.parentElement).toHaveAttribute("data-from", "left");
+    const form = container.querySelector("form")!;
+    expect(form.parentElement).toHaveClass("backdrop-blur-[18px]");
+    expect(form.parentElement!.parentElement).toHaveAttribute("data-from", "right");
   });
 
   it("draws a focus line under every field and lets each label react to focus", () => {

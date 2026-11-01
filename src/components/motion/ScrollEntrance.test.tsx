@@ -70,6 +70,24 @@ describe("ScrollEntrance", () => {
     expect(Number(entrance.style.getPropertyValue("--entry"))).toBeCloseTo(0.5);
   });
 
+  it("shows itself at once when keyboard focus moves inside", () => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      () => ({ top }) as DOMRect,
+    );
+    top = topAt(-0.5);
+    const { getByRole } = render(
+      <ScrollEntrance enabled from="right">
+        <button type="button">Send</button>
+      </ScrollEntrance>,
+    );
+    const entrance = getByRole("button").parentElement!;
+    expect(entrance.style.getPropertyValue("--entry")).toBe("0");
+    act(() => getByRole("button").focus());
+    expect(entrance.style.getPropertyValue("--entry")).toBe("1");
+    scrollTo(-1);
+    expect(entrance.style.getPropertyValue("--entry")).toBe("1");
+  });
+
   it("never hides anything when disabled", () => {
     const { getByText } = render(
       <ScrollEntrance enabled={false} from="below" className="h-full">
