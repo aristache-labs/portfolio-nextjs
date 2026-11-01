@@ -20,3 +20,14 @@
     transform: scale(1.035);
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* While the card crosses the screen the cover settles from 1.15 to 1.05 and drifts against
+     the scroll inside its fixed frame. The smallest scale still leaves 2.5% on each edge, more
+     than the 2% drift, so the frame never shows a gap. Uses the individual properties, so the
+     hover zoom on transform still composes on top. */
+  [data-depth] .cover {
+    scale: calc(1.1 + var(--depth, 0) * 0.05);
+    translate: 0 calc(var(--depth, 0) * -2%);
+  }
+}

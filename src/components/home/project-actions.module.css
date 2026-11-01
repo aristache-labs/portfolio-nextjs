@@ -220,3 +220,18 @@
   min-width: 44px;
   min-height: 44px;
 }
+
+/* Smaller cards: a slimmer pill instead of a tall oval. An invisible hit area keeps the
+   44px touch target (32px + 6px above and below). Comes last to override the touch rules. */
+.actions.compact a,
+.actions.compact button {
+  position: relative;
+  min-height: 32px;
+}
+
+.actions.compact a::before,
+.actions.compact button::before {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+}

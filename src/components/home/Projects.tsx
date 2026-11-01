@@ -1,7 +1,8 @@
 import { ArrowUpRight } from "lucide-react";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Magnetic } from "@/components/motion/Magnetic";
-import { Section, SectionHeading } from "@/components/ui/Section";
+import { Section } from "@/components/ui/Section";
+import labelCss from "@/components/ui/section-label.module.css";
 import { Button } from "@/components/ui/Button";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { SectionBackdrop } from "./SectionBackdrop";
@@ -51,13 +52,17 @@ export function Projects({
         className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-10 [@media(orientation:portrait)_and_(max-width:767px)]:flex [@media(orientation:portrait)_and_(max-width:767px)]:flex-col"
       >
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between [@media(orientation:portrait)_and_(max-width:767px)]:contents">
-          <SectionHeading
-            number={number}
-            eyebrow="Projects"
-            title="Selected Projects"
-            accent="Projects"
-            className="mb-0 [@media(orientation:portrait)_and_(max-width:767px)]:mb-4"
-          />
+          {/* Same scale and weight as the About, Skills and Experience headings. */}
+          <div className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-4">
+            <p className={labelCss.label}>
+              <span className={labelCss.number}>{number}</span>
+              <span>Projects</span>
+              <span aria-hidden className={labelCss.rule} />
+            </p>
+            <h2 className="font-display text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em]">
+              Selected <span className="text-brand-mid">Projects</span>
+            </h2>
+          </div>
         </div>
         <p
           className={`${subtitleCss.subtitle} mb-10 max-w-2xl text-pretty [@media(orientation:portrait)_and_(max-width:767px)]:order-1 [@media(orientation:portrait)_and_(max-width:767px)]:mb-0`}

@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
-import { COMPACT_PROJECT_ACTION, COMPACT_PROJECT_TAGS } from "./project-styles";
+import { COMPACT_PROJECT_ACTION, COMPACT_PROJECT_TAGS, GLASS_CARD } from "./project-styles";
 
 export type { MergedProject };
 
@@ -27,7 +27,7 @@ export function ProjectCard({
   return (
     <Card
       as="article"
-      className={`${motionStyles.card} group bg-surface relative flex h-full flex-col overflow-hidden border-(--brand-mid)/30 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-(--brand-mid)/55`}
+      className={`${motionStyles.card} ${GLASS_CARD} group relative flex h-full flex-col overflow-hidden p-5 transition-colors duration-300 hover:border-(--brand-mid)/45`}
     >
       <div className="relative z-10 flex flex-1 flex-col">
         {/* Featured badge: more projects are flagged featured than the showcase above
@@ -83,7 +83,9 @@ export function ProjectCard({
         )}
 
         {/* Action links */}
-        <div className={`${actionStyles.actions} mt-auto flex flex-wrap items-center gap-2 pt-4`}>
+        <div
+          className={`${actionStyles.actions} ${actionStyles.compact} mt-auto flex flex-wrap items-center gap-2 pt-4`}
+        >
           {onQuickView && (
             <Button
               className={COMPACT_PROJECT_ACTION}

@@ -1,0 +1,20 @@
+@media (prefers-reduced-motion: no-preference) {
+  .entrance[data-from] {
+    opacity: var(--entry, 1);
+  }
+
+  .entrance[data-from="left"] {
+    transform: translateX(calc((1 - var(--entry, 1)) * -96px))
+      scale(calc(0.94 + var(--entry, 1) * 0.06));
+  }
+
+  .entrance[data-from="right"] {
+    transform: translateX(calc((1 - var(--entry, 1)) * 96px))
+      scale(calc(0.94 + var(--entry, 1) * 0.06));
+  }
+
+  .entrance[data-from="below"] {
+    transform: translateY(calc((1 - var(--entry, 1)) * 64px))
+      scale(calc(0.92 + var(--entry, 1) * 0.08));
+  }
+}
