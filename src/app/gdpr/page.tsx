@@ -203,7 +203,9 @@ export default async function GdprPage() {
                 label="GDPR page contents"
                 items={sections.map(({ id, title }) => ({ id, label: title }))}
               />
-              <div className={`${GLASS_CARD} grid min-w-0 gap-9 rounded-2xl border p-5 sm:p-8`}>
+              <div
+                className={`${GLASS_CARD} grid min-w-0 grid-cols-[minmax(0,1fr)] gap-9 rounded-2xl border p-5 [overflow-wrap:anywhere] sm:p-8`}
+              >
                 {sections.map(({ id, title, content }) => (
                   <LegalReveal key={id}>
                     <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-[88px]">

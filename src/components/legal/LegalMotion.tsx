@@ -83,7 +83,7 @@ export function LegalReveal({ children }: { children: ReactNode }) {
 }
 
 const LINK =
-  "text-muted hover:text-brand-bright focus-visible:ring-brand-mid relative inline-flex min-h-11 items-center rounded-md px-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none before:absolute before:top-1/2 before:-left-[13px] before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-(--brand-mid) before:opacity-0 before:transition-opacity aria-[current=location]:before:opacity-100";
+  "text-muted hover:text-brand-bright focus-visible:ring-brand-mid relative inline-flex min-h-11 items-center rounded-md px-2 text-[15px] transition-colors focus-visible:ring-2 focus-visible:outline-none before:absolute before:top-1/2 before:-left-[13px] before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-(--brand-mid) before:opacity-0 before:transition-opacity aria-[current=location]:before:opacity-100";
 
 /** The page contents. The section being read carries `aria-current="location"`. */
 export function LegalContents({
@@ -114,7 +114,7 @@ export function LegalContents({
   return (
     <nav aria-label={label} className={`${styles.contentsNav} lg:sticky lg:top-8 lg:self-start`}>
       <div className={styles.contentsDesktop}>
-        <p className="text-muted mb-4 text-sm">On this page</p>
+        <p className="text-muted mb-4 text-[15px]">On this page</p>
         {list}
       </div>
       <details className={`${styles.contentsMobile} group ${GLASS_CARD} rounded-xl border`}>

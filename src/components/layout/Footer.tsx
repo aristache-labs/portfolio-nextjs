@@ -207,7 +207,7 @@ export function Footer({
               duration={0}
               delay={0.1}
               staggerChildren={0.08}
-              className={`${layout.explore} ${NAV_DIVIDER} max-sm:flex max-sm:flex-col max-sm:items-center max-sm:rounded-2xl max-sm:border max-sm:border-white/8 max-sm:bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] max-sm:px-3.5 max-sm:py-2.5 max-sm:backdrop-blur-[18px] lg:flex lg:flex-col lg:items-center [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
+              className={`${layout.explore} ${NAV_DIVIDER} max-sm:flex max-sm:flex-col max-sm:items-center lg:flex lg:flex-col lg:items-center [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
             >
               <nav aria-label="Explore" className="w-full">
                 <m.h3 initial={false} variants={itemVariants} className={`${HEADING} text-center`}>

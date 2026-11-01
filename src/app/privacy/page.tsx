@@ -360,7 +360,9 @@ export default async function PrivacyPage() {
                 items={sections.map(({ id, label }) => ({ id, label }))}
               />
 
-              <div className={`${GLASS_CARD} grid min-w-0 gap-9 rounded-2xl border p-5 sm:p-8`}>
+              <div
+                className={`${GLASS_CARD} grid min-w-0 grid-cols-[minmax(0,1fr)] gap-9 rounded-2xl border p-5 [overflow-wrap:anywhere] sm:p-8`}
+              >
                 {sections.map(({ id, label, icon: Icon, content }) => (
                   <LegalReveal key={id}>
                     <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-[88px]">
