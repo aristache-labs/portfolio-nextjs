@@ -91,9 +91,8 @@ describe("Hero", () => {
   it("renders the full name, specialization and introduction immediately", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1).toHaveTextContent("Adrian Cristache");
-    expect(h1.firstElementChild?.firstChild?.textContent).toBe("Adrian");
-    expect(h1).toHaveTextContent("Adrian Cristache");
+    expect(h1).toHaveAccessibleName("Adrian Cristache Infrastructure meets innovation.");
+    expect(screen.getByText("Adrian", { selector: "span" })).toBeVisible();
     expect(h1.querySelector(".sr-only")).toBeNull();
     expect(h1).toHaveTextContent("Adrian");
     expect(h1.lastElementChild).not.toBeEmptyDOMElement();
@@ -112,7 +111,7 @@ describe("Hero", () => {
   ])("preserves the profile name accessibly for %s", (name, first, remainder) => {
     render(<Hero profile={{ ...profile, name }} />);
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1.firstElementChild?.firstChild?.textContent).toBe(first);
+    expect(screen.getByText(first, { selector: "span" })).toBeVisible();
     if (remainder) {
       expect(h1.firstElementChild?.lastElementChild).toHaveTextContent(remainder);
       expect(h1).toHaveAccessibleName(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent, type RefObject } from "react";
+import { useEffect, useId, useRef, useState, type MouseEvent, type RefObject } from "react";
 import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +11,7 @@ import { HERO_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 import { HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
+import { HeroDepth } from "./HeroDepth";
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import { IDENTITY } from "@/lib/identity";
@@ -32,6 +33,64 @@ const PLATE =
 // CSS owns copy entrances so mobile never waits for hydration to reveal its LCP text.
 function entranceStyle(delay: number) {
   return { animationDelay: `${delay * 0.54}s` };
+}
+
+/** The mask stays aligned with the text; only the reflected light moves. */
+function HeroNameText({ text, surname = false }: { text: string; surname?: boolean }) {
+  const line = useRef<HTMLSpanElement>(null);
+  const baseline = useRef<HTMLSpanElement>(null);
+  const maskText = useRef<SVGTextElement>(null);
+  const id = useId().replace(/:/g, "");
+  useEffect(() => {
+    const node = line.current;
+    const marker = baseline.current;
+    if (!node || !marker) return;
+    let active = true;
+    const measure = () => {
+      if (active) maskText.current?.setAttribute("y", String(marker.offsetTop));
+    };
+    measure();
+    void document.fonts?.ready.then(measure);
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
+    observer?.observe(node);
+    return () => {
+      active = false;
+      observer?.disconnect();
+    };
+  }, [text]);
+
+  return (
+    <span ref={line} className={`${styles.nameLine}${surname ? ` ${styles.surname}` : ""}`}>
+      <span className={styles.nameInk}>
+        {text}
+        <span ref={baseline} aria-hidden className={styles.nameBaseline} />
+      </span>
+      <svg aria-hidden focusable="false" className={styles.nameSheen}>
+        <defs>
+          <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
+            <text ref={maskText} x="0" className={styles.nameMask}>
+              {text}
+            </text>
+          </mask>
+          <linearGradient id={`${id}-light`}>
+            <stop offset="0" stopColor="white" stopOpacity="0" />
+            <stop offset="0.4" stopColor="white" stopOpacity="0.12" />
+            <stop offset="0.5" stopColor="white" />
+            <stop offset="0.6" stopColor="white" stopOpacity="0.12" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <g mask={`url(#${id}-mask)`}>
+          <rect
+            className={styles.nameReflection}
+            width="35%"
+            height="100%"
+            fill={`url(#${id}-light)`}
+          />
+        </g>
+      </svg>
+    </span>
+  );
 }
 
 /** Mounted only for desktop motion, so touch devices never create pointer springs. */
@@ -247,6 +306,8 @@ export function Hero({
           </div>
           <div className={`${styles.scrim} hero-vignette absolute inset-0`} />
           {expressive && <HeroSpotlight section={sectionRef} />}
+          {expressive && <HeroDepth section={sectionRef} />}
+          <div aria-hidden className={styles.halo} />
           <div className="hero-noise absolute inset-0" />
           <SectionEdge edge="bottom" />
         </div>
@@ -270,11 +331,11 @@ export function Hero({
 
             <h1 className="max-w-3xl">
               <span className={`${styles.name} font-display block`}>
-                {firstName}
+                <HeroNameText text={firstName} />
                 {remainingName.length > 0 && (
                   <>
                     {" "}
-                    <span className={styles.surname}>{remainingName.join(" ")}</span>
+                    <HeroNameText text={remainingName.join(" ")} surname />
                   </>
                 )}
               </span>{" "}

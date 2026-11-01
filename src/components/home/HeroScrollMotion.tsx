@@ -26,6 +26,8 @@ export function HeroScrollMotion({
     if (!node) return;
     const update = (value: number) => {
       const progress = Math.max(0, Math.min(1, value));
+      if (pinned) node.style.setProperty("--hero-light-progress", String(progress));
+      else node.style.removeProperty("--hero-light-progress");
       node.style.setProperty(
         "--hero-media-y",
         `${progress * (pinned ? -2 : expressive ? 18 : 5)}%`,
@@ -45,7 +47,7 @@ export function HeroScrollMotion({
     const unsubscribe = scrollYProgress.on("change", update);
     return () => {
       unsubscribe();
-      for (const name of ["media-y", "media-scale", "copy-y", "copy-opacity"]) {
+      for (const name of ["media-y", "media-scale", "copy-y", "copy-opacity", "light-progress"]) {
         node.style.removeProperty(`--hero-${name}`);
       }
     };
