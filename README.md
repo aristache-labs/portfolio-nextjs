@@ -4,7 +4,7 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/aristache-labs/portfolio-nextjs/refs/heads/master/public/brand/logo-full-v2.webp" width="76" alt="Adrian Cristache">
+<img src="https://raw.githubusercontent.com/aristache-labs/portfolio-nextjs/refs/heads/master/assets/source/liquid-glass-logo-16x9-1920x1080-30fps.webp" width="76" alt="Adrian Cristache">
 
 # Adrian Cristache · Portfolio
 
