@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, ChevronDown, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ShieldCheck } from "lucide-react";
 import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
@@ -9,6 +9,8 @@ import { getNavigationProfile, getFundingLinks, getSocialLinks } from "@/lib/que
 import { SITE } from "@/lib/seo/site";
 import { LEGAL } from "@/lib/legal";
 import { LegalLink } from "@/components/legal/LegalLink";
+import { LegalContents, LegalHeaderScene, LegalReveal } from "@/components/legal/LegalMotion";
+import { GLASS_CARD } from "@/components/home/project-styles";
 import styles from "../privacy/privacy.module.css";
 
 const description = "Your personal data rights and how to make a request about this portfolio.";
@@ -159,108 +161,73 @@ export default async function GdprPage() {
           .map(([id]) => id)}
       />
       <div id="page-content" tabIndex={-1} className="scroll-mt-24 outline-none" />
-      <div className={styles.backdropSection}>
-        <SectionBackdrop
-          video="/media/about-v3.mp4"
-          poster="/media/services.webp"
-          scrim="absolute inset-0 bg-background/80"
-        />
+      <div data-legal-root className={styles.backdropSection}>
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className={styles.backdropLayer}>
+            <SectionBackdrop
+              video="/media/about-v3.mp4"
+              poster="/media/services.webp"
+              scrim="absolute inset-0 bg-background/80"
+            />
+          </div>
+        </div>
         <div className="site-container text-foreground relative z-10 min-h-dvh pb-16 sm:pb-24">
           <div className="h-24" aria-hidden />
-          <article className={`${styles.article} mx-auto max-w-5xl pt-12 sm:pt-20`}>
+          <article className={`${styles.article} mx-auto max-w-5xl pt-6 sm:pt-10`}>
             <Link
               href="/"
-              className={`${styles.backLink} text-muted hover:text-brand-bright mb-5 inline-flex min-h-11 items-center gap-2 text-sm`}
+              className={`${styles.backLink} text-muted hover:text-brand-bright mb-4 inline-flex min-h-11 items-center gap-2 text-sm`}
             >
               <ArrowLeft aria-hidden className="size-4" /> Back to portfolio
             </Link>
-            <header className="text-center">
-              <span className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium">
-                <ShieldCheck aria-hidden className="size-3.5" /> GDPR
-              </span>
-              <h1 className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance">
-                Your data<span className="gradient-text"> rights</span>
-              </h1>
-              <p className="text-foreground/70 mx-auto mt-2 max-w-2xl text-sm leading-relaxed sm:text-base">
-                How to ask about, access, or correct your personal information.
-              </p>
-              <p className="text-muted mt-3 text-xs">
-                Last reviewed: <time dateTime={LEGAL.updatedAt}>{LEGAL.updatedLabel}</time>
-              </p>
-            </header>
+            <LegalHeaderScene>
+              <header className="text-center">
+                <span className="text-brand-bright/70 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] uppercase">
+                  <ShieldCheck aria-hidden className="size-3.5" /> GDPR
+                </span>
+                <h1 className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] text-balance">
+                  Your data<span className="text-brand-mid"> rights</span>
+                </h1>
+                <p className="text-foreground/70 mx-auto mt-2 max-w-2xl text-sm leading-relaxed sm:text-base">
+                  How to ask about, access, or correct your personal information.
+                </p>
+                <p className="text-muted mt-3 text-xs">
+                  Last reviewed: <time dateTime={LEGAL.updatedAt}>{LEGAL.updatedLabel}</time>
+                </p>
+              </header>
+            </LegalHeaderScene>
             <div
-              className={`${styles.content} mt-10 grid gap-10 sm:mt-14 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-16`}
+              className={`${styles.content} relative z-10 mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10`}
             >
-              <nav
-                aria-label="GDPR page contents"
-                className={`${styles.contentsNav} lg:sticky lg:top-8 lg:self-start`}
-              >
-                <div className={styles.contentsDesktop}>
-                  <p className="text-muted mb-4 text-sm">On this page</p>
-                  <ul className="border-brand-mid/20 grid gap-1 border-l pl-3">
-                    {sections.map(({ id, title }) => (
-                      <li key={id}>
-                        <a
-                          href={`#${id}`}
-                          className="text-muted hover:text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center rounded-md px-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                        >
-                          {title}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <details
-                  className={`${styles.contentsMobile} group border-brand-mid/20 bg-background/60 rounded-xl border`}
-                >
-                  <summary className="text-foreground focus-visible:ring-brand-mid flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
-                    On this page
-                    <ChevronDown
-                      aria-hidden
-                      className="size-4 transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                    />
-                  </summary>
-                  <div className="px-4 pb-3">
-                    {" "}
-                    <ul className="border-brand-mid/20 grid gap-1 border-l pl-3">
-                      {sections.map(({ id, title }) => (
-                        <li key={id}>
-                          <a
-                            href={`#${id}`}
-                            className="text-muted hover:text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center rounded-md px-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                          >
-                            {title}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </details>
-              </nav>
-              <div>
+              <LegalContents
+                label="GDPR page contents"
+                items={sections.map(({ id, title }) => ({ id, label: title }))}
+              />
+              <div className={`${GLASS_CARD} grid min-w-0 gap-9 rounded-2xl border p-5 sm:p-8`}>
                 {sections.map(({ id, title, content }) => (
-                  <section
-                    key={id}
-                    id={id}
-                    aria-labelledby={`${id}-title`}
-                    className="border-brand-mid/15 scroll-mt-[88px] border-t py-7 first:border-t-0 first:pt-0 sm:py-8"
-                  >
-                    <h2
-                      id={`${id}-title`}
-                      className="text-lg font-medium tracking-tight sm:text-xl"
-                    >
-                      {title}
-                    </h2>
-                    <p className="text-muted mt-4 text-base leading-7">{content}</p>
-                  </section>
+                  <LegalReveal key={id}>
+                    <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-[88px]">
+                      <h2
+                        id={`${id}-title`}
+                        className="text-[17px] font-medium tracking-tight text-white/90"
+                      >
+                        {title}
+                      </h2>
+                      <p className="text-muted mt-3 text-[15px] leading-7">{content}</p>
+                    </section>
+                  </LegalReveal>
                 ))}
-                <a
-                  href={contactHref}
-                  className="text-brand-bright focus-visible:ring-brand-mid mt-3 inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
-                >
-                  Contact about your data: {contactEmail}{" "}
-                  <ArrowUpRight aria-hidden className="size-4" />
-                </a>
+                <LegalReveal>
+                  <div className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                    <a
+                      href={contactHref}
+                      className="text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
+                    >
+                      Contact about your data: {contactEmail}{" "}
+                      <ArrowUpRight aria-hidden className="size-4" />
+                    </a>
+                  </div>
+                </LegalReveal>
               </div>
             </div>
           </article>

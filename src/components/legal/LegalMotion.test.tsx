@@ -1,0 +1,123 @@
+import { act, cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { EXPRESSIVE_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+import { PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
+import { installMatchMedia } from "@/test/matchMedia";
+import { LegalContents, LegalHeaderScene, LegalReveal, legalSceneProgress } from "./LegalMotion";
+
+const scroll = vi.hoisted(() => ({
+  y: null as import("framer-motion").MotionValue<number> | null,
+}));
+vi.mock("framer-motion", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("framer-motion")>();
+  return {
+    ...actual,
+    useScroll: () => {
+      scroll.y = actual.useMotionValue(0);
+      return { scrollY: scroll.y };
+    },
+  };
+});
+
+let tick = 0;
+const scrollTo = (y: number) => {
+  Object.defineProperty(window, "scrollY", { configurable: true, value: y });
+  act(() => scroll.y!.set(++tick));
+};
+
+const expressive = () =>
+  installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [PINNED_SCENE_QUERY]: true });
+
+beforeEach(() => {
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+});
+
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
+
+describe("legalSceneProgress", () => {
+  it("runs from the top of the page to the end of the travel", () => {
+    expect(legalSceneProgress(0, 400)).toBe(0);
+    expect(legalSceneProgress(200, 400)).toBe(0.5);
+    expect(legalSceneProgress(900, 400)).toBe(1);
+  });
+});
+
+describe("LegalHeaderScene", () => {
+  it("renders plain markup without the pinned scene", () => {
+    installMatchMedia();
+    const { container } = render(
+      <LegalHeaderScene>
+        <h1>Title</h1>
+      </LegalHeaderScene>,
+    );
+    expect(container.querySelector("[data-legal-scene]")).toBeNull();
+    expect(screen.getByRole("heading")).toBeVisible();
+    expect(container.querySelector(".sticky")).toBeNull();
+  });
+
+  it("pins the header and fades it as the page scrolls", () => {
+    expressive();
+    const { container } = render(
+      <LegalHeaderScene>
+        <h1>Title</h1>
+      </LegalHeaderScene>,
+    );
+    const header = screen.getByRole("heading").parentElement as HTMLElement;
+    expect(container.querySelector("[data-legal-scene]")).not.toBeNull();
+    expect(header.className).toContain("sticky");
+    expect(header.style.opacity).toBe("1");
+    scrollTo(5000);
+    expect(header.style.opacity).toBe("0");
+  });
+});
+
+describe("LegalReveal", () => {
+  it("only hides content when the scene is enabled", () => {
+    installMatchMedia();
+    const { container, unmount } = render(
+      <LegalReveal>
+        <p>Body</p>
+      </LegalReveal>,
+    );
+    expect(container.querySelector("[data-from]")).toBeNull();
+    unmount();
+    expressive();
+    const view = render(
+      <LegalReveal>
+        <p>Body</p>
+      </LegalReveal>,
+    );
+    expect(view.container.querySelector('[data-from="below"]')).not.toBeNull();
+  });
+});
+
+describe("LegalContents", () => {
+  it("marks the section being read as the current location", () => {
+    installMatchMedia();
+    const tops: Record<string, number> = { first: -400, second: 300 };
+    vi.spyOn(document, "getElementById").mockImplementation(
+      (id) => ({ getBoundingClientRect: () => ({ top: tops[id] }) }) as HTMLElement,
+    );
+    render(
+      <LegalContents
+        label="Test contents"
+        items={[
+          { id: "first", label: "First" },
+          { id: "second", label: "Second" },
+        ]}
+      />,
+    );
+    const current = screen
+      .getAllByRole("link", { name: "First" })
+      .filter((link) => link.getAttribute("aria-current") === "location");
+    expect(current.length).toBeGreaterThan(0);
+    expect(
+      screen
+        .getAllByRole("link", { name: "Second" })
+        .some((link) => link.hasAttribute("aria-current")),
+    ).toBe(false);
+  });
+});

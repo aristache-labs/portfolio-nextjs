@@ -52,15 +52,12 @@
   position: relative;
 }
 
-.article::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 20px -24px -24px;
-  border: 1px solid rgb(var(--brand-mid-rgb) / 0.14);
-  border-radius: 24px;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  pointer-events: none;
+/* One viewport tall and held while the page scrolls past it. Stretching the loop over the whole
+   tall section with object-cover zoomed the frame. */
+.backdropLayer {
+  position: sticky;
+  top: 0;
+  height: 100svh;
 }
 
 .article p,
@@ -68,19 +65,13 @@
   color: color-mix(in srgb, var(--foreground) 85%, var(--bg));
 }
 
-.article nav a:hover {
+.article nav a:hover,
+.article nav a[aria-current="location"] {
   color: var(--brand-bright);
 }
 
 .article h2 {
   color: var(--foreground);
-}
-
-@media (max-width: 767px) {
-  .article::before {
-    inset: 16px -12px -20px;
-    border-radius: 18px;
-  }
 }
 
 .contentsMobile {
