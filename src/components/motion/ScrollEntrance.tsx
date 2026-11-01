@@ -14,6 +14,7 @@ const SPAN = 0.35;
  * Scroll-driven entrance measured from the element's own position, so stacked and side by side
  * items arrive as they come into view. One way: once entered, it stays when scrolling back up.
  * Without `enabled` it renders a plain wrapper and never hides anything.
+ * The wrapper moves while its direct child fades, so pass a glass card as that child.
  */
 export function ScrollEntrance({
   enabled,

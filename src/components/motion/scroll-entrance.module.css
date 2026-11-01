@@ -1,5 +1,7 @@
 @media (prefers-reduced-motion: no-preference) {
-  .entrance[data-from] {
+  /* The child fades rather than this wrapper: a fading ancestor would hide a glass card's
+     backdrop blur until the fade ends, then pop it in. */
+  .entrance[data-from] > * {
     opacity: var(--entry, 1);
   }
 

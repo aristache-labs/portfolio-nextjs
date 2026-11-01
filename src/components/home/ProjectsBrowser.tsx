@@ -161,16 +161,26 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const filtered = category === ALL ? rest : rest.filter((p) => p.category === category);
   const visible = filtered.slice(0, limit);
   const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
-  const gridCard = (p: MergedProject) => (
-    <m.div
-      initial={hasInteracted && mode !== "static" ? "hidden" : false}
-      animate={hasInteracted ? "visible" : undefined}
-      variants={cardVariants}
-      className="h-full"
-    >
-      <ProjectCard project={p} onQuickView={(event) => openQuickView(p, event)} />
-    </m.div>
-  );
+  /** `lag` turns on the scroll entrance, placed directly around the glass card it fades. */
+  const gridCard = (p: MergedProject, lag?: number) => {
+    const card = <ProjectCard project={p} onQuickView={(event) => openQuickView(p, event)} />;
+    return (
+      <m.div
+        initial={hasInteracted && mode !== "static" ? "hidden" : false}
+        animate={hasInteracted ? "visible" : undefined}
+        variants={cardVariants}
+        className="h-full"
+      >
+        {lag === undefined ? (
+          card
+        ) : (
+          <ScrollEntrance enabled from="below" lag={lag} className="h-full">
+            {card}
+          </ScrollEntrance>
+        )}
+      </m.div>
+    );
+  };
   function selectCategory(name: string) {
     if (name === category) return;
     setHasInteracted(true);
@@ -289,15 +299,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             // Each card rises as it comes into view instead of a timed cascade.
             <div className={GRID}>
               {visible.map((p, i) => (
-                <ScrollEntrance
-                  key={`${category}-${p.id}`}
-                  enabled
-                  from="below"
-                  lag={(i % 3) * 0.05}
-                  className="h-full"
-                >
-                  {gridCard(p)}
-                </ScrollEntrance>
+                <Fragment key={`${category}-${p.id}`}>{gridCard(p, (i % 3) * 0.05)}</Fragment>
               ))}
             </div>
           ) : (

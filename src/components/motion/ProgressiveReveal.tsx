@@ -10,6 +10,7 @@ const VISIBLE = { opacity: 1, x: 0, y: 0 };
 export function ProgressiveReveal({
   children,
   className,
+  innerClassName,
   desktopDelay = 0.3,
   duration = 1,
   delay,
@@ -20,6 +21,11 @@ export function ProgressiveReveal({
 }: {
   children: ReactNode;
   className?: string;
+  /**
+   * Classes for the element that actually fades in the from-right effects. A glass surface
+   * belongs here: a fading ancestor would hide its backdrop blur until the fade ends.
+   */
+  innerClassName?: string;
   desktopDelay?: number;
   duration?: number;
   delay?: number;
@@ -177,7 +183,11 @@ export function ProgressiveReveal({
   if (fromRight) {
     return (
       <div ref={element} className={className}>
-        <m.div className="w-full min-w-0" initial={false} animate={controls}>
+        <m.div
+          className={innerClassName ? `w-full min-w-0 ${innerClassName}` : "w-full min-w-0"}
+          initial={false}
+          animate={controls}
+        >
           {children}
         </m.div>
       </div>
