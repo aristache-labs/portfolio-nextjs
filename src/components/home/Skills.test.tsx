@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+import { PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
 import { Skills } from "./Skills";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 
@@ -53,7 +54,7 @@ describe("Skills", () => {
         (image) => !image.closest("noscript"),
       );
 
-    it("waits for Skills to approach before exposing icon URLs", () => {
+    it("waits for Skills to approach before exposing icon URLs", async () => {
       const { container } = render(<Skills skills={mockSkills} />);
       const emit = (isIntersecting: boolean) =>
         act(() =>
@@ -73,7 +74,8 @@ describe("Skills", () => {
         expect(image.parentElement).toHaveClass("size-9");
       }
       fireEvent.click(screen.getByRole("tab", { name: "Backend" }));
-      expect(activeIcons(container)).toHaveLength(2);
+      // Cards leaving the filter finish a short exit before they unmount.
+      await waitFor(() => expect(activeIcons(container)).toHaveLength(2));
       emit(false);
       expect(activeIcons(container)).toHaveLength(2);
     });
@@ -108,6 +110,21 @@ describe("Skills", () => {
     );
   });
 
+  it("drives the cards from scrolling on expressive desktops, without pinning", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [PINNED_SCENE_QUERY]: true });
+    const { container } = render(<Skills skills={mockSkills} />);
+    const section = container.querySelector("#skills")!;
+    expect(section).toHaveAttribute("data-scene");
+    expect(section.querySelector("[data-scroll-landing]")).toBeNull();
+    expect(screen.getByText("React")).toBeInTheDocument();
+  });
+
+  it("keeps the timed entrance outside the desktop scene", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
+    const { container } = render(<Skills skills={mockSkills} />);
+    expect(container.querySelector("#skills")).not.toHaveAttribute("data-scene");
+  });
+
   it("renders skill names", () => {
     render(<Skills skills={mockSkills} />);
     expect(screen.getByText("React")).toBeInTheDocument();
@@ -129,16 +146,30 @@ describe("Skills", () => {
     );
   });
 
-  it("keeps the entrance group mounted during rapid category changes", () => {
+  it("keeps the entrance group mounted during rapid category changes", async () => {
     render(<Skills skills={mockSkills} />);
     const group = screen.getByText("React").closest(".grid");
     expect(group).not.toBeNull();
     for (const category of ["Backend", "Frontend", "Backend"]) {
       fireEvent.click(screen.getByRole("tab", { name: category }));
     }
-    expect(screen.queryByText("React")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText("React")).not.toBeInTheDocument());
     expect(screen.getByText("Node.js").closest(".grid")).toBe(group);
     expect(group).not.toHaveStyle({ opacity: "0" });
+  });
+
+  it("moves a single active pill to the selected tab", () => {
+    const { container } = render(<Skills skills={mockSkills} />);
+    const pills = () => container.querySelectorAll('[role="tab"] > span[aria-hidden]');
+    expect(pills()).toHaveLength(1);
+    expect(screen.getByRole("tab", { name: "Most Used" })).toContainElement(
+      pills()[0] as HTMLElement,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Backend" }));
+    expect(pills()).toHaveLength(1);
+    expect(screen.getByRole("tab", { name: "Backend" })).toContainElement(
+      pills()[0] as HTMLElement,
+    );
   });
 
   it("renders category filters from the skill list", () => {
@@ -201,34 +232,37 @@ describe("Skills", () => {
     ["mobile portrait", false, false],
     ["mobile landscape", false, false],
     ["reduced motion", true, true],
-  ])("retains shared cards while changing their order on %s", (_profile, desktop, reduced) => {
-    installMatchMedia({
-      [EXPRESSIVE_MOTION_QUERY]: desktop,
-      [REDUCED_MOTION_QUERY]: reduced,
-    });
-    const skills = [
-      { ...mockSkills[0], category: "Development", level: "55", order: 0 },
-      { ...mockSkills[1], category: "Development", level: "90", order: 1 },
-      { ...mockSkills[2], category: "Infrastructure", level: "75", order: 2 },
-    ];
-    const { container } = render(<Skills skills={skills} />);
-    const reactCard = screen.getByTitle("React");
-    const typescriptCard = screen.getByTitle("TypeScript");
-    const names = () =>
-      [...container.querySelectorAll("[title]")].map((node) => node.getAttribute("title"));
-    expect(names()).toEqual(["TypeScript", "Node.js", "React"]);
-    fireEvent.click(screen.getByRole("tab", { name: "Development" }));
-    expect(names()).toEqual(["React", "TypeScript"]);
-    expect(screen.getByTitle("React")).toBe(reactCard);
-    expect(screen.getByTitle("TypeScript")).toBe(typescriptCard);
-    const mostUsed = screen.getByRole("tab", { name: "Most Used" });
-    act(() => mostUsed.focus());
-    fireEvent.click(mostUsed);
-    expect(names()).toEqual(["TypeScript", "Node.js", "React"]);
-    expect(screen.getByTitle("React")).toBe(reactCard);
-    expect(screen.getByTitle("TypeScript")).toBe(typescriptCard);
-    expect(screen.getByRole("tab", { name: "Most Used" })).toHaveFocus();
-  });
+  ])(
+    "retains shared cards while changing their order on %s",
+    async (_profile, desktop, reduced) => {
+      installMatchMedia({
+        [EXPRESSIVE_MOTION_QUERY]: desktop,
+        [REDUCED_MOTION_QUERY]: reduced,
+      });
+      const skills = [
+        { ...mockSkills[0], category: "Development", level: "55", order: 0 },
+        { ...mockSkills[1], category: "Development", level: "90", order: 1 },
+        { ...mockSkills[2], category: "Infrastructure", level: "75", order: 2 },
+      ];
+      const { container } = render(<Skills skills={skills} />);
+      const reactCard = screen.getByTitle("React");
+      const typescriptCard = screen.getByTitle("TypeScript");
+      const names = () =>
+        [...container.querySelectorAll("[title]")].map((node) => node.getAttribute("title"));
+      expect(names()).toEqual(["TypeScript", "Node.js", "React"]);
+      fireEvent.click(screen.getByRole("tab", { name: "Development" }));
+      await waitFor(() => expect(names()).toEqual(["React", "TypeScript"]));
+      expect(screen.getByTitle("React")).toBe(reactCard);
+      expect(screen.getByTitle("TypeScript")).toBe(typescriptCard);
+      const mostUsed = screen.getByRole("tab", { name: "Most Used" });
+      act(() => mostUsed.focus());
+      fireEvent.click(mostUsed);
+      await waitFor(() => expect(names()).toEqual(["TypeScript", "Node.js", "React"]));
+      expect(screen.getByTitle("React")).toBe(reactCard);
+      expect(screen.getByTitle("TypeScript")).toBe(typescriptCard);
+      expect(screen.getByRole("tab", { name: "Most Used" })).toHaveFocus();
+    },
+  );
 
   it.each([false, true])(
     "shows newly added cards after filtering (reduced=%s)",
@@ -240,7 +274,7 @@ describe("Skills", () => {
       const entrance = screen.getByTitle("React").closest(".h-full")!.parentElement!;
       if (reduced) expect(entrance).toHaveStyle({ opacity: "1" });
       await waitFor(() => expect(entrance).toHaveStyle({ opacity: "1" }));
-      expect(screen.queryByTitle("Node.js")).not.toBeInTheDocument();
+      await waitFor(() => expect(screen.queryByTitle("Node.js")).not.toBeInTheDocument());
       fireEvent.click(screen.getByRole("tab", { name: "Frontend" }));
       expect(screen.getByTitle("React").closest(".h-full")!.parentElement).toBe(entrance);
     },
@@ -260,10 +294,10 @@ describe("Skills", () => {
     expect(screen.getByText("90%")).toBeInTheDocument();
   });
 
-  it("filters to the selected category", () => {
+  it("filters to the selected category", async () => {
     render(<Skills skills={mockSkills} />);
     fireEvent.click(screen.getByRole("tab", { name: "Backend" }));
-    expect(screen.queryByText("React")).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText("React")).not.toBeInTheDocument());
     expect(screen.getByText("Node.js")).toBeInTheDocument();
     expect(screen.getByText("PostgreSQL")).toBeInTheDocument();
   });
@@ -282,7 +316,7 @@ describe("Skills", () => {
     expect(screen.getByText("Skill 8")).toBeInTheDocument();
   });
 
-  it("ranks Most Used by level then admin order and keeps stored names", () => {
+  it("ranks Most Used by level then admin order and keeps stored names", async () => {
     const ranked = [
       { name: "Missing", order: 0, level: null },
       { name: "Zero", order: 1, level: "0" },
@@ -314,7 +348,7 @@ describe("Skills", () => {
     expect(names()).toHaveLength(10);
     expect(names()[0]).toBe("Missing");
     fireEvent.click(screen.getByRole("tab", { name: "Most Used" }));
-    expect(names()).toEqual(expected);
+    await waitFor(() => expect(names()).toEqual(expected));
     expect(ranked[0].name).toBe("Missing");
   });
 

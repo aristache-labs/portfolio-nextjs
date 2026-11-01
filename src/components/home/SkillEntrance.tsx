@@ -1,12 +1,24 @@
 "use client";
 
 import { m } from "framer-motion";
-import { useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useContext, useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { createRevealSequence, RevealSequence } from "@/components/motion/RevealSequence";
 
 /** Each card starts its progress as soon as its own entrance finishes. */
-export function SkillEntrance({ filtered, children }: { filtered: boolean; children: ReactNode }) {
+export function SkillEntrance({
+  filtered,
+  order = 0,
+  ref,
+  children,
+}: {
+  filtered: boolean;
+  /** Position in the grid, so cards brought in by a filter arrive in turn. */
+  order?: number;
+  /** Lets AnimatePresence pop a leaving card out of the grid flow. */
+  ref?: Ref<HTMLDivElement>;
+  children: ReactNode;
+}) {
   const parent = useContext(RevealSequence);
   const { mode, ready } = useAnimationPolicy();
   const [entersOnMount] = useState(filtered);
@@ -42,8 +54,14 @@ export function SkillEntrance({ filtered, children }: { filtered: boolean; child
 
   return (
     <m.div
+      ref={ref}
       layout={mode === "static" ? false : "position"}
       transition={{ layout: { type: "spring", damping: 20, stiffness: 300 } }}
+      exit={
+        mode === "static"
+          ? undefined
+          : { opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }
+      }
       initial={false}
       variants={{
         hidden:
@@ -67,7 +85,11 @@ export function SkillEntrance({ filtered, children }: { filtered: boolean; child
         className="h-full"
         initial={entersOnMount && mode !== "static" ? { opacity: 0, scale: 0.96 } : false}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: mode === "static" ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+        transition={{
+          duration: mode === "static" ? 0 : 0.35,
+          delay: entersOnMount && mode !== "static" ? Math.min(order, 11) * 0.04 : 0,
+          ease: [0.22, 1, 0.36, 1],
+        }}
         onAnimationComplete={() => {
           filterEntered.current = true;
           complete();

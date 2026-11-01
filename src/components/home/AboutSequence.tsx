@@ -11,11 +11,12 @@ import {
 } from "react";
 import { useMotionValue, useScroll, type MotionValue } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { phaseProgress } from "@/lib/scroll-phase";
 import styles from "./about-sequence.module.css";
 
-export const ABOUT_PIN_QUERY =
-  "(min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover)";
+export const ABOUT_PIN_QUERY = PINNED_SCENE_QUERY;
+export { phaseProgress };
 
 const Sequence = createContext<{
   progress: MotionValue<number>;
@@ -23,8 +24,6 @@ const Sequence = createContext<{
   pinned: boolean;
 } | null>(null);
 export const useAboutSequence = () => useContext(Sequence);
-export const phaseProgress = (value: number, start: number, end: number) =>
-  Math.max(0, Math.min(1, (value - start) / (end - start)));
 
 function ScrollDriver({
   target,

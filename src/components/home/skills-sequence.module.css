@@ -1,0 +1,11 @@
+.slot {
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-scene] .slot {
+    opacity: var(--card-entry, 1);
+    transform: translateY(calc((1 - var(--card-entry, 1)) * 40px))
+      scale(calc(0.94 + var(--card-entry, 1) * 0.06));
+  }
+}

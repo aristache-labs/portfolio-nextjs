@@ -136,12 +136,7 @@ describe("ProgressiveReveal", () => {
       const { container } = render(
         <ProgressiveReveal effect="cascade" duration={1.3} delay={0.4}>
           <SkillEntrance filtered={false}>
-            <SkillCard
-              name="React"
-              iconPath="/skills/react.svg"
-              category="Development"
-              level="90"
-            />
+            <SkillCard name="React" iconPath="/skills/react.svg" level="90" />
           </SkillEntrance>
         </ProgressiveReveal>,
       );
