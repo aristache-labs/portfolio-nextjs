@@ -17,6 +17,8 @@ import { PREFERENCES_EVENT } from "@/lib/analytics-consent";
 import { SITE } from "@/lib/seo/site";
 import layout from "./footer-layout.module.css";
 import { useFooterEntrance } from "./useFooterEntrance";
+import { FOOTER_MOBILE_QUERY, useFooterMobileEntrance } from "./useFooterMobileEntrance";
+import mobileCss from "./footer-mobile-motion.module.css";
 
 const LINKS = [
   { label: "Home", href: "#hero" },
@@ -38,10 +40,15 @@ const FOCUS =
 /** On expressive desktops scrolling drives the part (see `useFooterEntrance`); elsewhere it keeps its timed reveal. */
 function FooterPart({
   scene,
+  mobile,
   part,
   ...reveal
-}: ComponentProps<typeof ProgressiveReveal> & { scene: boolean; part: string }) {
-  return scene ? (
+}: ComponentProps<typeof ProgressiveReveal> & { scene: boolean; mobile: boolean; part: string }) {
+  return mobile ? (
+    <div data-footer-part={part} className={`${reveal.className ?? ""} ${mobileCss.part}`}>
+      {reveal.children}
+    </div>
+  ) : scene ? (
     <div data-part={part} className={reveal.className}>
       {reveal.children}
     </div>
@@ -89,10 +96,16 @@ export function Footer({
 
   const footer = useRef<HTMLElement>(null);
   const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
+  const mobile = useMediaQuery(FOOTER_MOBILE_QUERY);
   useFooterEntrance(footer, scene);
+  useFooterMobileEntrance(footer, mobile && mode !== "static");
 
   return (
-    <footer ref={footer} data-scene={scene || undefined} className={`${layout.footer} relative`}>
+    <footer
+      ref={footer}
+      data-scene={scene || undefined}
+      className={`${layout.footer} ${mobileCss.footer} relative`}
+    >
       <div className={`${layout.stage} relative overflow-hidden`}>
         <div aria-hidden className={`${layout.depth} pointer-events-none absolute inset-0`}>
           <SectionBackdrop
@@ -121,19 +134,39 @@ export function Footer({
 
         <div className="site-container relative z-10 pt-6 pb-24 sm:pb-8 lg:pt-8">
           <div className={`${layout.intro} flex flex-col items-center text-center`}>
-            <FooterPart scene={scene} part="title" effect="focus" duration={0.7} delay={0.1}>
+            <FooterPart
+              scene={scene}
+              mobile={mobile}
+              part="title"
+              effect="focus"
+              duration={0.7}
+              delay={0.1}
+            >
               <p className="font-display text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] text-white">
                 Thanks for <span className="text-brand-mid">visiting.</span>
               </p>
             </FooterPart>
 
-            <FooterPart scene={scene} part="subtitle" effect="fade" duration={0.65} delay={0.15}>
+            <FooterPart
+              scene={scene}
+              mobile={mobile}
+              part="subtitle"
+              effect="fade"
+              duration={0.65}
+              delay={0.15}
+            >
               <p className={`${subtitleCss.subtitle} mx-auto mt-2 max-w-[580px]`}>
                 IT infrastructure, deployment automation, web and mobile development.
               </p>
             </FooterPart>
             <div className="mx-auto mt-5 flex w-full max-w-[620px] items-center gap-4">
-              <FooterPart scene={scene} part="line" effect="line" className="flex-1 origin-right">
+              <FooterPart
+                scene={scene}
+                mobile={mobile}
+                part="line"
+                effect="line"
+                className="flex-1 origin-right"
+              >
                 <span
                   aria-hidden
                   className="block h-px bg-gradient-to-r from-transparent to-white/25"
@@ -141,6 +174,7 @@ export function Footer({
               </FooterPart>
               <FooterPart
                 scene={scene}
+                mobile={mobile}
                 part="sparkle"
                 effect="zoom"
                 duration={0.6}
@@ -152,7 +186,13 @@ export function Footer({
                   className={`${layout.sparkle} fill-brand-mid text-brand-bright size-4 drop-shadow-[0_0_8px_rgb(var(--brand-mid-rgb)/0.8)]`}
                 />
               </FooterPart>
-              <FooterPart scene={scene} part="line" effect="line" className="flex-1 origin-left">
+              <FooterPart
+                scene={scene}
+                mobile={mobile}
+                part="line"
+                effect="line"
+                className="flex-1 origin-left"
+              >
                 <span
                   aria-hidden
                   className="block h-px bg-gradient-to-l from-transparent to-white/25"
@@ -166,6 +206,7 @@ export function Footer({
           >
             <FooterPart
               scene={scene}
+              mobile={mobile}
               part="logo"
               effect="zoom"
               duration={0.7}
@@ -202,6 +243,7 @@ export function Footer({
 
             <FooterPart
               scene={scene}
+              mobile={mobile}
               part="explore"
               effect="cascade"
               duration={0}
@@ -261,6 +303,7 @@ export function Footer({
 
             <FooterPart
               scene={scene}
+              mobile={mobile}
               part="legal"
               effect="cascade"
               duration={0}
@@ -326,6 +369,7 @@ export function Footer({
 
           <FooterPart
             scene={scene}
+            mobile={mobile}
             part="bar"
             effect="rise"
             duration={1.8}
