@@ -483,7 +483,7 @@
     justify-self: end;
     align-self: start;
     width: clamp(140px, calc(100svh - 190px), 200px);
-    margin-top: 28px;
+    margin-top: 4px;
   }
 
   .results {
@@ -493,22 +493,178 @@
   }
 }
 
-/* Scroll-driven parallax for the landscape layout: the portrait drifts slower than the copy,
-   and the biography and results lift in as they cross the screen. */
-@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+/* Phones, portrait and landscape: native scroll-driven CSS, no script and no pinned scene.
+   Layers move at different speeds (backdrop, portrait, copy), and every element enters from
+   below and leaves through the top. Entry fills both ways; exits fill forwards only, so an
+   exit never applies before its range and simply overrides the settled entry once it starts. */
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    .biography .portrait {
+    /* The backdrop clips its overflow, which would freeze a nested view(), so it follows the
+       section's own timeline instead. */
+    .section {
+      view-timeline: --about-scene block;
+    }
+
+    .section > [aria-hidden="true"]:first-child > :first-child {
+      animation: about-backdrop-drift linear both;
+      animation-timeline: --about-scene;
+      animation-range: cover;
+    }
+
+    .portrait {
       animation: about-parallax linear both;
       animation-timeline: view();
       animation-range: cover;
     }
 
+    .portrait > div {
+      animation: about-portrait-exit linear forwards;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
+    .heading,
+    .results {
+      animation: about-exit linear forwards;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
     .introduction,
     .copy p {
+      animation:
+        about-rise linear both,
+        about-exit linear forwards;
+      animation-timeline: view(), view();
+      animation-range:
+        entry 0% entry 70%,
+        exit 0% exit 100%;
+    }
+  }
+}
+
+/* Portrait only: the image is uncovered by CSS here; landscape's script owns that clip. */
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .introduction p span {
+      animation: about-word linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 45%;
+    }
+
+    .portrait > div {
+      animation:
+        about-portrait-reveal linear both,
+        about-portrait-exit linear forwards;
+      animation-timeline: view(), view();
+      animation-range:
+        entry 0% entry 80%,
+        exit 0% exit 100%;
+    }
+
+    .heading > div {
       animation: about-rise linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
     }
+  }
+}
+
+/* Landscape phones are wide and short, so motion runs sideways: the copy enters and leaves
+   on the left, the portrait swings in and out on the right. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .portrait {
+      animation:
+        about-swing-in linear both,
+        about-swing-out linear forwards;
+      animation-timeline: view(), view();
+      animation-range:
+        entry 0% entry 90%,
+        exit 0% exit 100%;
+    }
+
+    .portrait > div {
+      animation: none;
+    }
+
+    .heading {
+      animation: about-slide-out linear forwards;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
+    .introduction,
+    .copy p {
+      animation:
+        about-slide-in linear both,
+        about-slide-out linear forwards;
+      animation-timeline: view(), view();
+      animation-range:
+        entry 0% entry 70%,
+        exit 0% exit 100%;
+    }
+
+    .results {
+      animation: about-settle-out linear forwards;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+
+@keyframes about-slide-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(-36px);
+  }
+}
+
+@keyframes about-slide-out {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes about-swing-in {
+  from {
+    opacity: 0;
+    transform: perspective(800px) translateX(56px) rotateY(-14deg) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(800px) translateX(0) rotateY(0) scale(1);
+  }
+}
+
+@keyframes about-swing-out {
+  from {
+    opacity: 1;
+    transform: perspective(800px) translateX(0) rotateY(0) scale(1);
+  }
+  to {
+    opacity: 0.1;
+    transform: perspective(800px) translateX(48px) rotateY(10deg) scale(0.92);
+  }
+}
+
+@keyframes about-settle-out {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.94;
   }
 }
 
@@ -521,9 +677,44 @@
   }
 }
 
+@keyframes about-backdrop-drift {
+  from {
+    transform: translateY(-6%) scale(1.14);
+  }
+  to {
+    transform: translateY(6%) scale(1.14);
+  }
+}
+
+@keyframes about-exit {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(-28px);
+  }
+}
+
+@keyframes about-portrait-exit {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    scale: 1;
+  }
+  to {
+    opacity: 0.15;
+    filter: blur(3px);
+    scale: 0.92;
+  }
+}
+
 @keyframes about-word {
   from {
-    opacity: 0.7;
+    opacity: 0.3;
   }
   to {
     opacity: 1;
@@ -549,39 +740,5 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* Portrait phones: native scroll-driven CSS only, no script and no pinned scene. */
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .introduction p span {
-      animation: about-word linear both;
-      animation-timeline: view();
-      animation-range: entry 10% entry 100%;
-    }
-
-    .portrait > div {
-      animation: about-portrait-reveal linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 80%;
-    }
-
-    .copy p {
-      animation: about-rise linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 60%;
-    }
-  }
-}
-
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: view()) {
-    .heading > div,
-    .introduction {
-      animation: about-rise linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 70%;
-    }
   }
 }
