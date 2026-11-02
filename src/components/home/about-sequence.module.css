@@ -12,11 +12,12 @@
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
   (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-  /* The stage hugs its content, so the biography below fits on screen with it. */
+  /* The stage hugs its content. Introduction and portrait play while About
+     enters, so this tail only has to carry the biography hand-off. */
   .track::after {
     content: "";
     display: block;
-    height: 55svh;
+    height: 30svh;
   }
 
   .stage {
@@ -42,7 +43,7 @@
       (var(--about-exit, 1) - var(--column) * 0.5) / (0.6 - var(--column) * 0.1),
       1
     );
-    opacity: calc(0.1 + var(--column-entry) * 0.9);
+    opacity: calc(0.35 + var(--column-entry) * 0.65);
     transform: translate(
       calc(var(--column) * (1 - var(--column-entry)) * min(80px, 50vw - 32rem + 16px)),
       calc((1 - var(--column)) * (1 - var(--column-entry)) * 48px)

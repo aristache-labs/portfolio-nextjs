@@ -25,6 +25,11 @@ export const ABOUT_COMPACT_LANDSCAPE_QUERY =
   "(orientation: landscape) and (pointer: coarse) and (max-height: 500px)";
 export { phaseProgress };
 
+/** Pinned progress starts once the track reaches this much of the viewport, before it sticks. */
+const PIN_START_PERCENT = 70;
+/** Biography hand-off begins as the portrait settles, then fills the shortened pin. */
+const EXIT_START = 0.58;
+
 const Sequence = createContext<{
   progress: MotionValue<number>;
   expressive: boolean;
@@ -54,16 +59,20 @@ function ScrollDriver({
   }, [pinned, target]);
   const { scrollYProgress } = useScroll({
     target,
-    offset: pinned ? ["start 80px", `end ${stageBottom}px`] : ["start 80%", "end 60%"],
+    offset: pinned
+      ? [`start ${PIN_START_PERCENT}%`, `end ${stageBottom}px`]
+      : ["start 80%", "end 60%"],
   });
   useEffect(() => {
     const node = target.current;
     if (!node) return;
     const update = (value: number) => progress.set(Math.max(0, Math.min(1, value)));
     const bounds = node.getBoundingClientRect();
+    const startLine = (innerHeight * PIN_START_PERCENT) / 100;
+    const endLine = stageBottom || startLine;
     update(
       pinned
-        ? (80 - bounds.top) / Math.max(1, bounds.height - (stageBottom || 80) + 80)
+        ? (startLine - bounds.top) / Math.max(1, bounds.height - endLine + startLine)
         : (innerHeight * 0.8 - bounds.top) / (bounds.height + innerHeight * 0.2),
     );
     if (pinned && !stageBottom) return;
@@ -72,7 +81,7 @@ function ScrollDriver({
   return null;
 }
 
-/** Second half of the pinned scene: the composition recedes as the detailed biography rises. */
+/** The portrait is settling: the composition recedes as the detailed biography rises. */
 function PinnedExit({
   target,
   details,
@@ -87,7 +96,7 @@ function PinnedExit({
     if (!(stage instanceof HTMLElement)) return;
     const nodes = details.current ? [stage, details.current] : [stage];
     const update = (value: number) => {
-      const exit = phaseProgress(value, 0.55, 1);
+      const exit = phaseProgress(value, EXIT_START, 1);
       for (const node of nodes)
         node.style.setProperty("--about-exit", String(exit * exit * (3 - 2 * exit)));
     };

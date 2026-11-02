@@ -8,12 +8,14 @@ import { AboutPortraitMotion } from "./AboutPortraitMotion";
 
 const scroll = vi.hoisted(() => ({
   progress: null as import("framer-motion").MotionValue<number> | null,
+  offset: null as unknown,
 }));
 vi.mock("framer-motion", async (importOriginal) => {
   const actual = await importOriginal<typeof import("framer-motion")>();
   return {
     ...actual,
-    useScroll: () => {
+    useScroll: (options?: { offset?: unknown }) => {
+      scroll.offset = options?.offset ?? null;
       scroll.progress = actual.useMotionValue(0);
       return { scrollYProgress: scroll.progress };
     },
@@ -48,6 +50,10 @@ describe("AboutSequence", () => {
     );
     act(() => scroll.progress!.set(0.5));
     expect(intro.style.getPropertyValue("--intro-progress")).toBe("1");
+    expect(Number.parseFloat(portrait.style.getPropertyValue("--portrait-mask"))).toBeGreaterThan(
+      0,
+    );
+    act(() => scroll.progress!.set(0.7));
     expect(portrait.style.getPropertyValue("--portrait-mask")).toBe("0%");
     const track = container.firstElementChild!;
     expect(track.contains(getByTestId("details"))).toBe(false);
@@ -76,7 +82,7 @@ describe("AboutSequence", () => {
     const stage = container.firstElementChild!.firstElementChild as HTMLElement;
     act(() => scroll.progress!.set(0.5));
     expect(stage.style.getPropertyValue("--about-exit")).toBe("0");
-    act(() => scroll.progress!.set(0.775));
+    act(() => scroll.progress!.set(0.79));
     expect(Number(stage.style.getPropertyValue("--about-exit"))).toBeCloseTo(0.5);
     act(() => scroll.progress!.set(1));
     expect(stage.style.getPropertyValue("--about-exit")).toBe("1");
@@ -126,6 +132,73 @@ describe("AboutSequence", () => {
     );
     expect(getByText("Left").style.getPropertyValue("--column-index")).toBe("0");
     expect(getByText("Right").style.getPropertyValue("--column-index")).toBe("1");
+  });
+
+  it("starts pinned progress while About is entering and finishes a direct visit", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [ABOUT_PIN_QUERY]: true });
+    const previousHeight = window.innerHeight;
+    let trackTop = 400;
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 800 });
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const track = this.firstElementChild?.tagName === "DIV";
+      const top = track ? trackTop : 0;
+      const height = track ? 900 : 280;
+      return {
+        height,
+        top,
+        bottom: top + height,
+        left: 0,
+        right: 1000,
+        width: 1000,
+        x: 0,
+        y: top,
+        toJSON() {
+          return {};
+        },
+      } as DOMRect;
+    });
+    try {
+      const entering = render(<Scene />);
+      const intro = entering.container.querySelector("p")!;
+      const portrait = entering.getByText("Portrait").parentElement!;
+      expect(scroll.offset).toEqual(["start 70%", "end 360px"]);
+      expect(Number(intro.style.getPropertyValue("--intro-progress"))).toBeGreaterThan(0);
+      expect(Number(intro.style.getPropertyValue("--intro-progress"))).toBeLessThan(1);
+      expect(Number.parseFloat(portrait.style.getPropertyValue("--portrait-mask"))).toBeGreaterThan(
+        0,
+      );
+      expect(portrait.style.getPropertyValue("--portrait-mask")).not.toBe("100%");
+      entering.unmount();
+
+      trackTop = 560;
+      const arriving = render(<Scene />);
+      expect(
+        arriving.container.querySelector("p")!.style.getPropertyValue("--intro-progress"),
+      ).toBe("0");
+      expect(
+        arriving.getByText("Portrait").parentElement!.style.getPropertyValue("--portrait-mask"),
+      ).toBe("100%");
+      arriving.unmount();
+
+      trackTop = -540;
+      const landed = render(<Scene />);
+      expect(landed.container.querySelector("p")!.style.getPropertyValue("--intro-progress")).toBe(
+        "1",
+      );
+      expect(
+        landed.getByText("Portrait").parentElement!.style.getPropertyValue("--portrait-mask"),
+      ).toBe("0%");
+      expect(
+        (
+          landed.container.firstElementChild!.firstElementChild as HTMLElement
+        ).style.getPropertyValue("--about-exit"),
+      ).toBe("1");
+      landed.unmount();
+    } finally {
+      Object.defineProperty(window, "innerHeight", { configurable: true, value: previousHeight });
+    }
   });
 
   it("names an end-of-pin landing offset for menu navigation", () => {
