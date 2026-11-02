@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { SectionBackdrop } from "./SectionBackdrop";
 import subtitleCss from "./section-subtitle.module.css";
-import headingCss from "./mobile-section-heading.module.css";
+import headingCss from "./section-heading.module.css";
 import type { MergedProject } from "@/lib/projects";
 import spacing from "./experience-projects-spacing.module.css";
 
@@ -62,10 +62,8 @@ export function Projects({
               <span>Projects</span>
               <span aria-hidden className={labelCss.rule} />
             </p>
-            <h2
-              className={`${headingCss.title} font-display text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em]`}
-            >
-              Selected <span className={`${headingCss.accent} text-brand-mid`}>Projects</span>
+            <h2 className={headingCss.title}>
+              Selected <span className={headingCss.accent}>Projects</span>
             </h2>
           </div>
         </div>

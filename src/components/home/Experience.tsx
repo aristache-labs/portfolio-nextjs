@@ -13,7 +13,7 @@ import type { ExperienceRow } from "@/lib/queries";
 import styles from "./experience-layout.module.css";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import subtitleCss from "./section-subtitle.module.css";
-import headingCss from "./mobile-section-heading.module.css";
+import headingCss from "./section-heading.module.css";
 import spacing from "./experience-projects-spacing.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
@@ -424,10 +424,8 @@ export function Experience({
               <span aria-hidden className={labelCss.rule} />
             </p>
             {/* Same scale and weight as the About and Skills headings. */}
-            <h2
-              className={`${headingCss.title} font-display text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] whitespace-nowrap`}
-            >
-              Where I&apos;ve <span className={`${headingCss.accent} text-brand-mid`}>worked</span>
+            <h2 className={headingCss.title}>
+              Where I&apos;ve <span className={headingCss.accent}>worked</span>
             </h2>
           </HeadingReveal>
           <div className={styles.subtitleFold}>

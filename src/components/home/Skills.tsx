@@ -13,7 +13,7 @@ import { SectionBackdrop } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
 import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
-import headingCss from "./mobile-section-heading.module.css";
+import headingCss from "./section-heading.module.css";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import {
   SKILLS_MOBILE_LANDSCAPE,
@@ -195,7 +195,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   <span aria-hidden className={labelCss.rule} />
                 </div>
 
-                <h2 className={`${responsiveCss.titleText} ${headingCss.title} font-display mt-3`}>
+                <h2 className={headingCss.title}>
                   Tools I <span className={headingCss.accent}>trust</span>
                 </h2>
               </HeadingReveal>

@@ -7,7 +7,7 @@ import { REDUCED_MOTION_PROPS, useReducedMotion } from "@/hooks/useReducedMotion
 import { ServiceCard } from "./ServiceCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import labelCss from "@/components/ui/section-label.module.css";
-import headingCss from "./mobile-section-heading.module.css";
+import headingCss from "./section-heading.module.css";
 import type { Service } from "@/db/schema";
 
 export type ServiceRow = Service;
@@ -53,11 +53,8 @@ export function Services({ services, number = "05" }: { services: ServiceRow[]; 
           <span>Services</span>
           <span aria-hidden className={labelCss.rule} />
         </m.p>
-        <m.h2
-          {...rise(reduce, 28, 0.8, 0.1)}
-          className={`${headingCss.title} font-display text-[clamp(1.65rem,2.8vw,2.5rem)] leading-[1.05] font-extrabold tracking-tight`}
-        >
-          What I <span className={`${headingCss.accent} gradient-text`}>do</span>
+        <m.h2 {...rise(reduce, 28, 0.8, 0.1)} className={headingCss.title}>
+          What I <span className={headingCss.accent}>do</span>
         </m.h2>
       </div>
       {sorted.length === 0 ? (

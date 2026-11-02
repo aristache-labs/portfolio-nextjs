@@ -16,7 +16,7 @@ import { IDENTITY } from "@/lib/identity";
 import { AboutSequence } from "./AboutSequence";
 import { AboutReveal } from "./AboutReveal";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
-import headingCss from "./mobile-section-heading.module.css";
+import headingCss from "./section-heading.module.css";
 
 export type AboutProfile = {
   bio: string;
@@ -133,9 +133,7 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
                 <span>About</span>
                 <span aria-hidden className={`${labelCss.rule} ${statsCss.rule}`} />
               </p>
-              <h2
-                className={`${headingCss.title} font-display text-4xl font-extrabold tracking-tight md:text-5xl`}
-              >
+              <h2 className={headingCss.title}>
                 <span className={statsCss.word} style={{ "--i": 0 } as CSSProperties}>
                   Behind
                 </span>{" "}
@@ -143,7 +141,7 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
                   the
                 </span>{" "}
                 <span className={statsCss.word} style={{ "--i": 2 } as CSSProperties}>
-                  <span className={statsCss.accentWord}>code</span>.
+                  <span className={`${statsCss.accentWord} ${headingCss.accent}`}>code</span>.
                 </span>
               </h2>
             </div>
