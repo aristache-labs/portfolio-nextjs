@@ -1,0 +1,114 @@
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  .section {
+    --contact-backdrop-travel: 40px;
+    overflow: clip;
+    view-timeline: --contact-mobile block;
+  }
+
+  .arrival {
+    --contact-x: 0px;
+    --contact-y: 32px;
+  }
+
+  .arrival[data-contact-kind="description"] {
+    --contact-delay: 100ms;
+  }
+
+  .arrival[data-contact-reveal="armed"],
+  .arrival [data-contact-step][data-contact-reveal="armed"] {
+    opacity: 0;
+  }
+
+  .arrival[data-contact-reveal="play"] {
+    animation: contact-arrive 700ms var(--contact-delay, 0ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .arrival:is([data-contact-kind="card"], [data-contact-kind="form"]) {
+    --contact-y: 48px;
+  }
+
+  .arrival[data-contact-reveal="play"]:is([data-contact-kind="card"], [data-contact-kind="form"]) {
+    animation-duration: 800ms;
+  }
+
+  .arrival [data-contact-step][data-contact-reveal="play"] {
+    animation: contact-field-arrive 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .arrival[data-contact-reveal="static"],
+  .arrival [data-contact-step][data-contact-reveal="static"] {
+    animation: none;
+    opacity: 1;
+  }
+
+  /* Settle the button immediately while retaining its normal hover feedback. */
+  .arrival button[data-contact-step][data-contact-reveal="static"] {
+    transition-property:
+      transform, box-shadow, background-color, background-position, border-color, color;
+  }
+
+  @supports (animation-timeline: view()) {
+    .section > [aria-hidden="true"]:first-child img {
+      animation: contact-backdrop-drift linear both;
+      animation-timeline: --contact-mobile;
+      animation-range: cover;
+    }
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+  .section {
+    --contact-backdrop-travel: 24px;
+  }
+
+  .arrival {
+    --contact-x: -24px;
+    --contact-y: 0px;
+  }
+
+  .arrival[data-contact-kind="form"] {
+    --contact-x: 40px;
+    --contact-y: 0px;
+  }
+
+  .arrival[data-contact-kind="card"] {
+    --contact-x: -36px;
+    --contact-y: 0px;
+  }
+}
+
+@keyframes contact-arrive {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translate(var(--contact-x), var(--contact-y));
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes contact-field-arrive {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes contact-backdrop-drift {
+  from {
+    translate: 0 calc(-1 * var(--contact-backdrop-travel));
+    scale: 1.12;
+  }
+  to {
+    translate: 0 var(--contact-backdrop-travel);
+    scale: 1.12;
+  }
+}

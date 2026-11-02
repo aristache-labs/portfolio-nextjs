@@ -19,6 +19,8 @@ import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./mobile-section-heading.module.css";
 import quoteCss from "./contact-quote.module.css";
 import formCss from "./contact-form.module.css";
+import motionCss from "./contact-motion.module.css";
+import { CONTACT_PORTRAIT_QUERY, CONTACT_LANDSCAPE_QUERY, ContactArrival } from "./ContactArrival";
 import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./social-icons";
 import { GLASS_CARD } from "./project-styles";
 import { ContactSubject } from "./ContactSubject";
@@ -158,9 +160,16 @@ export function Contact({
   }, []);
 
   const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
+  const portrait = useMediaQuery(CONTACT_PORTRAIT_QUERY);
+  const landscape = useMediaQuery(CONTACT_LANDSCAPE_QUERY);
+  const mobile = portrait || landscape;
   /** From the left with scrolling on expressive desktops, the timed reveal elsewhere. */
   const leftArrival = (effect: "slide" | "fade", lag: number, content: ReactNode) =>
-    scene ? (
+    mobile ? (
+      <ContactArrival kind={effect === "slide" ? "heading" : "description"}>
+        {content}
+      </ContactArrival>
+    ) : scene ? (
       <ScrollEntrance enabled from="left" lag={lag}>
         {content}
       </ScrollEntrance>
@@ -171,7 +180,11 @@ export function Contact({
     );
   // Each glass surface is the element that fades, so its blur is there from the first frame.
   const quoteFrame = (content: ReactNode) =>
-    scene ? (
+    mobile ? (
+      <ContactArrival kind="quote" className={`${QUOTE_GLASS} mt-8 max-w-[575px]`}>
+        {content}
+      </ContactArrival>
+    ) : scene ? (
       <ScrollEntrance enabled from="left" lag={0.14} className="mt-8 max-w-[575px]">
         <div className={QUOTE_GLASS}>{content}</div>
       </ScrollEntrance>
@@ -186,7 +199,11 @@ export function Contact({
       </ProgressiveReveal>
     );
   const formFrame = (content: ReactNode) =>
-    scene ? (
+    mobile ? (
+      <ContactArrival kind="form" className={FORM_COLUMN}>
+        <div className={FORM_GLASS}>{content}</div>
+      </ContactArrival>
+    ) : scene ? (
       <ScrollEntrance enabled from="right" lag={0.05} className={FORM_COLUMN}>
         <div className={FORM_GLASS}>{content}</div>
       </ScrollEntrance>
@@ -260,7 +277,7 @@ export function Contact({
   return (
     <Section
       id="contact"
-      className="scroll-mt-[80px] pt-4 pb-12 md:pt-6 md:pb-14"
+      className={`${motionCss.section} scroll-mt-[80px] pt-4 pb-12 md:pt-6 md:pb-14`}
       backdrop={
         <>
           <SectionBackdrop
@@ -329,7 +346,7 @@ export function Contact({
           )}
 
           {cards.length > 0 && (
-            <CardList scene={scene}>
+            <CardList scene={scene || mobile}>
               <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-1 [@media(orientation:landscape)_and_(max-height:500px)]:gap-3">
                 {cards.map((card, index) => {
                   const link = (
@@ -377,7 +394,11 @@ export function Contact({
                   );
                   return (
                     <li key={card.key}>
-                      {scene ? (
+                      {mobile ? (
+                        <ContactArrival kind="card" order={index} className="h-full">
+                          {link}
+                        </ContactArrival>
+                      ) : scene ? (
                         <ScrollEntrance
                           enabled
                           from="left"
@@ -459,7 +480,7 @@ export function Contact({
 
             <div className="mt-6 space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <div className={formCss.group}>
+                <div className={formCss.group} data-contact-step>
                   <label htmlFor="contact-name" className={labelClass}>
                     Your Name
                   </label>
@@ -478,7 +499,7 @@ export function Contact({
                     <span aria-hidden className={formCss.focusLine} />
                   </div>
                 </div>
-                <div className={formCss.group}>
+                <div className={formCss.group} data-contact-step>
                   <label htmlFor="contact-email" className={labelClass}>
                     Your Email
                   </label>
@@ -499,7 +520,7 @@ export function Contact({
                 </div>
               </div>
 
-              <div className={formCss.group}>
+              <div className={formCss.group} data-contact-step>
                 <label htmlFor="contact-subject" className={labelClass}>
                   Subject
                 </label>
@@ -515,7 +536,7 @@ export function Contact({
                 </div>
               </div>
 
-              <div className={formCss.group}>
+              <div className={formCss.group} data-contact-step>
                 <label htmlFor="contact-message" className={labelClass}>
                   Message
                 </label>
@@ -559,6 +580,7 @@ export function Contact({
             <Magnetic className="mt-5 block w-full">
               <Button
                 type="submit"
+                data-contact-step
                 disabled={status === "submitting"}
                 variant="primary"
                 size="md"
