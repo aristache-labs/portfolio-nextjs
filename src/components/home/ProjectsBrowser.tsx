@@ -12,6 +12,11 @@ import type { MergedProject } from "@/lib/projects";
 import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import categoryCss from "./project-categories.module.css";
+import {
+  PROJECTS_LANDSCAPE_QUERY,
+  PROJECTS_PORTRAIT_QUERY,
+  ProjectsArrival,
+} from "./ProjectsArrival";
 
 // The dialog and carousel are needed only after a project is opened.
 const ProjectQuickView = dynamic(
@@ -37,6 +42,7 @@ const GRID =
 /** Scroll-driven on expressive desktops, the timed reveal everywhere else. */
 function Arrival({
   scene,
+  order = 0,
   from,
   lag,
   effect,
@@ -46,6 +52,7 @@ function Arrival({
   children,
 }: {
   scene: boolean;
+  order?: number;
   from: "left" | "right";
   lag?: number;
   effect: "fade-from-left" | "fade-from-right";
@@ -59,19 +66,26 @@ function Arrival({
       {children}
     </ScrollEntrance>
   ) : (
-    <ProgressiveReveal effect={effect} duration={duration} delay={delay} className={className}>
+    <ProjectsArrival
+      kind={from === "left" ? "featured" : "recent"}
+      order={order}
+      effect={effect}
+      duration={duration}
+      delay={delay}
+      className={className}
+    >
       {children}
-    </ProgressiveReveal>
+    </ProjectsArrival>
   );
 }
 
 function ColumnLabel({ children }: { children: string }) {
   return (
-    <ProgressiveReveal effect="fade" duration={0.6} delay={0.1}>
+    <ProjectsArrival kind="label" effect="fade" duration={0.6} delay={0.1}>
       <p className="text-brand-bright/90 mb-4 font-mono text-xs font-medium tracking-[0.18em] uppercase">
         {children}
       </p>
-    </ProgressiveReveal>
+    </ProjectsArrival>
   );
 }
 
@@ -161,9 +175,19 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const filtered = category === ALL ? rest : rest.filter((p) => p.category === category);
   const visible = filtered.slice(0, limit);
   const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
+  const portraitMotion = useMediaQuery(PROJECTS_PORTRAIT_QUERY);
+  const landscapeMotion = useMediaQuery(PROJECTS_LANDSCAPE_QUERY);
+  const mobileMotion = portraitMotion || landscapeMotion;
   /** `lag` turns on the scroll entrance, placed directly around the glass card it fades. */
   const gridCard = (p: MergedProject, lag?: number) => {
     const card = <ProjectCard project={p} onQuickView={(event) => openQuickView(p, event)} />;
+    if (mobileMotion) {
+      return (
+        <ProjectsArrival kind="card" order={lag ? 1 : 0} className="h-full">
+          {card}
+        </ProjectsArrival>
+      );
+    }
     return (
       <m.div
         initial={hasInteracted && mode !== "static" ? "hidden" : false}
@@ -200,6 +224,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                   <Arrival
                     key={p.id}
                     scene={scene}
+                    order={i}
                     from="left"
                     effect="fade-from-left"
                     duration={0.7}
@@ -225,6 +250,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                   <Arrival
                     key={p.id}
                     scene={scene}
+                    order={i}
                     from="right"
                     lag={(i % 2) * 0.06}
                     effect="fade-from-right"
@@ -295,11 +321,13 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             </ProgressiveReveal>
           )}
 
-          {scene ? (
+          {scene || mobileMotion ? (
             // Each card rises as it comes into view instead of a timed cascade.
             <div className={GRID}>
               {visible.map((p, i) => (
-                <Fragment key={`${category}-${p.id}`}>{gridCard(p, (i % 3) * 0.05)}</Fragment>
+                <Fragment key={`${category}-${p.id}`}>
+                  {gridCard(p, (i % (mobileMotion ? 2 : 3)) * 0.05)}
+                </Fragment>
               ))}
             </div>
           ) : (
@@ -318,7 +346,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           )}
 
           {filtered.length > limit && (
-            <div className="mt-8 text-center">
+            <ProjectsArrival kind="action" effect="fade" className="mt-8 text-center">
               <button
                 type="button"
                 onClick={() => {
@@ -329,7 +357,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
               >
                 Show more projects
               </button>
-            </div>
+            </ProjectsArrival>
           )}
 
           {filtered.length === 0 && (

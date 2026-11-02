@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
-import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
+import { ProjectsArrival } from "./ProjectsArrival";
+import motionCss from "./project-motion.module.css";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Section } from "@/components/ui/Section";
 import labelCss from "@/components/ui/section-label.module.css";
@@ -25,7 +26,7 @@ export function Projects({
   return (
     <Section
       id="projects"
-      className={`${spacing.projects} scroll-mt-[80px] pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
+      className={`${spacing.projects} ${motionCss.section} scroll-mt-[80px] pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
       backdrop={
         <>
           <SectionBackdrop
@@ -48,7 +49,8 @@ export function Projects({
         </>
       }
     >
-      <ProgressiveReveal
+      <ProjectsArrival
+        kind="heading"
         effect="slide"
         className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-10 [@media(orientation:portrait)_and_(max-width:767px)]:flex [@media(orientation:portrait)_and_(max-width:767px)]:flex-col"
       >
@@ -72,13 +74,13 @@ export function Projects({
         >
           Web and mobile applications, infrastructure projects and automation tools.
         </p>
-      </ProgressiveReveal>
+      </ProjectsArrival>
 
       <div id="project-list" className="scroll-mt-24">
         <ProjectsBrowser projects={projects} />
       </div>
 
-      <ProgressiveReveal effect="fade" className="mt-12 text-center">
+      <ProjectsArrival kind="action" effect="fade" className="mt-12 text-center">
         <Magnetic>
           <Button
             href={GITHUB_PROFILE}
@@ -91,7 +93,7 @@ export function Projects({
             View all on GitHub
           </Button>
         </Magnetic>
-      </ProgressiveReveal>
+      </ProjectsArrival>
     </Section>
   );
 }
