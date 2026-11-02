@@ -87,11 +87,11 @@
 
   .mobileReveal {
     --legal-entry-x: 0px;
-    --legal-entry-y: 20px;
+    --legal-entry-y: 30px;
   }
 
   .mobileHeader {
-    --legal-entry-y: 24px;
+    --legal-entry-y: 36px;
   }
 
   .mobileReveal[data-legal-reveal="armed"] {
@@ -99,7 +99,7 @@
   }
 
   .mobileReveal[data-legal-reveal="play"] {
-    animation: legal-mobile-arrive 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: legal-mobile-arrive 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .mobileReveal[data-legal-reveal="static"] {
@@ -130,7 +130,7 @@
   }
 
   .mobileHeader {
-    --legal-entry-x: -24px;
+    --legal-entry-x: -36px;
     --legal-entry-y: 0px;
   }
 }
