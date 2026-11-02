@@ -13,6 +13,7 @@ import type { SocialRow } from "@/components/home/social-icons";
 import { GLASS_CARD } from "@/components/home/project-styles";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
 import subtitleCss from "@/components/home/section-subtitle.module.css";
+import headingCss from "@/components/home/section-heading.module.css";
 import { PREFERENCES_EVENT } from "@/lib/analytics-consent";
 import { SITE } from "@/lib/seo/site";
 import layout from "./footer-layout.module.css";
@@ -142,8 +143,8 @@ export function Footer({
               duration={0.7}
               delay={0.1}
             >
-              <p className="font-display text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] text-white">
-                Thanks for <span className="text-brand-mid">visiting.</span>
+              <p className={headingCss.title}>
+                Thanks for <span className={headingCss.accent}>visiting</span>.
               </p>
             </FooterPart>
 
