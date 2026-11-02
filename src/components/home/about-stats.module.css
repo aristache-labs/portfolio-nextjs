@@ -558,6 +558,28 @@
       animation-range: cover;
     }
 
+    /* Inner image depth stays inside the frame; the shared timeline survives clipping. */
+    .portrait img {
+      transform: none;
+      animation: about-image-depth linear both;
+      animation-timeline: --about-scene;
+      animation-range: cover;
+    }
+
+    .copy {
+      animation: about-copy-drift linear both;
+      animation-timeline: --about-scene;
+      animation-range: cover;
+    }
+
+    .copy:focus-within {
+      animation: none;
+    }
+
+    .copy button[aria-expanded]:focus-visible {
+      animation: none;
+    }
+
     .portrait {
       animation: about-parallax linear both;
       animation-timeline: view();
@@ -565,9 +587,7 @@
     }
 
     .portrait > div {
-      animation: about-portrait-exit linear forwards;
-      animation-timeline: view();
-      animation-range: exit 0% exit 100%;
+      animation: none;
     }
 
     .heading,
@@ -590,23 +610,13 @@
   }
 }
 
-/* Portrait only: the image is uncovered by CSS here; landscape's script owns that clip. */
+/* Portrait keeps the frame intact while the image moves inside it. */
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .introduction p span {
       animation: about-word linear both;
       animation-timeline: view();
       animation-range: entry 10% cover 45%;
-    }
-
-    .portrait > div {
-      animation:
-        about-portrait-reveal linear both,
-        about-portrait-exit linear forwards;
-      animation-timeline: view(), view();
-      animation-range:
-        entry 0% entry 80%,
-        exit 0% exit 100%;
     }
 
     .heading > div {
@@ -617,18 +627,13 @@
   }
 }
 
-/* Landscape phones are wide and short, so motion runs sideways: the copy enters and leaves
-   on the left, the portrait swings in and out on the right. */
+/* Landscape keeps horizontal depth without rotating or distorting the portrait. */
 @media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .portrait {
-      animation:
-        about-swing-in linear both,
-        about-swing-out linear forwards;
-      animation-timeline: view(), view();
-      animation-range:
-        entry 0% entry 90%,
-        exit 0% exit 100%;
+      animation: about-portrait-glide linear both;
+      animation-timeline: view();
+      animation-range: cover;
     }
 
     .portrait > div {
@@ -657,6 +662,35 @@
       animation-timeline: view();
       animation-range: exit 0% exit 100%;
     }
+  }
+}
+
+@keyframes about-image-depth {
+  from {
+    translate: 0 7%;
+    scale: 1.16;
+  }
+  to {
+    translate: 0 -7%;
+    scale: 1.16;
+  }
+}
+
+@keyframes about-copy-drift {
+  from {
+    translate: 0 24px;
+  }
+  to {
+    translate: 0 -24px;
+  }
+}
+
+@keyframes about-portrait-glide {
+  from {
+    transform: translateX(28px);
+  }
+  to {
+    transform: translateX(-28px);
   }
 }
 
@@ -716,10 +750,10 @@
 
 @keyframes about-parallax {
   from {
-    transform: translateY(36px);
+    transform: translateY(48px);
   }
   to {
-    transform: translateY(-36px);
+    transform: translateY(-48px);
   }
 }
 

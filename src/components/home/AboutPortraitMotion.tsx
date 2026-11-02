@@ -5,7 +5,12 @@ import { useScroll } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./about-portrait-motion.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { ABOUT_PORTRAIT_QUERY, phaseProgress, useAboutSequence } from "./AboutSequence";
+import {
+  ABOUT_COMPACT_LANDSCAPE_QUERY,
+  ABOUT_PORTRAIT_QUERY,
+  phaseProgress,
+  useAboutSequence,
+} from "./AboutSequence";
 
 function paintPortrait(node: HTMLDivElement, value: number, expressive: boolean) {
   const progress = Math.max(0, Math.min(1, value));
@@ -88,11 +93,13 @@ export function AboutPortraitMotion({
   const { mode } = useAnimationPolicy();
   const sequence = useAboutSequence();
   const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
+  const landscapePhone = useMediaQuery(ABOUT_COMPACT_LANDSCAPE_QUERY);
   return (
     <div className={className}>
       <div ref={target} className={styles.reveal}>
         {mode !== "static" &&
           !portraitPhone &&
+          !landscapePhone &&
           (sequence ? (
             <SequencePortrait target={target} />
           ) : (
