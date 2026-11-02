@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import { animate, m } from "framer-motion";
 import { useContext, useEffect, useRef } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
@@ -152,7 +153,7 @@ export function SkillCard({
       ref={card}
       transition={{ duration: 0.2 }}
       whileHover={mode === "expressive" ? { y: -3 } : undefined}
-      className="group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/6 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5"
+      className={`${portraitCss.surface} group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/6 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5`}
     >
       <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
         {loadIcon ? icon : <noscript>{icon}</noscript>}

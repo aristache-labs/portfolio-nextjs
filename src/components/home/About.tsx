@@ -15,6 +15,7 @@ import { SITE } from "@/lib/seo/site";
 import { IDENTITY } from "@/lib/identity";
 import { AboutSequence } from "./AboutSequence";
 import { AboutReveal } from "./AboutReveal";
+import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import headingCss from "./mobile-section-heading.module.css";
 
 export type AboutProfile = {
@@ -44,7 +45,7 @@ function StatBar() {
       className={`${statsCss.results} mt-8 lg:col-span-2 lg:mt-14 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2`}
     >
       <div
-        className={`${statsCss.panel} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
+        className={`${statsCss.panel} ${portraitCss.surface} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
       >
         <span
           aria-hidden

@@ -1,0 +1,6 @@
+/* A solid ground keeps portrait cards readable over decorative section media. */
+@media (max-width: 767px) and (orientation: portrait) {
+  .surface.surface {
+    background-color: var(--surface);
+  }
+}

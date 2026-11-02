@@ -11,6 +11,7 @@ import labelCss from "@/components/ui/section-label.module.css";
 import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
 import styles from "./experience-layout.module.css";
+import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./mobile-section-heading.module.css";
 import spacing from "./experience-projects-spacing.module.css";
@@ -207,7 +208,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
       {/* Card content */}
       <div className={cn("min-w-0 flex-1 pb-4 sm:pb-5", last && "pb-0")}>
         <div
-          className={`${styles.card} w-full rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-4 py-3.5 backdrop-blur-[18px] sm:px-5`}
+          className={`${styles.card} ${portraitCss.surface} w-full rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-4 py-3.5 backdrop-blur-[18px] sm:px-5`}
         >
           <p
             className={`${styles.step} font-mono text-xs leading-none tracking-[0.18em] text-(--period) uppercase`}
