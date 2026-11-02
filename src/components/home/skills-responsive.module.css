@@ -4,6 +4,12 @@
   pointer-events: none;
 }
 
+@media (max-width: 767px) and (orientation: portrait) {
+  .content {
+    padding-bottom: 104px;
+  }
+}
+
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .section {

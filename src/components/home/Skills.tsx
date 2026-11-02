@@ -51,6 +51,7 @@ function mostUsedSkills(skills: SkillRow[]) {
 export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?: string }) {
   const { mode } = useAnimationPolicy();
   const sectionRef = useRef<HTMLElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const [iconsNear, setIconsNear] = useState(false);
 
   useEffect(() => {
@@ -95,6 +96,34 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const mobileLandscape = useMediaQuery(SKILLS_MOBILE_LANDSCAPE);
   const mobile = mobilePortrait || mobileLandscape;
   const HeadingReveal = mobile ? SkillsMobileReveal : ProgressiveReveal;
+
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!mobilePortrait || !grid) return;
+    let width = grid.clientWidth;
+    let tallest = 0;
+    // Keep spare space below the cards instead of stretching shorter categories' rows.
+    grid.style.alignContent = "start";
+    const measure = () => {
+      if (grid.clientWidth !== width) {
+        width = grid.clientWidth;
+        tallest = 0;
+        grid.style.removeProperty("min-height");
+      }
+      tallest = Math.max(tallest, grid.offsetHeight);
+      grid.style.minHeight = `${tallest}px`;
+    };
+    measure();
+    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
+    observer?.observe(grid);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", measure);
+      grid.style.removeProperty("min-height");
+      grid.style.removeProperty("align-content");
+    };
+  }, [mobilePortrait]);
 
   // Cards leaving a filter fade out in place while the rest move into their new positions.
   const cards = (
@@ -275,7 +304,9 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 {/* Stable keys let shared cards move between their old and new grid positions. */}
                 {scene || mobile ? (
                   // Desktop uses the scene; mobile observes each card independently.
-                  <div className={GRID}>{cards}</div>
+                  <div ref={gridRef} className={GRID}>
+                    {cards}
+                  </div>
                 ) : (
                   <ProgressiveReveal
                     effect="cascade"
