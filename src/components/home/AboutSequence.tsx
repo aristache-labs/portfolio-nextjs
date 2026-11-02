@@ -20,6 +20,9 @@ export const ABOUT_PIN_QUERY = PINNED_SCENE_QUERY;
 export const ABOUT_TOUCH_PIN_QUERY = "(orientation: landscape) and (pointer: coarse)";
 /** Portrait phones use CSS-only motion, so no scroll script is mounted for them. */
 export const ABOUT_PORTRAIT_QUERY = "(max-width: 767px) and (orientation: portrait)";
+/** Landscape phones flatten About into one compact grid in CSS, so nothing is pinned there. */
+export const ABOUT_COMPACT_LANDSCAPE_QUERY =
+  "(orientation: landscape) and (pointer: coarse) and (max-height: 500px)";
 export { phaseProgress };
 
 const Sequence = createContext<{
@@ -153,11 +156,13 @@ export function AboutSequence({ children, details }: { children: ReactNode; deta
   const desktopPinned = useMediaQuery(ABOUT_PIN_QUERY) && mode === "expressive";
   const touchPinned = useMediaQuery(ABOUT_TOUCH_PIN_QUERY) && mode !== "static";
   const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
-  const pinned = desktopPinned || touchPinned;
+  const compactLandscape = useMediaQuery(ABOUT_COMPACT_LANDSCAPE_QUERY);
+  const compactPhone = portraitPhone || compactLandscape;
+  const pinned = desktopPinned || (touchPinned && !compactPhone);
   return (
     <>
       <div ref={target} className={styles.track}>
-        {mode !== "static" && !portraitPhone && (
+        {mode !== "static" && !compactPhone && (
           <ScrollDriver target={target} progress={progress} pinned={pinned} />
         )}
         {pinned && <PinnedExit target={target} details={detailsRef} progress={progress} />}
@@ -165,7 +170,7 @@ export function AboutSequence({ children, details }: { children: ReactNode; deta
         {pinned && <BiographyColumns details={detailsRef} />}
         <Sequence.Provider
           value={
-            mode === "static" || portraitPhone
+            mode === "static" || compactPhone
               ? null
               : { progress, expressive: mode === "expressive" || pinned, pinned }
           }

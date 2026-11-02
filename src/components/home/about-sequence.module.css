@@ -42,3 +42,23 @@
     );
   }
 }
+
+/* Landscape phones: the wrappers drop out so About's pieces share one grid (about-stats). */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+  .track,
+  .stage {
+    display: contents;
+  }
+
+  .track::after {
+    content: none;
+  }
+
+  .details {
+    grid-column: 1;
+    grid-row: 3;
+    padding-top: 10px;
+    padding-bottom: 0;
+    border-top: 0;
+  }
+}

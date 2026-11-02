@@ -1,6 +1,14 @@
 "use client";
 
 const SECTION_NAV_GAP = 38;
+/** Landscape phones have too little height to spare the full gap. */
+const SHORT_LANDSCAPE_NAV_GAP = 14;
+
+function navigationGap() {
+  return window.innerHeight <= 500 && window.innerWidth > window.innerHeight
+    ? SHORT_LANDSCAPE_NAV_GAP
+    : SECTION_NAV_GAP;
+}
 
 /** Align section content consistently below the responsive navigation bar. */
 export function sectionScrollPosition(target: HTMLElement): number {
@@ -14,7 +22,7 @@ export function sectionScrollPosition(target: HTMLElement): number {
   if (anchor) {
     const navigation = document.querySelector<HTMLElement>('header nav[aria-label="Primary"]');
     const navigationHeight = navigation?.getBoundingClientRect().height ?? 72;
-    return anchor.getBoundingClientRect().top + window.scrollY - navigationHeight - SECTION_NAV_GAP;
+    return anchor.getBoundingClientRect().top + window.scrollY - navigationHeight - navigationGap();
   }
   const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
   return target.getBoundingClientRect().top + window.scrollY - margin;

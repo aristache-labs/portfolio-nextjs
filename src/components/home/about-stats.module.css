@@ -19,9 +19,111 @@
   letter-spacing: -0.035em;
 }
 
-.heading h2 span {
-  background: none;
+.word {
+  display: inline-block;
+}
+
+.accentWord {
+  position: relative;
   color: var(--brand-mid);
+}
+
+.accentWord::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0.02em;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(var(--brand-mid-rgb) / 0.7), transparent);
+  transform-origin: left center;
+}
+
+.rule {
+  transform-origin: left center;
+}
+
+/* Entrance, played once by AboutReveal when the heading or the stats scroll into view. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal="armed"] :is(.headingLabel, .word, .item) {
+    opacity: 0;
+  }
+
+  [data-reveal="armed"] .rule,
+  [data-reveal="armed"] .accentWord::after {
+    transform: scaleX(0);
+  }
+
+  [data-reveal="play"] .headingLabel {
+    animation: about-label-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  [data-reveal="play"] .rule {
+    animation: about-draw 900ms 150ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  [data-reveal="play"] .word {
+    animation: about-word-in 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(200ms + var(--i, 0) * 90ms);
+  }
+
+  [data-reveal="play"] .accentWord::after {
+    animation: about-draw 700ms 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Same spring pop as the hero actions, on `scale` so layout transforms stay free. */
+  [data-reveal="play"] .item {
+    animation:
+      about-pop-fade 300ms ease-out both,
+      about-pop-scale 750ms
+        linear(
+          0,
+          0.33 9%,
+          0.84 18%,
+          1.12 28%,
+          1.16 34%,
+          1.08 46%,
+          0.98 60%,
+          0.974 68%,
+          0.995 85%,
+          1
+        )
+        both;
+    animation-delay: calc(350ms + var(--i, 0) * 150ms);
+  }
+}
+
+@keyframes about-label-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+
+@keyframes about-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes about-word-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(0.45em);
+  }
+}
+
+@keyframes about-pop-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes about-pop-scale {
+  from {
+    scale: 0;
+  }
 }
 
 .introduction,
@@ -324,6 +426,98 @@
     break-inside: avoid;
     font-size: 0.875rem;
     line-height: 1.6;
+  }
+}
+
+/* Landscape phones, as on master: heading, introduction and biography run beside the portrait
+   on the right, with the four results in one row below. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+  .section {
+    padding-top: 84px;
+    scroll-margin-top: 0;
+  }
+
+  .section > [data-scroll-anchor] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: 40px;
+  }
+
+  .biography {
+    display: contents;
+  }
+
+  .heading {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .heading p.headingLabel {
+    margin-bottom: 6px;
+  }
+
+  .biography .introduction {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: 8px;
+  }
+
+  /* Keeps the results row above the fold under Chrome's taller landscape toolbar. */
+  .copy p {
+    font-size: 0.875rem;
+    line-height: 1.55;
+  }
+
+  .copy button {
+    margin-top: 10px;
+  }
+
+  .panel {
+    padding-block: 8px;
+  }
+
+  .biography .portrait {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    justify-self: end;
+    align-self: start;
+    width: clamp(140px, calc(100svh - 190px), 200px);
+    margin-top: 28px;
+  }
+
+  .results {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-top: 8px;
+  }
+}
+
+/* Scroll-driven parallax for the landscape layout: the portrait drifts slower than the copy,
+   and the biography and results lift in as they cross the screen. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .biography .portrait {
+      animation: about-parallax linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+
+    .introduction,
+    .copy p {
+      animation: about-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+@keyframes about-parallax {
+  from {
+    transform: translateY(36px);
+  }
+  to {
+    transform: translateY(-36px);
   }
 }
 

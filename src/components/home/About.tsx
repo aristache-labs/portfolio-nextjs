@@ -1,8 +1,8 @@
+import type { CSSProperties } from "react";
 import { CalendarDays, MapPin, TrendingDown, Users, type LucideIcon } from "lucide-react";
 import { IconTile, ICON_PROPS } from "@/components/ui/IconTile";
 import { SpringCount } from "@/components/motion/SpringCount";
 import { AboutResults } from "./AboutResults";
-import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { AvatarPortrait } from "./AvatarPortrait";
 import { AboutPortraitMotion } from "./AboutPortraitMotion";
 import { AboutIntroduction } from "./AboutIntroduction";
@@ -14,6 +14,7 @@ import { AboutBio } from "./AboutBio";
 import { SITE } from "@/lib/seo/site";
 import { IDENTITY } from "@/lib/identity";
 import { AboutSequence } from "./AboutSequence";
+import { AboutReveal } from "./AboutReveal";
 
 export type AboutProfile = {
   bio: string;
@@ -48,12 +49,13 @@ function StatBar() {
           aria-hidden
           className="via-brand-mid/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
         />
-        <div
+        <AboutReveal
           className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10`}
         >
-          {items.map(({ icon: Icon, value, label }) => (
+          {items.map(({ icon: Icon, value, label }, index) => (
             <div
               key={label}
+              style={{ "--i": index } as CSSProperties}
               className={`${statsCss.item} flex min-w-0 items-center justify-center px-1 lg:px-3`}
             >
               <div className={statsCss.metricGroup}>
@@ -73,7 +75,7 @@ function StatBar() {
               </div>
             </div>
           ))}
-        </div>
+        </AboutReveal>
       </div>
     </AboutResults>
   );
@@ -86,7 +88,7 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
   return (
     <Section
       id="about"
-      className={`${statsCss.section} scroll-mt-[80px] pt-0 pb-6 md:scroll-mt-2 md:pt-28 md:pb-8`}
+      className={`${statsCss.section} scroll-mt-[80px] pt-0 pb-16 md:scroll-mt-2 md:pt-28 md:pb-24`}
       backdrop={
         <>
           <SectionBackdrop
@@ -122,18 +124,26 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
         }
       >
         <div className={statsCss.biography} data-portrait={Boolean(profile.avatarUrl)}>
-          <ProgressiveReveal className={statsCss.heading} effect="fade">
+          <AboutReveal className={statsCss.heading}>
             <div>
-              <p className={labelCss.label}>
+              <p className={`${labelCss.label} ${statsCss.headingLabel}`}>
                 <span className={labelCss.number}>{number}</span>
                 <span>About</span>
-                <span aria-hidden className={labelCss.rule} />
+                <span aria-hidden className={`${labelCss.rule} ${statsCss.rule}`} />
               </p>
               <h2 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-                Behind the <span className="gradient-text">code</span>.
+                <span className={statsCss.word} style={{ "--i": 0 } as CSSProperties}>
+                  Behind
+                </span>{" "}
+                <span className={statsCss.word} style={{ "--i": 1 } as CSSProperties}>
+                  the
+                </span>{" "}
+                <span className={statsCss.word} style={{ "--i": 2 } as CSSProperties}>
+                  <span className={statsCss.accentWord}>code</span>.
+                </span>
               </h2>
             </div>
-          </ProgressiveReveal>
+          </AboutReveal>
           <div className={statsCss.introduction}>
             <AboutIntroduction text={introduction} />
           </div>
