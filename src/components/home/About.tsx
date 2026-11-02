@@ -126,7 +126,7 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
         }
       >
         <div className={statsCss.biography} data-portrait={Boolean(profile.avatarUrl)}>
-          <AboutReveal className={statsCss.heading}>
+          <AboutReveal className={statsCss.heading} pinnedRootMargin="0px">
             <div>
               <p className={`${labelCss.label} ${statsCss.headingLabel} ${headingCss.label}`}>
                 <span className={labelCss.number}>{number}</span>

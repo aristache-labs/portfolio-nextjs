@@ -203,7 +203,8 @@
 }
 
 .nameSheen,
-.halo {
+.halo,
+.handoff {
   display: none;
   pointer-events: none;
 }
@@ -336,13 +337,35 @@
     filter: none;
   }
 
+  /* About overlaps the lower controls early, so a keyboard focus lifts the scene back above it.
+     Pointer focus stays below, or a clicked action would cover About while scrolling away. */
+  .hero[data-cinematic]:has(:focus-visible) {
+    z-index: 2;
+  }
+
+  .hero[data-cinematic]:has(:focus-visible) .handoff {
+    opacity: 0;
+  }
+
   .hero[data-cinematic] .scrollMedia {
     transform-origin: center;
   }
 
+  /* Darkens the plate as the copy leaves, so the background never holds the stage alone. */
+  .hero[data-cinematic] .handoff {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgb(8 12 13);
+    opacity: calc(var(--hero-handoff, 0) * 0.7);
+  }
+
+  /* About starts at the bottom of the viewport, so it rises over the scene from the first
+     pixel of scroll. The scene is capped at 56rem, and the pin adds 45svh below it. */
   .hero[data-cinematic] + :global(#about) {
     z-index: 1;
-    margin-top: -18svh;
+    margin-top: calc(max(0px, 100svh - 56rem) - 45svh);
+    padding-top: 48px;
     /* Match the overlap so the two plates dissolve across their shared area. */
     border-radius: 0;
     background-color: transparent;
@@ -350,7 +373,7 @@
   }
 
   .hero[data-cinematic] .sceneControl {
-    opacity: calc(1 - var(--hero-exit-title, 0));
+    opacity: calc(1 - var(--hero-exit-actions, 0));
   }
 
   .hero[data-cinematic] .sceneControl:focus-visible {
@@ -1050,16 +1073,34 @@
   }
 
   .hero[data-touch-scene] .sceneControl {
-    opacity: calc(1 - var(--hero-exit-title, 0));
+    opacity: calc(1 - var(--hero-exit-actions, 0));
   }
 
   .hero[data-touch-scene] .sceneControl:focus-visible {
     opacity: 1;
   }
 
+  /* Same keyboard lift as desktop, without adding a filter or a 3D layer. */
+  .hero[data-touch-scene]:has(:focus-visible) {
+    z-index: 2;
+  }
+
+  .hero[data-touch-scene]:has(:focus-visible) .handoff {
+    opacity: 0;
+  }
+
+  /* Opacity only. A scroll-linked filter or backdrop blur leaves a magenta lane on phone GPUs. */
+  .hero[data-touch-scene] .handoff {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgb(8 12 13);
+    opacity: calc(var(--hero-handoff, 0) * 0.6);
+  }
+
   .hero[data-touch-scene] + :global(#about) {
     z-index: 1;
-    margin-top: -18svh;
+    margin-top: calc(max(0px, 100svh - 56rem) - 45svh);
     border-radius: 0;
     background-color: transparent;
     box-shadow: none;
@@ -1078,5 +1119,26 @@
     pointer-events: none;
     background: linear-gradient(to bottom, transparent, rgb(8 12 13 / 0.45) 45%, transparent);
     mask-image: linear-gradient(to bottom, transparent, black 45%, transparent);
+  }
+}
+
+/* Taller touch landscape has room for the 45svh pin. The 112px section padding would
+   leave the heading behind the name, so only this height range pulls it forward. */
+@media (orientation: landscape) and (pointer: coarse) and (min-height: 501px) and (prefers-reduced-motion: no-preference) {
+  .hero[data-touch-scene] + :global(#about) {
+    padding-top: 48px;
+  }
+}
+
+/* A 45svh pin is about 176px at 390px tall, and the compact heading sits 106px into
+   About, so the name finishes before the heading can be read. A longer pin keeps
+   the compact padding and grid exactly as they are. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  .hero[data-touch-scene] {
+    min-height: calc(100svh + 75svh);
+  }
+
+  .hero[data-touch-scene] + :global(#about) {
+    margin-top: -75svh;
   }
 }

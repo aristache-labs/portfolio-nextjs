@@ -165,7 +165,6 @@ export function Hero({
   const desktopPinned = useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout;
   const touchScene =
     useMediaQuery(HERO_LANDSCAPE_PIN_QUERY) && mode !== "static" && transitionToAbout;
-  const pinned = desktopPinned || touchScene;
   // Portrait phones use CSS-only scroll motion, so no per-frame script is mounted for them.
   const portraitPhone = useMediaQuery("(max-width: 767px) and (orientation: portrait)");
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
@@ -277,7 +276,11 @@ export function Hero({
       style={{ "--hero-consent-inset": `${consentInset}px` } as CSSProperties}
     >
       {mode !== "static" && !portraitPhone && (
-        <HeroScrollMotion section={sectionRef} expressive={expressive} pinned={pinned} />
+        <HeroScrollMotion
+          section={sectionRef}
+          expressive={expressive}
+          variant={desktopPinned ? "desktop" : touchScene ? "touch" : undefined}
+        />
       )}
       <div
         className={`${styles.scene} relative flex flex-col overflow-clip md:min-h-[min(100svh,56rem)] md:justify-center max-md:portrait:min-h-[max(100lvh,var(--portrait-screen-height,0px))]`}
@@ -331,6 +334,7 @@ export function Hero({
           {expressive && <HeroDepth section={sectionRef} />}
           <div aria-hidden className={styles.halo} />
           <div className="hero-noise absolute inset-0" />
+          <div className={styles.handoff} />
           <SectionEdge edge="bottom" />
         </div>
 
