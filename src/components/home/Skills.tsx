@@ -98,22 +98,20 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const mobileLandscape = useMediaQuery(SKILLS_MOBILE_LANDSCAPE);
   const mobile = mobilePortrait || mobileLandscape;
   const HeadingReveal = mobile ? SkillsMobileReveal : ProgressiveReveal;
+  const mostUsedGridHeight = useRef(0);
 
   useEffect(() => {
     const grid = gridRef.current;
     if (!mobilePortrait || !grid) return;
-    let width = grid.clientWidth;
-    let tallest = 0;
     // Keep spare space below the cards instead of stretching shorter categories' rows.
     grid.style.alignContent = "start";
     const measure = () => {
-      if (grid.clientWidth !== width) {
-        width = grid.clientWidth;
-        tallest = 0;
+      if (active === MOST_USED) {
         grid.style.removeProperty("min-height");
+        mostUsedGridHeight.current = grid.offsetHeight;
       }
-      tallest = Math.max(tallest, grid.offsetHeight);
-      grid.style.minHeight = `${tallest}px`;
+      // Larger categories may grow naturally, but never become the new minimum.
+      grid.style.minHeight = `${mostUsedGridHeight.current}px`;
     };
     measure();
     const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
@@ -125,7 +123,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
       grid.style.removeProperty("min-height");
       grid.style.removeProperty("align-content");
     };
-  }, [mobilePortrait]);
+  }, [mobilePortrait, active]);
 
   // Cards leaving a filter fade out in place while the rest move into their new positions.
   const cards = (
