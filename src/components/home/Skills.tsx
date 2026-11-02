@@ -13,6 +13,7 @@ import { SectionBackdrop } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
 import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
+import headingCss from "./mobile-section-heading.module.css";
 import {
   SKILLS_MOBILE_LANDSCAPE,
   SKILLS_MOBILE_PORTRAIT,
@@ -187,7 +188,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 className={responsiveCss.title}
               >
                 <div
-                  className={`${labelCss.label} ${responsiveCss.sectionLabel}`}
+                  className={`${labelCss.label} ${responsiveCss.sectionLabel} ${headingCss.label}`}
                   data-scroll-anchor
                 >
                   <span className={labelCss.number}>{number}</span>
@@ -195,8 +196,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   <span aria-hidden className={labelCss.rule} />
                 </div>
 
-                <h2 className={`${responsiveCss.titleText} font-display mt-3`}>
-                  Tools I <span>trust</span>
+                <h2 className={`${responsiveCss.titleText} ${headingCss.title} font-display mt-3`}>
+                  Tools I <span className={headingCss.accent}>trust</span>
                 </h2>
               </HeadingReveal>
               <aside className={responsiveCss.quoteAnchor}>

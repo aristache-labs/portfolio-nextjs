@@ -12,17 +12,25 @@ import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
 import styles from "./experience-layout.module.css";
 import subtitleCss from "./section-subtitle.module.css";
+import headingCss from "./mobile-section-heading.module.css";
 import spacing from "./experience-projects-spacing.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+  EXPERIENCE_LANDSCAPE_QUERY,
+  EXPERIENCE_PORTRAIT_QUERY,
+  ExperienceMobileReveal,
+} from "./ExperienceMobileReveal";
 
 /** Keep frame-based content measurements local to the visible timeline. */
 function NearbyTimelineRail({
   listRef,
   highlightEntries,
+  trackCurrent,
   onActive,
 }: {
   listRef: RefObject<HTMLDivElement | null>;
   highlightEntries: boolean;
+  trackCurrent: boolean;
   onActive: (index: number) => void;
 }) {
   const [near, setNear] = useState(() => typeof IntersectionObserver !== "function");
@@ -46,18 +54,25 @@ function NearbyTimelineRail({
   }, [listRef]);
 
   return near ? (
-    <ScrollTimelineRail listRef={listRef} highlightEntries={highlightEntries} onActive={onActive} />
+    <ScrollTimelineRail
+      listRef={listRef}
+      highlightEntries={highlightEntries}
+      trackCurrent={trackCurrent}
+      onActive={onActive}
+    />
   ) : null;
 }
 
-/** Share scroll progress across orientations; entry highlighting remains desktop-only. */
+/** Share scroll progress; desktop entrances and the current-role tracker stay independent. */
 function ScrollTimelineRail({
   listRef,
   highlightEntries,
+  trackCurrent,
   onActive,
 }: {
   listRef: RefObject<HTMLDivElement | null>;
   highlightEntries: boolean;
+  trackCurrent: boolean;
   /** Reports the role in the central band, for the indicator beside the heading. */
   onActive: (index: number) => void;
 }) {
@@ -121,7 +136,8 @@ function ScrollTimelineRail({
 
   useEffect(() => {
     const list = listRef.current;
-    if (!highlightEntries || !list || typeof IntersectionObserver !== "function") return;
+    if ((!highlightEntries && !trackCurrent) || !list || typeof IntersectionObserver !== "function")
+      return;
     const entries = Array.from(list.querySelectorAll<HTMLElement>("[data-experience-id]"));
     const visible = new Set<Element>();
     let observer: IntersectionObserver;
@@ -159,7 +175,7 @@ function ScrollTimelineRail({
       window.removeEventListener("resize", connect);
       entries.forEach((entry) => entry.removeAttribute("data-timeline-active"));
     };
-  }, [highlightEntries, listRef, onActive]);
+  }, [highlightEntries, trackCurrent, listRef, onActive]);
 
   return (
     <m.span
@@ -178,6 +194,8 @@ const step = (order: number) => ({ "--step": order }) as CSSProperties;
 
 function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number; last: boolean }) {
   const { mode } = useAnimationPolicy();
+  const portrait = useMediaQuery(EXPERIENCE_PORTRAIT_QUERY);
+  const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const previewCount = desktop ? 2 : 1;
   const [expanded, setExpanded] = useState(false);
@@ -279,7 +297,9 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
         data-timeline-dot
         className={`${styles.dot} ${styles.marker} bg-background absolute top-[1.125rem] z-10 size-3 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15`}
       />
-      {mode === "expressive" ? (
+      {portrait || landscape ? (
+        <ExperienceMobileReveal kind="entry">{inner}</ExperienceMobileReveal>
+      ) : mode === "expressive" ? (
         // The timeline rail reveals this role when it reaches the marker.
         inner
       ) : (
@@ -291,7 +311,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
   );
 }
 
-/** Desktop companion to the timeline: the role in view, kept beside the sticky heading. */
+/** Companion to the timeline: the role in view, kept beside the sticky heading. */
 function CurrentRole({ experiences, active }: { experiences: ExperienceRow[]; active: number }) {
   const index = Math.min(active, experiences.length - 1);
   const role = experiences[index];
@@ -336,26 +356,30 @@ export function Experience({
 }) {
   const sorted = [...experiences].sort((a, b) => a.order - b.order);
   const { mode } = useAnimationPolicy();
+  const portrait = useMediaQuery(EXPERIENCE_PORTRAIT_QUERY);
+  const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
+  const HeadingReveal = portrait || landscape ? ExperienceMobileReveal : ProgressiveReveal;
   const listRef = useRef<HTMLDivElement>(null);
   const stickStart = useRef<HTMLSpanElement>(null);
   const [activeRole, setActiveRole] = useState(0);
   const [stuck, setStuck] = useState(false);
   // While the intro sticks beside the timeline, the subtitle folds and the indicator rises.
-  const folds = mode === "expressive" && sorted.length > 1;
+  const folds = (mode === "expressive" || (landscape && mode !== "static")) && sorted.length > 1;
   const compact = folds && stuck;
+  const introTop = landscape ? 80 : INTRO_TOP;
 
   useEffect(() => {
     const marker = stickStart.current;
     if (!folds || !marker || typeof IntersectionObserver !== "function") return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry) setStuck(!entry.isIntersecting && entry.boundingClientRect.top < INTRO_TOP);
+        if (entry) setStuck(!entry.isIntersecting && entry.boundingClientRect.top < introTop);
       },
-      { rootMargin: `-${INTRO_TOP}px 0px 0px 0px` },
+      { rootMargin: `-${introTop}px 0px 0px 0px` },
     );
     observer.observe(marker);
     return () => observer.disconnect();
-  }, [folds]);
+  }, [folds, introTop]);
 
   return (
     <Section
@@ -392,25 +416,27 @@ export function Experience({
           data-compact={compact ? "" : undefined}
           className={`${styles.intro} relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start`}
         >
-          <ProgressiveReveal effect="fade" className="mb-5">
-            <p className={labelCss.label}>
+          <HeadingReveal kind="title" effect="fade" className="mb-5">
+            <p className={`${labelCss.label} ${headingCss.label}`}>
               <span className={labelCss.number}>{number}</span>
               <span>Experience</span>
               <span aria-hidden className={labelCss.rule} />
             </p>
             {/* Same scale and weight as the About and Skills headings. */}
-            <h2 className="font-display text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] whitespace-nowrap">
-              Where I&apos;ve <span className="text-brand-mid">worked</span>
+            <h2
+              className={`${headingCss.title} font-display text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] whitespace-nowrap`}
+            >
+              Where I&apos;ve <span className={`${headingCss.accent} text-brand-mid`}>worked</span>
             </h2>
-          </ProgressiveReveal>
+          </HeadingReveal>
           <div className={styles.subtitleFold}>
             <div>
-              <ProgressiveReveal effect="slide" desktopDelay={0.08}>
+              <HeadingReveal kind="description" effect="slide" desktopDelay={0.08}>
                 <p className={`${subtitleCss.subtitle} max-w-md`}>
                   Enterprise deployments, infrastructure operations and automation across
                   international restaurant locations.
                 </p>
-              </ProgressiveReveal>
+              </HeadingReveal>
             </div>
           </div>
           {folds && <CurrentRole experiences={sorted} active={activeRole} />}
@@ -434,6 +460,7 @@ export function Experience({
                 <NearbyTimelineRail
                   listRef={listRef}
                   highlightEntries={mode === "expressive"}
+                  trackCurrent={landscape}
                   onActive={setActiveRole}
                 />
               )}

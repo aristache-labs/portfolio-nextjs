@@ -16,6 +16,7 @@ import { Magnetic } from "@/components/motion/Magnetic";
 import { SectionBackdrop } from "./SectionBackdrop";
 import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
+import headingCss from "./mobile-section-heading.module.css";
 import quoteCss from "./contact-quote.module.css";
 import formCss from "./contact-form.module.css";
 import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./social-icons";
@@ -303,15 +304,17 @@ export function Contact({
             "slide",
             0,
             <div>
-              <p className={labelCss.label}>
+              <p className={`${labelCss.label} ${headingCss.label}`}>
                 <span className={labelCss.number}>{number}</span>
                 <span>Contact</span>
                 <span aria-hidden className={labelCss.rule} />
               </p>
 
               {/* Same scale and weight as the other section headings. */}
-              <h2 className="font-display mt-3 text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] text-white">
-                Discuss a <span className="text-brand-mid">project.</span>
+              <h2
+                className={`${headingCss.title} font-display mt-3 text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] text-white`}
+              >
+                Discuss a <span className={`${headingCss.accent} text-brand-mid`}>project.</span>
               </h2>
             </div>,
           )}

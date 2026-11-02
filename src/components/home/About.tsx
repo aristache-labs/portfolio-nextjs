@@ -15,6 +15,7 @@ import { SITE } from "@/lib/seo/site";
 import { IDENTITY } from "@/lib/identity";
 import { AboutSequence } from "./AboutSequence";
 import { AboutReveal } from "./AboutReveal";
+import headingCss from "./mobile-section-heading.module.css";
 
 export type AboutProfile = {
   bio: string;
@@ -126,12 +127,14 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
         <div className={statsCss.biography} data-portrait={Boolean(profile.avatarUrl)}>
           <AboutReveal className={statsCss.heading}>
             <div>
-              <p className={`${labelCss.label} ${statsCss.headingLabel}`}>
+              <p className={`${labelCss.label} ${statsCss.headingLabel} ${headingCss.label}`}>
                 <span className={labelCss.number}>{number}</span>
                 <span>About</span>
                 <span aria-hidden className={`${labelCss.rule} ${statsCss.rule}`} />
               </p>
-              <h2 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
+              <h2
+                className={`${headingCss.title} font-display text-4xl font-extrabold tracking-tight md:text-5xl`}
+              >
                 <span className={statsCss.word} style={{ "--i": 0 } as CSSProperties}>
                   Behind
                 </span>{" "}
