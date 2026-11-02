@@ -355,3 +355,18 @@
     font-size: 12px;
   }
 }
+@media (max-width: 1023px) {
+  .footer > a {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1023px) and (orientation: portrait) {
+  .footer > a[aria-label^="Code for"] .shortLabel {
+    display: none;
+  }
+}
