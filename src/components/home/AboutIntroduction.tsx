@@ -4,7 +4,8 @@ import { useEffect, useRef, type CSSProperties, type RefObject } from "react";
 import { useScroll } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./about-introduction.module.css";
-import { phaseProgress, useAboutSequence } from "./AboutSequence";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { ABOUT_PORTRAIT_QUERY, phaseProgress, useAboutSequence } from "./AboutSequence";
 
 function SequenceReading({ target }: { target: RefObject<HTMLParagraphElement | null> }) {
   const sequence = useAboutSequence();
@@ -58,6 +59,7 @@ export function AboutIntroduction({ text }: { text: string }) {
   const target = useRef<HTMLParagraphElement>(null);
   const { mode } = useAnimationPolicy();
   const sequence = useAboutSequence();
+  const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
   const words = text.trim().split(/\s+/).filter(Boolean);
   return (
     <p
@@ -66,6 +68,7 @@ export function AboutIntroduction({ text }: { text: string }) {
       style={{ "--word-count": words.length } as CSSProperties}
     >
       {mode !== "static" &&
+        !portraitPhone &&
         (sequence ? <SequenceReading target={target} /> : <ReadingProgress target={target} />)}
       {words.map((word, index) => (
         <span

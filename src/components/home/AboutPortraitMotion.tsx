@@ -4,7 +4,8 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useScroll } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./about-portrait-motion.module.css";
-import { phaseProgress, useAboutSequence } from "./AboutSequence";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { ABOUT_PORTRAIT_QUERY, phaseProgress, useAboutSequence } from "./AboutSequence";
 
 function paintPortrait(node: HTMLDivElement, value: number, expressive: boolean) {
   const progress = Math.max(0, Math.min(1, value));
@@ -86,10 +87,12 @@ export function AboutPortraitMotion({
   const target = useRef<HTMLDivElement>(null);
   const { mode } = useAnimationPolicy();
   const sequence = useAboutSequence();
+  const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
   return (
     <div className={className}>
       <div ref={target} className={styles.reveal}>
         {mode !== "static" &&
+          !portraitPhone &&
           (sequence ? (
             <SequencePortrait target={target} />
           ) : (

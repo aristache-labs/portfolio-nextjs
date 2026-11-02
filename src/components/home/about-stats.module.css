@@ -93,7 +93,8 @@
   }
 }
 
-@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
   .portrait {
     width: clamp(220px, calc(100svh - 470px), 250px);
   }
@@ -275,4 +276,107 @@
   gap: 10px;
   max-width: 100%;
   min-width: 0;
+}
+
+/* Touch landscape: the desktop two-column composition, sized for short screens. */
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) {
+  .biography {
+    grid-template-columns: minmax(0, 1fr) minmax(110px, 170px);
+    column-gap: 32px;
+    row-gap: 8px;
+    width: 100%;
+    max-width: 64rem;
+    margin-inline: auto;
+  }
+
+  .biography[data-portrait="false"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heading,
+  .introduction {
+    grid-column: 1;
+  }
+
+  .heading {
+    align-self: end;
+  }
+
+  .introduction p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .biography .portrait {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    align-self: center;
+    width: clamp(110px, calc(100svh - 230px), 170px);
+  }
+
+  .copy > div:first-child {
+    columns: 2;
+    column-gap: 32px;
+  }
+
+  .copy > div:first-child > p {
+    break-inside: avoid;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+}
+
+@keyframes about-word {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes about-portrait-reveal {
+  from {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.4;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+@keyframes about-rise {
+  from {
+    opacity: 0.15;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Portrait phones: native scroll-driven CSS only, no script and no pinned scene. */
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .introduction p span {
+      animation: about-word linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 100%;
+    }
+
+    .portrait > div {
+      animation: about-portrait-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+
+    .copy p {
+      animation: about-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
 }

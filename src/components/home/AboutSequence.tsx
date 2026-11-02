@@ -16,6 +16,10 @@ import { phaseProgress } from "@/lib/scroll-phase";
 import styles from "./about-sequence.module.css";
 
 export const ABOUT_PIN_QUERY = PINNED_SCENE_QUERY;
+/** Touch devices in landscape get the same pinned scene, minus the mouse-only effects. */
+export const ABOUT_TOUCH_PIN_QUERY = "(orientation: landscape) and (pointer: coarse)";
+/** Portrait phones use CSS-only motion, so no scroll script is mounted for them. */
+export const ABOUT_PORTRAIT_QUERY = "(max-width: 767px) and (orientation: portrait)";
 export { phaseProgress };
 
 const Sequence = createContext<{
@@ -146,16 +150,25 @@ export function AboutSequence({ children, details }: { children: ReactNode; deta
   const detailsRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
   const { mode } = useAnimationPolicy();
-  const pinned = useMediaQuery(ABOUT_PIN_QUERY) && mode === "expressive";
+  const desktopPinned = useMediaQuery(ABOUT_PIN_QUERY) && mode === "expressive";
+  const touchPinned = useMediaQuery(ABOUT_TOUCH_PIN_QUERY) && mode !== "static";
+  const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
+  const pinned = desktopPinned || touchPinned;
   return (
     <>
       <div ref={target} className={styles.track}>
-        {mode !== "static" && <ScrollDriver target={target} progress={progress} pinned={pinned} />}
+        {mode !== "static" && !portraitPhone && (
+          <ScrollDriver target={target} progress={progress} pinned={pinned} />
+        )}
         {pinned && <PinnedExit target={target} details={detailsRef} progress={progress} />}
         {pinned && <ScrollLanding target={target} />}
         {pinned && <BiographyColumns details={detailsRef} />}
         <Sequence.Provider
-          value={mode === "static" ? null : { progress, expressive: mode === "expressive", pinned }}
+          value={
+            mode === "static" || portraitPhone
+              ? null
+              : { progress, expressive: mode === "expressive" || pinned, pinned }
+          }
         >
           <div className={styles.stage}>{children}</div>
         </Sequence.Provider>
