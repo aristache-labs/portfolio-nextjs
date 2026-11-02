@@ -325,7 +325,7 @@ export function ProjectQuickView({
               rel="noopener noreferrer"
               leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
             >
-              <span className={styles.mobileOnlyHidden}>Live site</span>
+              <span className={styles.mobileOnlyHidden}>Live</span>
               <span
                 className={`hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline ${styles.shortLabel}`}
               >
@@ -343,11 +343,11 @@ export function ProjectQuickView({
             rel="noopener noreferrer"
             leftIcon={<Github className="size-3.5" aria-hidden />}
           >
-            <span className={styles.mobileOnlyHidden}>View code</span>
+            <span className={styles.mobileOnlyHidden}>GitHub</span>
             <span
               className={`hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline ${styles.shortLabel}`}
             >
-              Code
+              GitHub
             </span>
           </Button>
           <div className="ml-auto">

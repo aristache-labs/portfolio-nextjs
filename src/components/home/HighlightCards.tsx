@@ -149,7 +149,7 @@ function Actions({
           <Github style={{ width: compact ? 16 : 20, height: compact ? 16 : 20 }} aria-hidden />
         }
       >
-        <span className="sr-only">Code</span>
+        <span className={`${actionStyles.githubLabel} sr-only`}>GitHub</span>
       </Button>
       {project.homepage && (
         <Button

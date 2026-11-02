@@ -108,7 +108,7 @@ export function ProjectCard({
             rel="noopener noreferrer"
             leftIcon={<Github className="size-3.5" aria-hidden />}
           >
-            <span className="sr-only">Code</span>
+            <span className={`${actionStyles.githubLabel} sr-only`}>GitHub</span>
           </Button>
           {project.homepage && (
             <Button

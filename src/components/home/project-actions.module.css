@@ -237,3 +237,60 @@
   position: absolute;
   inset: -6px 0;
 }
+
+/* Desktop actions retain their individual roles at a restrained, shared scale. */
+@media (min-width: 1024px) and (pointer: fine) and (hover: hover) {
+  .actions > button {
+    border-radius: 8px;
+  }
+
+  .featured > button,
+  .featured > a {
+    min-height: 36px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .featured svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .featured > a[aria-label^="Code for"] svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .featured .githubLabel,
+  .compact:not(.recent) .githubLabel {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    white-space: nowrap;
+  }
+
+  .compact:not(.recent) > a {
+    min-height: 36px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .featured > a[aria-label^="Live site"],
+  .compact:not(.recent) > a[aria-label^="Live site"] {
+    border: 1px solid var(--border-color);
+    background: rgb(255 255 255 / 0.025);
+    color: var(--foreground);
+  }
+
+  .recent time {
+    color: rgb(245 247 247 / 0.72);
+    font-size: 11px;
+  }
+}
