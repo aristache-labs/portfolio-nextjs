@@ -147,8 +147,37 @@
 }
 
 @media (orientation: portrait) and (max-width: 767px) {
+  .biography {
+    gap: 12px;
+  }
+
+  .heading p.headingLabel {
+    margin-bottom: 8px;
+  }
+
+  .introduction p {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
   .portrait {
-    width: 192px;
+    width: 160px;
+  }
+
+  .copy p {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .copy button {
+    margin-top: 12px;
+    min-height: 32px;
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+
+  .results {
+    margin-top: 12px;
   }
 }
 

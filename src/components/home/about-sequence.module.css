@@ -3,6 +3,13 @@
   padding-bottom: 16px;
 }
 
+@media (orientation: portrait) and (max-width: 767px) {
+  .details {
+    padding-top: 20px;
+    padding-bottom: 8px;
+  }
+}
+
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
   (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
   /* The stage hugs its content, so the biography below fits on screen with it. */
