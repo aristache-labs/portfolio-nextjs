@@ -421,7 +421,7 @@ export function Hero({
                   rel="noopener noreferrer"
                   className={styles.textLink}
                 >
-                  Resume <ArrowUpRight className="size-4" aria-hidden />
+                  Resume <ArrowUpRight className="size-6" aria-hidden />
                 </a>
               )}
               {iconSocials.map((social) => (
@@ -434,7 +434,7 @@ export function Hero({
                     : {})}
                   className={styles.textLink}
                 >
-                  <SocialGlyph platform={social.platform} className="size-5 object-contain" />
+                  <SocialGlyph platform={social.platform} className="size-8 object-contain" />
                   {social.platform}
                 </a>
               ))}
@@ -445,7 +445,7 @@ export function Hero({
         <a
           href="#projects"
           onClick={(event) => navigateToSection(event, "projects")}
-          className={`${styles.sceneControl} text-foreground/50 hover:text-foreground relative z-10 mb-10 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-translate-y-6`}
+          className={`${styles.sceneControl} text-foreground/50 hover:text-foreground relative z-10 mb-16 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-translate-y-10`}
           aria-label="Scroll to explore, jump to projects"
         >
           <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">
