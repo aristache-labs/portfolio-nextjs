@@ -1,9 +1,15 @@
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { EXPRESSIVE_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
 import { installMatchMedia } from "@/test/matchMedia";
-import { LegalContents, LegalHeaderScene, LegalReveal, legalSceneProgress } from "./LegalMotion";
+import {
+  LEGAL_MOBILE_QUERY,
+  LegalContents,
+  LegalHeaderScene,
+  LegalReveal,
+  legalSceneProgress,
+} from "./LegalMotion";
 
 const scroll = vi.hoisted(() => ({
   y: null as import("framer-motion").MotionValue<number> | null,
@@ -35,6 +41,86 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+});
+
+describe("mobile legal motion", () => {
+  const observers = new Map<Element, IntersectionObserverCallback>();
+  beforeEach(() => {
+    observers.clear();
+    installMatchMedia({ [LEGAL_MOBILE_QUERY]: true });
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(private callback: IntersectionObserverCallback) {}
+        observe(target: Element) {
+          observers.set(target, this.callback);
+        }
+        disconnect() {}
+      },
+    );
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("reveals reading blocks individually without pinning the mobile header", () => {
+    const { container } = render(
+      <>
+        <LegalHeaderScene>
+          <h1>Title</h1>
+        </LegalHeaderScene>
+        <LegalReveal>
+          <section>First paragraph</section>
+        </LegalReveal>
+        <LegalReveal>
+          <section>Second paragraph</section>
+        </LegalReveal>
+      </>,
+    );
+    const first = screen.getByText("First paragraph").parentElement!;
+    const second = screen.getByText("Second paragraph").parentElement!;
+    const bounds = first.getBoundingClientRect();
+    act(() =>
+      observers.get(first)!(
+        [
+          {
+            target: first,
+            isIntersecting: true,
+            intersectionRatio: 1,
+            boundingClientRect: bounds,
+            intersectionRect: bounds,
+            rootBounds: null,
+            time: 0,
+          },
+        ],
+        {} as IntersectionObserver,
+      ),
+    );
+    expect(first).toHaveAttribute("data-legal-reveal", "play");
+    expect(second).toHaveAttribute("data-legal-reveal", "armed");
+    expect(container.querySelector("[data-legal-scene]")).toBeNull();
+    expect(container.querySelector(".sticky")).toBeNull();
+  });
+
+  it("settles a legal block immediately when one of its links is focused", () => {
+    render(
+      <LegalReveal>
+        <a href="mailto:privacy@example.com">Contact</a>
+      </LegalReveal>,
+    );
+    const link = screen.getByRole("link");
+    fireEvent.focusIn(link);
+    expect(link.parentElement).toHaveAttribute("data-legal-reveal", "static");
+  });
+
+  it("keeps legal content visible with reduced motion", () => {
+    installMatchMedia({ [LEGAL_MOBILE_QUERY]: true, [REDUCED_MOTION_QUERY]: true });
+    const { container } = render(
+      <LegalReveal>
+        <p>Readable policy</p>
+      </LegalReveal>,
+    );
+    expect(container.querySelector("[data-legal-reveal]")).toBeNull();
+    expect(screen.getByText("Readable policy")).toBeVisible();
+  });
 });
 
 describe("legalSceneProgress", () => {

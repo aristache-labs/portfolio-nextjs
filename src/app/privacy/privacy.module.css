@@ -78,6 +78,96 @@
   display: none;
 }
 
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  .backdropSection {
+    --legal-backdrop-travel: 24px;
+    view-timeline: --legal-mobile block;
+  }
+
+  .mobileReveal {
+    --legal-entry-x: 0px;
+    --legal-entry-y: 20px;
+  }
+
+  .mobileHeader {
+    --legal-entry-y: 24px;
+  }
+
+  .mobileReveal[data-legal-reveal="armed"] {
+    opacity: 0;
+  }
+
+  .mobileReveal[data-legal-reveal="play"] {
+    animation: legal-mobile-arrive 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .mobileReveal[data-legal-reveal="static"] {
+    animation: none;
+    opacity: 1;
+  }
+
+  .backLink {
+    animation: legal-back-link-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .backLink:focus-visible {
+    animation: none;
+  }
+
+  @supports (animation-timeline: view()) {
+    .backdropLayer img {
+      animation: legal-backdrop-drift linear both;
+      animation-timeline: --legal-mobile;
+      animation-range: cover;
+    }
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+  .backdropSection {
+    --legal-backdrop-travel: 16px;
+  }
+
+  .mobileHeader {
+    --legal-entry-x: -24px;
+    --legal-entry-y: 0px;
+  }
+}
+
+@keyframes legal-mobile-arrive {
+  from {
+    opacity: 0;
+    transform: translate(var(--legal-entry-x), var(--legal-entry-y));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes legal-back-link-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes legal-backdrop-drift {
+  from {
+    translate: 0 var(--legal-backdrop-travel);
+    scale: 1.08;
+  }
+  to {
+    translate: 0 calc(-1 * var(--legal-backdrop-travel));
+    scale: 1.08;
+  }
+}
+
 @media (orientation: portrait) and (max-width: 767px) {
   .contentsDesktop {
     display: none;

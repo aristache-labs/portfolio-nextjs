@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
 import { ChevronDown } from "lucide-react";
 import { useScroll } from "framer-motion";
 import styles from "@/app/privacy/privacy.module.css";
@@ -13,6 +13,45 @@ import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
 
 /** The extra real scroll the header stays pinned for on desktop. */
 const PIN_SPACE = "35svh";
+export const LEGAL_MOBILE_QUERY =
+  "(max-width: 767px) and (orientation: portrait), (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
+
+function useLegalMobileScene() {
+  const mobile = useMediaQuery(LEGAL_MOBILE_QUERY);
+  const { mode, ready } = useAnimationPolicy();
+  return mobile && ready && mode !== "static";
+}
+
+/** Only script-armed blocks hide, and focused legal links always reveal immediately. */
+function useLegalMobileReveal(ref: RefObject<HTMLElement | null>, enabled: boolean) {
+  useEffect(() => {
+    const node = ref.current;
+    if (!enabled || !node || typeof IntersectionObserver !== "function") return;
+    node.dataset.legalReveal = "armed";
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting && (!entry || entry.boundingClientRect.bottom > 0)) return;
+        if (node.dataset.legalReveal !== "armed") return;
+        node.dataset.legalReveal = "play";
+        observer.disconnect();
+      },
+      { rootMargin: "0px 0px -16px 0px", threshold: 0.05 },
+    );
+    const focus = () => {
+      node.dataset.legalReveal = "static";
+      observer.disconnect();
+    };
+    observer.observe(node);
+    node.addEventListener("focusin", focus);
+    node.addEventListener("pointerdown", focus);
+    return () => {
+      observer.disconnect();
+      node.removeEventListener("focusin", focus);
+      node.removeEventListener("pointerdown", focus);
+      delete node.dataset.legalReveal;
+    };
+  }, [enabled, ref]);
+}
 /** Motion is for expressive pinned-scene desktops only; everything else keeps plain markup. */
 function useLegalScene() {
   const { mode } = useAnimationPolicy();
@@ -30,8 +69,10 @@ export const legalSceneProgress = (scrolled: number, travel: number) =>
  */
 export function LegalHeaderScene({ children }: { children: ReactNode }) {
   const enabled = useLegalScene();
+  const mobile = useLegalMobileScene();
   const wrapper = useRef<HTMLDivElement>(null);
   const header = useRef<HTMLDivElement>(null);
+  useLegalMobileReveal(header, mobile);
   const { scrollY } = useScroll();
 
   useEffect(() => {
@@ -64,7 +105,16 @@ export function LegalHeaderScene({ children }: { children: ReactNode }) {
       className={enabled ? "relative z-0" : undefined}
       style={enabled ? { marginBottom: `calc(${PIN_SPACE} * -1)` } : undefined}
     >
-      <div ref={header} className={enabled ? "sticky top-24" : undefined}>
+      <div
+        ref={header}
+        className={
+          enabled
+            ? "sticky top-24"
+            : mobile
+              ? `${styles.mobileReveal} ${styles.mobileHeader}`
+              : undefined
+        }
+      >
         {children}
       </div>
       {enabled && <div aria-hidden style={{ height: PIN_SPACE }} />}
@@ -75,6 +125,15 @@ export function LegalHeaderScene({ children }: { children: ReactNode }) {
 /** One way scroll entrance for a section of the reading panel. */
 export function LegalReveal({ children }: { children: ReactNode }) {
   const enabled = useLegalScene();
+  const mobile = useLegalMobileScene();
+  const ref = useRef<HTMLDivElement>(null);
+  useLegalMobileReveal(ref, mobile);
+  if (mobile)
+    return (
+      <div ref={ref} className={styles.mobileReveal}>
+        {children}
+      </div>
+    );
   return (
     <ScrollEntrance enabled={enabled} from="below">
       {children}
@@ -95,6 +154,9 @@ export function LegalContents({
 }) {
   const ids = useMemo(() => items.map((item) => item.id), [items]);
   const active = useScrollSpy(ids, 140);
+  const mobile = useLegalMobileScene();
+  const ref = useRef<HTMLElement>(null);
+  useLegalMobileReveal(ref, mobile);
   const list = (
     <ul className="grid gap-1 border-l border-white/10 pl-3">
       {items.map((item) => (
@@ -112,7 +174,11 @@ export function LegalContents({
   );
 
   return (
-    <nav aria-label={label} className={`${styles.contentsNav} lg:sticky lg:top-8 lg:self-start`}>
+    <nav
+      ref={ref}
+      aria-label={label}
+      className={`${styles.contentsNav} ${mobile ? styles.mobileReveal : ""} lg:sticky lg:top-8 lg:self-start`}
+    >
       <div className={styles.contentsDesktop}>
         <p className="text-muted mb-4 text-[15px]">On this page</p>
         {list}
