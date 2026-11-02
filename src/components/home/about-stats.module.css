@@ -380,3 +380,14 @@
     }
   }
 }
+
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .heading > div,
+    .introduction {
+      animation: about-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}

@@ -405,8 +405,14 @@
   }
 
   .secondaryLinks {
-    gap: 0.5rem 1.25rem;
+    justify-content: center;
+    gap: 0.25rem 1rem;
     margin-top: 1rem;
+  }
+
+  .textLink {
+    gap: 0.5rem;
+    font-size: 1rem;
   }
 
   .poster {
@@ -431,16 +437,19 @@
   }
 }
 
-@keyframes hero-exit {
+@keyframes hero-lift {
+  50% {
+    opacity: 1;
+  }
   to {
     opacity: 0;
-    transform: translateY(-24px);
+    transform: translateY(var(--lift, -24px));
   }
 }
 
 @keyframes hero-poster-drift {
   to {
-    transform: translateY(-4%);
+    transform: translateY(40%) scale(1.2);
   }
 }
 
@@ -480,25 +489,52 @@
     animation: name-sweep 1900ms 900ms cubic-bezier(0.22, 0.55, 0.45, 1) both;
   }
 
+  /* Layered exit: each layer leaves at its own speed, so the copy separates from the poster. */
   @supports (animation-timeline: view()) {
-    .scrollCopy {
-      animation: hero-exit linear both;
-      animation-timeline: view();
-      animation-range: exit 0% exit 60%;
+    .specialization,
+    .exitTitle {
+      --lift: -80px;
     }
 
-    .scrollCopy:focus-within {
+    .exitDetails {
+      --lift: -130px;
+    }
+
+    .exitActions {
+      --lift: -180px;
+    }
+
+    :is(.specialization, .exitTitle, .exitDetails, .exitActions) {
+      animation: hero-lift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 65svh;
+    }
+
+    .intro:focus-within :is(.specialization, .exitTitle, .exitDetails, .exitActions) {
       animation: none;
     }
 
     .poster {
       animation: hero-poster-drift linear both;
-      animation-timeline: view();
-      animation-range: exit 0% exit 100%;
+      animation-timeline: scroll(root block);
+      animation-range: 0 80svh;
     }
   }
-}
 
+  /* About overlaps the hero edge; only its backdrop dissolves, its content stays in place. */
+  .hero[data-cinematic] + :global(#about) {
+    z-index: 1;
+    margin-top: -8svh;
+    padding-top: 8svh;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .hero[data-cinematic] + :global(#about) > :global([aria-hidden="true"]) {
+    mask-image: linear-gradient(to bottom, transparent, black min(12svh, 6rem));
+  }
+}
 @media (max-width: 360px) and (orientation: portrait) {
   .actions a {
     padding-inline: 0.5rem;
