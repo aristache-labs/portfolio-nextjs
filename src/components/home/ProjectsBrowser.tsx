@@ -12,6 +12,7 @@ import type { MergedProject } from "@/lib/projects";
 import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import categoryCss from "./project-categories.module.css";
+import layoutCss from "./projects-layout.module.css";
 import {
   PROJECTS_LANDSCAPE_QUERY,
   PROJECTS_PORTRAIT_QUERY,
@@ -215,9 +216,11 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   return (
     <div ref={containerRef} tabIndex={-1} aria-label="Projects" className="outline-none">
       {(featured.length > 0 || recent.length > 0) && (
-        <div className="mb-10 grid items-start gap-6 lg:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:gap-4">
+        <div
+          className={`${layoutCss.highlights} ${featured.length === MAX_FEATURED && recent.length === MAX_RECENT ? layoutCss.balanced : ""}`}
+        >
           {featured.length > 0 && (
-            <div className="flex flex-col">
+            <div className={layoutCss.column}>
               <ColumnLabel>Featured</ColumnLabel>
               <div className={TRACK}>
                 {featured.map((p, i) => (
@@ -243,9 +246,9 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           )}
 
           {recent.length > 0 && (
-            <div className="flex flex-col">
+            <div className={layoutCss.column}>
               <ColumnLabel>Recently updated</ColumnLabel>
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className={layoutCss.recentTrack}>
                 {recent.slice(0, recentLimit).map((p, i) => (
                   <Arrival
                     key={p.id}

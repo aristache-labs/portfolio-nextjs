@@ -4,6 +4,7 @@ import type { MouseEventHandler } from "react";
 
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
+import layoutStyles from "./projects-layout.module.css";
 
 import Image from "next/image";
 import { ExternalLink, GitFork, Github, Maximize2 } from "lucide-react";
@@ -16,13 +17,15 @@ import { COMPACT_PROJECT_ACTION, GLASS_CARD } from "./project-styles";
 // Fallbacks follow site-container padding and the two-column highlights layout.
 // Lazy covers use their actual layout width when the browser supports auto sizes.
 const FEATURED_COVER_SIZES = [
+  "(orientation: portrait) calc(100vw - clamp(3rem, 5vw, 5.5rem))",
   "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
-  "(orientation: landscape) and (max-height: 500px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1rem) / 2)",
+  "(orientation: landscape) and (min-width: 640px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
   "calc(100vw - clamp(3rem, 5vw, 5.5rem))",
 ].join(", ");
 
 const RECENT_COVER_SIZES = [
   "(orientation: portrait) and (max-width: 1023px) 80px",
+  "(orientation: portrait) calc(min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem)",
   "(orientation: landscape) and (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) calc(18vw)",
   "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 3.5rem) / 4 - 1.5rem)",
   "(min-width: 640px) 192px",
@@ -188,15 +191,17 @@ export function FeaturedCard({
   depth?: boolean;
 }) {
   return (
-    <article className={`${motionStyles.card} ${SHELL} flex flex-col`}>
+    <article className={`${motionStyles.card} ${layoutStyles.featuredCard} ${SHELL} flex flex-col`}>
       <ScrollDepth
         enabled={depth}
-        className="relative aspect-video w-full shrink-0 overflow-hidden border-b border-white/8"
+        className={`${layoutStyles.featuredImage} relative aspect-video w-full shrink-0 overflow-hidden border-b border-white/8`}
       >
         <Cover project={project} sizes={FEATURED_COVER_SIZES} fit="object-cover" />
       </ScrollDepth>
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <span className="text-brand-mid mb-1.5 font-mono text-[11px] tracking-[0.18em] uppercase">
+      <div className={`${layoutStyles.featuredBody} flex flex-1 flex-col p-4 sm:p-5`}>
+        <span
+          className={`${layoutStyles.featuredLabel} text-brand-mid mb-1.5 font-mono text-[11px] tracking-[0.18em] uppercase`}
+        >
           Featured
         </span>
         <div
@@ -242,11 +247,11 @@ export function RecentCard({
 }) {
   return (
     <article
-      className={`${motionStyles.card} ${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
+      className={`${motionStyles.card} ${layoutStyles.recentCard} ${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
     >
       <ScrollDepth
         enabled={depth}
-        className={`${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}
+        className={`${layoutStyles.recentImage} ${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}
       >
         <Cover
           project={project}
@@ -255,7 +260,9 @@ export function RecentCard({
           priority={priority}
         />
       </ScrollDepth>
-      <div className={`${actionStyles.recentContent} flex min-w-0 flex-1 flex-col`}>
+      <div
+        className={`${layoutStyles.recentContent} ${actionStyles.recentContent} flex min-w-0 flex-1 flex-col`}
+      >
         <div className={actionStyles.recentText}>
           <div className="flex min-w-0 items-baseline justify-between gap-2">
             <h3

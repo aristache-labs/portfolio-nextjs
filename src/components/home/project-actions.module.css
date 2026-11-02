@@ -134,7 +134,9 @@
   }
 
   .featuredDescription {
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
+    font-size: 13px;
+    line-height: 1.45;
   }
 
   .actions.featured a,

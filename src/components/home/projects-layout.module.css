@@ -1,0 +1,87 @@
+.highlights {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.column {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.recentTrack {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+}
+
+@media (orientation: landscape) and (min-width: 640px) {
+  .highlights {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .highlights {
+    gap: 16px;
+  }
+}
+
+/* Keep a full-width preview and comfortable controls on short touch screens. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .featuredImage {
+    height: clamp(120px, 36svh, 160px);
+    aspect-ratio: auto;
+  }
+
+  .featuredImage img {
+    object-fit: cover;
+  }
+
+  .featuredBody {
+    padding: 16px;
+  }
+
+  /* The column heading already identifies these projects as featured. */
+  .featuredLabel {
+    display: none;
+  }
+}
+
+@media (orientation: landscape) and (min-width: 1024px) {
+  .recentTrack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Share the showcase height only when both groups have enough projects.
+     Extra room goes to the screenshots rather than empty text panels. */
+  .balanced {
+    align-items: stretch;
+  }
+
+  .balanced .recentTrack {
+    flex: 1;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+
+  .balanced .recentCard {
+    height: 100%;
+  }
+
+  .balanced .recentImage {
+    flex: 1;
+    min-height: clamp(8rem, 11vw, 11rem);
+    aspect-ratio: auto;
+  }
+
+  .balanced .recentContent {
+    flex: 0 0 auto;
+  }
+
+  .balanced .recentImage img {
+    object-fit: cover;
+  }
+}
