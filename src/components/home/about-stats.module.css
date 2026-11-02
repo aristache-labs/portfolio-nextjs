@@ -147,6 +147,10 @@
 }
 
 @media (orientation: portrait) and (max-width: 767px) {
+  .section {
+    padding-bottom: 104px;
+  }
+
   .biography {
     gap: 12px;
   }
@@ -463,6 +467,7 @@
 @media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
   .section {
     padding-top: 84px;
+    padding-bottom: 104px;
     scroll-margin-top: 0;
   }
 
