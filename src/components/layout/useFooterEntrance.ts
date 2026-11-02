@@ -62,10 +62,14 @@ export function useFooterEntrance(footer: RefObject<HTMLElement | null>, enabled
       peak = 1;
       paint(1);
     };
+    const focus = (event: FocusEvent) => {
+      // Pointer focus happens between down and up. Moving its target then cancels the click.
+      if (event.target instanceof HTMLElement && event.target.matches(":focus-visible")) reveal();
+    };
     update();
     const unsubscribe = scrollY.on("change", update);
     window.addEventListener("resize", update);
-    element.addEventListener("focusin", reveal);
+    element.addEventListener("focusin", focus);
     // Late content above (images, lazy sections) changes the page height without a scroll event,
     // which would otherwise leave the last parts short of the end.
     const resize = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
@@ -74,7 +78,7 @@ export function useFooterEntrance(footer: RefObject<HTMLElement | null>, enabled
       resize?.disconnect();
       unsubscribe();
       window.removeEventListener("resize", update);
-      element.removeEventListener("focusin", reveal);
+      element.removeEventListener("focusin", focus);
       element.style.removeProperty("--footer-depth");
       for (const part of parts) part.style.removeProperty("--entry");
     };

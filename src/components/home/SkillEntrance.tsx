@@ -74,10 +74,8 @@ export function SkillEntrance({
     if (!mobile || !ready || !node) return;
     let active = true;
     let started = false;
-    let observer: IntersectionObserver | undefined;
     const settled = { opacity: 1, x: 0, y: 0, scale: 1 };
     const finish = () => {
-      observer?.disconnect();
       controls.stop();
       controls.set(settled);
       entered.current = true;
@@ -114,10 +112,13 @@ export function SkillEntrance({
           sequence.publish("complete");
         });
     };
-    observer = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting && entry.intersectionRatio >= 0.1) start();
-        else if (entry && entry.boundingClientRect.bottom <= 0) finish();
+        else if (entry && entry.boundingClientRect.bottom <= 0) {
+          observer.disconnect();
+          finish();
+        }
       },
       { rootMargin: "0px 0px -32px 0px", threshold: 0.1 },
     );

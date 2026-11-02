@@ -62,7 +62,7 @@ test("portrait screen floor is applied before hydration", async ({ page, isMobil
   await page.route(/\/_next\/.*\.js(?:\?|$)/, (route) => route.abort());
   await page.goto("/");
   const before = await page.locator("#hero").evaluate((element) => ({
-    height: Number.parseFloat(getComputedStyle(element).minHeight),
+    height: element.getBoundingClientRect().height,
     floor: getComputedStyle(document.documentElement).getPropertyValue("--portrait-screen-height"),
     screenHeight: screen.height,
   }));
@@ -115,7 +115,7 @@ test("portrait hero fills the first screen without shifting its heading", async 
         const cue = document
           .querySelector('#hero a[href="#projects"][aria-label]')!
           .getBoundingClientRect();
-        const roles = document.querySelector("#hero > .site-container")!.getBoundingClientRect();
+        const roles = document.querySelector("#hero .site-container")!.getBoundingClientRect();
         return {
           viewportHeight: window.innerHeight,
           screenFloor: matchMedia("(pointer: coarse)").matches ? screen.height : 0,

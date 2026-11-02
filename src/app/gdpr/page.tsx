@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  ShieldCheck,
+  Scale,
+  Mail,
+  Hand,
+  Clock3,
+  MessageSquareWarning,
+} from "lucide-react";
 import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
@@ -50,6 +59,7 @@ export default async function GdprPage() {
     {
       id: "about-your-data",
       title: "About your data",
+      icon: ShieldCheck,
       content: (
         <>
           {SITE.name}, an individual based in {LEGAL.country}, is the controller for this portfolio.
@@ -70,6 +80,7 @@ export default async function GdprPage() {
     {
       id: "your-rights",
       title: "Your rights",
+      icon: Scale,
       content: (
         <>
           You can ask what personal data I hold, obtain a copy, and correct inaccurate information.
@@ -89,6 +100,7 @@ export default async function GdprPage() {
     {
       id: "make-a-request",
       title: "Make a request",
+      icon: Mail,
       content: (
         <>
           Where possible, email me from the address you used to contact the site, explain which
@@ -104,6 +116,7 @@ export default async function GdprPage() {
     {
       id: "objection-and-consent",
       title: "Objection and withdrawal",
+      icon: Hand,
       content: (
         <>
           Where processing relies on legitimate interests, you may object for reasons relating to
@@ -118,6 +131,7 @@ export default async function GdprPage() {
     {
       id: "response-time",
       title: "When I will respond",
+      icon: Clock3,
       content: (
         <>
           I will respond without undue delay and normally within one month of receiving your
@@ -135,6 +149,7 @@ export default async function GdprPage() {
     {
       id: "raise-a-concern",
       title: "Raise a concern",
+      icon: MessageSquareWarning,
       content: (
         <>
           You can complain to a data protection authority, particularly in the EU country where you
@@ -206,13 +221,18 @@ export default async function GdprPage() {
               <div
                 className={`${GLASS_CARD} grid min-w-0 grid-cols-[minmax(0,1fr)] gap-9 rounded-2xl border p-5 [overflow-wrap:anywhere] sm:p-8`}
               >
-                {sections.map(({ id, title, content }) => (
+                {sections.map(({ id, title, icon: Icon, content }) => (
                   <LegalReveal key={id}>
                     <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-[88px]">
                       <h2
                         id={`${id}-title`}
-                        className="text-[17px] font-medium tracking-tight text-white/90"
+                        className="flex items-center gap-3 text-[17px] font-medium tracking-tight text-white/90"
                       >
+                        <Icon
+                          aria-hidden
+                          className="text-brand-mid size-5 shrink-0"
+                          strokeWidth={1.5}
+                        />
                         {title}
                       </h2>
                       <p className="text-muted mt-3 text-[15px] leading-7">{content}</p>

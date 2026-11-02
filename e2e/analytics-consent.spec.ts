@@ -122,7 +122,9 @@ test.describe("phone hero actions", () => {
       await expect(panel(page)).toBeVisible();
       const panelBox = (await panel(page).boundingBox())!;
       // Section visibility is content managed: inspect only the actions that exist.
-      for (const link of await page.locator("#hero a:not([aria-label])").all()) {
+      for (const link of await page
+        .locator('#hero a:not([aria-label^="Scroll to explore"])')
+        .all()) {
         const box = await link.boundingBox();
         if (!box || box.width === 0 || box.height === 0) continue;
         expect(

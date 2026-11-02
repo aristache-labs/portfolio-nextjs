@@ -24,6 +24,7 @@ import { HeroDepth } from "./HeroDepth";
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import { IDENTITY } from "@/lib/identity";
+import { useConsentInset } from "@/lib/consent-inset";
 export type HeroProfile = {
   name: string;
   roles: string[];
@@ -158,6 +159,7 @@ export function Hero({
   transitionToAbout?: boolean;
 }) {
   const reduce = useReducedMotion();
+  const consentInset = useConsentInset();
   const { mode } = useAnimationPolicy();
   const expressive = mode === "expressive";
   const desktopPinned = useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout;
@@ -272,6 +274,7 @@ export function Hero({
       data-cinematic={transitionToAbout || undefined}
       data-touch-scene={touchScene || undefined}
       className={`${styles.hero} relative scroll-mt-24`}
+      style={{ "--hero-consent-inset": `${consentInset}px` } as CSSProperties}
     >
       {mode !== "static" && !portraitPhone && (
         <HeroScrollMotion section={sectionRef} expressive={expressive} pinned={pinned} />

@@ -101,9 +101,21 @@ describe("useFooterEntrance", () => {
 
   it("shows everything at once when keyboard focus moves inside", () => {
     const { part, getByRole } = setup();
-    act(() => getByRole("link").focus());
+    const link = getByRole("link");
+    vi.spyOn(link, "matches").mockImplementation((selector) => selector === ":focus-visible");
+    act(() => link.focus());
     expect(part("title").style.getPropertyValue("--entry")).toBe("1");
     expect(part("bar").style.getPropertyValue("--entry")).toBe("1");
+  });
+
+  it("keeps a pointer target in place between pointer down and click", () => {
+    const { part, getByRole } = setup();
+    scrollTo(900);
+    const before = part("bar").style.getPropertyValue("--entry");
+    const link = getByRole("link");
+    vi.spyOn(link, "matches").mockReturnValue(false);
+    act(() => link.focus());
+    expect(part("bar").style.getPropertyValue("--entry")).toBe(before);
   });
 
   it("never hides anything when disabled", () => {

@@ -618,7 +618,7 @@
 
 @media (max-width: 767px) and (orientation: portrait) {
   .content {
-    padding-top: 12rem;
+    padding-top: max(7rem, calc(12rem - var(--hero-consent-inset, 0px) * 0.5));
     padding-bottom: 2rem;
   }
 
