@@ -3,6 +3,7 @@
 import { Fragment, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { m, type Variants } from "framer-motion";
+import { Star, History, Layers3 } from "lucide-react";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { ScrollEntrance } from "@/components/motion/ScrollEntrance";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
@@ -81,9 +82,13 @@ function Arrival({
 }
 
 function ColumnLabel({ children }: { children: string }) {
+  const Icon = children === "Featured" ? Star : children === "Recently updated" ? History : Layers3;
   return (
     <ProjectsArrival kind="label" effect="fade" duration={0.6} delay={0.1}>
-      <p className="text-brand-bright/90 mb-4 font-mono text-xs font-medium tracking-[0.18em] uppercase">
+      <p className={layoutCss.groupTitle}>
+        <span className={layoutCss.groupIcon} aria-hidden>
+          <Icon size={16} strokeWidth={1.5} />
+        </span>
         {children}
       </p>
     </ProjectsArrival>
@@ -112,7 +117,8 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const [category, setCategory] = useState(ALL);
   const [extra, setExtra] = useState(0);
   const mobileViewport = useMediaQuery("(max-width: 1023px)");
-  const recentLimit = mobileViewport ? 2 : MAX_RECENT;
+  const landscape = useMediaQuery("(orientation: landscape)");
+  const recentLimit = mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
   const containerRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   function openQuickView(project: MergedProject, event: MouseEvent<HTMLButtonElement>) {
@@ -131,7 +137,6 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
   // a `rest` array rebuilt every render, so it never actually memoised anything.
-  const landscape = useMediaQuery("(orientation: landscape)");
   const pageSize = mobileViewport ? (landscape ? 4 : 2) : 6;
   const limit = pageSize + extra;
   const { featured, recent, rest, categories } = useMemo(() => {
@@ -259,7 +264,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                     effect="fade-from-right"
                     duration={0.5}
                     delay={i * 0.06}
-                    className={`flex min-w-0 ${i >= 2 ? "max-lg:hidden" : ""}`}
+                    className="flex min-w-0"
                   >
                     <RecentCard
                       project={p}

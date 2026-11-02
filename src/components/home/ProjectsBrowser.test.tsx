@@ -251,10 +251,13 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
   });
-  it("shows four lower cards in landscape and omits empty categories", () => {
+  it("shows three recent and four lower cards in landscape and omits empty categories", () => {
     installMatchMedia({ "(max-width: 1023px)": true, "(orientation: landscape)": true });
     render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(8);
+    expect(screen.getAllByRole("article")).toHaveLength(9);
+    const recentHeading = screen.getByText("Recently updated");
+    const recentColumn = recentHeading.parentElement!.parentElement!;
+    expect(within(recentColumn).getAllByRole("article")).toHaveLength(3);
     expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText("More projects").tagName).toBe("P");
