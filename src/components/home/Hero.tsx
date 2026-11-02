@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Fragment,
   useEffect,
   useId,
   useRef,
@@ -41,6 +42,10 @@ const PLATE =
 // CSS owns copy entrances so mobile never waits for hydration to reveal its LCP text.
 function entranceStyle(delay: number) {
   return { "--hero-enter-delay": `${delay * 0.54}s` } as CSSProperties;
+}
+
+function staggerStyle(index: number) {
+  return { "--i": index } as CSSProperties;
 }
 
 /** The mask stays aligned with the text; only the reflected light moves. */
@@ -342,7 +347,21 @@ export function Hero({
         >
           <div className={`${styles.intro} min-w-0 lg:pl-8`}>
             <p className={styles.specialization}>
-              <span className={styles.specializationEntrance}>{profile.roles.join(" · ")}</span>
+              <span className={styles.specializationEntrance}>
+                {profile.roles.map((role, i) => (
+                  <Fragment key={role}>
+                    {i > 0 && (
+                      <span className={styles.roleDot} style={staggerStyle(i)}>
+                        {" · "}
+                      </span>
+                    )}
+                    <span className={styles.role} style={staggerStyle(i)}>
+                      {role}
+                    </span>
+                  </Fragment>
+                ))}
+                <span aria-hidden className={styles.caret} />
+              </span>
             </p>
 
             <h1 className={`${styles.exitTitle} max-w-3xl`}>
@@ -356,10 +375,20 @@ export function Hero({
                 )}
               </span>{" "}
               <span
-                style={entranceStyle(0.45)}
-                className={`${styles.enter} ${styles.headline} font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]`}
+                className={`${styles.headline} font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]`}
               >
-                Infrastructure meets <span className="text-(--brand-mid)">innovation.</span>
+                <span className={styles.word} style={staggerStyle(0)}>
+                  Infrastructure
+                </span>{" "}
+                <span className={styles.word} style={staggerStyle(1)}>
+                  meets
+                </span>{" "}
+                <span
+                  className={`${styles.word} ${styles.accentWord} text-(--brand-mid)`}
+                  style={staggerStyle(2)}
+                >
+                  innovation.
+                </span>
               </span>
             </h1>
 
@@ -445,7 +474,7 @@ export function Hero({
         <a
           href="#projects"
           onClick={(event) => navigateToSection(event, "projects")}
-          className={`${styles.sceneControl} text-foreground/50 hover:text-foreground relative z-10 mb-16 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-translate-y-10`}
+          className={`${styles.sceneControl} ${styles.scrollCue} text-foreground/50 hover:text-foreground relative z-10 mb-16 flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-translate-y-10`}
           aria-label="Scroll to explore, jump to projects"
         >
           <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">

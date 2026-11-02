@@ -101,7 +101,9 @@ describe("Hero", () => {
         /My experience spans enterprise IT, PowerShell automation and script security\./,
       ),
     ).toHaveTextContent("In my spare time, I build web and mobile applications.");
-    expect(screen.getByText(profile.roles.join(" · "))).toBeInTheDocument();
+    expect(screen.getByText(profile.roles[0]).closest("p")).toHaveTextContent(
+      profile.roles.join(" · "),
+    );
   });
 
   it.each([
@@ -134,7 +136,9 @@ describe("Hero", () => {
 
   it("shows the managed roles without changing the profile", () => {
     render(<Hero profile={profile} />);
-    expect(screen.getByText(profile.roles.join(" · "))).toBeInTheDocument();
+    expect(screen.getByText(profile.roles[0]).closest("p")).toHaveTextContent(
+      profile.roles.join(" · "),
+    );
     expect(screen.queryByText("// scope")).not.toBeInTheDocument();
     expect(profile.roles).toEqual(["Full Stack Developer", "Flutter Developer"]);
   });
