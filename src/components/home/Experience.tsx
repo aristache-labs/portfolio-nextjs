@@ -460,7 +460,7 @@ export function Experience({
                 <NearbyTimelineRail
                   listRef={listRef}
                   highlightEntries={mode === "expressive"}
-                  trackCurrent={landscape}
+                  trackCurrent={portrait || landscape}
                   onActive={setActiveRole}
                 />
               )}

@@ -26,10 +26,24 @@
 
   .arrival:is([data-contact-kind="card"], [data-contact-kind="form"]) {
     --contact-y: 48px;
+    opacity: 1;
   }
 
   .arrival[data-contact-reveal="play"]:is([data-contact-kind="card"], [data-contact-kind="form"]) {
     animation-duration: 800ms;
+    animation-name: contact-surface-move;
+  }
+
+  /* Fade the glass itself: an opacity/filter on its parent isolates its backdrop. */
+  .arrival[data-contact-reveal="armed"]:is([data-contact-kind="card"], [data-contact-kind="form"])
+    > * {
+    opacity: 0;
+  }
+
+  .arrival[data-contact-reveal="play"]:is([data-contact-kind="card"], [data-contact-kind="form"])
+    > * {
+    animation: contact-surface-fade 800ms var(--contact-delay, 0ms) cubic-bezier(0.22, 1, 0.36, 1)
+      both;
   }
 
   .arrival [data-contact-step][data-contact-reveal="play"] {
@@ -86,8 +100,26 @@
   }
   to {
     opacity: 1;
-    filter: blur(0);
+    filter: none;
     transform: translate(0, 0);
+  }
+}
+
+@keyframes contact-surface-move {
+  from {
+    transform: translate(var(--contact-x), var(--contact-y));
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes contact-surface-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
