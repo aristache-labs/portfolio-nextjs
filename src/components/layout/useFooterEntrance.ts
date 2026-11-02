@@ -5,18 +5,18 @@ import { useScroll } from "framer-motion";
 import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
 
 /**
- * The share of the footer's travel each part uses, in reading order. The stage rises over the
- * first ~62% and is pinned for the rest, so the lower parts land while it holds still.
+ * The share of the footer's travel each part uses, in reading order. Parts arrive during the
+ * shorter lead-in and settle before the page ends.
  */
 const PARTS: Record<string, [number, number]> = {
-  title: [0.3, 0.58],
-  subtitle: [0.34, 0.62],
-  line: [0.4, 0.7],
-  sparkle: [0.44, 0.68],
-  logo: [0.5, 0.8],
-  explore: [0.56, 0.86],
-  legal: [0.6, 0.9],
-  bar: [0.7, 1],
+  title: [0.08, 0.32],
+  subtitle: [0.12, 0.36],
+  line: [0.16, 0.42],
+  sparkle: [0.18, 0.42],
+  logo: [0.18, 0.52],
+  explore: [0.24, 0.6],
+  legal: [0.28, 0.64],
+  bar: [0.42, 0.82],
 };
 
 /**

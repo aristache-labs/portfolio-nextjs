@@ -1,19 +1,18 @@
 /* Scroll-driven parts on expressive desktops (`useFooterEntrance` sets each `--entry`). The bar
    is the glass element itself, so it fades as a whole and its blur never pops in late. */
 @media (prefers-reduced-motion: no-preference) {
-  /* Pinned scene: 60svh of real scroll above a screen-tall stage that sticks to the viewport
-     bottom, so the stage rises in, then holds while its parts land. Native scrolling only. */
+  /* A short lead-in brings the closing content forward without a screen of empty stage. */
   .footer[data-scene]::before {
     content: "";
     display: block;
-    height: 60svh;
+    height: 20svh;
   }
 
   .footer[data-scene] .stage {
     position: sticky;
     bottom: 0;
     display: flex;
-    min-height: 100svh;
+    min-height: 0;
     flex-direction: column;
     justify-content: flex-end;
   }

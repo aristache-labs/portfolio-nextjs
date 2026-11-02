@@ -3,6 +3,14 @@
   position: relative;
 }
 
+/* Keep field text independent of the compact root size to prevent focus zoom on phones. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .field :is(input, textarea, [role="combobox"]) {
+    font-size: 16px;
+    line-height: 1.35;
+  }
+}
+
 .focusLine {
   position: absolute;
   right: 6px;

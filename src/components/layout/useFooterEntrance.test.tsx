@@ -74,16 +74,22 @@ describe("footerProgress", () => {
 });
 
 describe("useFooterEntrance", () => {
-  it("brings the parts in order, ending exactly at the page end, and keeps them on the way up", () => {
+  it("reveals the title early, settles before the page end, and keeps parts on the way up", () => {
     const { part } = setup();
     expect(part("title").style.getPropertyValue("--entry")).toBe("0");
     expect(part("bar").style.getPropertyValue("--entry")).toBe("0");
     scrollTo(600);
     expect(part("title").style.getPropertyValue("--entry")).toBe("0");
-    // 60% through the footer's travel: the title is in, the bar has not started.
+    scrollTo(680);
+    expect(Number(part("title").style.getPropertyValue("--entry"))).toBeGreaterThan(0);
+    expect(part("bar").style.getPropertyValue("--entry")).toBe("0");
+    // The title settles before the lower bar finishes its entrance.
     scrollTo(840);
     expect(part("title").style.getPropertyValue("--entry")).toBe("1");
-    expect(part("bar").style.getPropertyValue("--entry")).toBe("0");
+    expect(Number(part("bar").style.getPropertyValue("--entry"))).toBeGreaterThan(0);
+    expect(Number(part("bar").style.getPropertyValue("--entry"))).toBeLessThan(1);
+    scrollTo(940);
+    expect(part("bar").style.getPropertyValue("--entry")).toBe("1");
     scrollTo(MAX_SCROLL);
     expect(part("bar").style.getPropertyValue("--entry")).toBe("1");
     scrollTo(0);
