@@ -13,6 +13,11 @@ import { SectionBackdrop } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
 import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
+import {
+  SKILLS_MOBILE_LANDSCAPE,
+  SKILLS_MOBILE_PORTRAIT,
+  SkillsMobileReveal,
+} from "./SkillsMobileReveal";
 
 export type SkillRow = {
   name: string;
@@ -86,12 +91,22 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const visible =
     active === MOST_USED ? mostUsedSkills(ordered) : ordered.filter((s) => s.category === active);
   const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
+  const mobilePortrait = useMediaQuery(SKILLS_MOBILE_PORTRAIT);
+  const mobileLandscape = useMediaQuery(SKILLS_MOBILE_LANDSCAPE);
+  const mobile = mobilePortrait || mobileLandscape;
+  const HeadingReveal = mobile ? SkillsMobileReveal : ProgressiveReveal;
 
   // Cards leaving a filter fade out in place while the rest move into their new positions.
   const cards = (
     <AnimatePresence mode="popLayout" initial={false}>
       {visible.map((skill, index) => (
-        <SkillEntrance key={`${skill.category}-${skill.name}`} filtered={hasFiltered} order={index}>
+        <SkillEntrance
+          key={`${skill.category}-${skill.name}`}
+          filtered={hasFiltered}
+          order={index}
+          mobile={mobile}
+          landscape={mobileLandscape}
+        >
           <SkillSlot index={index}>
             <SkillCard
               name={skill.name}
@@ -135,7 +150,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
             <div aria-hidden className="hidden lg:block" />
             <div className={`${responsiveCss.heading} min-w-0 text-left`}>
-              <ProgressiveReveal
+              <HeadingReveal
+                kind="title"
                 effect="focus"
                 duration={1.3}
                 delay={0.4}
@@ -153,9 +169,9 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 <h2 className={`${responsiveCss.titleText} font-display mt-3`}>
                   Tools I <span>trust</span>
                 </h2>
-              </ProgressiveReveal>
+              </HeadingReveal>
               <aside className={responsiveCss.quoteAnchor}>
-                <ProgressiveReveal effect="fade-from-right" duration={1.3} delay={0.4}>
+                <HeadingReveal kind="quote" effect="fade-from-right" duration={1.3} delay={0.4}>
                   <blockquote className={responsiveCss.quote}>
                     <Quote aria-hidden className={responsiveCss.quoteIcon} />
                     <p>
@@ -165,9 +181,10 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     </p>
                     <span aria-hidden className={responsiveCss.quoteAccent} />
                   </blockquote>
-                </ProgressiveReveal>
+                </HeadingReveal>
               </aside>
-              <ProgressiveReveal
+              <HeadingReveal
+                kind="description"
                 effect="fade"
                 duration={1.3}
                 delay={0.4}
@@ -176,7 +193,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 <p className={`${subtitleCss.subtitle} mt-4 max-w-xl`}>
                   Infrastructure on one side, web and mobile development on the other.
                 </p>
-              </ProgressiveReveal>
+              </HeadingReveal>
             </div>
           </div>
 
@@ -256,8 +273,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 )}
 
                 {/* Stable keys let shared cards move between their old and new grid positions. */}
-                {scene ? (
-                  // The desktop scene drives each card from scrolling instead of a timed cascade.
+                {scene || mobile ? (
+                  // Desktop uses the scene; mobile observes each card independently.
                   <div className={GRID}>{cards}</div>
                 ) : (
                   <ProgressiveReveal

@@ -4,6 +4,58 @@
   pointer-events: none;
 }
 
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  .section {
+    --skills-backdrop-travel: 48px;
+    --skills-quote-travel: 12px;
+    view-timeline: --skills-mobile block;
+  }
+
+  .section .quote {
+    animation: none;
+  }
+
+  @supports (animation-timeline: view()) {
+    .backdrop {
+      animation: skills-mobile-backdrop linear both;
+      animation-timeline: --skills-mobile;
+      animation-range: cover;
+    }
+
+    .quoteAnchor {
+      animation: skills-mobile-quote linear both;
+      animation-timeline: --skills-mobile;
+      animation-range: cover;
+    }
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+  .section {
+    --skills-backdrop-travel: 28px;
+    --skills-quote-travel: 8px;
+  }
+}
+
+@keyframes skills-mobile-backdrop {
+  from {
+    transform: translateY(calc(-1 * var(--skills-backdrop-travel))) scale(1.12);
+  }
+  to {
+    transform: translateY(var(--skills-backdrop-travel)) scale(1.12);
+  }
+}
+
+@keyframes skills-mobile-quote {
+  from {
+    translate: 0 var(--skills-quote-travel);
+  }
+  to {
+    translate: 0 calc(-1 * var(--skills-quote-travel));
+  }
+}
+
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   .section [role="tab"] {
     min-height: 34px;

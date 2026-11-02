@@ -1,7 +1,16 @@
 "use client";
 
-import { m } from "framer-motion";
-import { useContext, useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
+import { m, useAnimationControls } from "framer-motion";
+import {
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type Ref,
+} from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { createRevealSequence, RevealSequence } from "@/components/motion/RevealSequence";
 
@@ -9,17 +18,24 @@ import { createRevealSequence, RevealSequence } from "@/components/motion/Reveal
 export function SkillEntrance({
   filtered,
   order = 0,
+  mobile = false,
+  landscape = false,
   ref,
   children,
 }: {
   filtered: boolean;
   /** Position in the grid, so cards brought in by a filter arrive in turn. */
   order?: number;
+  mobile?: boolean;
+  landscape?: boolean;
   /** Lets AnimatePresence pop a leaving card out of the grid flow. */
   ref?: Ref<HTMLDivElement>;
   children: ReactNode;
 }) {
   const parent = useContext(RevealSequence);
+  const nodeRef = useRef<HTMLDivElement>(null);
+  useImperativeHandle(ref, () => nodeRef.current!, []);
+  const controls = useAnimationControls();
   const { mode, ready } = useAnimationPolicy();
   const [entersOnMount] = useState(filtered);
   const sequence = useMemo(() => createRevealSequence(), []);
@@ -32,6 +48,7 @@ export function SkillEntrance({
 
   useEffect(() => {
     if (!ready) return;
+    if (mobile) return;
     if (mode === "static") {
       sequence.publish("static");
       return;
@@ -50,11 +67,83 @@ export function SkillEntrance({
         else sequence.publish("prepared");
       }
     });
-  }, [entersOnMount, mode, parent, ready, sequence]);
+  }, [entersOnMount, mode, parent, ready, sequence, mobile]);
+
+  useEffect(() => {
+    const node = nodeRef.current;
+    if (!mobile || !ready || !node) return;
+    let active = true;
+    let started = false;
+    let observer: IntersectionObserver | undefined;
+    const settled = { opacity: 1, x: 0, y: 0, scale: 1 };
+    const finish = () => {
+      observer?.disconnect();
+      controls.stop();
+      controls.set(settled);
+      entered.current = true;
+      sequence.publish("static");
+    };
+    if (mode === "static" || entered.current || typeof IntersectionObserver !== "function") {
+      finish();
+      return;
+    }
+    if (entersOnMount) {
+      entered.current = true;
+      sequence.publish(filterEntered.current ? "complete" : "prepared");
+      return;
+    }
+    controls.set({
+      opacity: 0,
+      x: landscape ? -32 : 0,
+      y: landscape ? 0 : 40,
+      scale: landscape ? 0.94 : 0.93,
+    });
+    sequence.publish("prepared");
+    const start = () => {
+      if (started || entered.current) return;
+      started = true;
+      observer?.disconnect();
+      void controls
+        .start({
+          ...settled,
+          transition: { duration: 0.75, delay: (order % 2) * 0.1, ease: [0.22, 1, 0.36, 1] },
+        })
+        .then(() => {
+          if (!active) return;
+          entered.current = true;
+          sequence.publish("complete");
+        });
+    };
+    observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting && entry.intersectionRatio >= 0.1) start();
+        else if (entry && entry.boundingClientRect.bottom <= 0) finish();
+      },
+      { rootMargin: "0px 0px -32px 0px", threshold: 0.1 },
+    );
+    const focus = () => {
+      observer?.disconnect();
+      finish();
+    };
+    const skipped = () => {
+      if (!started && node.getBoundingClientRect().bottom <= 0) focus();
+    };
+    observer.observe(node);
+    node.addEventListener("focusin", focus);
+    window.addEventListener("scrollend", skipped);
+    return () => {
+      active = false;
+      observer?.disconnect();
+      controls.stop();
+      node.removeEventListener("focusin", focus);
+      window.removeEventListener("scrollend", skipped);
+    };
+  }, [mobile, landscape, ready, mode, controls, sequence, entersOnMount, order]);
 
   return (
     <m.div
-      ref={ref}
+      ref={nodeRef}
+      animate={mobile ? controls : undefined}
       layout={mode === "static" ? false : "position"}
       transition={{ layout: { type: "spring", damping: 20, stiffness: 300 } }}
       exit={
