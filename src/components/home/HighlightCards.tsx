@@ -4,24 +4,28 @@ import type { MouseEventHandler } from "react";
 
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
+import layoutStyles from "./projects-layout.module.css";
 
 import Image from "next/image";
 import { ExternalLink, GitFork, Github, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ScrollDepth } from "@/components/motion/ScrollDepth";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
-import { COMPACT_PROJECT_ACTION } from "./project-styles";
+import { COMPACT_PROJECT_ACTION, GLASS_CARD } from "./project-styles";
 
 // Fallbacks follow site-container padding and the two-column highlights layout.
 // Lazy covers use their actual layout width when the browser supports auto sizes.
 const FEATURED_COVER_SIZES = [
+  "(orientation: portrait) calc(100vw - clamp(3rem, 5vw, 5.5rem))",
   "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
-  "(orientation: landscape) and (max-height: 500px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1rem) / 2)",
+  "(orientation: landscape) and (min-width: 640px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
   "calc(100vw - clamp(3rem, 5vw, 5.5rem))",
 ].join(", ");
 
 const RECENT_COVER_SIZES = [
   "(orientation: portrait) and (max-width: 1023px) 80px",
+  "(orientation: portrait) calc(min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem)",
   "(orientation: landscape) and (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) calc(18vw)",
   "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 3.5rem) / 4 - 1.5rem)",
   "(min-width: 640px) 192px",
@@ -121,7 +125,7 @@ function Actions({
   const compactClass = compact ? COMPACT_PROJECT_ACTION : undefined;
   return (
     <div
-      className={`${actionStyles.actions} ${compact ? `${actionStyles.recent} mt-2` : `${actionStyles.featured} mt-4`} flex flex-wrap items-center gap-2`}
+      className={`${actionStyles.actions} ${compact ? `${actionStyles.recent} ${actionStyles.compact} mt-2` : `${actionStyles.featured} mt-4`} flex flex-wrap items-center gap-2`}
     >
       <Button
         className={compactClass}
@@ -145,7 +149,7 @@ function Actions({
           <Github style={{ width: compact ? 16 : 20, height: compact ? 16 : 20 }} aria-hidden />
         }
       >
-        <span className="sr-only">Code</span>
+        <span className={`${actionStyles.githubLabel} sr-only`}>GitHub</span>
       </Button>
       {project.homepage && (
         <Button
@@ -173,30 +177,37 @@ function Actions({
   );
 }
 
-const SHELL =
-  "border-border bg-surface group relative h-full w-full overflow-hidden rounded-2xl border backdrop-blur-sm transition-colors duration-300 hover:border-(--brand-mid)/40";
+const SHELL = `${GLASS_CARD} group relative h-full w-full overflow-hidden rounded-2xl border transition-colors duration-300 hover:border-(--brand-mid)/40`;
 
 /** Big card: preview on top, then title, a short description, tags and actions. */
 export function FeaturedCard({
   project,
   onQuickView,
+  depth = false,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
+  /** Let the cover drift and settle inside its frame while scrolling (expressive desktops). */
+  depth?: boolean;
 }) {
   return (
-    <article className={`${motionStyles.card} ${SHELL} flex flex-col`}>
-      <span className="pointer-events-none absolute top-[25px] -right-[39px] z-20 flex h-[30px] w-[160px] rotate-45 items-center justify-center border-y border-(--brand-mid)/50 bg-(--brand-deep) text-[11px] font-bold tracking-[0.12em] text-white shadow-sm">
-        FEATURED
-      </span>
-      <div className="border-border relative aspect-video w-full shrink-0 overflow-hidden border-b">
+    <article className={`${motionStyles.card} ${layoutStyles.featuredCard} ${SHELL} flex flex-col`}>
+      <ScrollDepth
+        enabled={depth}
+        className={`${layoutStyles.featuredImage} relative aspect-video w-full shrink-0 overflow-hidden border-b border-white/8`}
+      >
         <Cover project={project} sizes={FEATURED_COVER_SIZES} fit="object-cover" />
-      </div>
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
+      </ScrollDepth>
+      <div className={`${layoutStyles.featuredBody} flex flex-1 flex-col p-4 sm:p-5`}>
+        <span
+          className={`${layoutStyles.featuredLabel} text-brand-mid mb-1.5 font-mono text-[11px] tracking-[0.18em] uppercase`}
+        >
+          Featured
+        </span>
         <div
           className={`${actionStyles.featuredHeading} flex flex-wrap items-center justify-between gap-x-3 gap-y-2`}
         >
-          <h3 className="max-w-full min-w-0 text-lg leading-snug font-bold break-words">
+          <h3 className="max-w-full min-w-0 text-lg leading-snug font-semibold break-words">
             {project.title}
           </h3>
           <Tags project={project} />
@@ -226,17 +237,21 @@ export function RecentCard({
   project,
   onQuickView,
   priority = false,
+  depth = false,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
   priority?: boolean;
+  /** Let the cover drift and settle inside its frame while scrolling (expressive desktops). */
+  depth?: boolean;
 }) {
   return (
     <article
-      className={`${motionStyles.card} ${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
+      className={`${motionStyles.card} ${layoutStyles.recentCard} ${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
     >
-      <div
-        className={`${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}
+      <ScrollDepth
+        enabled={depth}
+        className={`${layoutStyles.recentImage} ${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}
       >
         <Cover
           project={project}
@@ -244,8 +259,10 @@ export function RecentCard({
           fit="object-cover"
           priority={priority}
         />
-      </div>
-      <div className={`${actionStyles.recentContent} flex min-w-0 flex-1 flex-col`}>
+      </ScrollDepth>
+      <div
+        className={`${layoutStyles.recentContent} ${actionStyles.recentContent} flex min-w-0 flex-1 flex-col`}
+      >
         <div className={actionStyles.recentText}>
           <div className="flex min-w-0 items-baseline justify-between gap-2">
             <h3

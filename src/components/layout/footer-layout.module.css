@@ -1,3 +1,123 @@
+/* Scroll-driven parts on expressive desktops (`useFooterEntrance` sets each `--entry`). The bar
+   is the glass element itself, so it fades as a whole and its blur never pops in late. */
+@media (prefers-reduced-motion: no-preference) {
+  /* A short lead-in brings the closing content forward without a screen of empty stage. */
+  .footer[data-scene]::before {
+    content: "";
+    display: block;
+    height: 20svh;
+  }
+
+  .footer[data-scene] .stage {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  /* The skyline drifts slower than the page and settles its zoom as the scene completes. */
+  .footer[data-scene] .depth {
+    transform: translateY(calc((1 - var(--footer-depth, 1)) * -6%))
+      scale(calc(1.14 - var(--footer-depth, 1) * 0.14));
+    will-change: transform;
+  }
+
+  .footer [data-part] {
+    opacity: var(--entry, 1);
+  }
+
+  .footer [data-part="title"],
+  .footer [data-part="subtitle"] {
+    transform: translateY(calc((1 - var(--entry, 1)) * 44px));
+  }
+
+  .footer [data-part="line"] {
+    transform: scaleX(var(--entry, 1));
+  }
+
+  .footer [data-part="sparkle"] {
+    transform: scale(calc(0.4 + var(--entry, 1) * 0.6)) rotate(calc((1 - var(--entry, 1)) * -90deg));
+  }
+
+  .footer [data-part="logo"] {
+    transform: translateY(calc((1 - var(--entry, 1)) * 64px))
+      scale(calc(0.88 + var(--entry, 1) * 0.12));
+  }
+
+  .footer [data-part="explore"] {
+    transform: translateX(calc((1 - var(--entry, 1)) * -110px));
+  }
+
+  .footer [data-part="legal"] {
+    transform: translateX(calc((1 - var(--entry, 1)) * 110px));
+  }
+
+  .footer [data-part="bar"] {
+    transform: translateY(calc((1 - var(--entry, 1)) * 72px));
+  }
+}
+
+/* Footer links: the Contact focus line, grown from the left under the label on hover and focus. */
+.label {
+  position: relative;
+}
+
+.label::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -3px;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--brand-mid-rgb) / 0.9) 22%,
+    var(--brand-bright) 60%,
+    transparent
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+:is(a, button):is(:hover, :focus-visible) > .label::after {
+  transform: scaleX(1);
+}
+
+.logo img {
+  transition: filter 400ms ease;
+}
+
+.logo:is(:hover, :focus-visible) img {
+  filter: drop-shadow(0 0 18px rgb(var(--brand-mid-rgb) / 0.4));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .label::after {
+    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .sparkle {
+    animation: sparkle-pulse 3.6s ease-in-out infinite;
+  }
+}
+
+@keyframes sparkle-pulse {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
 @media (min-width: 640px), (orientation: landscape) {
   .links {
     width: fit-content;
@@ -14,7 +134,7 @@
 }
 
 @media (orientation: portrait) and (max-width: 639px) {
-  .footer > div:last-child {
+  .stage > div:last-child {
     padding-bottom: max(88px, env(safe-area-inset-bottom));
   }
 
@@ -75,7 +195,7 @@
     bottom: 10px;
     left: -8px;
     width: 1px;
-    background: rgb(255 255 255 / 0.14);
+    background: rgb(255 255 255 / 0.08);
     pointer-events: none;
   }
 

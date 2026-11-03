@@ -2,7 +2,7 @@ import "./globals.css";
 import { GeistSans } from "geist/font/sans";
 import { ReactNode } from "react";
 import { Metadata, Viewport } from "next";
-import dynamic from "next/dynamic";
+import { DeferredControls } from "@/components/common/DeferredControls";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { HashScrollFix } from "@/components/util/HashScrollFix";
@@ -61,13 +61,6 @@ export const metadata: Metadata = {
 // letterboxes the page and leaves a black strip. site-container pads for the safe area.
 export const viewport: Viewport = { viewportFit: "cover" };
 
-const AnalyticsPreferences = dynamic(() =>
-  import("@/components/analytics/AnalyticsPreferences").then(
-    (module) => module.AnalyticsPreferences,
-  ),
-);
-const ScrollToTop = dynamic(() => import("@/components/common/ScrollToTop"));
-
 const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
   return (
     <html
@@ -93,12 +86,11 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
         <MotionProvider>
           <AmbientBackgroundGate />
           <main>{children}</main>
-          <ScrollToTop />
+          <DeferredControls />
         </MotionProvider>
         <HashScrollFix />
         <LateMonoFont />
         <GoogleAnalytics />
-        <AnalyticsPreferences />
       </body>
     </html>
   );

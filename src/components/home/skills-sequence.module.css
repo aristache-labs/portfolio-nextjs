@@ -1,0 +1,15 @@
+.slot {
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-scene] .slot {
+    transform: translateY(calc((1 - var(--card-entry, 1)) * 40px))
+      scale(calc(0.94 + var(--card-entry, 1) * 0.06));
+  }
+
+  /* The glass card fades itself: a fading slot would hide its backdrop blur until the end. */
+  [data-scene] .slot > * {
+    opacity: var(--card-entry, 1);
+  }
+}

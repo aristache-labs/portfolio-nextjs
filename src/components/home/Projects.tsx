@@ -1,11 +1,14 @@
 import { ArrowUpRight } from "lucide-react";
-import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
+import { ProjectsArrival } from "./ProjectsArrival";
+import motionCss from "./project-motion.module.css";
 import { Magnetic } from "@/components/motion/Magnetic";
-import { Section, SectionHeading } from "@/components/ui/Section";
+import { Section } from "@/components/ui/Section";
+import labelCss from "@/components/ui/section-label.module.css";
 import { Button } from "@/components/ui/Button";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { SectionBackdrop } from "./SectionBackdrop";
 import subtitleCss from "./section-subtitle.module.css";
+import headingCss from "./section-heading.module.css";
 import type { MergedProject } from "@/lib/projects";
 import spacing from "./experience-projects-spacing.module.css";
 
@@ -23,7 +26,7 @@ export function Projects({
   return (
     <Section
       id="projects"
-      className={`${spacing.projects} scroll-mt-[80px] pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
+      className={`${spacing.projects} ${motionCss.section} scroll-mt-[80px] pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
       backdrop={
         <>
           <SectionBackdrop
@@ -46,31 +49,36 @@ export function Projects({
         </>
       }
     >
-      <ProgressiveReveal
+      <ProjectsArrival
+        kind="heading"
         effect="slide"
         className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-10 [@media(orientation:portrait)_and_(max-width:767px)]:flex [@media(orientation:portrait)_and_(max-width:767px)]:flex-col"
       >
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between [@media(orientation:portrait)_and_(max-width:767px)]:contents">
-          <SectionHeading
-            number={number}
-            eyebrow="Projects"
-            title="Selected Projects"
-            accent="Projects"
-            className="mb-0 [@media(orientation:portrait)_and_(max-width:767px)]:mb-4"
-          />
+          {/* Same scale and weight as the About, Skills and Experience headings. */}
+          <div className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-4">
+            <p className={`${labelCss.label} ${headingCss.label}`}>
+              <span className={labelCss.number}>{number}</span>
+              <span>Projects</span>
+              <span aria-hidden className={labelCss.rule} />
+            </p>
+            <h2 className={headingCss.title}>
+              Selected <span className={headingCss.accent}>Projects</span>
+            </h2>
+          </div>
         </div>
         <p
           className={`${subtitleCss.subtitle} mb-10 max-w-2xl text-pretty [@media(orientation:portrait)_and_(max-width:767px)]:order-1 [@media(orientation:portrait)_and_(max-width:767px)]:mb-0`}
         >
           Web and mobile applications, infrastructure projects and automation tools.
         </p>
-      </ProgressiveReveal>
+      </ProjectsArrival>
 
       <div id="project-list" className="scroll-mt-24">
         <ProjectsBrowser projects={projects} />
       </div>
 
-      <ProgressiveReveal effect="fade" className="mt-12 text-center">
+      <ProjectsArrival kind="action" effect="fade" className="mt-12 text-center">
         <Magnetic>
           <Button
             href={GITHUB_PROFILE}
@@ -83,7 +91,7 @@ export function Projects({
             View all on GitHub
           </Button>
         </Magnetic>
-      </ProgressiveReveal>
+      </ProjectsArrival>
     </Section>
   );
 }

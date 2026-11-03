@@ -1,15 +1,22 @@
+import type { CSSProperties } from "react";
 import { CalendarDays, MapPin, TrendingDown, Users, type LucideIcon } from "lucide-react";
-import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
+import { IconTile, ICON_PROPS } from "@/components/ui/IconTile";
+import { SpringCount } from "@/components/motion/SpringCount";
+import { AboutResults } from "./AboutResults";
 import { AvatarPortrait } from "./AvatarPortrait";
+import { AboutPortraitMotion } from "./AboutPortraitMotion";
+import { AboutIntroduction } from "./AboutIntroduction";
 import { Section } from "@/components/ui/Section";
-import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { SectionBackdrop } from "./SectionBackdrop";
 import labelCss from "@/components/ui/section-label.module.css";
 import statsCss from "./about-stats.module.css";
 import { AboutBio } from "./AboutBio";
 import { SITE } from "@/lib/seo/site";
 import { IDENTITY } from "@/lib/identity";
-import { SpringCount } from "@/components/motion/SpringCount";
+import { AboutSequence } from "./AboutSequence";
+import { AboutReveal } from "./AboutReveal";
+import portraitCss from "@/components/ui/portrait-card-surface.module.css";
+import headingCss from "./section-heading.module.css";
 
 export type AboutProfile = {
   bio: string;
@@ -34,23 +41,23 @@ function StatBar() {
   ];
 
   return (
-    <ProgressiveReveal
-      effect="zoom"
-      className="mt-8 lg:col-span-2 lg:mt-14 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2"
+    <AboutResults
+      className={`${statsCss.results} mt-8 lg:col-span-2 lg:mt-14 [@media(orientation:landscape)_and_(max-height:500px)]:col-span-2`}
     >
       <div
-        className={`${statsCss.panel} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
+        className={`${statsCss.panel} ${portraitCss.surface} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
       >
         <span
           aria-hidden
           className="via-brand-mid/40 absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent"
         />
-        <div
+        <AboutReveal
           className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10`}
         >
-          {items.map(({ icon: Icon, value, label }) => (
+          {items.map(({ icon: Icon, value, label }, index) => (
             <div
               key={label}
+              style={{ "--i": index } as CSSProperties}
               className={`${statsCss.item} flex min-w-0 items-center justify-center px-1 lg:px-3`}
             >
               <div className={statsCss.metricGroup}>
@@ -70,17 +77,20 @@ function StatBar() {
               </div>
             </div>
           ))}
-        </div>
+        </AboutReveal>
       </div>
-    </ProgressiveReveal>
+    </AboutResults>
   );
 }
 
 export function About({ profile, number = "01" }: { profile: AboutProfile; number?: string }) {
+  const bio = profile.bio.trim();
+  const introduction = bio.match(/^[\s\S]*?[.!?](?=\s|$)/)?.[0] ?? bio;
+  const remainingBio = bio.slice(introduction.length).trim();
   return (
     <Section
       id="about"
-      className="scroll-mt-[80px] pt-0 pb-6 md:scroll-mt-2 md:pt-28 md:pb-8"
+      className={`${statsCss.section} scroll-mt-[80px] pt-0 pb-16 md:scroll-mt-2 md:pt-28 md:pb-24`}
       backdrop={
         <>
           <SectionBackdrop
@@ -106,31 +116,51 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
         </>
       }
     >
-      <div className={statsCss.biography}>
-        {profile.avatarUrl && (
-          <ProgressiveReveal className={statsCss.portrait} effect="slide-from-right">
-            <AvatarPortrait src={profile.avatarUrl} name={profile.name ?? SITE.name} />
-          </ProgressiveReveal>
-        )}
-        <ProgressiveReveal className={statsCss.heading} effect="slide">
-          <div className="mb-8">
-            <p className={labelCss.label}>
-              <span className={labelCss.number}>{number}</span>
-              <span>About</span>
-              <span aria-hidden className={labelCss.rule} />
-            </p>
-            <h2 className="font-display text-4xl font-extrabold tracking-tight md:text-5xl">
-              Behind the <span className="gradient-text">code</span>.
-            </h2>
+      <AboutSequence
+        details={
+          remainingBio ? (
+            <div className={statsCss.copy}>
+              <AboutBio bio={remainingBio} />
+            </div>
+          ) : undefined
+        }
+      >
+        <div className={statsCss.biography} data-portrait={Boolean(profile.avatarUrl)}>
+          <AboutReveal className={statsCss.heading} pinnedRootMargin="0px">
+            <div>
+              <p className={`${labelCss.label} ${statsCss.headingLabel} ${headingCss.label}`}>
+                <span className={labelCss.number}>{number}</span>
+                <span>About</span>
+                <span aria-hidden className={`${labelCss.rule} ${statsCss.rule}`} />
+              </p>
+              <h2 className={headingCss.title}>
+                <span className={statsCss.word} style={{ "--i": 0 } as CSSProperties}>
+                  Behind
+                </span>{" "}
+                <span className={statsCss.word} style={{ "--i": 1 } as CSSProperties}>
+                  the
+                </span>{" "}
+                <span className={statsCss.word} style={{ "--i": 2 } as CSSProperties}>
+                  <span className={`${statsCss.accentWord} ${headingCss.accent}`}>code</span>.
+                </span>
+              </h2>
+            </div>
+          </AboutReveal>
+          <div className={statsCss.introduction}>
+            <AboutIntroduction text={introduction} />
           </div>
-        </ProgressiveReveal>
-        <ProgressiveReveal className={statsCss.copy} effect="fade" desktopDelay={0.12}>
-          <AboutBio bio={profile.bio} />
-        </ProgressiveReveal>
-      </div>
-      <div>
-        <StatBar />
-      </div>
+          {profile.avatarUrl && (
+            <AboutPortraitMotion className={statsCss.portrait}>
+              <AvatarPortrait
+                src={profile.avatarUrl}
+                name={profile.name ?? SITE.name}
+                scrollMotion
+              />
+            </AboutPortraitMotion>
+          )}
+        </div>
+      </AboutSequence>
+      <StatBar />
     </Section>
   );
 }

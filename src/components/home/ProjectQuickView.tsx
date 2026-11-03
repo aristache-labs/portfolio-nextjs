@@ -127,10 +127,13 @@ function PosterCarousel({
  */
 export function ProjectQuickView({
   project,
+  open: openProp,
   onClose,
   onRestoreFocus,
 }: {
   project: MergedProject | null;
+  /** Kept separate from `project`, so the dialog stays mounted while it animates closed. */
+  open?: boolean;
   onClose: () => void;
   onRestoreFocus?: () => void;
 }) {
@@ -165,10 +168,14 @@ export function ProjectQuickView({
     fit();
     return () => observer.disconnect();
   }, [project, descriptionElement]);
-  if (projectId !== previousProjectId) {
+  const open = openProp ?? project !== null;
+  const [previousOpen, setPreviousOpen] = useState(open);
+  // A new project, or the same one reopened, starts again at the poster.
+  if (projectId !== previousProjectId || (open && !previousOpen)) {
     setPreviousProjectId(projectId);
     setIndex(0);
   }
+  if (open !== previousOpen) setPreviousOpen(open);
   const sourceKey = project
     ? [project.coverImage, ...project.screenshots].filter(Boolean).join("\n")
     : "";
@@ -203,7 +210,6 @@ export function ProjectQuickView({
     return () => window.removeEventListener("keydown", onKey);
   }, [slideCount]);
 
-  const open = project !== null;
   if (!project) return null;
 
   const slides = slidesFor(project);
@@ -319,7 +325,7 @@ export function ProjectQuickView({
               rel="noopener noreferrer"
               leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
             >
-              <span className={styles.mobileOnlyHidden}>Live site</span>
+              <span className={styles.mobileOnlyHidden}>Live</span>
               <span
                 className={`hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline ${styles.shortLabel}`}
               >
@@ -337,11 +343,11 @@ export function ProjectQuickView({
             rel="noopener noreferrer"
             leftIcon={<Github className="size-3.5" aria-hidden />}
           >
-            <span className={styles.mobileOnlyHidden}>View code</span>
+            <span className={styles.mobileOnlyHidden}>GitHub</span>
             <span
               className={`hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline ${styles.shortLabel}`}
             >
-              Code
+              GitHub
             </span>
           </Button>
           <div className="ml-auto">

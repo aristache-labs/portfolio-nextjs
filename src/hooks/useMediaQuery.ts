@@ -20,5 +20,9 @@ export function useMediaQuery(query: string): boolean {
 /** Section background videos are reserved for desktop pointers. */
 export const BACKGROUND_VIDEO_QUERY = "(min-width: 1024px) and (hover: hover) and (pointer: fine)";
 
+/** Desktop scenes pin with native sticky scrolling only where there is room and a fine pointer. */
+export const PINNED_SCENE_QUERY =
+  "(min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover)";
+
 /** The hero also animates on touch devices held in landscape. */
 export const HERO_VIDEO_QUERY = `${BACKGROUND_VIDEO_QUERY}, (pointer: coarse) and (orientation: landscape)`;

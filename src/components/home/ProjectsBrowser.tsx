@@ -1,16 +1,24 @@
 "use client";
 
-import { useMemo, useRef, useState, type MouseEvent } from "react";
+import { Fragment, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { m, type Variants } from "framer-motion";
+import { Star, History, Layers3 } from "lucide-react";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
+import { ScrollEntrance } from "@/components/motion/ScrollEntrance";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProjectCard } from "./ProjectCard";
 import { FeaturedCard, RecentCard } from "./HighlightCards";
 import type { MergedProject } from "@/lib/projects";
 import { PROJECT_CATEGORIES } from "@/lib/project-categories";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import categoryCss from "./project-categories.module.css";
+import layoutCss from "./projects-layout.module.css";
+import {
+  PROJECTS_LANDSCAPE_QUERY,
+  PROJECTS_PORTRAIT_QUERY,
+  ProjectsArrival,
+} from "./ProjectsArrival";
 
 // The dialog and carousel are needed only after a project is opened.
 const ProjectQuickView = dynamic(
@@ -22,18 +30,68 @@ const ALL = "All";
 // Featured on the left, most recently pushed on the right. Both columns are capped so the
 // block stays compact; everything else falls through to the filterable grid below.
 const MAX_FEATURED = 2;
-const MAX_RECENT = 8;
+const MAX_RECENT = 6;
+/** Filters only help with a few categories and more than a handful of projects. */
+const MIN_FILTER_CATEGORIES = 2;
+const MIN_FILTER_PROJECTS = 4;
 
 // One flex column per side. Featured covers keep their own aspect ratio.
 const TRACK = "flex flex-1 flex-col gap-4";
 
+const GRID =
+  "grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2";
+
+/** Scroll-driven on expressive desktops, the timed reveal everywhere else. */
+function Arrival({
+  scene,
+  order = 0,
+  from,
+  lag,
+  effect,
+  duration,
+  delay,
+  className,
+  children,
+}: {
+  scene: boolean;
+  order?: number;
+  from: "left" | "right";
+  lag?: number;
+  effect: "fade-from-left" | "fade-from-right";
+  duration: number;
+  delay: number;
+  className: string;
+  children: ReactNode;
+}) {
+  return scene ? (
+    <ScrollEntrance enabled from={from} lag={lag} className={className}>
+      {children}
+    </ScrollEntrance>
+  ) : (
+    <ProjectsArrival
+      kind={from === "left" ? "featured" : "recent"}
+      order={order}
+      effect={effect}
+      duration={duration}
+      delay={delay}
+      className={className}
+    >
+      {children}
+    </ProjectsArrival>
+  );
+}
+
 function ColumnLabel({ children }: { children: string }) {
+  const Icon = children === "Featured" ? Star : children === "Recently updated" ? History : Layers3;
   return (
-    <ProgressiveReveal effect="fade" duration={0.6} delay={0.1}>
-      <p className="text-brand-bright border-brand-mid/60 mb-4 border-l-2 pl-3 font-mono text-[14px] font-semibold tracking-[0.16em] uppercase lg:text-[16px]">
+    <ProjectsArrival kind="label" effect="fade" duration={0.6} delay={0.1}>
+      <p className={layoutCss.groupTitle}>
+        <span className={layoutCss.groupIcon} aria-hidden>
+          <Icon size={16} strokeWidth={1.5} />
+        </span>
         {children}
       </p>
-    </ProgressiveReveal>
+    </ProjectsArrival>
   );
 }
 
@@ -59,12 +117,14 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const [category, setCategory] = useState(ALL);
   const [extra, setExtra] = useState(0);
   const mobileViewport = useMediaQuery("(max-width: 1023px)");
-  const recentLimit = mobileViewport ? 2 : MAX_RECENT;
+  const landscape = useMediaQuery("(orientation: landscape)");
+  const recentLimit = mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
   const containerRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   function openQuickView(project: MergedProject, event: MouseEvent<HTMLButtonElement>) {
     openerRef.current = event.currentTarget;
     setQuickView(project);
+    setQuickViewOpen(true);
   }
   function restoreFocus() {
     const opener = openerRef.current;
@@ -72,10 +132,11 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
     else containerRef.current?.focus();
   }
   const [quickView, setQuickView] = useState<MergedProject | null>(null);
+  // The last project stays mounted after closing, so the dialog can animate out.
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
   // a `rest` array rebuilt every render, so it never actually memoised anything.
-  const landscape = useMediaQuery("(orientation: landscape)");
   const pageSize = mobileViewport ? (landscape ? 4 : 2) : 6;
   const limit = pageSize + extra;
   const { featured, recent, rest, categories } = useMemo(() => {
@@ -110,13 +171,46 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
     };
   }, [projects, recentLimit]);
 
-  if (category !== ALL && !categories.some(([name]) => name === category)) {
+  const showFilters =
+    categories.length >= MIN_FILTER_CATEGORIES && rest.length >= MIN_FILTER_PROJECTS;
+  if (category !== ALL && (!showFilters || !categories.some(([name]) => name === category))) {
     setCategory(ALL);
     setExtra(0);
   }
 
   const filtered = category === ALL ? rest : rest.filter((p) => p.category === category);
   const visible = filtered.slice(0, limit);
+  const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
+  const portraitMotion = useMediaQuery(PROJECTS_PORTRAIT_QUERY);
+  const landscapeMotion = useMediaQuery(PROJECTS_LANDSCAPE_QUERY);
+  const mobileMotion = portraitMotion || landscapeMotion;
+  /** `lag` turns on the scroll entrance, placed directly around the glass card it fades. */
+  const gridCard = (p: MergedProject, lag?: number) => {
+    const card = <ProjectCard project={p} onQuickView={(event) => openQuickView(p, event)} />;
+    if (mobileMotion) {
+      return (
+        <ProjectsArrival kind="card" order={lag ? 1 : 0} className="h-full">
+          {card}
+        </ProjectsArrival>
+      );
+    }
+    return (
+      <m.div
+        initial={hasInteracted && mode !== "static" ? "hidden" : false}
+        animate={hasInteracted ? "visible" : undefined}
+        variants={cardVariants}
+        className="h-full"
+      >
+        {lag === undefined ? (
+          card
+        ) : (
+          <ScrollEntrance enabled from="below" lag={lag} className="h-full">
+            {card}
+          </ScrollEntrance>
+        )}
+      </m.div>
+    );
+  };
   function selectCategory(name: string) {
     if (name === category) return;
     setHasInteracted(true);
@@ -127,40 +221,57 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   return (
     <div ref={containerRef} tabIndex={-1} aria-label="Projects" className="outline-none">
       {(featured.length > 0 || recent.length > 0) && (
-        <div className="mb-10 grid items-start gap-6 lg:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-2 [@media(orientation:landscape)_and_(max-height:500px)]:gap-4">
+        <div
+          className={`${layoutCss.highlights} ${featured.length === MAX_FEATURED && recent.length === MAX_RECENT ? layoutCss.balanced : ""}`}
+        >
           {featured.length > 0 && (
-            <div className="flex flex-col">
+            <div className={layoutCss.column}>
               <ColumnLabel>Featured</ColumnLabel>
               <div className={TRACK}>
                 {featured.map((p, i) => (
-                  <ProgressiveReveal
+                  <Arrival
                     key={p.id}
+                    scene={scene}
+                    order={i}
+                    from="left"
                     effect="fade-from-left"
                     duration={0.7}
                     delay={i * 0.08}
                     className="flex"
                   >
-                    <FeaturedCard project={p} onQuickView={(event) => openQuickView(p, event)} />
-                  </ProgressiveReveal>
+                    <FeaturedCard
+                      project={p}
+                      depth={scene}
+                      onQuickView={(event) => openQuickView(p, event)}
+                    />
+                  </Arrival>
                 ))}
               </div>
             </div>
           )}
 
           {recent.length > 0 && (
-            <div className="flex flex-col">
+            <div className={layoutCss.column}>
               <ColumnLabel>Recently updated</ColumnLabel>
-              <div className="grid gap-4 lg:grid-cols-2">
+              <div className={layoutCss.recentTrack}>
                 {recent.slice(0, recentLimit).map((p, i) => (
-                  <ProgressiveReveal
+                  <Arrival
                     key={p.id}
+                    scene={scene}
+                    order={i}
+                    from="right"
+                    lag={(i % 2) * 0.06}
                     effect="fade-from-right"
                     duration={0.5}
                     delay={i * 0.06}
-                    className={`flex min-w-0 ${i >= 2 ? "max-lg:hidden" : ""}`}
+                    className="flex min-w-0"
                   >
-                    <RecentCard project={p} onQuickView={(event) => openQuickView(p, event)} />
-                  </ProgressiveReveal>
+                    <RecentCard
+                      project={p}
+                      depth={scene}
+                      onQuickView={(event) => openQuickView(p, event)}
+                    />
+                  </Arrival>
                 ))}
               </div>
             </div>
@@ -171,7 +282,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
       {rest.length > 0 && (
         <>
           <ColumnLabel>More projects</ColumnLabel>
-          {rest.length > 0 && (
+          {showFilters && (
             <ProgressiveReveal
               effect="cascade"
               duration={0}
@@ -218,29 +329,32 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             </ProgressiveReveal>
           )}
 
-          <ProgressiveReveal
-            effect="cascade"
-            duration={0}
-            delay={0}
-            staggerChildren={0.1}
-            viewportInset={0}
-            className="grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2"
-          >
-            {visible.map((p) => (
-              <m.div
-                key={`${category}-${p.id}`}
-                initial={hasInteracted && mode !== "static" ? "hidden" : false}
-                animate={hasInteracted ? "visible" : undefined}
-                variants={cardVariants}
-                className="h-full"
-              >
-                <ProjectCard project={p} onQuickView={(event) => openQuickView(p, event)} />
-              </m.div>
-            ))}
-          </ProgressiveReveal>
+          {scene || mobileMotion ? (
+            // Each card rises as it comes into view instead of a timed cascade.
+            <div className={GRID}>
+              {visible.map((p, i) => (
+                <Fragment key={`${category}-${p.id}`}>
+                  {gridCard(p, (i % (mobileMotion ? 2 : 3)) * 0.05)}
+                </Fragment>
+              ))}
+            </div>
+          ) : (
+            <ProgressiveReveal
+              effect="cascade"
+              duration={0}
+              delay={0}
+              staggerChildren={0.1}
+              viewportInset={0}
+              className={GRID}
+            >
+              {visible.map((p) => (
+                <Fragment key={`${category}-${p.id}`}>{gridCard(p)}</Fragment>
+              ))}
+            </ProgressiveReveal>
+          )}
 
           {filtered.length > limit && (
-            <div className="mt-8 text-center">
+            <ProjectsArrival kind="action" effect="fade" className="mt-8 text-center">
               <button
                 type="button"
                 onClick={() => {
@@ -251,7 +365,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
               >
                 Show more projects
               </button>
-            </div>
+            </ProjectsArrival>
           )}
 
           {filtered.length === 0 && (
@@ -263,7 +377,8 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
       {quickView && (
         <ProjectQuickView
           project={quickView}
-          onClose={() => setQuickView(null)}
+          open={quickViewOpen}
+          onClose={() => setQuickViewOpen(false)}
           onRestoreFocus={restoreFocus}
         />
       )}

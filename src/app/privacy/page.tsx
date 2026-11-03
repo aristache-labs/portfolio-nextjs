@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  ArrowUpRight,
-  ShieldCheck,
-  Mail,
-  ChartNoAxesCombined,
-  ChevronDown,
-} from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ShieldCheck, Mail, ChartNoAxesCombined } from "lucide-react";
 import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
@@ -17,6 +10,8 @@ import styles from "./privacy.module.css";
 import { SITE } from "@/lib/seo/site";
 import { LEGAL } from "@/lib/legal";
 import { LegalLink } from "@/components/legal/LegalLink";
+import { LegalContents, LegalHeaderScene, LegalReveal } from "@/components/legal/LegalMotion";
+import { GLASS_CARD } from "@/components/home/project-styles";
 
 const privacyDescription = `How ${SITE.name} handles information submitted through this site.`;
 
@@ -317,16 +312,20 @@ export default async function PrivacyPage() {
           .map(([id]) => id)}
       />
       <div id="page-content" tabIndex={-1} className="scroll-mt-24 outline-none" />
-      <div className={styles.backdropSection}>
-        <SectionBackdrop
-          video="/media/about-v3.mp4"
-          poster="/media/services.webp"
-          scrim="absolute inset-0 bg-background/80"
-        />
+      <div data-legal-root className={styles.backdropSection}>
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className={styles.backdropLayer}>
+            <SectionBackdrop
+              video="/media/about-v3.mp4"
+              poster="/media/services.webp"
+              scrim="absolute inset-0 bg-background/80"
+            />
+          </div>
+        </div>
         <div className="site-container text-foreground relative z-10 min-h-dvh pb-16 sm:pb-24">
           <div className="h-24" aria-hidden />
-          <article className={`${styles.article} mx-auto max-w-5xl pt-12 sm:pt-20`}>
-            <div className="mb-5 flex justify-start">
+          <article className={`${styles.article} mx-auto max-w-5xl pt-6 sm:pt-10`}>
+            <div className="mb-4 flex justify-start">
               <Link
                 href="/"
                 className={`${styles.backLink} text-muted hover:text-brand-bright inline-flex min-h-11 items-center gap-2 text-sm`}
@@ -336,105 +335,70 @@ export default async function PrivacyPage() {
               </Link>
             </div>
 
-            <header className="text-center">
-              <span className="border-brand-mid/30 bg-brand-mid/10 text-brand-bright inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-[13px] font-medium">
-                <ShieldCheck aria-hidden className="size-3.5" /> Privacy policy
-              </span>
-              <h1 className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.65rem,3.4vw,3.5rem)] leading-[1.05] font-extrabold tracking-tight text-balance">
-                Your privacy<span className="gradient-text"> matters</span>
-              </h1>
-              <p className="text-foreground/70 mx-auto mt-2 max-w-2xl text-sm leading-relaxed sm:text-base">
-                How information is handled when you visit this portfolio or get in touch.
-              </p>
-              <p className="text-muted mt-3 text-xs">
-                Last reviewed: <time dateTime={LEGAL.updatedAt}>{LEGAL.updatedLabel}</time>
-              </p>
-            </header>
+            <LegalHeaderScene>
+              <header className="text-center">
+                <span className="text-brand-bright/70 inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] uppercase">
+                  <ShieldCheck aria-hidden className="size-3.5" /> Privacy policy
+                </span>
+                <h1 className="font-display mx-auto mt-3 max-w-4xl text-[clamp(1.625rem,2.4vw,2rem)] leading-[1.15] font-medium tracking-[-0.035em] text-balance">
+                  Your privacy<span className="text-brand-mid"> matters</span>
+                </h1>
+                <p className="text-foreground/70 mx-auto mt-2 max-w-2xl text-sm leading-relaxed sm:text-base">
+                  How information is handled when you visit this portfolio or get in touch.
+                </p>
+                <p className="text-muted mt-3 text-xs">
+                  Last reviewed: <time dateTime={LEGAL.updatedAt}>{LEGAL.updatedLabel}</time>
+                </p>
+              </header>
+            </LegalHeaderScene>
 
             <div
-              className={`${styles.content} mt-10 grid gap-10 sm:mt-14 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-16`}
+              className={`${styles.content} relative z-10 mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10`}
             >
-              <nav
-                aria-label="Privacy page contents"
-                className={`${styles.contentsNav} lg:sticky lg:top-8 lg:self-start`}
-              >
-                <div className={styles.contentsDesktop}>
-                  <p className="text-muted mb-4 text-sm">On this page</p>
-                  <ul className="border-brand-mid/20 grid gap-1 border-l pl-3">
-                    {sections.map(({ id, label }) => (
-                      <li key={id}>
-                        <a
-                          href={`#${id}`}
-                          className="text-muted hover:text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center rounded-md px-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                        >
-                          {label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <details
-                  className={`${styles.contentsMobile} group border-brand-mid/20 bg-background/60 rounded-xl border`}
-                >
-                  <summary className="text-foreground focus-visible:ring-brand-mid flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden">
-                    On this page
-                    <ChevronDown
-                      aria-hidden
-                      className="size-4 transition-transform group-open:rotate-180 motion-reduce:transition-none"
-                    />
-                  </summary>
-                  <div className="px-4 pb-3">
-                    {" "}
-                    <ul className="border-brand-mid/20 grid gap-1 border-l pl-3">
-                      {sections.map(({ id, label }) => (
-                        <li key={id}>
-                          <a
-                            href={`#${id}`}
-                            className="text-muted hover:text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center rounded-md px-2 text-sm transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                          >
-                            {label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </details>
-              </nav>
+              <LegalContents
+                label="Privacy page contents"
+                items={sections.map(({ id, label }) => ({ id, label }))}
+              />
 
-              <div>
+              <div
+                className={`${GLASS_CARD} grid min-w-0 grid-cols-[minmax(0,1fr)] gap-9 rounded-2xl border p-5 [overflow-wrap:anywhere] sm:p-8`}
+              >
                 {sections.map(({ id, label, icon: Icon, content }) => (
-                  <section
-                    key={id}
-                    id={id}
-                    aria-labelledby={`${id}-title`}
-                    className="border-brand-mid/15 scroll-mt-[88px] border-t py-7 first:border-t-0 first:pt-0 sm:py-8"
-                  >
-                    <h2
-                      id={`${id}-title`}
-                      className="flex items-center gap-3 text-lg font-medium tracking-tight sm:text-xl"
-                    >
-                      <Icon
-                        aria-hidden
-                        className="text-brand-bright size-5 shrink-0"
-                        strokeWidth={1.5}
-                      />
-                      {label}
-                    </h2>
-                    <div className="text-muted mt-4 text-base leading-7">{content}</div>
-                  </section>
+                  <LegalReveal key={id}>
+                    <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-[88px]">
+                      <h2
+                        id={`${id}-title`}
+                        className="flex items-center gap-3 text-[17px] font-medium tracking-tight text-white/90"
+                      >
+                        <Icon
+                          aria-hidden
+                          className="text-brand-mid size-5 shrink-0"
+                          strokeWidth={1.5}
+                        />
+                        {label}
+                      </h2>
+                      <div className="text-muted mt-3 text-[15px] leading-7">{content}</div>
+                    </section>
+                  </LegalReveal>
                 ))}
-                <div className="border-brand-mid/20 bg-brand-mid/5 mt-4 rounded-2xl border p-5 sm:p-6">
-                  <h2 className="text-lg font-medium">Questions about privacy?</h2>
-                  <p className="text-muted mt-2 text-sm leading-relaxed">
-                    Contact me directly about this notice or your personal data.
-                  </p>
-                  <a
-                    href={contactHref}
-                    className="text-brand-bright focus-visible:ring-brand-mid mt-3 inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
-                  >
-                    {contactEmail} <ArrowUpRight aria-hidden className="size-4" />
-                  </a>
-                </div>
+                <LegalReveal>
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                    <div>
+                      <h2 className="text-[15px] font-medium text-white/90">
+                        Questions about privacy?
+                      </h2>
+                      <p className="text-muted mt-1 text-sm leading-relaxed">
+                        Contact me directly about this notice or your personal data.
+                      </p>
+                    </div>
+                    <a
+                      href={contactHref}
+                      className="text-brand-bright focus-visible:ring-brand-mid inline-flex min-h-11 items-center gap-2 rounded-md text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
+                    >
+                      {contactEmail} <ArrowUpRight aria-hidden className="size-4" />
+                    </a>
+                  </div>
+                </LegalReveal>
               </div>
             </div>
           </article>

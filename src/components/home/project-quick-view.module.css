@@ -189,6 +189,90 @@
   overflow: visible;
 }
 
+/* Quick View rises and grows into place, the image settles from a slight zoom and the
+   header, text and actions follow in turn. Closing sinks and fades quickly. Replaces the
+   generic dialog-pop animation (more specific selector). `scale` and `transform` are free:
+   the centring uses the separate `translate` property. */
+@keyframes quick-view-in {
+  from {
+    opacity: 0;
+    scale: 0.9;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+    transform: none;
+  }
+}
+
+@keyframes quick-view-out {
+  from {
+    opacity: 1;
+    scale: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    scale: 0.95;
+    transform: translateY(20px);
+  }
+}
+
+@keyframes quick-view-poster {
+  from {
+    opacity: 0;
+    scale: 1.08;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes quick-view-part {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dialog[role="dialog"][data-state="open"] {
+    animation: quick-view-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .dialog[role="dialog"][data-state="closed"] {
+    animation: quick-view-out 220ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  .dialog[data-state="open"] > :first-child img {
+    animation: quick-view-poster 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .dialog[data-state="open"] .header,
+  .dialog[data-state="open"] .body,
+  .dialog[data-state="open"] .footer {
+    animation: quick-view-part 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .dialog[data-state="open"] .header {
+    animation-delay: 120ms;
+  }
+
+  .dialog[data-state="open"] .body {
+    animation-delay: 190ms;
+  }
+
+  .dialog[data-state="open"] .footer {
+    animation-delay: 260ms;
+  }
+}
+
 .body {
   display: flex;
   flex-direction: column;
@@ -260,4 +344,29 @@
 .body p > a {
   display: inline;
   margin-top: 0;
+}
+
+@media (min-width: 1024px) and (pointer: fine) and (hover: hover) {
+  .footer > a {
+    min-height: 34px;
+    min-width: 0;
+    padding: 6px 11px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+}
+@media (max-width: 1023px) {
+  .footer > a {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 7px 9px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 1023px) and (orientation: portrait) {
+  .footer > a[aria-label^="Code for"] .shortLabel {
+    display: none;
+  }
 }

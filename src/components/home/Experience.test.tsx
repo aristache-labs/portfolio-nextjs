@@ -130,6 +130,55 @@ describe("Experience", () => {
     }
   });
 
+  it.each([
+    ["desktop", true],
+    ["mobile", false],
+  ])("reveals each role once the rail reaches it on %s", (_profile, desktop) => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+    const trackTop = vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockReturnValue(0);
+    const trackHeight = vi
+      .spyOn(HTMLElement.prototype, "offsetHeight", "get")
+      .mockImplementation(function (this: HTMLElement) {
+        return this.hasAttribute("data-timeline-track") ? 1000 : 0;
+      });
+    const bounds = vi
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        if (!this.hasAttribute("data-timeline-dot")) return { top: 0, height: 1000 } as DOMRect;
+        const second = this.closest("li")?.dataset.experienceId === "2";
+        return {
+          top: this.hasAttribute("data-timeline-end") ? 994 : second ? 494 : 0,
+          height: 12,
+        } as DOMRect;
+      });
+    const { container, unmount } = render(<Experience experiences={mockExperiences} />);
+    try {
+      const [first, second] = container.querySelectorAll("[data-experience-id]");
+      const list = container.querySelector("ol")!.parentElement!;
+      if (!desktop) {
+        act(() => scrollProgress.current!.set(1));
+        expect(list).not.toHaveAttribute("data-timeline-scroll");
+        expect(container.querySelector("[data-entered]")).toBeNull();
+        return;
+      }
+      expect(list).toHaveAttribute("data-timeline-scroll");
+      act(() => scrollProgress.current!.set(0.2));
+      expect(first).toHaveAttribute("data-entered");
+      expect(second).not.toHaveAttribute("data-entered");
+      act(() => scrollProgress.current!.set(0.6));
+      expect(second).toHaveAttribute("data-entered");
+      act(() => scrollProgress.current!.set(0));
+      expect(first).toHaveAttribute("data-entered");
+      expect(second).toHaveAttribute("data-entered");
+      expect(second.querySelector(`.${styles.step}`)).toHaveStyle({ "--step": "0" });
+    } finally {
+      unmount();
+      bounds.mockRestore();
+      trackTop.mockRestore();
+      trackHeight.mockRestore();
+    }
+  });
+
   beforeEach(() => {
     scrollHook.mockClear();
     installMatchMedia();
@@ -382,6 +431,8 @@ describe("Experience", () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
     const { container, rerender, unmount } = render(<Experience experiences={mockExperiences} />);
     try {
+      expect(container.querySelector("[data-current-role]")).toHaveTextContent("01 / 02");
+      expect(container.querySelector("[data-current-role]")).toHaveTextContent("Acme Corp");
       expect(observed).toHaveLength(2);
       act(() =>
         notify!(
@@ -401,15 +452,80 @@ describe("Experience", () => {
       );
       expect(observed[0]).not.toHaveAttribute("data-timeline-active");
       expect(observed[1]).toHaveAttribute("data-timeline-active", "true");
+      const indicator = container.querySelector("[data-current-role]")!;
+      expect(indicator).toHaveAttribute("aria-hidden");
+      expect(indicator).toHaveTextContent("02 / 02");
+      expect(indicator).toHaveTextContent("Beta Inc");
+      act(() =>
+        notify!(
+          [{ target: observed[1], isIntersecting: false } as IntersectionObserverEntry],
+          {} as IntersectionObserver,
+        ),
+      );
+      // Between roles the indicator keeps the last one in view.
+      expect(indicator).toHaveTextContent("02 / 02");
       installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [REDUCED_MOTION_QUERY]: true });
       rerender(<Experience experiences={[...mockExperiences]} />);
       expect(container.querySelector("[data-timeline-active]")).toBeNull();
+      expect(container.querySelector("[data-current-role]")).toBeNull();
       expect(disconnect).toHaveBeenCalled();
     } finally {
       unmount();
       vi.stubGlobal("IntersectionObserver", originalObserver);
     }
   });
+
+  it.each([true, false])(
+    "folds the subtitle under the indicator while the intro sticks (desktop=%s)",
+    (desktop) => {
+      const originalObserver = globalThis.IntersectionObserver;
+      let notifyStick: IntersectionObserverCallback | undefined;
+      vi.stubGlobal(
+        "IntersectionObserver",
+        class {
+          constructor(
+            private callback: IntersectionObserverCallback,
+            private options?: IntersectionObserverInit,
+          ) {}
+          observe() {
+            if (this.options?.rootMargin === "-96px 0px 0px 0px") notifyStick = this.callback;
+          }
+          unobserve() {}
+          disconnect() {}
+        },
+      );
+      installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+      const { container, unmount } = render(<Experience experiences={mockExperiences} />);
+      try {
+        const intro = container.querySelector(`.${styles.intro}`)!;
+        if (!desktop) {
+          expect(notifyStick).toBeUndefined();
+          expect(intro).not.toHaveAttribute("data-compact");
+          return;
+        }
+        const stick = (isIntersecting: boolean, top: number) =>
+          act(() =>
+            notifyStick!(
+              [{ isIntersecting, boundingClientRect: { top } } as IntersectionObserverEntry],
+              {} as IntersectionObserver,
+            ),
+          );
+        expect(intro).not.toHaveAttribute("data-compact");
+        stick(false, -40);
+        expect(intro).toHaveAttribute("data-compact");
+        expect(intro.querySelector(`.${styles.subtitleFold}`)).toHaveTextContent(
+          "Enterprise deployments",
+        );
+        stick(true, 200);
+        expect(intro).not.toHaveAttribute("data-compact");
+        stick(false, 1200);
+        expect(intro).not.toHaveAttribute("data-compact");
+      } finally {
+        unmount();
+        vi.stubGlobal("IntersectionObserver", originalObserver);
+      }
+    },
+  );
 
   it("renders experience orgs", () => {
     render(<Experience experiences={mockExperiences} />);

@@ -13,6 +13,7 @@ import { Hero } from "@/components/home/Hero";
 import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
 import { Footer } from "@/components/layout/Footer";
+import { Skills, Experience, Services, Contact } from "@/components/home/HomeSections";
 import { sectionNumbers } from "@/lib/section-numbers";
 
 // ISR: prerendered at build time, so the build needs a reachable database. 12h is a Neon compute
@@ -32,20 +33,8 @@ const sora = Sora({
 const About = nextDynamic(() =>
   import("@/components/home/About").then((m) => ({ default: m.About })),
 );
-const Skills = nextDynamic(() =>
-  import("@/components/home/Skills").then((m) => ({ default: m.Skills })),
-);
-const Experience = nextDynamic(() =>
-  import("@/components/home/Experience").then((m) => ({ default: m.Experience })),
-);
 const Projects = nextDynamic(() =>
   import("@/components/home/Projects").then((m) => ({ default: m.Projects })),
-);
-const Services = nextDynamic(() =>
-  import("@/components/home/Services").then((m) => ({ default: m.Services })),
-);
-const Contact = nextDynamic(() =>
-  import("@/components/home/Contact").then((m) => ({ default: m.Contact })),
 );
 export default async function Home() {
   // Profile gates everything and feeds the always-on Hero, so it loads first.
@@ -85,6 +74,7 @@ export default async function Home() {
       <div id="page-content" tabIndex={-1} className="scroll-mt-24 outline-none" />
 
       <Hero
+        transitionToAbout={show("about")}
         profile={{ name: profile.name, roles: profile.roles }}
         heroTagline={profile.heroTagline}
         resumeUrl={profile.resumeUrl}

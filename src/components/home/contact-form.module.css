@@ -1,0 +1,148 @@
+/* A brand line grows from the left under the focused field. */
+.field {
+  position: relative;
+}
+
+/* Cover the browser's autofill tint while keeping autocomplete and the focus ring. */
+.field input:is(:autofill, :-webkit-autofill) {
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--foreground);
+  box-shadow:
+    inset 0 0 0 1000px var(--background),
+    var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000);
+}
+
+/* Keep field text independent of the compact root size to prevent focus zoom on phones. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .field :is(input, textarea, [role="combobox"]) {
+    font-size: 16px;
+    line-height: 1.35;
+  }
+}
+
+.focusLine {
+  position: absolute;
+  right: 6px;
+  bottom: 0;
+  left: 6px;
+  height: 2px;
+  /* Full brand colour in the middle, fading out at both ends so no hard corners show. */
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--brand-mid-rgb) / 0.9) 22%,
+    var(--brand-bright) 60%,
+    transparent
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+.field:focus-within .focusLine {
+  transform: scaleX(1);
+}
+
+/* The label of the focused field takes the accent colour and steps aside slightly. */
+.group label {
+  display: inline-block;
+}
+
+.group:focus-within label {
+  color: var(--brand-mid);
+  transform: translateX(3px);
+}
+
+@keyframes contact-shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-7px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes contact-status-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes contact-check {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes contact-sent-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .focusLine {
+    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .group label {
+    transition:
+      color 250ms ease,
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .form[data-shaking] {
+    animation: contact-shake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  .status {
+    animation: contact-status-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* The confirmation check draws itself. */
+  .check path {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: contact-check 420ms 80ms ease-out forwards;
+  }
+
+  /* Thank-you: the badge, title and note rise in turn while the large check draws. */
+  .sent > * {
+    animation: contact-sent-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .sent > :nth-child(2) {
+    animation-delay: 120ms;
+  }
+
+  .sent > :nth-child(3) {
+    animation-delay: 190ms;
+  }
+
+  .bigCheck path {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: contact-check 560ms 220ms ease-out forwards;
+  }
+}

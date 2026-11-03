@@ -5,3 +5,7 @@
     font-size: 12px;
   }
 }
+/* One shape across desktop, portrait and landscape. */
+.button {
+  border-radius: 8px;
+}

@@ -1,13 +1,15 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+import { PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
 import { Contact, platformIcon } from "./Contact";
 import type { SocialRow } from "./Contact";
 import { Github, Linkedin, Instagram, Send, Mail, Globe } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import formCss from "./contact-form.module.css";
 
 vi.mock("next/font/google", () => ({
   Merienda: () => ({ className: "quote-font", style: { fontFamily: "Merienda" } }),
@@ -20,6 +22,23 @@ vi.mock("next/link", () => ({
     </a>
   ),
 }));
+
+// The Radix subject menu measures and scrolls with APIs jsdom does not provide.
+beforeAll(() => {
+  if (!("ResizeObserver" in globalThis)) {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
+  }
+  Element.prototype.scrollIntoView ??= () => {};
+  Element.prototype.hasPointerCapture ??= () => false;
+  Element.prototype.releasePointerCapture ??= () => {};
+});
 
 // Magnetic renders for real and reads matchMedia via useReducedMotion
 beforeEach(() => installMatchMedia());
@@ -113,12 +132,20 @@ describe("Contact", () => {
     },
   );
 
+  /** Opens the subject menu from the keyboard and picks an option. */
+  function chooseSubject(name: string) {
+    const trigger = screen.getByRole("combobox", { name: "Subject" });
+    act(() => trigger.focus());
+    fireEvent.keyDown(trigger, { key: "Enter" });
+    fireEvent.keyDown(screen.getByRole("option", { name }), { key: "Enter" });
+  }
+
   function fillForm() {
     fireEvent.change(screen.getByLabelText("Your Name"), { target: { value: "Test User" } });
     fireEvent.change(screen.getByLabelText("Your Email"), {
       target: { value: "sender@example.com" },
     });
-    fireEvent.change(screen.getByLabelText("Subject"), { target: { value: "General Question" } });
+    chooseSubject("General Question");
     fireEvent.change(screen.getByLabelText("Message"), {
       target: { value: "A project question for testing." },
     });
@@ -127,7 +154,8 @@ describe("Contact", () => {
   it("serves visible copy, contact links and form fields before hydration", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(<Contact socials={mockSocials} email={email} />);
-    expect(container.querySelectorAll("input, select, textarea")).toHaveLength(5);
+    expect(container.querySelectorAll("input, textarea")).toHaveLength(4);
+    expect(container.querySelector("#contact-subject")).toHaveTextContent("Select a subject");
     for (const element of container.querySelectorAll("h2, h3, input, select, textarea, a")) {
       for (let node: Element | null = element; node; node = node.parentElement) {
         expect((node as HTMLElement).style.opacity).not.toBe("0");
@@ -180,6 +208,103 @@ describe("Contact", () => {
     expect(screen.getByLabelText("Message")).toHaveValue("");
   });
 
+  it("brings the column in from the left and the form from the right on expressive desktops", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [PINNED_SCENE_QUERY]: true });
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    const from = (element: Element) => element.closest("[data-from]")?.getAttribute("data-from");
+    expect(from(screen.getByRole("heading", { name: "Discuss a project." }))).toBe("left");
+    for (const card of container.querySelectorAll("ul a")) {
+      expect(from(card)).toBe("left");
+      // The glass card is the element that fades, directly inside the moving wrapper.
+      expect(card.parentElement).toHaveAttribute("data-from", "left");
+    }
+    const quote = container.querySelector("figure")!.parentElement!;
+    expect(quote).toHaveClass("backdrop-blur-[18px]");
+    expect(quote.parentElement).toHaveAttribute("data-from", "left");
+    const form = container.querySelector("form")!;
+    expect(form.parentElement).toHaveClass("backdrop-blur-[18px]");
+    expect(form.parentElement!.parentElement).toHaveAttribute("data-from", "right");
+  });
+
+  it("draws a focus line under every field and lets each label react to focus", () => {
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    const lines = container.querySelectorAll(`.${formCss.focusLine}`);
+    expect(lines).toHaveLength(4);
+    for (const line of lines) {
+      expect(line.parentElement).toHaveClass(formCss.field);
+      expect(line.parentElement!.parentElement).toHaveClass(formCss.group);
+      expect(line.parentElement!.parentElement!.querySelector("label")).toBeInTheDocument();
+    }
+  });
+
+  it("confirms a sent message on the button for a moment, then offers sending again", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ success: true }));
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    fillForm();
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        fireEvent.submit(container.querySelector("form")!);
+      });
+      expect(screen.getByRole("button", { name: "Message sent" })).toBeInTheDocument();
+      expect(screen.getByRole("status")).toHaveTextContent("Message sent.");
+      const thanks = screen.getByText("Thank you").parentElement!;
+      expect(thanks).toHaveAttribute("aria-hidden", "true");
+      expect(thanks).toHaveClass(formCss.sent);
+      act(() => vi.advanceTimersByTime(4500));
+      expect(screen.getByRole("button", { name: /Send Message/ })).toBeInTheDocument();
+      expect(screen.getByRole("status")).toHaveTextContent("Message sent.");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("shakes the form on an error and settles when the shake ends", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ error: "Please try again later." }, { status: 429 }),
+    );
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    const form = container.querySelector("form")!;
+    fillForm();
+    await act(async () => {
+      fireEvent.submit(form);
+    });
+    expect(form).toHaveAttribute("data-shaking");
+    expect(screen.getByRole("status")).toHaveTextContent("Please try again later.");
+    // jsdom has no CSS animations, so React may listen for the prefixed event name.
+    fireEvent.animationEnd(form);
+    fireEvent(form, new Event("webkitAnimationEnd", { bubbles: true }));
+    expect(form).not.toHaveAttribute("data-shaking");
+    expect(screen.getByRole("status")).toHaveTextContent("Please try again later.");
+  });
+
+  it("puts each glass surface on the element that fades, so its blur never pops in", () => {
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    const form = container.querySelector("form")!;
+    expect(form).not.toHaveClass("backdrop-blur-[18px]");
+    expect(form.parentElement).toHaveClass("backdrop-blur-[18px]");
+    expect(container.querySelector("figure")!.parentElement).toHaveClass("backdrop-blur-[18px]");
+    for (const card of container.querySelectorAll("ul a")) {
+      expect(card).toHaveClass("backdrop-blur-[18px]");
+      expect(card.parentElement!.tagName).toBe("LI");
+    }
+  });
+
+  it("asks for a subject before sending and keeps the choice in the styled menu", () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    fireEvent.submit(container.querySelector("form")!);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByRole("status")).toHaveTextContent("Please select a subject.");
+    const trigger = screen.getByRole("combobox", { name: "Subject" });
+    expect(trigger).toHaveFocus();
+    chooseSubject("Freelance Work");
+    expect(trigger).toHaveTextContent("Freelance Work");
+    expect(container.querySelector<HTMLSelectElement>('select[name="subject"]')).toHaveValue(
+      "Freelance Work",
+    );
+  });
+
   it("provides autocomplete and sends the offscreen honeypot to the API", async () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -188,7 +313,8 @@ describe("Contact", () => {
     expect(screen.getByLabelText("Your Name")).toHaveAttribute("name", "name");
     expect(screen.getByLabelText("Your Name")).toHaveAttribute("autocomplete", "name");
     expect(screen.getByLabelText("Your Email")).toHaveAttribute("autocomplete", "email");
-    expect(screen.getByLabelText("Subject")).toHaveAttribute("name", "subject");
+    expect(screen.getByRole("combobox", { name: "Subject" })).toBeInTheDocument();
+    expect(container.querySelector('select[name="subject"]')).toBeInTheDocument();
     expect(screen.getByLabelText("Message")).toHaveAttribute("name", "message");
     const trap = container.querySelector('input[name="website"]')!;
     expect(trap).toHaveAttribute("tabindex", "-1");

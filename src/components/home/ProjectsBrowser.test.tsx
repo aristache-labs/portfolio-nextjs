@@ -5,6 +5,7 @@ import { installMatchMedia } from "@/test/matchMedia";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { Projects } from "./Projects";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
+import { PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
 import type { MergedProject } from "@/lib/projects";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 
@@ -51,7 +52,7 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(<Projects projects={list} />);
     expect(container.querySelector("h2")).toHaveTextContent("Selected Projects");
-    expect(container.querySelectorAll("article")).toHaveLength(16);
+    expect(container.querySelectorAll("article")).toHaveLength(14);
     for (const element of container.querySelectorAll("h2, h3, button")) {
       for (let node: Element | null = element; node; node = node.parentElement) {
         expect((node as HTMLElement).style.opacity).not.toBe("0");
@@ -158,6 +159,16 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     },
   );
 
+  it("drives highlights and grid cards from scrolling on expressive desktops", () => {
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [PINNED_SCENE_QUERY]: true });
+    render(<ProjectsBrowser projects={list} />);
+    const wrapper = (id: number) =>
+      screen.getByRole("heading", { name: `Project ${id}` }).closest("[data-from]");
+    expect(wrapper(1)).toHaveAttribute("data-from", "left");
+    expect(wrapper(3)).toHaveAttribute("data-from", "right");
+    expect(wrapper(11)).toHaveAttribute("data-from", "below");
+  });
+
   it("keeps reduced-motion projects static and filters usable", () => {
     installMatchMedia({ [REDUCED_MOTION_QUERY]: true, [EXPRESSIVE_MOTION_QUERY]: true });
     const { container } = render(<ProjectsBrowser projects={list} />);
@@ -199,16 +210,33 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       vi.stubGlobal("ResizeObserver", originalObserver);
     }
   });
-  it("shows eight recent and six lower cards on desktop without duplicates", () => {
+  it("shows six recent and six lower cards on desktop without duplicates", () => {
     render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(16);
+    expect(screen.getAllByRole("article")).toHaveLength(14);
     expect(screen.queryByText("Show more recently updated")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
-    expect(screen.getAllByRole("article")).toHaveLength(16);
-    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
-    expect(screen.getAllByRole("article")).toHaveLength(18);
-    fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
     expect(screen.getAllByRole("article")).toHaveLength(14);
+    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
+    expect(screen.getAllByRole("article")).toHaveLength(16);
+    fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
+    expect(screen.getAllByRole("article")).toHaveLength(12);
+  });
+
+  it.each([
+    ["one category", [project(1, { category: "Websites" }), project(2, { category: "Websites" })]],
+    [
+      "three projects",
+      [
+        project(1, { category: "Websites" }),
+        project(2, { category: "Desktop Apps" }),
+        project(3, { category: "Websites" }),
+      ],
+    ],
+  ])("hides filters that would not help with %s", (_case, few) => {
+    installMatchMedia({ "(max-width: 1023px)": true });
+    render(<ProjectsBrowser projects={[...few, ...list.slice(2, 4)]} />);
+    expect(screen.getByText("More projects")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^All/ })).not.toBeInTheDocument();
   });
   it("shows two lower cards in portrait and keeps undisplayed recent projects accessible", () => {
     installMatchMedia({ "(max-width: 1023px)": true });
@@ -223,10 +251,13 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
   });
-  it("shows four lower cards in landscape and omits empty categories", () => {
+  it("shows three recent and four lower cards in landscape and omits empty categories", () => {
     installMatchMedia({ "(max-width: 1023px)": true, "(orientation: landscape)": true });
     render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(8);
+    expect(screen.getAllByRole("article")).toHaveLength(9);
+    const recentHeading = screen.getByText("Recently updated");
+    const recentColumn = recentHeading.parentElement!.parentElement!;
+    expect(within(recentColumn).getAllByRole("article")).toHaveLength(3);
     expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText("More projects").tagName).toBe("P");
@@ -247,20 +278,22 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     );
     expect(screen.queryByRole("button", { name: /^Websites/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getAllByRole("article")).toHaveLength(16);
+    expect(screen.getAllByRole("article")).toHaveLength(14);
     expect(screen.getByRole("button", { name: "Show more projects" })).toBeInTheDocument();
   });
 
   it("resets an emptied category after the viewport moves its projects into recent", () => {
+    // Six Web Apps: two recent on mobile, all six recent on desktop.
+    const sixWebApps = list.filter((p) => p.id !== 9 && p.id !== 10);
     installMatchMedia({ "(max-width: 1023px)": true });
-    const { rerender } = render(<ProjectsBrowser projects={list} />);
+    const { rerender } = render(<ProjectsBrowser projects={sixWebApps} />);
     fireEvent.click(screen.getByRole("button", { name: /^Web Apps/ }));
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     installMatchMedia();
-    rerender(<ProjectsBrowser projects={[...list]} />);
+    rerender(<ProjectsBrowser projects={[...sixWebApps]} />);
     expect(screen.queryByRole("button", { name: /^Web Apps/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getAllByRole("article")).toHaveLength(16);
+    expect(screen.getAllByRole("article")).toHaveLength(14);
   });
 
   it("restores focus to Projects when the opener disappears while the gallery is open", async () => {

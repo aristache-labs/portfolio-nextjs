@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import Image from "next/image";
 import styles from "./service-card.module.css";
+import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import {
   AppWindow,
   Cloud,
@@ -75,7 +76,7 @@ export function ServiceCard({ service }: { service: ServiceRow }) {
 
   return (
     <article
-      className={`${styles.card} group bg-surface/70 hover:border-brand-mid/40 flex h-full items-start gap-3 rounded-2xl border border-white/10 p-4 transition-colors duration-300 sm:p-5`}
+      className={`${styles.card} ${portraitCss.surface} group bg-surface/70 hover:border-brand-mid/40 flex h-full items-start gap-3 rounded-2xl border border-white/10 p-4 transition-colors duration-300 sm:p-5`}
     >
       <span className="grid size-14 shrink-0 place-items-center text-(--accent-on-chip) [&_svg]:size-6">
         {icon}

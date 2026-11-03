@@ -39,6 +39,17 @@ describe("sectionScrollPosition", () => {
     expect(sectionScrollPosition(target)).toBe(1000 + window.scrollY - height - 38);
   });
 
+  it("lands a pinned scene at the viewport offset it names", () => {
+    document.body.innerHTML =
+      '<section><div data-scroll-anchor><div data-scroll-landing="-91"></div></div></section>';
+    const target = document.querySelector("section")!;
+    vi.spyOn(
+      document.querySelector<HTMLElement>("[data-scroll-landing]")!,
+      "getBoundingClientRect",
+    ).mockReturnValue({ top: 1000 } as DOMRect);
+    expect(sectionScrollPosition(target)).toBe(1000 + window.scrollY + 91);
+  });
+
   it("preserves CSS scroll margins for anchors without a content marker", () => {
     const target = document.createElement("div");
     target.style.scrollMarginTop = "96px";

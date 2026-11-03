@@ -1,3 +1,248 @@
+.section {
+  overflow: clip;
+}
+
+.biography {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+.heading {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+
+.word {
+  display: inline-block;
+}
+
+.rule {
+  transform-origin: left center;
+}
+
+/* Entrance, played once by AboutReveal when the heading or the stats scroll into view. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal="armed"] :is(.headingLabel, .word, .item) {
+    opacity: 0;
+  }
+
+  [data-reveal="armed"] .rule,
+  [data-reveal="armed"] .accentWord::after {
+    transform: scaleX(0);
+  }
+
+  [data-reveal="play"] .headingLabel {
+    animation: about-label-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  [data-reveal="play"] .rule {
+    animation: about-draw 900ms 150ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  [data-reveal="play"] .word {
+    animation: about-word-in 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(200ms + var(--i, 0) * 90ms);
+  }
+
+  [data-reveal="play"] .accentWord::after {
+    animation: about-draw 700ms 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Same spring pop as the hero actions, on `scale` so layout transforms stay free. */
+  [data-reveal="play"] .item {
+    animation:
+      about-pop-fade 300ms ease-out both,
+      about-pop-scale 750ms
+        linear(
+          0,
+          0.33 9%,
+          0.84 18%,
+          1.12 28%,
+          1.16 34%,
+          1.08 46%,
+          0.98 60%,
+          0.974 68%,
+          0.995 85%,
+          1
+        )
+        both;
+    animation-delay: calc(350ms + var(--i, 0) * 150ms);
+  }
+}
+
+@keyframes about-label-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+
+@keyframes about-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes about-word-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(0.45em);
+  }
+}
+
+@keyframes about-pop-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes about-pop-scale {
+  from {
+    scale: 0;
+  }
+}
+
+.introduction,
+.copy {
+  min-width: 0;
+}
+
+.introduction {
+  border-left: 1px solid rgb(var(--brand-mid-rgb) / 0.25);
+  padding-left: 20px;
+}
+
+.portrait {
+  justify-self: center;
+  max-width: 100%;
+}
+
+.copy {
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
+@media (orientation: portrait) and (max-width: 767px) {
+  .section {
+    padding-bottom: 104px;
+  }
+
+  .biography {
+    gap: 12px;
+  }
+
+  .heading p.headingLabel {
+    margin-bottom: 8px;
+  }
+
+  .introduction p {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .portrait {
+    width: 160px;
+  }
+
+  .copy p {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .copy button {
+    margin-top: 12px;
+    min-height: 32px;
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+
+  .results {
+    margin-top: 12px;
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Same measure as the detailed biography, so the portrait sits beside the text. */
+  .biography {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 260px);
+    column-gap: clamp(32px, 4vw, 64px);
+    row-gap: 20px;
+    width: 100%;
+    max-width: 64rem;
+    margin-inline: auto;
+  }
+
+  .biography[data-portrait="false"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .introduction {
+    grid-column: 1;
+  }
+
+  .heading {
+    grid-column: 1;
+    align-self: end;
+  }
+
+  .portrait {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .copy > div:first-child {
+    columns: 2;
+    column-gap: 40px;
+  }
+
+  .copy > div:first-child > p {
+    break-inside: avoid;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  .portrait {
+    width: clamp(220px, calc(100svh - 470px), 250px);
+  }
+
+  .introduction {
+    align-self: center;
+  }
+
+  /* Hand-off: the heading keeps full colour while introduction and portrait recede. */
+  .heading > * {
+    --heading-exit: clamp(0, var(--about-exit, 0) / 0.7, 1);
+    transform: translateY(calc(var(--heading-exit) * -32px));
+  }
+
+  .introduction {
+    --intro-exit: clamp(0, (var(--about-exit, 0) - 0.15) / 0.7, 1);
+    opacity: calc(1 - var(--intro-exit) * 0.2);
+    transform: translateY(calc(var(--intro-exit) * -24px));
+  }
+
+  /* The portrait steps aside rather than following the text upward. */
+  .portrait {
+    opacity: calc(1 - var(--about-exit, 0) * 0.3);
+    transform: translate(
+        calc(var(--about-exit, 0) * min(48px, 3vw)),
+        calc(var(--about-exit, 0) * -16px)
+      )
+      scale(calc(1 - var(--about-exit, 0) * 0.1));
+  }
+}
+
+.results {
+  position: relative;
+}
+
 @media (max-width: 1023px) {
   .panel {
     padding: 16px 12px;
@@ -138,49 +383,422 @@
     padding-inline: 10px;
   }
 }
-.biography {
-  display: flex;
-  flex-direction: column;
-}
-
-.heading {
-  order: 1;
-}
-.portrait {
-  order: 2;
-  align-self: center;
-  margin-bottom: 24px;
-  max-width: 100%;
-}
-.copy {
-  order: 3;
-}
-
-@media (orientation: portrait) and (max-width: 767px) {
-  .portrait {
-    width: 192px;
-    margin-bottom: 16px;
-  }
-
-  .heading > div {
-    margin-bottom: 20px;
-  }
-}
-
-@media (min-width: 1024px), (orientation: landscape) and (max-height: 500px) {
-  .biography {
-    display: flow-root;
-  }
-  .portrait {
-    float: right;
-    margin: 36px 0 24px 48px;
-    shape-outside: margin-box;
-  }
-}
 .metricGroup {
   display: flex;
   align-items: center;
   gap: 10px;
   max-width: 100%;
   min-width: 0;
+}
+
+/* Touch landscape: the desktop two-column composition, sized for short screens. */
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) {
+  .biography {
+    grid-template-columns: minmax(0, 1fr) minmax(110px, 170px);
+    column-gap: 32px;
+    row-gap: 8px;
+    width: 100%;
+    max-width: 64rem;
+    margin-inline: auto;
+  }
+
+  .biography[data-portrait="false"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .heading,
+  .introduction {
+    grid-column: 1;
+  }
+
+  .heading {
+    align-self: end;
+  }
+
+  .introduction p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .biography .portrait {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+    align-self: center;
+    width: clamp(110px, calc(100svh - 230px), 170px);
+  }
+
+  .copy > div:first-child {
+    columns: 2;
+    column-gap: 32px;
+  }
+
+  .copy > div:first-child > p {
+    break-inside: avoid;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+}
+
+/* Landscape phones, as on master: heading, introduction and biography run beside the portrait
+   on the right, with the four results in one row below. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+  .section {
+    padding-top: 84px;
+    padding-bottom: 104px;
+    scroll-margin-top: 0;
+  }
+
+  .section > [data-scroll-anchor] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: 40px;
+  }
+
+  .biography {
+    display: contents;
+  }
+
+  .heading {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .heading p.headingLabel {
+    margin-bottom: 16px;
+  }
+
+  .introduction p {
+    font-size: 1.325rem;
+  }
+
+  .biography .introduction {
+    grid-column: 1;
+    grid-row: 2;
+    margin-top: 20px;
+  }
+
+  /* Smaller than the introduction so the extra title spacing does not push the
+     results row past the bottom edge. */
+  .copy p {
+    font-size: 1.25rem;
+    line-height: 1.45;
+  }
+
+  .copy button {
+    margin-top: 6px;
+    min-height: 28px;
+    padding: 3px 10px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .copy button svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .panel {
+    padding-block: 8px;
+  }
+
+  .biography .portrait {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    justify-self: end;
+    align-self: start;
+    width: clamp(128px, calc(100svh - 220px), 168px);
+    margin-top: 4px;
+  }
+
+  .results {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    margin-top: 8px;
+  }
+}
+
+/* Phones, portrait and landscape: native scroll-driven CSS, no script and no pinned scene.
+   Layers move at different speeds (backdrop, portrait, copy), and every element enters from
+   below and leaves through the top. Entry fills both ways; exits fill forwards only, so an
+   exit never applies before its range and simply overrides the settled entry once it starts. */
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* The backdrop clips its overflow, which would freeze a nested view(), so it follows the
+       section's own timeline instead. */
+    .section {
+      view-timeline: --about-scene block;
+    }
+
+    .section > [aria-hidden="true"]:first-child > :first-child {
+      animation: about-backdrop-drift linear both;
+      animation-timeline: --about-scene;
+      animation-range: cover;
+    }
+
+    /* Inner image depth stays inside the frame; the shared timeline survives clipping. */
+    .portrait img {
+      transform: none;
+      animation: about-image-depth linear both;
+      animation-timeline: --about-scene;
+      animation-range: cover;
+    }
+
+    .copy {
+      animation: about-copy-drift linear both;
+      animation-timeline: --about-scene;
+      animation-range: cover;
+    }
+
+    .copy:focus-within {
+      animation: none;
+    }
+
+    .copy button[aria-expanded]:focus-visible {
+      animation: none;
+    }
+
+    .portrait {
+      animation: about-parallax linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+
+    .portrait > div {
+      animation: none;
+    }
+
+    .heading,
+    .results {
+      animation: about-exit linear forwards;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
+    .introduction,
+    .copy p {
+      animation:
+        about-rise linear both,
+        about-exit linear forwards;
+      animation-timeline: view(), view();
+      animation-range:
+        entry 0% entry 70%,
+        exit 0% exit 100%;
+    }
+  }
+}
+
+/* Portrait keeps the frame intact while the image moves inside it. */
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .introduction p span {
+      animation: about-word linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 45%;
+    }
+
+    .heading > div {
+      animation: about-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+  }
+}
+
+/* Landscape keeps horizontal depth without rotating or distorting the portrait. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .portrait {
+      animation: about-portrait-glide linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+
+    .portrait > div {
+      animation: none;
+    }
+
+    .heading {
+      animation: about-slide-out linear forwards;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
+    .introduction,
+    .copy p {
+      animation:
+        about-slide-in linear both,
+        about-slide-out linear forwards;
+      animation-timeline: view(), view();
+      animation-range:
+        entry 0% entry 70%,
+        exit 0% exit 100%;
+    }
+
+    .results {
+      animation: about-settle-out linear forwards;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+
+@keyframes about-image-depth {
+  from {
+    translate: 0 7%;
+    scale: 1.16;
+  }
+  to {
+    translate: 0 -7%;
+    scale: 1.16;
+  }
+}
+
+@keyframes about-copy-drift {
+  from {
+    translate: 0 24px;
+  }
+  to {
+    translate: 0 -24px;
+  }
+}
+
+@keyframes about-portrait-glide {
+  from {
+    transform: translateX(28px);
+  }
+  to {
+    transform: translateX(-28px);
+  }
+}
+
+@keyframes about-slide-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(-36px);
+  }
+}
+
+@keyframes about-slide-out {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateX(-48px);
+  }
+}
+
+@keyframes about-swing-in {
+  from {
+    opacity: 0;
+    transform: perspective(800px) translateX(56px) rotateY(-14deg) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(800px) translateX(0) rotateY(0) scale(1);
+  }
+}
+
+@keyframes about-swing-out {
+  from {
+    opacity: 1;
+    transform: perspective(800px) translateX(0) rotateY(0) scale(1);
+  }
+  to {
+    opacity: 0.1;
+    transform: perspective(800px) translateX(48px) rotateY(10deg) scale(0.92);
+  }
+}
+
+@keyframes about-settle-out {
+  from {
+    opacity: 1;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 0.94;
+  }
+}
+
+@keyframes about-parallax {
+  from {
+    transform: translateY(48px);
+  }
+  to {
+    transform: translateY(-48px);
+  }
+}
+
+@keyframes about-backdrop-drift {
+  from {
+    transform: translateY(-6%) scale(1.14);
+  }
+  to {
+    transform: translateY(6%) scale(1.14);
+  }
+}
+
+@keyframes about-exit {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(-28px);
+  }
+}
+
+@keyframes about-portrait-exit {
+  from {
+    opacity: 1;
+    filter: blur(0);
+    scale: 1;
+  }
+  to {
+    opacity: 0.15;
+    filter: blur(3px);
+    scale: 0.92;
+  }
+}
+
+@keyframes about-word {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes about-portrait-reveal {
+  from {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.4;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+@keyframes about-rise {
+  from {
+    opacity: 0.15;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

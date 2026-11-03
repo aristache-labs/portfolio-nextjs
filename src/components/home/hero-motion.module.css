@@ -1,6 +1,12 @@
 .hero {
-  /* Shared curve sampled from Motion's spring({ visualDuration: 0.4, bounce: 0.5 }). */
-  --scope-spring: linear(
+  /* Entrance timeline. Desktop and touch landscape stretch these for a longer reveal. */
+  --hero-role-step: 120ms;
+  --hero-words-at: 280ms;
+  --hero-actions-at: 520ms;
+  --hero-links-at: 920ms;
+  --hero-cue-at: 1450ms;
+  /* Sampled from Motion's spring({ visualDuration: 0.4, bounce: 0.5 }). */
+  --hero-spring: linear(
     0,
     0.04773,
     0.16835,
@@ -36,242 +42,528 @@
     1.00392,
     1
   );
+  isolation: isolate;
+}
+
+.role {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.caret {
+  display: none;
+}
+
+.accentWord {
+  position: relative;
+}
+
+.accentWord::after {
+  content: "";
+  position: absolute;
+  right: 0.25em;
+  bottom: -0.1em;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(var(--brand-mid-rgb) / 0.7), transparent);
+  transform-origin: left center;
+}
+
+.intro {
+  max-width: 42rem;
+}
+
+.content {
+  padding-top: 9rem;
+  padding-bottom: 7rem;
+}
+
+.specialization {
+  margin-bottom: 1.25rem;
+  max-width: 30rem;
+  color: var(--brand-bright);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+.name {
+  color: var(--foreground);
+  font-size: clamp(3.5rem, 5.4vw, 5.25rem);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.surname {
+  display: block;
+  margin-left: 1.4em;
+  max-width: calc(100% - 1.4em);
+  color: var(--brand-bright);
+}
+
+.headline {
+  margin-top: 1.5rem;
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
+
+.copy {
+  max-width: 31rem;
+  color: rgb(245 247 247 / 0.76);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.tagline {
+  color: rgb(var(--brand-bright-rgb) / 0.65);
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  line-height: 1.8;
+}
+
+.primaryAction {
+  box-shadow: 0 8px 28px rgb(var(--brand-deep-rgb) / 0.22);
+}
+
+.contactAction {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  color: var(--foreground);
+}
+
+.contactAction:hover {
+  border-color: rgb(var(--brand-mid-rgb) / 0.3);
+  background: rgb(var(--brand-mid-rgb) / 0.05);
+}
+
+.secondaryLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.textLink {
+  display: inline-flex;
+  min-height: 52px;
+  align-items: center;
+  gap: 0.425rem;
+  border-radius: 4px;
+  color: rgb(245 247 247 / 0.7);
+  font-size: 1.0625rem;
+  transition: color 180ms ease;
+}
+
+.textLink:hover {
+  color: var(--brand-bright);
+}
+
+.textLink:focus-visible {
+  outline: 2px solid var(--brand-mid);
+  outline-offset: 5px;
+}
+
+.scrim {
+  background-image: linear-gradient(
+    90deg,
+    rgb(8 12 13 / 0.93),
+    rgb(8 12 13 / 0.62) 34%,
+    rgb(8 12 13 / 0.08) 68%
+  );
+}
+
+.scrollMedia {
+  transform-origin: center top;
+}
+
+.nameBaseline {
+  display: inline-block;
+  width: 0;
+  height: 0;
+}
+
+@media (min-width: 1024px) and (pointer: fine) {
+  .specialization {
+    max-width: 36rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.12em;
+  }
+
+  .tagline {
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+  }
+}
+
+.nameSheen,
+.halo,
+.handoff {
+  display: none;
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hero {
+    --hero-pointer-travel: -24px;
+    --hero-copy-travel: 6px;
+    --hero-depth-scale: 1.04;
+    --hero-entry-distance: 18px;
+    --hero-role-step: 160ms;
+    --hero-words-at: 480ms;
+    --hero-actions-at: 760ms;
+    --hero-links-at: 1160ms;
+    --hero-cue-at: 1700ms;
+  }
+
+  .hero .specializationEntrance {
+    display: block;
+    animation: settle-in 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero .name {
+    animation-delay: 120ms;
+  }
+
+  .hero .enter {
+    animation-delay: calc(var(--hero-enter-delay, 0s) * 1.7);
+  }
+
+  .hero[data-cinematic] .halo {
+    display: block;
+    position: absolute;
+    inset: 8% 5% 12% 35%;
+    background: radial-gradient(ellipse, rgb(var(--brand-mid-rgb) / 0.12), transparent 65%);
+    transform: translate(
+      calc(var(--hero-halo-x, 0) * 48px),
+      calc(var(--hero-halo-y, 0) * 32px + var(--hero-light-progress, 0) * -24px)
+    );
+  }
+
+  .nameLine {
+    display: block;
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .hero[data-cinematic] .nameSheen {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .nameInk {
+    opacity: 0.86;
+  }
+
+  .nameSheen {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .nameMask {
+    font: inherit;
+    letter-spacing: inherit;
+    fill: white;
+  }
+
+  .nameReflection {
+    transform-box: view-box;
+    animation: name-sweep 1900ms 1100ms cubic-bezier(0.22, 0.55, 0.45, 1) both;
+  }
+
+  .hero[data-cinematic] {
+    min-height: calc(min(100svh, 56rem) + 45svh);
+  }
+
+  .hero[data-cinematic] .content {
+    padding-top: 7rem;
+    padding-bottom: 5rem;
+  }
+
+  .hero[data-cinematic] .scene {
+    position: sticky;
+    top: 0;
+  }
+
+  .hero[data-cinematic] .specialization {
+    transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
+    opacity: calc(1 - var(--hero-exit-specialization, 0));
+  }
+
+  .hero[data-cinematic] .exitTitle {
+    transform: translateY(calc(var(--hero-exit-title, 0) * -36px))
+      scale(calc(1 - var(--hero-exit-title, 0) * 0.025));
+    transform-origin: left center;
+    opacity: calc(1 - var(--hero-exit-title, 0));
+    filter: blur(calc(var(--hero-exit-title, 0) * 6px));
+  }
+
+  /* The two name lines part as they leave: the first lifts, the surname drifts right. */
+  .hero[data-cinematic] .nameLine {
+    transform: translateY(calc(var(--hero-exit-title, 0) * -20px));
+  }
+
+  .hero[data-cinematic] .surname {
+    transform: translateX(calc(var(--hero-exit-title, 0) * 28px));
+  }
+
+  .hero[data-cinematic] .exitDetails {
+    transform: translateY(calc(var(--hero-exit-details, 0) * -24px));
+    opacity: calc(1 - var(--hero-exit-details, 0));
+    filter: blur(calc(var(--hero-exit-details, 0) * 4px));
+  }
+
+  .hero[data-cinematic] .exitActions {
+    transform: translateY(calc(var(--hero-exit-actions, 0) * -16px));
+    opacity: calc(1 - var(--hero-exit-actions, 0));
+  }
+
+  /* Keyboard navigation restores the entire composition, including late in the scene. */
+  .hero[data-cinematic]
+    .intro:focus-within
+    :is(.specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+
+  /* About overlaps the lower controls early, so a keyboard focus lifts the scene back above it.
+     Pointer focus stays below, or a clicked action would cover About while scrolling away. */
+  .hero[data-cinematic]:has(:focus-visible) {
+    z-index: 2;
+  }
+
+  .hero[data-cinematic]:has(:focus-visible) .handoff {
+    opacity: 0;
+  }
+
+  .hero[data-cinematic] .scrollMedia {
+    transform-origin: center;
+  }
+
+  /* Darkens the plate as the copy leaves, so the background never holds the stage alone. */
+  .hero[data-cinematic] .handoff {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgb(8 12 13);
+    opacity: calc(var(--hero-handoff, 0) * 0.7);
+  }
+
+  /* About starts at the bottom of the viewport, so it rises over the scene from the first
+     pixel of scroll. The scene is capped at 56rem, and the pin adds 45svh below it. */
+  .hero[data-cinematic] + :global(#about) {
+    z-index: 1;
+    margin-top: calc(max(0px, 100svh - 56rem) - 45svh);
+    padding-top: 48px;
+    /* Match the overlap so the two plates dissolve across their shared area. */
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .hero[data-cinematic] .sceneControl {
+    opacity: calc(1 - var(--hero-exit-actions, 0));
+  }
+
+  .hero[data-cinematic] .sceneControl:focus-visible {
+    opacity: 1;
+  }
+
+  .hero[data-cinematic] + :global(#about) > :global([aria-hidden="true"]) {
+    mask-image: linear-gradient(to bottom, transparent, black min(18svh, 12rem));
+  }
+
+  .hero[data-cinematic] + :global(#about)::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    inset: 0 0 auto;
+    height: min(18svh, 12rem);
+    pointer-events: none;
+    backdrop-filter: blur(12px);
+    mask-image: linear-gradient(to bottom, transparent, black 45%, transparent);
+  }
+}
+
+@keyframes name-sweep {
+  from {
+    transform: translateX(-40%) skewX(-15deg);
+  }
+  to {
+    transform: translateX(110%) skewX(-15deg);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .actionFirst {
-    --action-delay: 0s;
+  /* Desktop reserves image coverage before applying the stronger pointer movement. */
+  .scrollMedia {
+    transform: translate(
+        calc(var(--hero-pointer-x, 0) * var(--hero-pointer-travel, -6px)),
+        calc(var(--hero-media-y, 0%) + var(--hero-pointer-y, 0) * var(--hero-pointer-travel, -6px))
+      )
+      scale(calc(var(--hero-media-scale, 1) * var(--hero-depth-scale, 1)));
+  }
+
+  /* The copy leans toward the cursor by a couple of degrees, never enough to hurt reading. */
+  .intro {
+    transform: perspective(1200px)
+      translate3d(
+        calc(var(--hero-pointer-x, 0) * var(--hero-copy-travel, 0px)),
+        calc(var(--hero-pointer-y, 0) * var(--hero-copy-travel, 0px)),
+        0
+      )
+      rotateX(calc(var(--hero-pointer-y, 0) * -1.5deg))
+      rotateY(calc(var(--hero-pointer-x, 0) * 2.5deg));
+  }
+
+  .intro:focus-within {
+    transform: none;
+  }
+
+  .scrollCopy {
+    transform: translateY(var(--hero-copy-y, 0px));
+    opacity: var(--hero-copy-opacity, 1);
+  }
+
+  /* Keep keyboard actions visible even late in the scroll sequence. */
+  .scrollCopy:focus-within {
+    transform: none;
+    opacity: 1;
+  }
+
+  .name {
+    animation: settle-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Roles type on one after another behind a short-lived terminal caret. */
+  .role {
+    animation: hero-type 520ms cubic-bezier(0.5, 0, 0.2, 1) backwards;
+    animation-delay: calc(var(--i, 0) * var(--hero-role-step));
+  }
+
+  .roleDot {
+    animation: hero-fade 300ms ease backwards;
+    animation-delay: calc(var(--i, 0) * var(--hero-role-step) - 60ms);
+  }
+
+  .caret {
+    display: inline-block;
+    width: 2px;
+    height: 1.05em;
+    margin-left: 0.45em;
+    vertical-align: -0.15em;
+    background: var(--brand-bright);
+    box-shadow: 0 0 8px rgb(var(--brand-bright-rgb) / 0.6);
+    opacity: 0;
+    animation: hero-caret 2400ms steps(1, end) forwards;
+  }
+
+  .word {
+    display: inline-block;
+    animation: hero-word-in 750ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--hero-words-at) + var(--i, 0) * 90ms);
+  }
+
+  .accentWord::after {
+    animation: hero-underline 700ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--hero-words-at) + 450ms);
+  }
+
+  /* Copy keeps some opacity at the start because it can be the mobile LCP element. */
+  .enter {
+    --hero-fade-from: 0.15;
+    animation: hero-focus-in 800ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: var(--hero-enter-delay, 0s);
+  }
+
+  /* Spring pop on `scale`, so it never fights Magnetic's inline transform. */
+  .actionEntrance,
+  .secondaryLinks > a {
+    --pop-at: var(--hero-actions-at);
+    animation:
+      hero-pop-fade 300ms ease-out var(--pop-at) both,
+      hero-pop-scale 750ms var(--hero-spring) var(--pop-at) both;
   }
 
   .actionSecond {
-    --action-delay: 0.5s;
-  }
-
-  .actionThird {
-    --action-delay: 1s;
-  }
-
-  .actionEntrance {
-    animation:
-      focus-fade-in 0.4s ease-out var(--action-delay) both,
-      focus-spring-in 1s var(--scope-spring) var(--action-delay) both;
+    --pop-at: calc(var(--hero-actions-at) + 200ms);
   }
 
   .actionEntrance:focus-within {
     animation: none;
   }
-}
 
-@keyframes focus-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-2deg);
+  .primaryAction {
+    position: relative;
+    overflow: hidden;
   }
-  50% {
-    transform: translateY(-4px) rotate(-2deg);
-  }
-}
 
-@media (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) {
-  .hero {
-    min-height: 100svh;
+  .primaryAction::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 30%,
+      rgb(255 255 255 / 0.3) 50%,
+      transparent 70%
+    );
+    transform: translateX(-110%);
+    pointer-events: none;
+    animation: hero-button-sweep 1200ms calc(var(--hero-actions-at) + 600ms)
+      cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
-  .hero a {
-    min-height: 44px;
-  }
-  .hero a[href="#projects"],
-  .hero a[href="#contact"],
-  .hero a[target="_blank"] {
-    font-size: 14px;
-  }
-  .hero h1 > span:last-child {
-    font-size: 16px;
-  }
-  .copy {
-    font-size: 14px;
-    max-width: 360px;
-  }
-  .socialRow {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-    gap: 15px;
-    margin-top: 8px;
-  }
-  .socialLinks {
-    display: inline-flex;
-    flex-wrap: nowrap;
-    width: max-content;
-    gap: 0;
-  }
-  .socialLinks a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    min-width: 48px;
-    flex: 0 0 48px;
-  }
-  .socialLinks a > span > span {
-    width: 36px;
-    height: 36px;
-  }
-  .socialLinks a img,
-  .socialLinks a svg {
-    width: 26px;
-    height: 26px;
-  }
-  .focus p:last-child {
-    font-size: 12px;
-  }
-  .content {
-    padding-top: 72px;
-    padding-bottom: 32px;
-  }
-}
 
-@media (pointer: coarse) and (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) {
-  .hero h1 > span:last-child {
-    margin-top: 10px;
+  .secondaryLinks > a {
+    --pop-at: var(--hero-links-at);
   }
-  .copy {
-    margin-bottom: 14px;
-  }
-  .hero .actions a {
-    min-height: 44px;
-    padding: 6px 14px;
-    border-radius: 12px;
-    font-size: 12px;
-  }
-  .actions a svg {
-    width: 14px;
-    height: 14px;
-  }
-  .focus {
-    max-width: 210px;
-    padding: 16px;
-    border-radius: 12px;
-  }
-  .focus p:first-child {
-    font-size: 9px;
-    letter-spacing: 0.2em;
-  }
-  .focus p:last-child {
-    margin-top: 6px;
-    font-size: 10px;
-    line-height: 1.85;
-  }
-}
 
-@media (orientation: portrait) and (max-width: 767px) {
-  .poster {
-    bottom: auto;
-    height: 75%;
-    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  .secondaryLinks > a:nth-child(2) {
+    --pop-at: calc(var(--hero-links-at) + 200ms);
   }
-}
 
-@media (orientation: landscape) and (max-width: 1024px) and (max-height: 380px) {
-  .content {
-    padding-top: 64px;
-    padding-bottom: 30px;
+  .secondaryLinks > a:nth-child(3) {
+    --pop-at: calc(var(--hero-links-at) + 400ms);
   }
-  .hero h1 > span:first-child {
-    font-size: 32px;
-  }
-  .hero h1 > span:last-child {
-    font-size: 14px;
-    line-height: 1;
-  }
-  .copy {
-    font-size: 13px;
-    line-height: 1.3;
-  }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .focus {
+  .secondaryLinks > a:focus-visible {
     animation: none;
   }
-}
-.greeting {
-  display: inline-grid;
-}
 
-/* Portrait keeps copy fully visible; only individual elements move slightly at first paint. */
-@media (pointer: coarse) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
-  .enter {
-    animation-duration: 1s;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    animation-fill-mode: both;
-  }
-
-  .name {
-    animation: portrait-name-settle 1s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .headline {
-    animation-name: portrait-copy-settle;
-  }
-
-  .socialLinks {
-    animation-name: portrait-slide;
-  }
-
-  .copy {
-    animation-name: portrait-copy-settle;
-  }
-
-  .enter:focus-within {
-    animation: none;
+  .scrollCue {
+    animation: hero-cue-in 800ms var(--hero-cue-at) cubic-bezier(0.22, 1, 0.36, 1) backwards;
   }
 }
 
-/* Landscape touch devices share desktop entrances. Pointer tracking stays desktop-only in React. */
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference),
-  (pointer: coarse) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
-  .enter {
-    animation-name: copy-enter;
-    animation-duration: 1s;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    animation-fill-mode: both;
+@keyframes settle-in {
+  from {
+    transform: translateY(var(--hero-entry-distance, 10px));
   }
-
-  .name {
-    animation: desktop-name-settle 1s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .headline,
-  .copy {
-    animation-name: portrait-copy-settle;
-  }
-
-  .socialLinks {
-    animation-name: social-enter;
-  }
-
-  .focusEntrance {
-    animation:
-      focus-fade-in 0.4s ease-out both,
-      focus-spring-in 1s var(--scope-spring) both;
-  }
-
-  .focus {
-    animation:
-      focus-fade-in 0.4s ease-out both,
-      focus-spring-in 1s var(--scope-spring) both,
-      focus-float 8s ease-in-out 0.825s infinite both;
-  }
-
-  .enter:focus-within {
-    animation: none;
+  to {
+    transform: translateY(0);
   }
 }
 
-@keyframes focus-fade-in {
+@keyframes hero-focus-in {
+  from {
+    opacity: var(--hero-fade-from, 0);
+    filter: blur(8px);
+    transform: translateY(var(--hero-entry-distance, 10px));
+  }
+}
+
+@keyframes hero-pop-fade {
   from {
     opacity: 0;
   }
@@ -280,8 +572,7 @@
   }
 }
 
-/* Individual scale leaves the floating transform independent of the spring. */
-@keyframes focus-spring-in {
+@keyframes hero-pop-scale {
   from {
     scale: 0;
   }
@@ -290,58 +581,564 @@
   }
 }
 
-@keyframes portrait-name-settle {
+@keyframes hero-word-in {
   from {
-    transform: translateY(12px);
-  }
-  to {
-    transform: none;
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(0.45em);
   }
 }
 
-@keyframes portrait-slide {
+@keyframes hero-type {
   from {
-    transform: translateX(-8px);
+    clip-path: inset(-0.3em 100% -0.3em 0);
   }
   to {
-    transform: none;
+    clip-path: inset(-0.3em -0.3em -0.3em 0);
   }
 }
 
-@keyframes portrait-copy-settle {
-  from {
-    transform: translateY(6px);
-  }
-  to {
-    transform: none;
-  }
-}
-
-@keyframes copy-enter {
+@keyframes hero-fade {
   from {
     opacity: 0;
   }
-  to {
+}
+
+@keyframes hero-caret {
+  0%,
+  18%,
+  36%,
+  54% {
     opacity: 1;
   }
+  9%,
+  27%,
+  45%,
+  63%,
+  100% {
+    opacity: 0;
+  }
 }
 
-@keyframes desktop-name-settle {
+@keyframes hero-underline {
   from {
-    transform: translateY(20px);
-  }
-  to {
-    transform: none;
+    transform: scaleX(0);
   }
 }
 
-@keyframes social-enter {
+@keyframes hero-button-sweep {
+  to {
+    transform: translateX(110%);
+  }
+}
+
+@keyframes hero-cue-in {
   from {
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translateY(8px);
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .content {
+    padding-top: max(7rem, calc(12rem - var(--hero-consent-inset, 0px) * 0.5));
+    padding-bottom: 2rem;
+  }
+
+  .specialization {
+    margin-bottom: 1rem;
+    margin-inline: auto;
+    text-align: center;
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+  }
+
+  .name {
+    font-size: clamp(2.5rem, 11.5vw, 3rem);
+    font-weight: 500;
+  }
+
+  .headline {
+    margin-top: 1.25rem;
+    font-size: clamp(1.375rem, 5.6vw, 1.625rem);
+  }
+
+  .copy {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .tagline {
+    font-size: 0.8625rem;
+    display: block;
+    text-align: center;
+    letter-spacing: 0.14em;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .actions > div:last-child {
+    display: contents;
+  }
+
+  .actions a {
+    min-height: 52px;
+    padding-inline: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .secondaryLinks {
+    justify-content: center;
+    gap: 0.25rem 1rem;
+    margin-top: 1rem;
+  }
+
+  .textLink {
+    gap: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .poster {
+    bottom: auto;
+    height: 75%;
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  }
+
+  .scrim {
+    background-image: linear-gradient(90deg, rgb(8 12 13 / 0.55), rgb(8 12 13 / 0.15));
+  }
+}
+
+@keyframes hero-lift {
+  50% {
+    opacity: 1;
   }
   to {
-    opacity: 1;
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(var(--lift, -24px));
+  }
+}
+
+@keyframes hero-name-split {
+  to {
+    transform: translateX(24px);
+  }
+}
+
+@keyframes hero-poster-drift {
+  to {
+    transform: translateY(40%) scale(1.2);
+  }
+}
+
+/* Portrait phones: CSS-only motion, no scroll script and no pointer effects. */
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  .hero {
+    --hero-entry-distance: 8px;
+  }
+
+  .nameLine {
+    display: block;
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .nameSheen {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .nameMask {
+    font: inherit;
+    letter-spacing: inherit;
+    fill: white;
+  }
+
+  .nameReflection {
+    transform-box: view-box;
+    animation: name-sweep 1900ms 900ms cubic-bezier(0.22, 0.55, 0.45, 1) both;
+  }
+
+  /* Layered exit: each layer leaves at its own speed, so the copy separates from the poster. */
+  @supports (animation-timeline: view()) {
+    .specialization,
+    .exitTitle {
+      --lift: -80px;
+    }
+
+    .exitDetails {
+      --lift: -130px;
+    }
+
+    .exitActions {
+      --lift: -180px;
+    }
+
+    :is(.specialization, .exitTitle, .exitDetails, .exitActions) {
+      animation: hero-lift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 65svh;
+    }
+
+    .surname {
+      animation: hero-name-split linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 55svh;
+    }
+
+    .intro:focus-within :is(.specialization, .exitTitle, .exitDetails, .exitActions, .surname) {
+      animation: none;
+    }
+
+    .poster {
+      animation: hero-poster-drift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 80svh;
+    }
+  }
+
+  /* About overlaps the hero edge; only its backdrop dissolves, its content stays in place. */
+  .hero[data-cinematic] + :global(#about) {
+    z-index: 1;
+    margin-top: -8svh;
+    padding-top: 8svh;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .hero[data-cinematic] + :global(#about) > :global([aria-hidden="true"]) {
+    mask-image: linear-gradient(to bottom, transparent, black min(12svh, 6rem));
+  }
+}
+@media (max-width: 360px) and (orientation: portrait) {
+  .actions a {
+    padding-inline: 0.5rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Touch phones keep the surname on its own line from the first paint. Inlining it there too
+   made it jump below after hydration, when the touch scene turns the name lines into blocks. */
+@media (max-height: 600px) and (orientation: landscape) and (pointer: fine) {
+  .surname {
+    display: inline;
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .content {
+    padding-top: 6.75rem;
+    padding-bottom: 4rem;
+  }
+
+  .name {
+    font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+  }
+
+  .specialization {
+    margin-bottom: 0.75rem;
+    font-size: 0.625rem;
+  }
+
+  .headline {
+    margin-top: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .copy {
+    margin-top: 0.75rem;
+    max-width: 27rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  .secondaryLinks {
+    margin-top: 0.5rem;
+  }
+}
+
+/* Larger supporting text on landscape phones, balanced by a smaller name. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 600px) {
+  .content {
+    padding-top: 5.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .specialization {
+    margin-bottom: 8px;
+  }
+
+  .exitDetails > p:has(.tagline) {
+    display: none;
+  }
+
+  .actions {
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .actions a {
+    min-height: 44px;
+    padding: 10px 18px;
+    font-size: 0.9375rem;
+  }
+
+  .actions .primaryAction {
+    min-height: 40px;
+    padding-block: 8px;
+  }
+
+  .secondaryLinks {
+    gap: 4px 16px;
+    margin-top: 4px;
+  }
+
+  .textLink {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+
+  .scrollCue > span:last-child {
+    font-size: 0.875rem;
+  }
+
+  .scrollCue > span:first-child {
+    width: 18px;
+    height: 28px;
+  }
+
+  .name {
+    font-size: clamp(2.5rem, 3.8vw, 2.75rem);
+  }
+
+  .specialization {
+    max-width: 36rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+  }
+
+  .headline {
+    font-size: 1.5rem;
+  }
+
+  .copy {
+    margin-top: 12px;
+    max-width: 32rem;
+    font-size: 1.1375rem;
+    line-height: 1.35;
+  }
+
+  .tagline {
+    font-size: 1.015rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* Touch landscape: the desktop scene, minus the mouse-only pointer depth and spotlight. */
+@media (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  .hero[data-touch-scene] {
+    --hero-entry-distance: 18px;
+    --hero-role-step: 160ms;
+    --hero-words-at: 480ms;
+    --hero-actions-at: 760ms;
+    --hero-links-at: 1160ms;
+    --hero-cue-at: 1700ms;
+    min-height: calc(min(100svh, 56rem) + 45svh);
+  }
+
+  .hero[data-touch-scene] .scene {
+    position: sticky;
+    top: 0;
+  }
+
+  .hero[data-touch-scene] .specializationEntrance {
+    display: block;
+    animation: settle-in 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero[data-touch-scene] .name {
+    animation-delay: 120ms;
+  }
+
+  .hero[data-touch-scene] .enter {
+    animation-delay: calc(var(--hero-enter-delay, 0s) * 1.7);
+  }
+
+  .hero[data-touch-scene] .halo {
+    display: block;
+    position: absolute;
+    inset: 8% 5% 12% 35%;
+    background: radial-gradient(ellipse, rgb(var(--brand-mid-rgb) / 0.12), transparent 65%);
+    transform: translateY(calc(var(--hero-light-progress, 0) * -24px));
+  }
+
+  .hero[data-touch-scene] .nameLine {
+    display: block;
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .hero[data-touch-scene] .nameInk {
+    opacity: 0.86;
+  }
+
+  .hero[data-touch-scene] .nameSheen {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hero[data-touch-scene] .nameMask {
+    font: inherit;
+    letter-spacing: inherit;
+    fill: white;
+  }
+
+  .hero[data-touch-scene] .nameReflection {
+    transform-box: view-box;
+    animation: name-sweep 1900ms 1100ms cubic-bezier(0.22, 0.55, 0.45, 1) both;
+  }
+
+  /* No perspective tilt here. A 3D layer plus a scroll-linked blur draws a pink
+     vertical seam on phone GPUs, and it only shows while the finger is down. */
+  .hero[data-touch-scene] .intro {
     transform: none;
+  }
+
+  .hero[data-touch-scene] .specialization {
+    transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
+    opacity: calc(1 - var(--hero-exit-specialization, 0));
+  }
+
+  .hero[data-touch-scene] .exitTitle {
+    transform: translateY(calc(var(--hero-exit-title, 0) * -36px))
+      scale(calc(1 - var(--hero-exit-title, 0) * 0.025));
+    transform-origin: left center;
+    opacity: calc(1 - var(--hero-exit-title, 0));
+  }
+
+  .hero[data-touch-scene] .nameLine {
+    transform: translateY(calc(var(--hero-exit-title, 0) * -20px));
+  }
+
+  .hero[data-touch-scene] .surname {
+    transform: translateX(calc(var(--hero-exit-title, 0) * 28px));
+  }
+
+  .hero[data-touch-scene] .exitDetails {
+    transform: translateY(calc(var(--hero-exit-details, 0) * -24px));
+    opacity: calc(1 - var(--hero-exit-details, 0));
+  }
+
+  .hero[data-touch-scene] .exitActions {
+    transform: translateY(calc(var(--hero-exit-actions, 0) * -16px));
+    opacity: calc(1 - var(--hero-exit-actions, 0));
+  }
+
+  .hero[data-touch-scene]
+    .intro:focus-within
+    :is(.specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+
+  .hero[data-touch-scene] .scrollMedia {
+    transform-origin: center;
+  }
+
+  /* Backdrop blur inside the sticky, clipped scene leaves a magenta lane at some
+     scroll offsets. The gradient fade underneath still softens the edges. */
+  .hero[data-touch-scene] :global([data-edge] > :first-child),
+  .hero[data-touch-scene] .sceneControl {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .hero[data-touch-scene] .sceneControl {
+    opacity: calc(1 - var(--hero-exit-actions, 0));
+  }
+
+  .hero[data-touch-scene] .sceneControl:focus-visible {
+    opacity: 1;
+  }
+
+  /* Same keyboard lift as desktop, without adding a filter or a 3D layer. */
+  .hero[data-touch-scene]:has(:focus-visible) {
+    z-index: 2;
+  }
+
+  .hero[data-touch-scene]:has(:focus-visible) .handoff {
+    opacity: 0;
+  }
+
+  /* Opacity only. A scroll-linked filter or backdrop blur leaves a magenta lane on phone GPUs. */
+  .hero[data-touch-scene] .handoff {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: rgb(8 12 13);
+    opacity: calc(var(--hero-handoff, 0) * 0.6);
+  }
+
+  .hero[data-touch-scene] + :global(#about) {
+    z-index: 1;
+    margin-top: calc(max(0px, 100svh - 56rem) - 45svh);
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .hero[data-touch-scene] + :global(#about) > :global([aria-hidden="true"]) {
+    mask-image: linear-gradient(to bottom, transparent, black min(18svh, 12rem));
+  }
+
+  .hero[data-touch-scene] + :global(#about)::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    inset: 0 0 auto;
+    height: min(18svh, 12rem);
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgb(8 12 13 / 0.45) 45%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 45%, transparent);
+  }
+}
+
+/* Taller touch landscape has room for the 45svh pin. The 112px section padding would
+   leave the heading behind the name, so only this height range pulls it forward. */
+@media (orientation: landscape) and (pointer: coarse) and (min-height: 501px) and (prefers-reduced-motion: no-preference) {
+  .hero[data-touch-scene] + :global(#about) {
+    padding-top: 48px;
+  }
+}
+
+/* A 45svh pin is about 176px at 390px tall, and the compact heading sits 106px into
+   About, so the name finishes before the heading can be read. A longer pin keeps
+   the compact padding and grid exactly as they are. */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  .hero[data-touch-scene] {
+    min-height: calc(100svh + 75svh);
+  }
+
+  .hero[data-touch-scene] + :global(#about) {
+    margin-top: -75svh;
   }
 }

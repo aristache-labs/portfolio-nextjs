@@ -40,9 +40,7 @@ vi.mock("framer-motion", async (original) => {
 let notify: IntersectionObserverCallback;
 let target: Element;
 const disconnect = vi.fn();
-const card = (
-  <SkillCard name="React" iconPath="/skills/react.svg" category="Development" level="Expert" />
-);
+const card = <SkillCard name="React" iconPath="/skills/react.svg" level="Expert" />;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -105,12 +103,7 @@ it.each([
     <RevealSequence.Provider value={sequence}>
       <SkillEntrance filtered={false}>{card}</SkillEntrance>
       <SkillEntrance filtered={false}>
-        <SkillCard
-          name="TypeScript"
-          iconPath="/skills/typescript.svg"
-          category="Development"
-          level="75"
-        />
+        <SkillCard name="TypeScript" iconPath="/skills/typescript.svg" level="75" />
       </SkillEntrance>
     </RevealSequence.Provider>,
   );
@@ -162,9 +155,7 @@ it.each([
   act(() => window.dispatchEvent(new Event("resize")));
   expect(progress.animate).toHaveBeenCalledTimes(1);
   installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
-  rerender(
-    <SkillCard name="React" iconPath="/skills/react.svg" category="Development" level="Expert" />,
-  );
+  rerender(<SkillCard name="React" iconPath="/skills/react.svg" level="Expert" />);
   expect(progress.stop).toHaveBeenCalled();
   animation.onUpdate(20);
   expect(fill).toHaveStyle({ width: "90%" });

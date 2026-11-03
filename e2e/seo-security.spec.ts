@@ -1,4 +1,5 @@
 import { expect, test } from "./fixtures";
+import { SITE } from "../src/lib/seo/site";
 
 declare global {
   interface Window {
@@ -82,22 +83,18 @@ test("canonical, structured identity and discovery files agree", async ({ page, 
   expect(llms).not.toContain(new URL(canonical!).origin + "//");
 });
 
-test("H1 retains the visible first name and exposes the rest to assistive technology", async ({
-  page,
-}) => {
+test("H1 displays the complete name and exposes it to assistive technology", async ({ page }) => {
   await page.goto("/");
   const h1 = page.getByRole("heading", { level: 1 });
-  const firstName = h1.locator(":scope > span").first();
-  const remainder = firstName.locator(".sr-only");
-  await expect(remainder).toHaveCount(1);
-  const rest = (await remainder.textContent())!.trim();
-  await expect(h1).toHaveAccessibleName(new RegExp(rest));
-  const box = await remainder.boundingBox();
-  expect(box!.width).toBeLessThanOrEqual(1);
-  expect(box!.height).toBeLessThanOrEqual(1);
-  const visible = await firstName.evaluate((node) => node.firstChild!.textContent!.trim());
-  expect(visible).toBeTruthy();
-  expect(await firstName.textContent()).toContain(visible);
+  await expect(h1).toHaveAccessibleName(new RegExp(SITE.name));
+  const lines = h1.locator(":scope > span");
+  await expect(lines).toHaveCount(2);
+  for (const line of await lines.all()) {
+    await expect(line).toBeVisible();
+    const box = await line.boundingBox();
+    expect(box!.width).toBeGreaterThan(1);
+    expect(box!.height).toBeGreaterThan(1);
+  }
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
   await page.keyboard.press("Enter");

@@ -25,20 +25,44 @@ describe("About", () => {
     expect(portrait.parentElement).not.toHaveAttribute("style");
   });
 
-  it("keeps portrait, heading and copy as direct layout children in visible server HTML", () => {
+  it("keeps the editorial groups in visible server HTML without duplicating the introduction", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(
-      <About profile={{ ...mockProfile, avatarUrl: "https://example.com/portrait.webp" }} />,
+      <About
+        profile={{
+          ...mockProfile,
+          bio: `${mockProfile.bio} More about my work.`,
+          avatarUrl: "https://example.com/portrait.webp",
+        }}
+      />,
     );
     const biography = container.getElementsByClassName(styles.biography)[0];
     expect(biography.children).toHaveLength(3);
-    for (const name of [styles.portrait, styles.heading, styles.copy]) {
+    for (const name of [styles.portrait, styles.heading, styles.introduction]) {
       const group = biography.getElementsByClassName(name)[0];
       expect(group.parentElement).toBe(biography);
       expect(group).not.toHaveAttribute("style");
     }
     expect(biography).toHaveTextContent(mockProfile.bio);
     expect(biography).toHaveTextContent("Behind the code.");
+    const details = container.getElementsByClassName(styles.copy)[0];
+    expect(details).not.toHaveTextContent(mockProfile.bio);
+    expect(details).toHaveTextContent("More about my work.");
+    expect(biography.contains(details)).toBe(false);
+  });
+
+  it("places the results after the detailed biography and outside the pinned scene", () => {
+    const { container } = render(
+      <About profile={{ ...mockProfile, bio: `${mockProfile.bio} More about my work.` }} />,
+    );
+    const results = container.getElementsByClassName(styles.results)[0];
+    const details = container.getElementsByClassName(styles.copy)[0];
+    const content = container.querySelector("#about > [data-scroll-anchor]")!;
+    expect(content.lastElementChild).toBe(results);
+    expect(
+      details.compareDocumentPosition(results) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(results.closest('[class*="track"]')).toBeNull();
   });
 
   it("expands and collapses the remaining mobile biography", () => {
@@ -57,10 +81,9 @@ describe("About", () => {
     expect(remainder).toHaveAttribute("hidden");
   });
   it("renders the bio text", () => {
-    render(<About profile={mockProfile} />);
-    expect(
-      screen.getAllByText("I build fast, accessible web apps and love open source."),
-    ).toHaveLength(2);
+    const { container } = render(<About profile={mockProfile} />);
+    expect(container.querySelector("#about")).toHaveTextContent(mockProfile.bio);
+    expect(container.getElementsByClassName(styles.copy)).toHaveLength(0);
   });
 
   it("shows impact metrics instead of repository counts and technology categories", () => {
@@ -79,8 +102,7 @@ describe("About", () => {
     render(<About profile={mockProfile} />);
     for (const value of ["8+", "60%", "1,600+", "5"]) {
       const copies = screen.getAllByText(value);
-      expect(copies).toHaveLength(2);
-      expect(copies.filter((node) => node.getAttribute("aria-hidden") !== "true")).toHaveLength(1);
+      expect(copies.filter((node) => !node.closest('[aria-hidden="true"]'))).toHaveLength(1);
     }
     expect(screen.queryByText("120+")).not.toBeInTheDocument();
   });

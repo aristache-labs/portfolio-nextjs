@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import styles from "./about-bio.module.css";
+import { AboutReveal } from "./AboutReveal";
 
 const END = "technical challenges into practical, dependable solutions.";
 
@@ -48,19 +49,21 @@ export function AboutBio({ bio }: { bio: string }) {
             <div id={id} hidden={!expanded} className={`${styles.remainder} mt-4 space-y-4`}>
               <Paragraphs text={remaining} />
             </div>
-            <button
-              type="button"
-              aria-expanded={expanded}
-              aria-controls={id}
-              onClick={() => setExpanded((value) => !value)}
-              className={`${styles.toggle} text-brand-bright border-brand-mid/30 hover:bg-brand-mid/10 focus-visible:ring-brand-mid/70 mx-auto mt-5 flex min-h-11 w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none`}
-            >
-              {expanded ? "View less" : "View more"}
-              <ChevronDown
-                aria-hidden
-                className={`size-4 transition-transform duration-200 motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`}
-              />
-            </button>
+            <AboutReveal className={styles.buttonReveal}>
+              <button
+                type="button"
+                aria-expanded={expanded}
+                aria-controls={id}
+                onClick={() => setExpanded((value) => !value)}
+                className={`${styles.toggle} text-brand-bright border-brand-mid/30 hover:bg-brand-mid/10 focus-visible:ring-brand-mid/70 mx-auto mt-5 flex min-h-11 w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none`}
+              >
+                {expanded ? "View less" : "View more"}
+                <ChevronDown
+                  aria-hidden
+                  className={`size-4 transition-transform duration-200 motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`}
+                />
+              </button>
+            </AboutReveal>
           </>
         )}
       </div>
