@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { Experience } from "./Experience";
 import type { ExperienceRow } from "@/lib/queries";
 import { installMatchMedia } from "@/test/matchMedia";
@@ -566,6 +566,57 @@ describe("Experience", () => {
   it("renders empty state gracefully", () => {
     render(<Experience experiences={[]} />);
     expect(screen.getByText("Experience")).toBeInTheDocument();
+  });
+
+  it.each([0, 1, 2, 3, 5])("previews up to three desktop responsibilities from %i", (count) => {
+    installMatchMedia({
+      "(min-width: 1024px)": true,
+      "(min-width: 1024px) and (pointer: fine)": true,
+    });
+    const description = Array.from({ length: count }, (_, i) => `Responsibility ${i + 1}`);
+    const { container } = render(
+      <Experience experiences={[{ ...mockExperiences[0], description }]} />,
+    );
+    const entry = container.querySelector("[data-experience-id]")!;
+    description.forEach((text, i) => {
+      const bullet = within(entry as HTMLElement).getByText(text);
+      if (i < 3) expect(bullet).toBeVisible();
+      else expect(bullet).not.toBeVisible();
+    });
+    expect(entry.querySelector("details") !== null).toBe(count > 3);
+  });
+
+  it("keeps desktop disclosures independent across roles and viewport changes", async () => {
+    const desktopMedia = {
+      "(min-width: 1024px)": true,
+      "(min-width: 1024px) and (pointer: fine)": true,
+    };
+    installMatchMedia(desktopMedia);
+    const experiences = mockExperiences.map((exp) => ({
+      ...exp,
+      description: ["First", "Second", "Third", "Fourth"],
+    }));
+    const { container, rerender } = render(<Experience experiences={experiences} />);
+    const details = () => [...container.querySelectorAll("details")];
+    fireEvent.click(details()[0].querySelector("summary")!);
+    await waitFor(() => expect(details()[0].open).toBe(true));
+    fireEvent.click(details()[1].querySelector("summary")!);
+    await waitFor(() => expect(details().every((node) => node.open)).toBe(true));
+    installMatchMedia();
+    rerender(<Experience experiences={experiences} />);
+    expect(details().every((node) => !node.open)).toBe(true);
+    fireEvent.click(details()[0].querySelector("summary")!);
+    await waitFor(() => expect(details()[0].open).toBe(true));
+    installMatchMedia(desktopMedia);
+    rerender(<Experience experiences={experiences} />);
+    expect(details().every((node) => node.open)).toBe(true);
+    fireEvent.click(details()[0].querySelector("summary")!);
+    await waitFor(() => expect(details()[0].open).toBe(false));
+    expect(details()[1].open).toBe(true);
+    installMatchMedia();
+    rerender(<Experience experiences={experiences} />);
+    expect(details()[0].open).toBe(true);
+    expect(details()[1].open).toBe(false);
   });
 
   it("renders location when provided", () => {
