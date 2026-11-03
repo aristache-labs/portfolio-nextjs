@@ -198,15 +198,17 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
   const portrait = useMediaQuery(EXPERIENCE_PORTRAIT_QUERY);
   const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
   const desktop = useMediaQuery("(min-width: 1024px)");
-  const previewCount = desktop ? 2 : 1;
+  const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
+  const previewCount = desktopDisclosure ? 3 : desktop ? 2 : 1;
   const [expanded, setExpanded] = useState(false);
+  const [desktopExpanded, setDesktopExpanded] = useState(false);
 
   const inner = (
     <div className="flex gap-4 sm:gap-5">
       <div aria-hidden className="w-3 shrink-0" />
 
       {/* Card content */}
-      <div className={cn("min-w-0 flex-1 pb-4 sm:pb-5", last && "pb-0")}>
+      <div className={cn("min-w-0 flex-1 pb-4 sm:pb-5", last && `pb-0 ${styles.lastBody}`)}>
         <div
           className={`${styles.card} ${portraitCss.surface} w-full rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-4 py-3.5 backdrop-blur-[18px] sm:px-5`}
         >
@@ -250,14 +252,16 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
           )}
           {exp.description.length > previewCount && (
             <details
+              key={desktopDisclosure ? "desktop" : desktop ? "wide-touch" : "mobile"}
               className="group mt-1.5"
-              open={desktop || expanded}
+              open={desktopDisclosure ? desktopExpanded : desktop || expanded}
               onToggle={(event) => {
-                if (!desktop) setExpanded(event.currentTarget.open);
+                if (desktopDisclosure) setDesktopExpanded(event.currentTarget.open);
+                else if (!desktop) setExpanded(event.currentTarget.open);
               }}
             >
               <summary
-                className={`${styles.disclosure} text-brand-bright focus-visible:ring-brand-mid/70 flex min-h-[44px] cursor-pointer list-none items-center gap-2 rounded-lg text-sm font-medium focus-visible:ring-2 focus-visible:outline-none lg:hidden [&::-webkit-details-marker]:hidden`}
+                className={`${styles.disclosure} text-brand-bright focus-visible:ring-brand-mid/70 ${desktop && !desktopDisclosure ? "hidden" : "flex"} min-h-[44px] cursor-pointer list-none items-center gap-2 rounded-lg text-sm font-medium focus-visible:ring-2 focus-visible:outline-none [&::-webkit-details-marker]:hidden`}
               >
                 <span className="group-open:hidden">More details</span>
                 <span className="hidden group-open:inline">Fewer details</span>
@@ -268,8 +272,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
                   ⌄
                 </span>
               </summary>
-              {/* On desktop the summary is hidden, so the list continues at the same rhythm. */}
-              <ul className="mt-1.5 space-y-1.5 lg:mt-0">
+              <ul className={cn("space-y-1.5", desktop && !desktopDisclosure ? "mt-0" : "mt-1.5")}>
                 {exp.description.slice(previewCount).map((d, i) => (
                   <li
                     key={`${exp.id}-more-${i}`}

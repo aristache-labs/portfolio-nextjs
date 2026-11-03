@@ -1,12 +1,12 @@
 @media (min-width: 1024px) and (pointer: fine) {
   .experience {
-    padding-bottom: 64px;
+    padding-bottom: 40px;
   }
 
   .projects {
-    padding-top: 64px;
+    padding-top: 48px;
     /* Heading starts 80px below the viewport top when reached by an anchor. */
-    scroll-margin-top: 16px;
+    scroll-margin-top: 32px;
   }
 }
 

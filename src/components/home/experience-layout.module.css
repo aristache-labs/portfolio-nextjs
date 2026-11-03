@@ -2,6 +2,19 @@
   --timeline-axis: 0.375rem;
 }
 
+@media (min-width: 1024px) and (pointer: fine) {
+  .lastBody {
+    padding-bottom: 0;
+  }
+
+  /* Additional responsibilities appear immediately when the reader opens a role. */
+  .entry details[open] .step {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .section {
