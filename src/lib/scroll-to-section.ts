@@ -60,26 +60,30 @@ export function scrollToSection(id: string, reducedMotion: boolean): () => void 
 export function scrollToPosition(
   destination: number,
   reducedMotion: boolean,
-  onFinish?: () => void,
+  onFinish?: (arrived: boolean) => void,
 ): () => void {
   const start = window.scrollY;
   if (reducedMotion || Math.abs(destination - start) < 2) {
     window.scrollTo({ top: destination, behavior: "instant" });
-    onFinish?.();
+    onFinish?.(true);
     return () => {};
   }
 
   const duration = Math.min(1400, Math.max(300, (Math.abs(destination - start) / 1600) * 1000));
   let frame = 0;
   let startedAt: number | undefined;
-  const stop = () => {
+  let stopped = false;
+  const stop = (arrived = false) => {
+    if (stopped) return;
+    stopped = true;
     cancelAnimationFrame(frame);
-    window.removeEventListener("wheel", stop);
-    window.removeEventListener("touchmove", stop);
+    window.removeEventListener("wheel", cancel);
+    window.removeEventListener("touchmove", cancel);
     window.removeEventListener("keydown", onKey);
-    window.removeEventListener("pointerdown", stop);
-    onFinish?.();
+    window.removeEventListener("pointerdown", cancel);
+    onFinish?.(arrived);
   };
+  const cancel = () => stop();
   const onKey = (event: KeyboardEvent) => {
     if (
       ["Escape", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(
@@ -95,13 +99,13 @@ export function scrollToPosition(
     const eased = progress * progress * (3 - 2 * progress);
     window.scrollTo({ top: start + (destination - start) * eased, behavior: "instant" });
     if (progress < 1) frame = requestAnimationFrame(tick);
-    else stop();
+    else stop(true);
   };
 
-  window.addEventListener("wheel", stop, { passive: true });
-  window.addEventListener("touchmove", stop, { passive: true });
+  window.addEventListener("wheel", cancel, { passive: true });
+  window.addEventListener("touchmove", cancel, { passive: true });
   window.addEventListener("keydown", onKey);
-  window.addEventListener("pointerdown", stop, { passive: true });
+  window.addEventListener("pointerdown", cancel, { passive: true });
   frame = requestAnimationFrame(tick);
-  return stop;
+  return cancel;
 }

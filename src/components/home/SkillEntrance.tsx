@@ -20,6 +20,7 @@ import { createRevealSequence, RevealSequence } from "@/components/motion/Reveal
 /** Each card starts its progress as soon as its own entrance finishes. */
 export function SkillEntrance({
   filtered,
+  skipEntrance = false,
   order = 0,
   mobile = false,
   landscape = false,
@@ -27,6 +28,8 @@ export function SkillEntrance({
   children,
 }: {
   filtered: boolean;
+  /** An automatic reset restores cards without replaying their first entrance. */
+  skipEntrance?: boolean;
   /** Position in the grid, so cards brought in by a filter arrive in turn. */
   order?: number;
   mobile?: boolean;
@@ -47,7 +50,7 @@ export function SkillEntrance({
   const filterEntered = useRef(!filtered);
   const navigation = useSectionNavigation(nodeRef, () => !entered.current);
   const complete = () => {
-    if (mode === "static") sequence.publish("static");
+    if (mode === "static" || skipEntrance) sequence.publish("static");
     else if (entered.current && filterEntered.current) sequence.publish("complete");
   };
 
@@ -86,7 +89,12 @@ export function SkillEntrance({
       entered.current = true;
       sequence.publish("static");
     };
-    if (mode === "static" || entered.current || typeof IntersectionObserver !== "function") {
+    if (
+      mode === "static" ||
+      skipEntrance ||
+      entered.current ||
+      typeof IntersectionObserver !== "function"
+    ) {
       finish();
       return;
     }
@@ -154,6 +162,7 @@ export function SkillEntrance({
     sequence,
     entersOnMount,
     order,
+    skipEntrance,
     navigation.pending,
     navigation.replay,
   ]);

@@ -7,6 +7,7 @@ import { Star, History, Layers3 } from "lucide-react";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { ScrollEntrance } from "@/components/motion/ScrollEntrance";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ProjectCard } from "./ProjectCard";
 import { FeaturedCard, RecentCard } from "./HighlightCards";
 import type { MergedProject } from "@/lib/projects";
@@ -134,6 +135,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const [quickView, setQuickView] = useState<MergedProject | null>(null);
   // The last project stays mounted after closing, so the dialog can animate out.
   const [quickViewOpen, setQuickViewOpen] = useState(false);
+  useMobileSectionReset(containerRef, extra > 0, () => setExtra(0), quickViewOpen);
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
   // a `rest` array rebuilt every render, so it never actually memoised anything.

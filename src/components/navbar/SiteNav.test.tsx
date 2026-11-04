@@ -55,12 +55,12 @@ describe("SiteNav", () => {
     expect(container.querySelectorAll('img[src="/brand/aristache-text.webp"]')).toHaveLength(1);
   });
 
-  it("disables prefetch for the homepage logo, desktop links, mobile links and CTAs", () => {
+  it("uses native anchors for the homepage logo, desktop links, mobile links and CTAs", () => {
     const { container } = render(<SiteNav socials={socials} />);
     fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
     const anchors = container.querySelectorAll('a[href^="#"]');
     expect(anchors).toHaveLength(17);
-    anchors.forEach((anchor) => expect(anchor).toHaveAttribute("data-prefetch", "false"));
+    anchors.forEach((anchor) => expect(anchor).not.toHaveAttribute("data-prefetch"));
   });
 
   it.each(["/privacy", "/gdpr"])("preserves native section navigation from %s", (pathname) => {

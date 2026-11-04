@@ -7,10 +7,8 @@ type SectionLinkProps = ComponentProps<"a"> & {
   scroll?: boolean;
 };
 
-/** Cross-page anchors need a fresh document to avoid cached fragments in Next 16.2. */
+/** Native fragment links avoid Next 16.2 appending hashes to a cached canonical URL. */
 export function SectionLink({ crossPage, scroll, ...props }: SectionLinkProps) {
-  if (crossPage) return <a {...props} />;
-  return (
-    <Link {...props} scroll={scroll} prefetch={props.href.startsWith("#") ? false : undefined} />
-  );
+  if (crossPage || props.href.startsWith("#")) return <a {...props} />;
+  return <Link {...props} scroll={scroll} />;
 }

@@ -3,6 +3,11 @@
   position: relative;
 }
 
+/* Native validation and keyboard focus must leave room for the fixed navigation. */
+.field :is(input, textarea, [role="combobox"]) {
+  scroll-margin-block: 96px 24px;
+}
+
 /* Cover the browser's autofill tint while keeping autocomplete and the focus ring. */
 .field input:is(:autofill, :-webkit-autofill) {
   -webkit-text-fill-color: var(--foreground);

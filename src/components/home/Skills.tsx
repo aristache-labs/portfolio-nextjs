@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, LazyMotion, domMax, m } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Quote } from "lucide-react";
@@ -90,6 +91,13 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
 
   const [filter, setFilter] = useState(MOST_USED);
   const [hasFiltered, setHasFiltered] = useState(false);
+  const [resetEpoch, setResetEpoch] = useState(0);
+  useMobileSectionReset(sectionRef, filter !== MOST_USED, () => {
+    setFilter(MOST_USED);
+    setHasFiltered(false);
+    // Restore the grid in one commit without replaying card entrances on return.
+    setResetEpoch((epoch) => epoch + 1);
+  });
   const active = filter !== MOST_USED && categories.includes(filter) ? filter : MOST_USED;
   const desktop = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
   const visible =
@@ -130,11 +138,12 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
 
   // Cards leaving a filter fade out in place while the rest move into their new positions.
   const cards = (
-    <AnimatePresence mode="popLayout" initial={false}>
+    <AnimatePresence key={resetEpoch} mode="popLayout" initial={false}>
       {visible.map((skill, index) => (
         <SkillEntrance
           key={`${skill.category}-${skill.name}`}
           filtered={hasFiltered}
+          skipEntrance={mobile && resetEpoch > 0 && !hasFiltered}
           order={index}
           mobile={mobile}
           landscape={mobileLandscape}

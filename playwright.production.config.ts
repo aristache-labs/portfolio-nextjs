@@ -11,6 +11,8 @@ export default defineConfig({
     "seo-security.spec.ts",
     "legal-pages.spec.ts",
     "section-navigation.spec.ts",
+    "contact-focus.spec.ts",
+    "mobile-section-reset.spec.ts",
   ],
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
