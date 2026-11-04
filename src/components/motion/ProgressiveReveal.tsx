@@ -16,6 +16,7 @@ export function ProgressiveReveal({
   delay,
   staggerChildren,
   effect = "rise",
+  fade = true,
   ease,
   viewportInset = 120,
 }: {
@@ -43,6 +44,8 @@ export function ProgressiveReveal({
     | "zoom"
     | "cascade"
     | "line";
+  /** Glass surfaces can keep their background visible while their entrance moves or scales. */
+  fade?: boolean;
 }) {
   const { mode, ready } = useAnimationPolicy();
   const controls = useAnimationControls();
@@ -119,7 +122,7 @@ export function ProgressiveReveal({
             return;
           }
           const entrance = controls.start({
-            opacity: effect === "slide-from-right" ? 1 : [0, 1],
+            opacity: effect === "slide-from-right" || !fade ? 1 : [0, 1],
             ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
             ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
             ...(effect === "fade-from-left" ? { x: [-48, 0] } : {}),
@@ -149,7 +152,16 @@ export function ProgressiveReveal({
         prepareRightSlide();
         window.addEventListener("resize", prepareRightSlide);
       } else {
-        controls.set(effect === "cascade" ? "hidden" : { opacity: 0, x: 0, y: 0 });
+        controls.set(
+          effect === "cascade"
+            ? "hidden"
+            : {
+                opacity: fade ? 0 : 1,
+                x: 0,
+                y: 0,
+                ...(effect === "zoom" && !fade ? { scale: 0.9 } : {}),
+              },
+        );
       }
       sequence.publish("prepared");
       observer.observe(node);
@@ -172,6 +184,7 @@ export function ProgressiveReveal({
     duration,
     ease,
     effect,
+    fade,
     fromRight,
     mode,
     ready,
