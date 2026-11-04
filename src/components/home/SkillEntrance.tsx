@@ -37,6 +37,7 @@ export function SkillEntrance({
   useImperativeHandle(ref, () => nodeRef.current!, []);
   const controls = useAnimationControls();
   const { mode, ready } = useAnimationPolicy();
+  const preserveSurface = mode === "expressive" || landscape;
   const [entersOnMount] = useState(filtered);
   const sequence = useMemo(() => createRevealSequence(), []);
   const entered = useRef(false);
@@ -173,7 +174,11 @@ export function SkillEntrance({
     >
       <m.div
         className="h-full"
-        initial={entersOnMount && mode !== "static" ? { opacity: 0, scale: 0.96 } : false}
+        initial={
+          entersOnMount && mode !== "static"
+            ? { opacity: preserveSurface ? 1 : 0, scale: 0.96 }
+            : false
+        }
         animate={{ opacity: 1, scale: 1 }}
         transition={{
           duration: mode === "static" ? 0 : 0.35,

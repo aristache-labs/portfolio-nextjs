@@ -32,22 +32,22 @@ export type SkillRow = {
 const MOST_USED = "Most Used";
 /** Homepage filter order. Tabs still appear only when a skill uses that category. */
 const CATEGORY_ORDER = ["Development", "Infrastructure", "Automation", "Data & Cloud"];
-/** Default tab keeps the grid to one screen. A category pill reveals that group. */
+/** Desktop has three rows; touch keeps the compact eight-skill selection. */
 const MOST_USED_LIMIT = 8;
-const GRID =
-  "mt-4 grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4 [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:mx-auto [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:max-w-[640px]";
+const DESKTOP_MOST_USED_LIMIT = 12;
+const GRID = `${responsiveCss.grid} mt-4 grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-4 [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:mx-auto [@media(orientation:landscape)_and_(max-width:1023px)_and_(max-height:500px)]:max-w-[640px]`;
 
 function byOrder(skills: SkillRow[]) {
   return [...skills].sort((a, b) => a.order - b.order);
 }
 
 /** Highest levels first; admin order breaks ties. Missing levels follow rated skills. */
-function mostUsedSkills(skills: SkillRow[]) {
+function mostUsedSkills(skills: SkillRow[], limit: number) {
   return [...skills]
     .sort(
       (a, b) => (skillPercent(b.level) ?? -1) - (skillPercent(a.level) ?? -1) || a.order - b.order,
     )
-    .slice(0, MOST_USED_LIMIT);
+    .slice(0, limit);
 }
 
 export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?: string }) {
@@ -91,8 +91,11 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const [filter, setFilter] = useState(MOST_USED);
   const [hasFiltered, setHasFiltered] = useState(false);
   const active = filter !== MOST_USED && categories.includes(filter) ? filter : MOST_USED;
+  const desktop = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
   const visible =
-    active === MOST_USED ? mostUsedSkills(ordered) : ordered.filter((s) => s.category === active);
+    active === MOST_USED
+      ? mostUsedSkills(ordered, desktop ? DESKTOP_MOST_USED_LIMIT : MOST_USED_LIMIT)
+      : ordered.filter((s) => s.category === active);
   const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
   const mobilePortrait = useMediaQuery(SKILLS_MOBILE_PORTRAIT);
   const mobileLandscape = useMediaQuery(SKILLS_MOBILE_LANDSCAPE);
@@ -157,21 +160,23 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
       className={`${responsiveCss.section} relative z-10 scroll-mt-[80px] overflow-x-clip overflow-y-visible`}
     >
       <SkillsScene section={sectionRef} enabled={scene}>
-        <div className={responsiveCss.backdrop}>
-          <SectionBackdrop
-            frame="screen"
-            focus="left"
-            video="/media/skills-v2.mp4"
-            poster="/media/skills.webp"
-            fetchPriority="low"
-            deferUntilHeroLoaded
-            deferUntilNearViewport
-            responsivePoster={{
-              srcSet:
-                "/media/skills-640.webp 640w, /media/skills-960.webp 960w, /media/skills-1280.webp 1280w, /media/skills-1536.webp 1536w",
-              aspectRatio: 3 / 2,
-            }}
-          />
+        <div className={responsiveCss.backdropFrame}>
+          <div className={responsiveCss.backdrop}>
+            <SectionBackdrop
+              frame="screen"
+              focus="left"
+              video="/media/skills-v2.mp4"
+              poster="/media/skills.webp"
+              fetchPriority="low"
+              deferUntilHeroLoaded
+              deferUntilNearViewport
+              responsivePoster={{
+                srcSet:
+                  "/media/skills-640.webp 640w, /media/skills-960.webp 960w, /media/skills-1280.webp 1280w, /media/skills-1536.webp 1536w",
+                aspectRatio: 3 / 2,
+              }}
+            />
+          </div>
         </div>
         <div
           className={`${responsiveCss.content} relative z-10 mx-auto flex max-w-7xl flex-col px-5 pt-6 pb-10 sm:px-8 md:pt-8 lg:block`}
@@ -220,7 +225,12 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 className={responsiveCss.description}
               >
                 <p className={`${subtitleCss.subtitle} mt-4 max-w-xl`}>
-                  Infrastructure on one side, web and mobile development on the other.
+                  <span className={responsiveCss.desktopDescription}>
+                    Infrastructure on one side, web and mobile development on the other.
+                  </span>
+                  <span className={responsiveCss.mobileDescription}>
+                    Infrastructure, automation &amp; development.
+                  </span>
                 </p>
               </HeadingReveal>
             </div>

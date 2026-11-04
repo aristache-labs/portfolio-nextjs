@@ -155,18 +155,34 @@ export function SkillCard({
       whileHover={mode === "expressive" ? { y: -3 } : undefined}
       className={`${portraitCss.surface} group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/6 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5`}
     >
-      <span className="relative flex size-9 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
-        {loadIcon ? icon : <noscript>{icon}</noscript>}
-      </span>
-
-      <span className="mt-3 flex items-start justify-between gap-2">
+      <span className="flex min-w-0 items-center gap-2.5">
+        <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
+          {loadIcon ? icon : <noscript>{icon}</noscript>}
+        </span>
         <span
           title={name}
           className="text-foreground min-w-0 flex-1 text-[13px] leading-snug font-semibold [overflow-wrap:anywhere]"
         >
           {name}
         </span>
-        {percent != null && (
+      </span>
+
+      {percent != null && (
+        <span className="mt-2.5 flex items-center gap-2">
+          <span
+            role="progressbar"
+            aria-label={`${name} proficiency`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={percent}
+            className="block h-0.5 min-w-0 flex-1 overflow-hidden rounded-full bg-white/8"
+          >
+            <span
+              ref={bar}
+              style={{ width: `${percent}%` }}
+              className="block h-full rounded-full bg-(image:--gradient-brand) shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.6)]"
+            />
+          </span>
           <span
             ref={label}
             aria-hidden
@@ -175,23 +191,6 @@ export function SkillCard({
           >
             {percent}%
           </span>
-        )}
-      </span>
-
-      {percent != null && (
-        <span
-          role="progressbar"
-          aria-label={`${name} proficiency`}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={percent}
-          className="mt-2.5 block h-0.5 w-full overflow-hidden rounded-full bg-white/8"
-        >
-          <span
-            ref={bar}
-            style={{ width: `${percent}%` }}
-            className="block h-full rounded-full bg-(image:--gradient-brand) shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.6)]"
-          />
         </span>
       )}
     </m.div>
