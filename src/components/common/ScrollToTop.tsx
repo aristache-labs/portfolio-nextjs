@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect, type CSSProperties } from "react";
+import { useState, useEffect, useRef, type CSSProperties } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useConsentInset } from "@/lib/consent-inset";
+import { scrollToPosition } from "@/lib/scroll-to-section";
 import styles from "./scroll-to-top.module.css";
 
 const ScrollToTop = () => {
   const [show, setShow] = useState(false);
   const reduce = useReducedMotion();
   const inset = useConsentInset();
+  const stopScroll = useRef<(() => void) | undefined>(undefined);
+  useEffect(() => () => stopScroll.current?.(), []);
 
   useEffect(() => {
     const onScroll = () => setShow(window.scrollY > 400);
@@ -23,7 +26,10 @@ const ScrollToTop = () => {
     const url = new URL(window.location.href);
     url.hash = "";
     window.history.replaceState(null, "", url);
-    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    // Same paced, cancellable scroll as the section links. Native smooth scrolling covers the
+    // whole page far faster and keeps running under a following section jump.
+    stopScroll.current?.();
+    stopScroll.current = scrollToPosition(0, reduce);
   };
 
   return (
