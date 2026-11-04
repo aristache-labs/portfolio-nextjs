@@ -38,7 +38,6 @@ export function scrollToSection(id: string, reducedMotion: boolean): () => void 
   const target = document.getElementById(id);
   if (!target) return () => {};
 
-  const start = window.scrollY;
   const destination = Math.max(
     0,
     Math.min(
@@ -51,6 +50,12 @@ export function scrollToSection(id: string, reducedMotion: boolean): () => void 
   // Let Next copy its internal history state and synchronize the router URL.
   // Passing history.state back would bypass its public replaceState integration.
   window.history.replaceState(null, "", url);
+  return scrollToPosition(destination, reducedMotion);
+}
+
+/** Paced scroll to a document offset, cancelled by any manual input. */
+export function scrollToPosition(destination: number, reducedMotion: boolean): () => void {
+  const start = window.scrollY;
   if (reducedMotion || Math.abs(destination - start) < 2) {
     window.scrollTo({ top: destination, behavior: "instant" });
     return () => {};

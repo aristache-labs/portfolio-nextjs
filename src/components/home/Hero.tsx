@@ -36,6 +36,8 @@ const PORTRAIT_POSTER_QUERY =
   "(max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 3/4)";
 const FULL_POSTER_SOURCES =
   "/media/hero-960.webp 960w, /media/hero-1280.webp 1280w, /media/hero.webp 1672w";
+/** Quiet scroll time before a paused hero video may play again. */
+const VIDEO_RESUME_DELAY = 400;
 /** Cover-fit box for the 16:9 hero plate, centered in its size container. */
 const PLATE =
   "absolute top-1/2 left-1/2 aspect-video w-[max(100cqw,calc(100cqh*16/9))] -translate-x-1/2 -translate-y-1/2";
@@ -231,21 +233,43 @@ export function Hero({
   };
 
   // Pause while scrolled away, resume only if the visitor has not paused it themselves.
+  // Resuming waits for scrolling to settle: phones rebuild the video decoder on every
+  // play(), and repeated jumps to Contact and back made landscape phones freeze, then crash.
   useEffect(() => {
     const section = sectionRef.current;
     if (!mountVideo || !section) return;
+    let visible = false;
+    let resumeTimer: ReturnType<typeof setTimeout> | undefined;
+    const scheduleResume = () => {
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        const node = videoRef.current;
+        if (visible && playingRef.current && node?.paused) node.play().catch(() => {});
+      }, VIDEO_RESUME_DELAY);
+    };
     const io = new IntersectionObserver(
       ([entry]) => {
+        visible = entry.isIntersecting;
         const node = videoRef.current;
         if (!node) return;
-        if (entry.isIntersecting) {
-          if (playingRef.current) node.play().catch(() => {});
-        } else node.pause();
+        if (visible) scheduleResume();
+        else {
+          clearTimeout(resumeTimer);
+          if (!node.paused) node.pause();
+        }
       },
       { rootMargin: "200px 0px", threshold: 0 },
     );
+    const onScroll = () => {
+      if (visible && videoRef.current?.paused) scheduleResume();
+    };
     io.observe(section);
-    return () => io.disconnect();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(resumeTimer);
+    };
   }, [mountVideo]);
   const iconSocials = ["github", "linkedin"].flatMap((id) => {
     const match = socials.find((s) => s.platform.toLowerCase() === id && s.url);

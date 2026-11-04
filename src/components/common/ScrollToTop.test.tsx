@@ -34,7 +34,7 @@ it.each(["/", "/privacy"])("clears the old hash on %s while preserving the query
     "",
     new URL(`${path}?preview=1`, window.location.origin),
   );
-  expect(scroll).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
+  expect(scroll).toHaveBeenCalledWith({ top: 0, behavior: "instant" });
 });
 
 it("reads an earlier inset and updates only its own button", () => {

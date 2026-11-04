@@ -1,4 +1,4 @@
-import { render, screen, cleanup, fireEvent } from "@testing-library/react";
+import { act, render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
@@ -238,5 +238,42 @@ describe("Hero", () => {
     fireEvent.load(image);
     expect(container.querySelector("video source")).toHaveAttribute("src", "/media/hero-v2.mp4");
     expect(container.querySelector("picture img")).toBe(image);
+  });
+  it("resumes the video only after scrolling back to the hero has settled", () => {
+    vi.useFakeTimers();
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    let paused = false;
+    vi.spyOn(HTMLMediaElement.prototype, "paused", "get").mockImplementation(() => paused);
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {
+      paused = true;
+    });
+    let notify: (entries: Partial<IntersectionObserverEntry>[]) => void = () => {};
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(callback: typeof notify) {
+          notify = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    installMatchMedia({ [HERO_VIDEO_QUERY]: true });
+    const { container } = render(<Hero profile={profile} />);
+    fireEvent.load(container.querySelector("picture img")!);
+    expect(container.querySelector("video")).not.toBeNull();
+
+    act(() => notify([{ isIntersecting: false }]));
+    expect(paused).toBe(true);
+    act(() => notify([{ isIntersecting: true }]));
+    act(() => vi.advanceTimersByTime(300));
+    fireEvent.scroll(window);
+    act(() => vi.advanceTimersByTime(300));
+    expect(play).not.toHaveBeenCalled();
+
+    act(() => vi.advanceTimersByTime(200));
+    expect(play).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 });
