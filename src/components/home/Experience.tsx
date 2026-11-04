@@ -416,6 +416,7 @@ export function Experience({
         {/* Marks where the intro starts sticking (lg:top-24, matching INTRO_TOP). */}
         <span
           ref={stickStart}
+          data-section-reset-start
           aria-hidden
           className="pointer-events-none absolute top-0 left-0 h-px w-px"
         />

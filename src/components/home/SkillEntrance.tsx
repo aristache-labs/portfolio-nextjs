@@ -28,7 +28,7 @@ export function SkillEntrance({
   children,
 }: {
   filtered: boolean;
-  /** An automatic offscreen reset restores cards without replaying their first entrance. */
+  /** An automatic reset restores cards without replaying their first entrance. */
   skipEntrance?: boolean;
   /** Position in the grid, so cards brought in by a filter arrive in turn. */
   order?: number;

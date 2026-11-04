@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
-import { flushSync } from "react-dom";
 import { useMediaQuery } from "./useMediaQuery";
 import {
   sectionNavigationInProgress,
@@ -11,34 +10,24 @@ import {
 export const MOBILE_SECTION_RESET_QUERY =
   "(max-width: 767px) and (orientation: portrait), (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
 
-let anchorSuppressions = 0;
-let previousAnchor = "";
-
-function suppressScrollAnchoring() {
-  const root = document.documentElement;
-  if (anchorSuppressions++ === 0) {
-    previousAnchor = root.style.overflowAnchor;
-    root.style.overflowAnchor = "none";
-  }
-  // Several expanded Experience cards may collapse in the same frame.
-  return () =>
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        if (--anchorSuppressions === 0) root.style.overflowAnchor = previousAnchor;
-      }),
-    );
-}
-
-/** Reset only transient mobile state after the entire owning section leaves the viewport. */
+/**
+ * Keep mobile state while reading farther down the page; reset on returning to its beginning.
+ * Collapsing content above the reader forces a scroll correction that iOS Safari renders as a
+ * visible flash, so the height only ever changes at or below the reader.
+ */
 export function useMobileSectionReset(
   ref: RefObject<HTMLElement | null>,
   changed: boolean,
   reset: () => void,
+  /** Defers checks (e.g. while a dialog is open) without forgetting a recorded departure. */
+  paused = false,
 ) {
   const mobile = useMediaQuery(MOBILE_SECTION_RESET_QUERY);
   const resetRef = useRef(reset);
+  const pausedRef = useRef(paused);
   useEffect(() => {
     resetRef.current = reset;
+    pausedRef.current = paused;
   });
 
   useEffect(() => {
@@ -48,39 +37,38 @@ export function useMobileSectionReset(
     let active = true;
     let resetDone = false;
     let departed = false;
+    // A sticky heading can stay visible deep inside its section, so an in-flow marker wins.
+    const start =
+      section.querySelector<HTMLElement>("[data-section-reset-start]") ??
+      section.querySelector("h2") ??
+      section;
     const check = () => {
-      if (!active || resetDone || sectionNavigationInProgress()) return;
+      if (!active || resetDone || pausedRef.current || sectionNavigationInProgress()) return;
       const bounds = section.getBoundingClientRect();
       const headerBottom = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
-      if (!departed && bounds.bottom > headerBottom && bounds.top < innerHeight) return;
+      const belowViewport = bounds.top >= innerHeight;
+      if (bounds.bottom <= Math.max(headerBottom, 96) || belowViewport) departed = true;
+      if (!departed) return;
+      const heading = start.getBoundingClientRect();
+      const atBeginning = heading.top >= headerBottom && heading.bottom <= innerHeight;
+      // Never shrink the document above the viewport or compensate with a scroll jump.
+      if (!belowViewport && !atBeginning) return;
       resetDone = true;
-      // Collapsing content above the reader must not move the next section in the viewport.
-      const following = [...document.querySelectorAll<HTMLElement>("section[id]")].find(
-        (node) =>
-          !section.contains(node) &&
-          !!(section.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING),
-      );
-      const anchor = bounds.top < 0 ? following : undefined;
-      const restoreAnchoring = anchor ? suppressScrollAnchoring() : undefined;
-      const before = anchor?.getBoundingClientRect().top;
-      try {
-        flushSync(() => resetRef.current());
-        if (anchor && before !== undefined) {
-          const delta = anchor.getBoundingClientRect().top - before;
-          if (Math.abs(delta) > 1) window.scrollBy({ top: delta, behavior: "instant" });
-        }
-      } finally {
-        restoreAnchoring?.();
-      }
+      resetRef.current();
     };
     const schedule = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(check);
     };
-    const observer = new IntersectionObserver(schedule, { threshold: 0 });
+    // The heading can return while a long section still intersects the viewport.
+    const observer = new IntersectionObserver(schedule, {
+      rootMargin: "-96px 0px 0px",
+      threshold: [0, 1],
+    });
     observer.observe(section);
+    if (start !== section) observer.observe(start);
     const unsubscribe = subscribeSectionNavigationComplete((target, arrived) => {
-      departed = arrived && target !== section;
+      if (arrived && target !== section) departed = true;
       schedule();
     });
     return () => {

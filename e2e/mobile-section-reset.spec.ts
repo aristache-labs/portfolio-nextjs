@@ -39,16 +39,29 @@ async function wheelTo(page: Page, id: string) {
     .toBeLessThan(8);
 }
 
+async function wheelToBeginning(page: Page, id: string) {
+  const heading = page.locator(`#${id} h2`).first();
+  const distance = await heading.evaluate((node) => node.getBoundingClientRect().top - 110);
+  await page.mouse.wheel(0, distance);
+  await expect
+    .poll(() => heading.evaluate((node) => Math.abs(node.getBoundingClientRect().top - 110)))
+    .toBeLessThan(8);
+}
+
 for (const method of ["menu", "scroll"] as const) {
-  test(`resets mobile section state after leaving by ${method}`, async ({ page }, testInfo) => {
+  test(`defers mobile resets until returning by ${method}`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name === "desktop", "Mobile-only reset behavior");
     test.setTimeout(90_000);
-    // Menu visits exercise the paced transition; wheel visits isolate layout compensation.
+    // Cover paced menu transitions and returning through native scrolling.
     await page.emulateMedia({ reducedMotion: method === "menu" ? "no-preference" : "reduce" });
     await page.goto("/");
     const leave = async (name: string, id: string) => {
       if (method === "menu") await navigate(page, name, id);
       else await wheelTo(page, id);
+    };
+    const returnTo = async (name: string, id: string) => {
+      if (method === "menu") await navigate(page, name, id);
+      else await wheelToBeginning(page, id);
     };
     await navigate(page, "About", "about");
     const more = page.locator("#about").getByRole("button", { name: "View more", exact: true });
@@ -58,7 +71,12 @@ for (const method of ["menu", "scroll"] as const) {
       page.locator("#about").getByRole("button", { name: "View less", exact: true }),
     ).toBeVisible();
     await leave("Skills", "skills");
+    await expect(
+      page.locator("#about").getByRole("button", { name: "View less", exact: true }),
+    ).toHaveAttribute("aria-expanded", "true");
+    await returnTo("About", "about");
     await expect(more).toHaveAttribute("aria-expanded", "false");
+    await leave("Skills", "skills");
 
     await page.getByRole("tab", { name: "Development", exact: true }).click();
     await expect(page.getByRole("tab", { name: "Development", exact: true })).toHaveAttribute(
@@ -66,17 +84,26 @@ for (const method of ["menu", "scroll"] as const) {
       "true",
     );
     await leave("Experience", "experience");
+    await expect(page.getByRole("tab", { name: "Development", exact: true })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await returnTo("Skills", "skills");
     await expect(page.getByRole("tab", { name: "Most Used", exact: true })).toHaveAttribute(
       "aria-selected",
       "true",
     );
+    await leave("Experience", "experience");
 
     const details = page.locator("#experience details");
     await details.nth(0).locator("summary").click();
     await details.nth(1).locator("summary").click();
     await expect(page.locator("#experience details[open]")).toHaveCount(2);
     await leave("Projects", "projects");
+    await expect(page.locator("#experience details[open]")).toHaveCount(2);
+    await returnTo("Experience", "experience");
     await expect(page.locator("#experience details[open]")).toHaveCount(0);
+    await leave("Projects", "projects");
 
     const cards = page.locator("#projects article");
     const initialCount = await cards.count();
@@ -92,6 +119,8 @@ for (const method of ["menu", "scroll"] as const) {
     await expect(page.getByRole("button", { name: "Close", exact: true })).toBeHidden();
     await expect.poll(() => cards.count()).toBeGreaterThan(initialCount);
     await leave("Contact", "contact");
+    await expect.poll(() => cards.count()).toBeGreaterThan(initialCount);
+    await returnTo("Projects", "projects");
     await expect(cards).toHaveCount(initialCount);
     await expect(showMore).toBeAttached();
   });
@@ -115,13 +144,15 @@ test("preserves desktop filters and expanded roles after navigating away", async
   await expect(page.locator("#experience details[open]")).toHaveCount(1);
 });
 
-test("keeps Experience stable while a large Skills category resets", async ({ page }, testInfo) => {
+test("keeps scroll and Experience stable after leaving a large Skills category", async ({
+  page,
+}, testInfo) => {
   test.skip(testInfo.project.name === "desktop", "Mobile layout stability");
   await page.goto("/");
   await navigate(page, "Skills", "skills");
   await page.getByRole("tab", { name: "Development", exact: true }).click();
   const motion = page.evaluate(async () => {
-    const samples: { top: number; backdrop: number }[] = [];
+    const samples: { top: number; backdrop: number; scroll: number; sourceHeight: number }[] = [];
     for (let frame = 0; frame < 240 && samples.length < 45; frame++) {
       await new Promise(requestAnimationFrame);
       const section = document.getElementById("experience")!;
@@ -132,12 +163,17 @@ test("keeps Experience stable while a large Skills category resets", async ({ pa
         (innerHeight <= 500 && innerWidth > innerHeight ? 14 : 38);
       const top = anchor.getBoundingClientRect().top;
       if (samples.length || Math.abs(top - expected) < 3)
-        samples.push({ top, backdrop: section.querySelector("img")!.getBoundingClientRect().top });
+        samples.push({
+          top,
+          backdrop: section.querySelector("img")!.getBoundingClientRect().top,
+          scroll: scrollY,
+          sourceHeight: document.getElementById("skills")!.getBoundingClientRect().height,
+        });
     }
     return samples;
   });
   await navigate(page, "Experience", "experience");
-  await expect(page.getByRole("tab", { name: "Most Used", exact: true })).toHaveAttribute(
+  await expect(page.getByRole("tab", { name: "Development", exact: true })).toHaveAttribute(
     "aria-selected",
     "true",
   );
@@ -150,5 +186,13 @@ test("keeps Experience stable while a large Skills category resets", async ({ pa
   expect(
     Math.max(...samples.map((sample) => sample.backdrop)) -
       Math.min(...samples.map((sample) => sample.backdrop)),
+  ).toBeLessThan(4);
+  expect(
+    Math.max(...samples.map((sample) => sample.scroll)) -
+      Math.min(...samples.map((sample) => sample.scroll)),
+  ).toBeLessThan(4);
+  expect(
+    Math.max(...samples.map((sample) => sample.sourceHeight)) -
+      Math.min(...samples.map((sample) => sample.sourceHeight)),
   ).toBeLessThan(4);
 });

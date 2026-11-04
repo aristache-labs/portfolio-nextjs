@@ -95,7 +95,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   useMobileSectionReset(sectionRef, filter !== MOST_USED, () => {
     setFilter(MOST_USED);
     setHasFiltered(false);
-    // Drop offscreen filter exits immediately so the grid reaches its final height in one commit.
+    // Restore the grid in one commit without replaying card entrances on return.
     setResetEpoch((epoch) => epoch + 1);
   });
   const active = filter !== MOST_USED && categories.includes(filter) ? filter : MOST_USED;
