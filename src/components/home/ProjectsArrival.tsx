@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef, type ComponentProps, type CSSProperties } from "react";
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionNavigationPending } from "@/lib/section-navigation";
+
+import { useLayoutEffect, useRef, type ComponentProps, type CSSProperties } from "react";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -26,8 +29,15 @@ export function ProjectsArrival({
   const mobile = portrait || landscape;
   const { ready, mode } = useAnimationPolicy();
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  const navigation = useSectionNavigation(ref);
+  useLayoutEffect(() => {
     const node = ref.current;
+    if (navigation.pending && node && mode !== "static") {
+      node.dataset.projectReveal = "armed";
+      return () => {
+        delete node.dataset.projectReveal;
+      };
+    }
     if (
       !mobile ||
       !ready ||
@@ -47,6 +57,7 @@ export function ProjectsArrival({
     };
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (sectionNavigationPending(node)) return;
         if (entry?.isIntersecting || (entry && entry.boundingClientRect.bottom <= 0)) reveal();
       },
       { rootMargin: "0px 0px -24px 0px", threshold: 0.08 },
@@ -58,7 +69,7 @@ export function ProjectsArrival({
       node.removeEventListener("focusin", focus);
       delete node.dataset.projectReveal;
     };
-  }, [mobile, ready, mode]);
+  }, [mobile, ready, mode, navigation.pending, navigation.replay]);
   if (!mobile) {
     return (
       <ProgressiveReveal {...desktopProps} className={className}>

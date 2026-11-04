@@ -1,5 +1,7 @@
 "use client";
 
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+
 import Image from "next/image";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import { animate, m } from "framer-motion";
@@ -46,6 +48,7 @@ export function SkillCard({
   const bar = useRef<HTMLSpanElement>(null);
   const label = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
+  const navigation = useSectionNavigation(card, () => !started.current);
   const entry = useSkillEntry();
 
   // Inside the pinned scene the level follows the card's entry, in both scroll directions.
@@ -66,7 +69,7 @@ export function SkillCard({
   }, [entry, percent]);
 
   useEffect(() => {
-    if (entry) return;
+    if (entry || navigation.pending) return;
     if (!ready || percent == null || !card.current || !bar.current || !label.current) return;
     const node = card.current;
     const fill = bar.current;
@@ -109,7 +112,11 @@ export function SkillCard({
       finish();
     } else if (sequence) {
       unsubscribe = sequence.subscribe((phase) => {
-        if (phase === "prepared") update(0);
+        if (phase === "prepared") {
+          animation?.stop();
+          started.current = false;
+          update(0);
+        }
         if (phase === "complete") start(0);
         if (phase === "static") finish();
       });
@@ -136,7 +143,7 @@ export function SkillCard({
       window.removeEventListener("scrollend", onScrollEnd);
       update(percent);
     };
-  }, [entry, mode, ready, percent, sequence]);
+  }, [entry, mode, ready, percent, sequence, navigation.pending, navigation.replay]);
   const icon = (
     <Image
       src={src}

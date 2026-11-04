@@ -16,11 +16,11 @@
 
 @media (max-width: 767px) and (orientation: portrait) {
   .section {
-    min-height: max(100lvh, var(--portrait-screen-height, 0px));
+    min-height: 0;
   }
 
   .content {
-    padding-bottom: 114px;
+    padding-bottom: 164px;
   }
 }
 

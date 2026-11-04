@@ -1,5 +1,7 @@
 "use client";
 
+import { beginSectionNavigation } from "./section-navigation";
+
 const SECTION_NAV_GAP = 38;
 /** Landscape phones have too little height to spare the full gap. */
 const SHORT_LANDSCAPE_NAV_GAP = 14;
@@ -50,14 +52,20 @@ export function scrollToSection(id: string, reducedMotion: boolean): () => void 
   // Let Next copy its internal history state and synchronize the router URL.
   // Passing history.state back would bypass its public replaceState integration.
   window.history.replaceState(null, "", url);
-  return scrollToPosition(destination, reducedMotion);
+  const finish = beginSectionNavigation(target);
+  return scrollToPosition(destination, reducedMotion, finish);
 }
 
 /** Paced scroll to a document offset, cancelled by any manual input. */
-export function scrollToPosition(destination: number, reducedMotion: boolean): () => void {
+export function scrollToPosition(
+  destination: number,
+  reducedMotion: boolean,
+  onFinish?: () => void,
+): () => void {
   const start = window.scrollY;
   if (reducedMotion || Math.abs(destination - start) < 2) {
     window.scrollTo({ top: destination, behavior: "instant" });
+    onFinish?.();
     return () => {};
   }
 
@@ -70,6 +78,7 @@ export function scrollToPosition(destination: number, reducedMotion: boolean): (
     window.removeEventListener("touchmove", stop);
     window.removeEventListener("keydown", onKey);
     window.removeEventListener("pointerdown", stop);
+    onFinish?.();
   };
   const onKey = (event: KeyboardEvent) => {
     if (

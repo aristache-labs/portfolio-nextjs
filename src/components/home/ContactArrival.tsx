@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionNavigationPending } from "@/lib/section-navigation";
+
+import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./contact-motion.module.css";
 
@@ -22,8 +25,21 @@ export function ContactArrival({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { mode, ready } = useAnimationPolicy();
-  useEffect(() => {
+  const navigation = useSectionNavigation(ref);
+  useLayoutEffect(() => {
     const node = ref.current;
+    if (navigation.pending && node && mode !== "static") {
+      node.dataset.contactReveal = "armed";
+      node.querySelectorAll<HTMLElement>("[data-contact-step]").forEach((step) => {
+        step.dataset.contactReveal = "armed";
+      });
+      return () => {
+        delete node.dataset.contactReveal;
+        node.querySelectorAll<HTMLElement>("[data-contact-step]").forEach((step) => {
+          delete step.dataset.contactReveal;
+        });
+      };
+    }
     if (!node || !ready || mode === "static" || typeof IntersectionObserver !== "function") return;
     const targets = [node, ...node.querySelectorAll<HTMLElement>("[data-contact-step]")];
     if (node.contains(document.activeElement)) return;
@@ -32,6 +48,7 @@ export function ContactArrival({
     });
     const observer = new IntersectionObserver(
       (entries) => {
+        if (sectionNavigationPending(node)) return;
         if (node.dataset.contactReveal === "static") return;
         for (const entry of entries) {
           if (!entry.isIntersecting && entry.boundingClientRect.bottom > 0) continue;
@@ -58,7 +75,7 @@ export function ContactArrival({
         delete target.dataset.contactReveal;
       });
     };
-  }, [mode, ready, kind]);
+  }, [mode, ready, kind, navigation.pending, navigation.replay]);
   return (
     <div
       ref={ref}

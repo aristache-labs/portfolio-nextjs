@@ -8,7 +8,9 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { useMotionValue, useScroll, type MotionValue } from "framer-motion";
+import { animate, useMotionValue, useScroll, type MotionValue } from "framer-motion";
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionNavigationPending } from "@/lib/section-navigation";
 import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
 import styles from "./skills-sequence.module.css";
 
@@ -29,10 +31,13 @@ function SceneDriver({
   peak: MotionValue<number>;
 }) {
   const { scrollY } = useScroll();
+  const navigation = useSectionNavigation(section, () => peak.get() === 0);
 
   useEffect(() => {
     const node = section.current;
-    if (!node) return;
+    if (!node || navigation.pending) return;
+    let entrance: ReturnType<typeof animate> | undefined;
+    let entering = false;
     // The orbit lights up together with the cards and stays lit.
     const paint = () =>
       node.style.setProperty(
@@ -40,6 +45,7 @@ function SceneDriver({
         String(smoothstep(phaseProgress(peak.get(), 0.3, 1))),
       );
     const update = () => {
+      if (sectionNavigationPending(node) || entering) return;
       const current = Math.max(
         0,
         Math.min(1, 1 - node.getBoundingClientRect().top / (START * innerHeight)),
@@ -49,15 +55,53 @@ function SceneDriver({
       paint();
     };
     paint();
-    update();
+    if (navigation.replay) {
+      const destination = Math.max(
+        0,
+        Math.min(1, 1 - node.getBoundingClientRect().top / (START * innerHeight)),
+      );
+      entering = true;
+      entrance = animate(peak.get(), destination, {
+        duration: 1,
+        ease: [0.22, 1, 0.36, 1],
+        onUpdate: (value) => {
+          peak.set(Math.max(peak.get(), value));
+          paint();
+        },
+        onComplete: () => {
+          entering = false;
+        },
+      });
+    } else update();
+    const interrupt = () => {
+      if (!entering) return;
+      entering = false;
+      entrance?.stop();
+      update();
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (
+        ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " ", "Escape"].includes(
+          event.key,
+        )
+      )
+        interrupt();
+    };
     const unsubscribe = scrollY.on("change", update);
+    window.addEventListener("wheel", interrupt, { passive: true });
+    window.addEventListener("touchmove", interrupt, { passive: true });
+    window.addEventListener("keydown", onKey);
     window.addEventListener("resize", update);
     return () => {
       unsubscribe();
+      entrance?.stop();
+      window.removeEventListener("wheel", interrupt);
+      window.removeEventListener("touchmove", interrupt);
+      window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", update);
       node.style.removeProperty("--skills-light");
     };
-  }, [peak, scrollY, section]);
+  }, [peak, scrollY, section, navigation.pending, navigation.replay]);
   return null;
 }
 

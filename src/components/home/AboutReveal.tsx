@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionNavigationPending } from "@/lib/section-navigation";
+
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 
@@ -30,13 +33,21 @@ export function AboutReveal({
     mode !== "static";
   const rootMargin = ((desktopPinned || tallTouch) && pinnedRootMargin) || DEFAULT_ROOT_MARGIN;
 
-  useEffect(() => {
+  const navigation = useSectionNavigation(ref, () => !played.current);
+  useLayoutEffect(() => {
     const node = ref.current;
+    if (navigation.pending && node && mode !== "static") {
+      node.dataset.reveal = "armed";
+      return () => {
+        delete node.dataset.reveal;
+      };
+    }
     if (!ready || !node || played.current || mode === "static") return;
     if (typeof IntersectionObserver !== "function") return;
     node.dataset.reveal = "armed";
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (sectionNavigationPending(node)) return;
         if (!entry?.isIntersecting) return;
         played.current = true;
         node.dataset.reveal = "play";
@@ -49,7 +60,7 @@ export function AboutReveal({
       observer.disconnect();
       if (!played.current) delete node.dataset.reveal;
     };
-  }, [mode, ready, rootMargin]);
+  }, [mode, ready, rootMargin, navigation.pending, navigation.replay]);
 
   return (
     <div ref={ref} className={className}>

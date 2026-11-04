@@ -1,10 +1,26 @@
+.projects {
+  padding-bottom: 48px;
+}
+
+@media (min-width: 768px) {
+  .projects {
+    padding-bottom: 72px;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 767px) {
+  .projects {
+    padding-top: 24px;
+  }
+}
+
 @media (min-width: 1024px) and (pointer: fine) {
   .experience {
     padding-bottom: 40px;
   }
 
   .projects {
-    padding-top: 48px;
+    padding-top: 64px;
     /* Heading starts 80px below the viewport top when reached by an anchor. */
     scroll-margin-top: 32px;
   }
@@ -16,7 +32,7 @@
   }
 
   .projects {
-    padding-top: 40px;
+    padding-top: 56px;
     scroll-margin-top: 40px;
   }
 }

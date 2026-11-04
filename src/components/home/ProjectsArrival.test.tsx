@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { installMatchMedia } from "@/test/matchMedia";
 import { PROJECTS_PORTRAIT_QUERY, ProjectsArrival } from "./ProjectsArrival";
+import { beginSectionNavigation } from "@/lib/section-navigation";
 
 const observers = new Map<Element, IntersectionObserverCallback>();
 
@@ -28,6 +29,43 @@ afterEach(() => {
 });
 
 describe("Projects mobile arrivals", () => {
+  it("keeps unplayed cards prepared throughout menu travel and arrival", () => {
+    const { container } = render(
+      <section id="projects">
+        <ProjectsArrival>Project</ProjectsArrival>
+      </section>,
+    );
+    const section = container.firstElementChild as HTMLElement;
+    const card = section.firstElementChild!;
+    let arrive!: () => void;
+    act(() => {
+      arrive = beginSectionNavigation(section);
+    });
+    expect(card).toHaveAttribute("data-project-reveal", "armed");
+    act(() => {
+      observers.get(card)!(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      );
+    });
+    expect(card).toHaveAttribute("data-project-reveal", "armed");
+    act(() => arrive());
+    expect(card).toHaveAttribute("data-project-reveal", "armed");
+    act(() => {
+      observers.get(card)!(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      );
+    });
+    expect(card).toHaveAttribute("data-project-reveal", "play");
+    act(() => {
+      arrive = beginSectionNavigation(section);
+    });
+    expect(card).toHaveAttribute("data-project-reveal", "play");
+    act(() => arrive());
+    expect(card).toHaveAttribute("data-project-reveal", "play");
+  });
+
   it("reveals each card independently in Strict Mode", () => {
     const { container } = render(
       <StrictMode>

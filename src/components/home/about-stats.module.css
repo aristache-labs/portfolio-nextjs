@@ -163,6 +163,12 @@
   }
 }
 
+@media (min-width: 1024px) and (pointer: fine) {
+  .results {
+    margin-top: 32px;
+  }
+}
+
 @media (min-width: 1024px) {
   /* Same measure as the detailed biography, so the portrait sits beside the text. */
   .biography {
