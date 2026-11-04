@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionNavigationPending } from "@/lib/section-navigation";
+
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./skills-mobile-motion.module.css";
 
@@ -20,8 +23,15 @@ export function SkillsMobileReveal({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { mode, ready } = useAnimationPolicy();
-  useEffect(() => {
+  const navigation = useSectionNavigation(ref);
+  useLayoutEffect(() => {
     const node = ref.current;
+    if (navigation.pending && node && mode !== "static") {
+      node.dataset.reveal = "armed";
+      return () => {
+        delete node.dataset.reveal;
+      };
+    }
     if (!node || !ready || mode === "static" || typeof IntersectionObserver !== "function") return;
     node.dataset.reveal = "armed";
     const show = () => {
@@ -30,6 +40,7 @@ export function SkillsMobileReveal({
     };
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (sectionNavigationPending(node)) return;
         if (entry?.isIntersecting || (entry && entry.boundingClientRect.bottom < 0)) show();
       },
       { rootMargin: "0px 0px -32px 0px", threshold: 0.1 },
@@ -41,7 +52,7 @@ export function SkillsMobileReveal({
       node.removeEventListener("focusin", show);
       delete node.dataset.reveal;
     };
-  }, [mode, ready]);
+  }, [mode, ready, navigation.pending, navigation.replay]);
   return (
     <div ref={ref} className={`${className ?? ""} ${styles.reveal}`} data-kind={kind}>
       {children}

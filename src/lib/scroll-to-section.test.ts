@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { scrollToSection, sectionScrollPosition } from "./scroll-to-section";
+import { subscribeSectionNavigation } from "./section-navigation";
 
 afterEach(() => {
   document.body.innerHTML = "";
@@ -23,6 +24,42 @@ it("replaces an old anchor without bypassing Next's history integration", () => 
   );
   expect(window.location.hash).toBe("#skills");
 });
+
+it.each(["arrival", "wheel", "touchmove", "cancel"])(
+  "releases waiting entrances on %s exactly once",
+  (reason) => {
+    document.body.innerHTML = '<section id="about"></section><section id="projects"></section>';
+    const target = document.getElementById("about")!;
+    const phases = vi.fn();
+    const unrelated = vi.fn();
+    const unsubscribe = subscribeSectionNavigation(() => target, phases);
+    const unsubscribeOther = subscribeSectionNavigation(
+      () => document.getElementById("projects"),
+      unrelated,
+    );
+    vi.spyOn(target, "getBoundingClientRect").mockReturnValue({ top: 1000 } as DOMRect);
+    vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(4000);
+    vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    let tick!: FrameRequestCallback;
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      tick = callback;
+      return 1;
+    });
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => {});
+    const cancel = scrollToSection("about", false);
+    expect(phases.mock.calls).toEqual([[true]]);
+    expect(unrelated).not.toHaveBeenCalled();
+    if (reason === "arrival") {
+      tick(0);
+      tick(2000);
+    } else if (reason === "cancel") cancel();
+    else window.dispatchEvent(new Event(reason));
+    cancel();
+    expect(phases.mock.calls).toEqual([[true], [false]]);
+    unsubscribe();
+    unsubscribeOther();
+  },
+);
 
 describe("sectionScrollPosition", () => {
   it.each([72, 64])("keeps a 38px content gap below a %ipx navigation bar", (height) => {

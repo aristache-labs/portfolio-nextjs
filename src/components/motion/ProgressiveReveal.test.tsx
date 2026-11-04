@@ -7,6 +7,7 @@ import { ProgressiveReveal } from "./ProgressiveReveal";
 import { SpringCount } from "./SpringCount";
 import { SkillCard } from "@/components/home/SkillCard";
 import { SkillEntrance } from "@/components/home/SkillEntrance";
+import { beginSectionNavigation } from "@/lib/section-navigation";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 
 const controls = vi.hoisted(() => ({ set: vi.fn(), start: vi.fn(), stop: vi.fn() }));
@@ -102,6 +103,101 @@ afterEach(() => {
 });
 
 describe("ProgressiveReveal", () => {
+  it.each([
+    [1440, 900, true],
+    [390, 844, false],
+    [844, 390, false],
+  ])(
+    "waits for the first arrival and never restarts counting on later menu visits at %sx%s",
+    async (width, height, desktop) => {
+      vi.stubGlobal("innerWidth", width);
+      vi.stubGlobal("innerHeight", height);
+      matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+      const { container } = render(
+        <section id="about">
+          <ProgressiveReveal effect="zoom">
+            <SpringCount value="60%" />
+          </ProgressiveReveal>
+        </section>,
+      );
+      const section = container.firstElementChild as HTMLElement;
+      const panel = section.firstElementChild!;
+      for (let visit = 1; visit <= 2; visit++) {
+        let arrive!: () => void;
+        act(() => {
+          arrive = beginSectionNavigation(section);
+        });
+        vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+          top: 100,
+          bottom: 300,
+        } as DOMRect);
+        intersect(panel);
+        act(() => window.dispatchEvent(new Event("scrollend")));
+        expect(count.animate).toHaveBeenCalledTimes(visit == 1 ? 0 : 1);
+        if (visit === 1) expect(panel.querySelector("[aria-hidden]")).toHaveTextContent("0%");
+        act(() => arrive());
+        await act(async () => intersect(panel));
+        expect(count.animate).toHaveBeenCalledTimes(1);
+        expect(count.animate).toHaveBeenLastCalledWith(
+          0,
+          60,
+          expect.objectContaining({ delay: 0 }),
+        );
+      }
+    },
+  );
+
+  it.each([
+    [1440, 900, true],
+    [390, 844, false],
+    [844, 390, false],
+  ])("keeps counting after an anchor jump at %sx%s", (width, height, desktop) => {
+    vi.stubGlobal("innerWidth", width);
+    vi.stubGlobal("innerHeight", height);
+    matches[EXPRESSIVE_MOTION_QUERY] = desktop;
+    render(
+      <ProgressiveReveal effect="zoom" countOnJump>
+        <SpringCount value="60%" />
+      </ProgressiveReveal>,
+    );
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+      top: height - 80,
+      bottom: height + 40,
+    } as DOMRect);
+    act(() => window.dispatchEvent(new Event("scrollend")));
+    expect(count.animate).toHaveBeenCalledTimes(1);
+    expect(count.animate).toHaveBeenCalledWith(0, 60, expect.objectContaining({ type: "spring" }));
+    act(() => window.dispatchEvent(new Event("scrollend")));
+    expect(count.animate).toHaveBeenCalledTimes(1);
+  });
+
+  it("counts an already visible panel on mount when enabled", () => {
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+      top: 100,
+      bottom: 200,
+    } as DOMRect);
+    render(
+      <ProgressiveReveal effect="zoom" countOnJump>
+        <SpringCount value="60%" />
+      </ProgressiveReveal>,
+    );
+    expect(count.animate).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps anchor-jump counters static with reduced motion", () => {
+    matches[REDUCED_MOTION_QUERY] = true;
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+      top: 100,
+      bottom: 200,
+    } as DOMRect);
+    render(
+      <ProgressiveReveal effect="zoom" countOnJump>
+        <SpringCount value="60%" />
+      </ProgressiveReveal>,
+    );
+    expect(count.animate).not.toHaveBeenCalled();
+  });
+
   it("keeps glass opaque from preparation through a zoom entrance when fading is disabled", () => {
     const { container } = render(
       <ProgressiveReveal effect="zoom" fade={false}>

@@ -1,6 +1,8 @@
 import { act, cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ScrollEntrance } from "./ScrollEntrance";
+import { beginSectionNavigation } from "@/lib/section-navigation";
+import { installMatchMedia } from "@/test/matchMedia";
 
 const scroll = vi.hoisted(() => ({
   y: null as import("framer-motion").MotionValue<number> | null,
@@ -29,9 +31,35 @@ const scrollTo = (travelled: number) => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("ScrollEntrance", () => {
+  it("keeps its starting state while the menu scrolls and at arrival", () => {
+    installMatchMedia();
+    top = topAt(-0.5);
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+      () => ({ top, bottom: top + 200 }) as DOMRect,
+    );
+    const { container, getByText } = render(
+      <section id="contact">
+        <ScrollEntrance enabled from="left">
+          <span>Card</span>
+        </ScrollEntrance>
+      </section>,
+    );
+    const entrance = getByText("Card").parentElement!;
+    let arrive!: () => void;
+    act(() => {
+      arrive = beginSectionNavigation(container.firstElementChild as HTMLElement);
+    });
+    expect(entrance.style.getPropertyValue("--entry")).toBe("0");
+    scrollTo(0.8);
+    expect(entrance.style.getPropertyValue("--entry")).toBe("0");
+    act(() => arrive());
+    expect(entrance.style.getPropertyValue("--entry")).toBe("0");
+  });
+
   it("enters from its own position and stays when scrolling back up", () => {
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
       () => ({ top }) as DOMRect,

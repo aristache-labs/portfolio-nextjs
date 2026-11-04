@@ -4,6 +4,7 @@ import { animate } from "framer-motion";
 import { useContext, useEffect, useRef } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { RevealSequence } from "./RevealSequence";
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 
 /** Preserve the supplied grouping, precision, prefix and suffix. */
 export function countFormat(value: string) {
@@ -32,12 +33,17 @@ export function SpringCount({ value }: { value: string }) {
   const element = useRef<HTMLSpanElement>(null);
   const output = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
+  const navigation = useSectionNavigation(element, () => !started.current);
 
   useEffect(() => {
     if (!ready || !element.current || !output.current) return;
     const node = element.current;
     const text = output.current;
     const number = countFormat(value);
+    if (navigation.pending) {
+      if (number && mode !== "static") text.textContent = number.format(0);
+      return;
+    }
     let active = true;
     let observer: IntersectionObserver | undefined;
     let animation: ReturnType<typeof animate> | undefined;
@@ -73,7 +79,11 @@ export function SpringCount({ value }: { value: string }) {
     if (sequence && mode !== "static" && number && !started.current) {
       // The enclosing zoom owns the viewport trigger and signals its actual completion.
       unsubscribe = sequence.subscribe((phase) => {
-        if (phase === "prepared") text.textContent = number.format(0);
+        if (phase === "prepared") {
+          animation?.stop();
+          started.current = false;
+          text.textContent = number.format(0);
+        }
         if (phase === "complete") start(0);
         if (phase === "static") finish();
       });
@@ -113,7 +123,7 @@ export function SpringCount({ value }: { value: string }) {
       window.removeEventListener("scrollend", onScrollEnd);
       text.textContent = value;
     };
-  }, [mode, ready, sequence, value]);
+  }, [mode, ready, sequence, value, navigation.pending, navigation.replay]);
 
   return (
     <span ref={element} className="relative inline-grid tabular-nums">

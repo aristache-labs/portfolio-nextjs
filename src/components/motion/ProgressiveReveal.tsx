@@ -1,9 +1,11 @@
 "use client";
 
 import { m, useAnimationControls } from "framer-motion";
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useMemo, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { createRevealSequence, RevealSequence } from "./RevealSequence";
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionNavigationPending } from "@/lib/section-navigation";
 
 const VISIBLE = { opacity: 1, x: 0, y: 0 };
 
@@ -19,6 +21,7 @@ export function ProgressiveReveal({
   fade = true,
   ease,
   viewportInset = 120,
+  countOnJump = false,
 }: {
   children: ReactNode;
   className?: string;
@@ -33,6 +36,8 @@ export function ProgressiveReveal({
   staggerChildren?: number;
   ease?: [number, number, number, number];
   viewportInset?: number;
+  /** Keep the first counter animation when anchor navigation skips the entrance. */
+  countOnJump?: boolean;
   effect?:
     | "rise"
     | "fade"
@@ -52,11 +57,17 @@ export function ProgressiveReveal({
   const element = useRef<HTMLDivElement>(null);
   const finished = useRef(false);
   const sequence = useMemo(() => createRevealSequence(), []);
+  const navigation = useSectionNavigation(element, () => !finished.current);
   const fromRight = effect === "slide-from-right" || effect === "fade-from-right";
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!ready || !element.current) return;
     const node = element.current;
+    if (navigation.pending) {
+      controls.stop();
+      sequence.publish("prepared");
+      return;
+    }
     let observer: IntersectionObserver | undefined;
     let active = true;
     let settled = false;
@@ -67,6 +78,13 @@ export function ProgressiveReveal({
       controls.set({ opacity: effect === "fade-from-right" ? 0 : 1, x: rightStart, y: 0 });
     };
     const show = () => {
+      const bounds = node.getBoundingClientRect();
+      const countVisible =
+        countOnJump &&
+        !finished.current &&
+        mode !== "static" &&
+        bounds.top < window.innerHeight &&
+        bounds.bottom > 0;
       settled = true;
       finished.current = true;
       observer?.disconnect();
@@ -80,9 +98,13 @@ export function ProgressiveReveal({
               ? { ...VISIBLE, scaleX: 1 }
               : VISIBLE,
       );
-      sequence.publish("static");
+      sequence.publish(countVisible ? "complete" : "static");
     };
     const onScrollEnd = () => {
+      if (sectionNavigationPending(node)) return;
+      // The observer owns the first entrance after our explicit navigation completion.
+      const bounds = node.getBoundingClientRect();
+      if (navigation.replay && bounds.top < window.innerHeight && bounds.bottom > 0) return;
       // A jump can skip the observer's intersection entirely. Check once after scrolling.
       if (!finished.current && node.getBoundingClientRect().top < window.innerHeight) show();
     };
@@ -95,14 +117,14 @@ export function ProgressiveReveal({
       finished.current ||
       mode === "static" ||
       typeof IntersectionObserver !== "function" ||
-      node.getBoundingClientRect().top <= window.innerHeight
+      (!navigation.replay && node.getBoundingClientRect().top <= window.innerHeight)
     ) {
       show();
     } else {
       const expressive = mode === "expressive";
       observer = new IntersectionObserver(
         (entries) => {
-          if (!active || finished.current) return;
+          if (!active || finished.current || sectionNavigationPending(node)) return;
           const entry = entries.find((item) => item.target === node);
           if (!entry) return;
           if (!entry.isIntersecting) {
@@ -179,6 +201,9 @@ export function ProgressiveReveal({
     };
   }, [
     controls,
+    navigation.pending,
+    navigation.replay,
+    countOnJump,
     delay,
     desktopDelay,
     duration,

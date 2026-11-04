@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionNavigationPending } from "@/lib/section-navigation";
+
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./experience-layout.module.css";
 
@@ -20,8 +23,15 @@ export function ExperienceMobileReveal({
 }) {
   const target = useRef<HTMLDivElement>(null);
   const { mode, ready } = useAnimationPolicy();
-  useEffect(() => {
+  const navigation = useSectionNavigation(target);
+  useLayoutEffect(() => {
     const node = target.current;
+    if (navigation.pending && node && mode !== "static") {
+      node.dataset.mobileReveal = "armed";
+      return () => {
+        delete node.dataset.mobileReveal;
+      };
+    }
     if (!node || !ready || mode === "static" || typeof IntersectionObserver !== "function") return;
     node.dataset.mobileReveal = "armed";
     const reveal = () => {
@@ -34,6 +44,7 @@ export function ExperienceMobileReveal({
     };
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (sectionNavigationPending(node)) return;
         if (entry?.isIntersecting || (entry && entry.boundingClientRect.bottom <= 0)) reveal();
       },
       { rootMargin: "0px 0px -24px 0px", threshold: 0.08 },
@@ -45,7 +56,7 @@ export function ExperienceMobileReveal({
       node.removeEventListener("focusin", focus);
       delete node.dataset.mobileReveal;
     };
-  }, [mode, ready]);
+  }, [mode, ready, navigation.pending, navigation.replay]);
   return (
     <div
       ref={target}

@@ -1,5 +1,8 @@
 "use client";
 
+import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionNavigationPending } from "@/lib/section-navigation";
+
 import { m, useAnimationControls } from "framer-motion";
 import {
   useContext,
@@ -42,13 +45,14 @@ export function SkillEntrance({
   const sequence = useMemo(() => createRevealSequence(), []);
   const entered = useRef(false);
   const filterEntered = useRef(!filtered);
+  const navigation = useSectionNavigation(nodeRef, () => !entered.current);
   const complete = () => {
     if (mode === "static") sequence.publish("static");
     else if (entered.current && filterEntered.current) sequence.publish("complete");
   };
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || navigation.pending) return;
     if (mobile) return;
     if (mode === "static") {
       sequence.publish("static");
@@ -68,11 +72,11 @@ export function SkillEntrance({
         else sequence.publish("prepared");
       }
     });
-  }, [entersOnMount, mode, parent, ready, sequence, mobile]);
+  }, [entersOnMount, mode, parent, ready, sequence, mobile, navigation.pending, navigation.replay]);
 
   useEffect(() => {
     const node = nodeRef.current;
-    if (!mobile || !ready || !node) return;
+    if (!mobile || !ready || !node || navigation.pending) return;
     let active = true;
     let started = false;
     const settled = { opacity: 1, x: 0, y: 0, scale: 1 };
@@ -115,6 +119,7 @@ export function SkillEntrance({
     };
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (sectionNavigationPending(node)) return;
         if (entry?.isIntersecting && entry.intersectionRatio >= 0.1) start();
         else if (entry && entry.boundingClientRect.bottom <= 0) {
           observer.disconnect();
@@ -140,7 +145,18 @@ export function SkillEntrance({
       node.removeEventListener("focusin", focus);
       window.removeEventListener("scrollend", skipped);
     };
-  }, [mobile, landscape, ready, mode, controls, sequence, entersOnMount, order]);
+  }, [
+    mobile,
+    landscape,
+    ready,
+    mode,
+    controls,
+    sequence,
+    entersOnMount,
+    order,
+    navigation.pending,
+    navigation.replay,
+  ]);
 
   return (
     <m.div

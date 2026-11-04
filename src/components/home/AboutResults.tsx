@@ -10,7 +10,7 @@ export function AboutResults({ children, className }: { children: ReactNode; cla
     "(min-width: 1024px) and (pointer: fine), (orientation: landscape) and (pointer: coarse)",
   );
   return (
-    <ProgressiveReveal effect="zoom" fade={!opaque} className={className}>
+    <ProgressiveReveal effect="zoom" fade={!opaque} className={className} countOnJump>
       {children}
     </ProgressiveReveal>
   );
