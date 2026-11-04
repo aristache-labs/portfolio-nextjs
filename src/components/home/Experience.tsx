@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 
 import { AnimatePresence, m, useScroll } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
@@ -202,6 +203,8 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
   const previewCount = desktopDisclosure ? 3 : desktop ? 2 : 1;
   const [expanded, setExpanded] = useState(false);
   const [desktopExpanded, setDesktopExpanded] = useState(false);
+  const entryRef = useRef<HTMLLIElement>(null);
+  useMobileSectionReset(entryRef, expanded, () => setExpanded(false));
 
   const inner = (
     <div className="flex gap-4 sm:gap-5">
@@ -295,7 +298,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
   );
 
   return (
-    <li className={`${styles.entry} relative`} data-experience-id={exp.id}>
+    <li ref={entryRef} className={`${styles.entry} relative`} data-experience-id={exp.id}>
       <span
         aria-hidden
         data-timeline-dot

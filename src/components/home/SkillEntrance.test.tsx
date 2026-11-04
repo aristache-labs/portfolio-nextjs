@@ -49,6 +49,18 @@ afterEach(() => {
 });
 
 describe("mobile SkillEntrance", () => {
+  it("restores cards in their final state after an automatic offscreen reset", () => {
+    render(
+      <LazyMotion features={domMax}>
+        <SkillEntrance mobile filtered={false} skipEntrance>
+          <Content />
+        </SkillEntrance>
+      </LazyMotion>,
+    );
+    expect(phases.at(-1)).toBe("static");
+    expect(phases).not.toContain("prepared");
+  });
+
   it("waits for its own intersection and publishes completion after the entrance", async () => {
     const { unmount } = render(<Card />);
     expect(phases.at(-1)).toBe("prepared");

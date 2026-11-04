@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
+import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ChevronDown } from "lucide-react";
 import styles from "./about-bio.module.css";
 import { AboutReveal } from "./AboutReveal";
@@ -28,6 +29,8 @@ function Paragraphs({ text }: { text: string }) {
 
 export function AboutBio({ bio }: { bio: string }) {
   const [expanded, setExpanded] = useState(false);
+  const mobileRef = useRef<HTMLDivElement>(null);
+  useMobileSectionReset(mobileRef, expanded, () => setExpanded(false));
   const id = useId();
   const match = bio.toLowerCase().indexOf(END);
   const firstParagraph = bio.search(/\n\s*\n/);
@@ -40,7 +43,7 @@ export function AboutBio({ bio }: { bio: string }) {
       <div className={`${styles.desktop} space-y-4`}>
         <Paragraphs text={bio} />
       </div>
-      <div className={styles.mobile}>
+      <div ref={mobileRef} className={styles.mobile}>
         <div className="space-y-4">
           <Paragraphs text={intro} />
         </div>

@@ -12,6 +12,7 @@ export default defineConfig({
     "legal-pages.spec.ts",
     "section-navigation.spec.ts",
     "contact-focus.spec.ts",
+    "mobile-section-reset.spec.ts",
   ],
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
