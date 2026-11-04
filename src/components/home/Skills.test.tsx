@@ -316,6 +316,20 @@ describe("Skills", () => {
     expect(screen.getByText("Skill 8")).toBeInTheDocument();
   });
 
+  it.each([false, true])("limits Most Used by desktop layout (desktop=%s)", (desktop) => {
+    installMatchMedia({ "(min-width: 1024px) and (pointer: fine)": desktop });
+    const many = Array.from({ length: 14 }, (_, i) => ({
+      name: `Technology ${i}`,
+      iconPath: "/skills/x.svg",
+      category: "Development",
+      order: i,
+      level: String(100 - i),
+    }));
+    const { container } = render(<Skills skills={many} />);
+    const names = [...container.querySelectorAll("[title]")].map((n) => n.getAttribute("title"));
+    expect(names).toEqual(many.slice(0, desktop ? 12 : 8).map((skill) => skill.name));
+  });
+
   it("ranks Most Used by level then admin order and keeps stored names", async () => {
     const ranked = [
       { name: "Missing", order: 0, level: null },

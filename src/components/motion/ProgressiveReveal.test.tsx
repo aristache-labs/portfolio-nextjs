@@ -102,6 +102,19 @@ afterEach(() => {
 });
 
 describe("ProgressiveReveal", () => {
+  it("keeps glass opaque from preparation through a zoom entrance when fading is disabled", () => {
+    const { container } = render(
+      <ProgressiveReveal effect="zoom" fade={false}>
+        Results
+      </ProgressiveReveal>,
+    );
+    expect(controls.set).toHaveBeenLastCalledWith(expect.objectContaining({ opacity: 1 }));
+    intersect(container.firstElementChild!);
+    expect(controls.start).toHaveBeenCalledWith(
+      expect.objectContaining({ opacity: 1, scale: [0.9, 1] }),
+    );
+  });
+
   it.each([false, true])("fades Featured cards in from the left on desktop=%s", (desktop) => {
     matches[EXPRESSIVE_MOTION_QUERY] = desktop;
     const { container } = render(

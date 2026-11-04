@@ -44,6 +44,12 @@
   }
 }
 
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+  .buttonReveal {
+    width: calc(100% + var(--about-bio-extra-width, 0px));
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .toggle[aria-expanded="false"] {
     animation: gentle-float 4s ease-in-out infinite;

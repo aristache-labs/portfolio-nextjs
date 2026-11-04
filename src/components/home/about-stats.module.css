@@ -444,6 +444,8 @@
    on the right, with the four results in one row below. */
 @media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
   .section {
+    --about-portrait-width: clamp(128px, calc(100svh - 220px), 168px);
+    --about-bio-extra-width: 40px;
     padding-top: 84px;
     padding-bottom: 104px;
     scroll-margin-top: 0;
@@ -458,6 +460,10 @@
 
   .biography {
     display: contents;
+  }
+
+  .section:has(.biography[data-portrait="true"]) {
+    --about-bio-extra-width: calc(var(--about-portrait-width) + 40px);
   }
 
   .heading {
@@ -508,7 +514,7 @@
     grid-row: 1 / span 3;
     justify-self: end;
     align-self: start;
-    width: clamp(128px, calc(100svh - 220px), 168px);
+    width: var(--about-portrait-width);
     margin-top: 4px;
   }
 
