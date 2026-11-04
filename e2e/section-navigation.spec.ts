@@ -3,6 +3,31 @@ import { expect, test } from "./fixtures";
 test.describe("section navigation", () => {
   test.use({ reducedMotion: "reduce" });
 
+  test("keeps one fragment for every footer link after a direct Hero visit", async ({ page }) => {
+    await page.goto("/#hero");
+    const footer = page.getByRole("navigation", { name: "Explore", exact: true });
+    for (const [name, id] of [
+      ["About", "about"],
+      ["Skills", "skills"],
+      ["Experience", "experience"],
+      ["Projects", "projects"],
+      ["Contact", "contact"],
+      ["Home", "hero"],
+    ]) {
+      await footer.getByRole("link", { name, exact: true }).click();
+      await expect(page).toHaveURL(new RegExp(`/#${id}$`));
+      await expect.poll(() => page.evaluate(() => location.hash)).toBe(`#${id}`);
+    }
+    await page.reload();
+    await footer.getByRole("link", { name: "Skills", exact: true }).click();
+    await expect(page).toHaveURL(/\/#skills$/);
+    await expect
+      .poll(() =>
+        page.locator("#skills").evaluate((el) => Math.abs(el.getBoundingClientRect().top)),
+      )
+      .toBeLessThan(200);
+  });
+
   test("returns to Skills after manually scrolling up and reloading an old contact anchor", async ({
     page,
   }) => {

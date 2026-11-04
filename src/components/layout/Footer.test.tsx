@@ -71,14 +71,13 @@ describe("Footer", () => {
     window.removeEventListener(PREFERENCES_EVENT, listener);
     vi.unstubAllEnvs();
   });
-  it("disables homepage anchor prefetch including the logo and preserves legal links", () => {
+  it("uses native homepage anchors including the logo and preserves legal links", () => {
     const { container } = render(<Footer socials={mockSocials} />);
     const anchors = container.querySelectorAll('a[href^="#"]');
     expect(anchors.length).toBeGreaterThan(1);
-    anchors.forEach((anchor) => expect(anchor).toHaveAttribute("data-prefetch", "false"));
-    expect(screen.getByRole("link", { name: /aristache, back to top/i })).toHaveAttribute(
+    anchors.forEach((anchor) => expect(anchor).not.toHaveAttribute("data-prefetch"));
+    expect(screen.getByRole("link", { name: /aristache, back to top/i })).not.toHaveAttribute(
       "data-prefetch",
-      "false",
     );
     for (const name of ["Privacy", "GDPR"]) {
       expect(screen.getByRole("link", { name })).not.toHaveAttribute("data-prefetch");
