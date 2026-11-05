@@ -24,7 +24,7 @@ export function Projects({
   projects: MergedProject[];
   number?: string;
 }) {
-  // The heading lives inside the browser so the Currently building card can sit beside it.
+  // The heading lives inside the browser so the Building now card can sit beside it.
   const header = (
     <ProjectsArrival
       kind="heading"

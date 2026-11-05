@@ -48,7 +48,7 @@ export function groupProjects(projects: MergedProject[]): ProjectPresentation[] 
 }
 
 /**
- * The project worked on most recently, for the "Currently building" strip. Projects still in
+ * The project worked on most recently, for the "Building now" strip. Projects still in
  * development come first: a shipped site that got a typo fix is not what is being built. With
  * only live projects the newest push wins. Returns null when no project has a push date.
  */

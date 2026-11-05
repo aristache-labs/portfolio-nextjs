@@ -6,7 +6,14 @@ import {
   liveFirst,
   type ProjectPresentation,
 } from "@/lib/project-presentation";
-import { useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+  type ReactNode,
+} from "react";
 import dynamic from "next/dynamic";
 import { m, type Variants } from "framer-motion";
 import { Star, History, Layers3 } from "lucide-react";
@@ -39,6 +46,8 @@ const ALL = "All";
 // block stays compact; everything else falls through to the filterable grid below.
 const MAX_FEATURED = 2;
 const MAX_RECENT = 6;
+/** Latest work stacks row by row: two cards per row where there is room. */
+const RECENT_ROW = 2;
 /** Filters only help with a few categories and more than a handful of projects. */
 const MIN_FILTER_CATEGORIES = 2;
 const MIN_FILTER_PROJECTS = 4;
@@ -115,7 +124,7 @@ export function ProjectsBrowser({
   header,
 }: {
   projects: MergedProject[];
-  /** Section heading, rendered beside the Currently building card. */
+  /** Section heading, rendered beside the Building now card. */
   header?: ReactNode;
 }) {
   const { mode } = useAnimationPolicy();
@@ -204,6 +213,10 @@ export function ProjectsBrowser({
 
   const filtered = category === ALL ? rest : rest.filter((p) => p.category === category);
   const visible = filtered.slice(0, limit);
+  const recentRows = Array.from(
+    { length: Math.ceil(Math.min(recent.length, recentLimit) / RECENT_ROW) },
+    (_, row) => recent.slice(0, recentLimit).slice(row * RECENT_ROW, (row + 1) * RECENT_ROW),
+  );
   const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
   const portraitMotion = useMediaQuery(PROJECTS_PORTRAIT_QUERY);
   const landscapeMotion = useMediaQuery(PROJECTS_LANDSCAPE_QUERY);
@@ -263,24 +276,36 @@ export function ProjectsBrowser({
             <div className={layoutCss.column}>
               <ColumnLabel>Latest work</ColumnLabel>
               <div className={layoutCss.recentTrack}>
-                {recent.slice(0, recentLimit).map((p, i) => (
-                  <Arrival
-                    key={p.id}
-                    scene={scene}
-                    order={i}
-                    from="right"
-                    lag={(i % 2) * 0.06}
-                    effect="fade-from-right"
-                    duration={0.5}
-                    delay={i * 0.06}
-                    className="flex min-w-0"
-                  >
-                    <RecentCard
-                      project={p}
-                      depth={scene}
-                      onQuickView={(event) => openQuickView(p, event)}
-                    />
-                  </Arrival>
+                {recentRows.map((row, rowIndex) => (
+                  <div key={rowIndex} className={layoutCss.recentRow}>
+                    {row.map((p, column) => {
+                      const i = rowIndex * RECENT_ROW + column;
+                      return (
+                        <div
+                          key={p.id}
+                          className={layoutCss.stackItem}
+                          style={{ "--stack": i } as CSSProperties}
+                        >
+                          <Arrival
+                            scene={scene}
+                            order={i}
+                            from="right"
+                            lag={(i % 2) * 0.06}
+                            effect="fade-from-right"
+                            duration={0.5}
+                            delay={i * 0.06}
+                            className="flex min-w-0"
+                          >
+                            <RecentCard
+                              project={p}
+                              depth={scene}
+                              onQuickView={(event) => openQuickView(p, event)}
+                            />
+                          </Arrival>
+                        </div>
+                      );
+                    })}
+                  </div>
                 ))}
               </div>
             </div>

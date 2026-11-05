@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { ScrollDepth } from "@/components/motion/ScrollDepth";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
-import { COMPACT_PROJECT_ACTION, GLASS_CARD } from "./project-styles";
+import { COMPACT_PROJECT_ACTION, GLASS_CARD, PRIMARY_TAG } from "./project-styles";
 
 // Fallbacks follow site-container padding and the two-column highlights layout.
 // Lazy covers use their actual layout width when the browser supports auto sizes.
@@ -104,9 +104,6 @@ function Stats({ project }: { project: MergedProject }) {
  * The first chip is GitHub's primary language. The rest are the tags stored on the project
  * (admin), the same kind of hand-written labels a site shows beyond the language bar.
  */
-const PRIMARY_TAG =
-  "shrink-0 rounded-full border border-(--brand-deep)/40 bg-(--chip-surface) px-1.5 py-0.5 text-[10px] leading-tight font-semibold text-(--accent-on-chip)";
-
 function Tags({ project }: { project: MergedProject }) {
   if (!project.language && project.tags.length === 0) return null;
   return (
@@ -179,7 +176,9 @@ function Actions({
       )}
       {compact && (
         <span className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[10px] tracking-[0.04em] uppercase">
-          {("hasLive" in project ? project.hasLive : project.homepage) ? "Live" : "In development"}
+          {("hasLive" in project ? project.hasLive : project.homepage)
+            ? "Released"
+            : "In development"}
         </span>
       )}
     </div>

@@ -70,7 +70,7 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     ),
   ];
 
-  it("shows the project in development with the newest push as Currently building", () => {
+  it("shows the project in development with the newest push as Building now", () => {
     render(
       <ProjectsBrowser
         projects={[
@@ -84,15 +84,15 @@ describe("ProjectsBrowser categories and responsive limits", () => {
         ]}
       />,
     );
-    expect(screen.getByText("Currently building")).toBeInTheDocument();
-    const strip = screen.getByText("Currently building").closest("div") as HTMLElement;
+    expect(screen.getByText("Building now")).toBeInTheDocument();
+    const strip = screen.getByText("Building now").closest("div") as HTMLElement;
     expect(within(strip).getByText("Fresh Build")).toBeInTheDocument();
-    expect(within(strip).getByText("Last push Oct 28")).toBeInTheDocument();
+    expect(within(strip).getByText("Oct 28")).toBeInTheDocument();
   });
 
-  it("omits Currently building when no project has a push date", () => {
+  it("omits Building now when no project has a push date", () => {
     render(<ProjectsBrowser projects={[project(1), project(2)]} />);
-    expect(screen.queryByText("Currently building")).not.toBeInTheDocument();
+    expect(screen.queryByText("Building now")).not.toBeInTheDocument();
   });
 
   it("serves visible headings and project cards before hydration", () => {
