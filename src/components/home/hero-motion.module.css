@@ -943,6 +943,9 @@
 @media (max-height: 600px) and (orientation: landscape) and (pointer: fine) {
   .surname {
     display: inline;
+    /* Inline, the stacked layout's indent would only open a gap after the first name. */
+    margin-left: 0;
+    max-width: none;
   }
 }
 
