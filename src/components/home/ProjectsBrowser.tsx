@@ -39,6 +39,11 @@ const MIN_FILTER_PROJECTS = 4;
 // One flex column per side. Featured covers keep their own aspect ratio.
 const TRACK = "flex flex-1 flex-col gap-4";
 
+// Portrait phones swipe through the featured covers with native scroll-snap (no JS). The next
+// card peeks in at 86% width so the swipe is discoverable.
+const FEATURED_SNAP =
+  "max-lg:[@media(orientation:portrait)]:snap-x max-lg:[@media(orientation:portrait)]:snap-mandatory max-lg:[@media(orientation:portrait)]:flex-row max-lg:[@media(orientation:portrait)]:overflow-x-auto max-lg:[@media(orientation:portrait)]:overscroll-x-contain max-lg:[@media(orientation:portrait)]:pb-2";
+
 const GRID =
   "grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2";
 
@@ -83,7 +88,7 @@ function Arrival({
 }
 
 function ColumnLabel({ children }: { children: string }) {
-  const Icon = children === "Featured" ? Star : children === "Recently updated" ? History : Layers3;
+  const Icon = children === "Featured" ? Star : children === "Latest work" ? History : Layers3;
   return (
     <ProjectsArrival kind="label" effect="fade" duration={0.6} delay={0.1}>
       <p className={layoutCss.groupTitle}>
@@ -229,7 +234,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           {featured.length > 0 && (
             <div className={layoutCss.column}>
               <ColumnLabel>Featured</ColumnLabel>
-              <div className={TRACK}>
+              <div className={`${TRACK} ${FEATURED_SNAP}`}>
                 {featured.map((p, i) => (
                   <Arrival
                     key={p.id}
@@ -239,7 +244,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                     effect="fade-from-left"
                     duration={0.7}
                     delay={i * 0.08}
-                    className="flex"
+                    className="flex max-lg:[@media(orientation:portrait)]:w-[86%] max-lg:[@media(orientation:portrait)]:shrink-0 max-lg:[@media(orientation:portrait)]:snap-center"
                   >
                     <FeaturedCard
                       project={p}
@@ -254,7 +259,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
 
           {recent.length > 0 && (
             <div className={layoutCss.column}>
-              <ColumnLabel>Recently updated</ColumnLabel>
+              <ColumnLabel>Latest work</ColumnLabel>
               <div className={layoutCss.recentTrack}>
                 {recent.slice(0, recentLimit).map((p, i) => (
                   <Arrival
