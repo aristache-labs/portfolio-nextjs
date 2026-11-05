@@ -11,15 +11,20 @@ import {
 } from "react";
 import { useMotionValue, useScroll, type MotionValue } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+  PINNED_SCENE_QUERY,
+  PORTRAIT_PHONE_QUERY,
+  TOUCH_LANDSCAPE_QUERY,
+  useMediaQuery,
+} from "@/hooks/useMediaQuery";
 import { phaseProgress } from "@/lib/scroll-phase";
 import styles from "./about-sequence.module.css";
 
 export const ABOUT_PIN_QUERY = PINNED_SCENE_QUERY;
 /** Touch devices in landscape get the same pinned scene, minus the mouse-only effects. */
-export const ABOUT_TOUCH_PIN_QUERY = "(orientation: landscape) and (pointer: coarse)";
+export const ABOUT_TOUCH_PIN_QUERY = TOUCH_LANDSCAPE_QUERY;
 /** Portrait phones use CSS-only motion, so no scroll script is mounted for them. */
-export const ABOUT_PORTRAIT_QUERY = "(max-width: 767px) and (orientation: portrait)";
+export const ABOUT_PORTRAIT_QUERY = PORTRAIT_PHONE_QUERY;
 /** Landscape phones flatten About into one compact grid in CSS, so nothing is pinned there. */
 export const ABOUT_COMPACT_LANDSCAPE_QUERY =
   "(orientation: landscape) and (pointer: coarse) and (max-height: 500px)";

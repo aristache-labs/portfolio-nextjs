@@ -6,8 +6,9 @@ import { sectionNavigationPending } from "@/lib/section-navigation";
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./experience-layout.module.css";
+import { PORTRAIT_PHONE_QUERY } from "@/hooks/useMediaQuery";
 
-export const EXPERIENCE_PORTRAIT_QUERY = "(max-width: 767px) and (orientation: portrait)";
+export const EXPERIENCE_PORTRAIT_QUERY = PORTRAIT_PHONE_QUERY;
 export const EXPERIENCE_LANDSCAPE_QUERY =
   "(orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
 

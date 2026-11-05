@@ -6,10 +6,10 @@ import { sectionNavigationPending } from "@/lib/section-navigation";
 import { useLayoutEffect, useRef, type ComponentProps, type CSSProperties } from "react";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { PORTRAIT_PHONE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import styles from "./project-motion.module.css";
 
-export const PROJECTS_PORTRAIT_QUERY = "(max-width: 767px) and (orientation: portrait)";
+export const PROJECTS_PORTRAIT_QUERY = PORTRAIT_PHONE_QUERY;
 export const PROJECTS_LANDSCAPE_QUERY =
   "(orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
 

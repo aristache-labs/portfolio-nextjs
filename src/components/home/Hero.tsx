@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { HERO_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { HERO_VIDEO_QUERY, PORTRAIT_PHONE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
@@ -168,7 +168,7 @@ export function Hero({
   const touchScene =
     useMediaQuery(HERO_LANDSCAPE_PIN_QUERY) && mode !== "static" && transitionToAbout;
   // Portrait phones use CSS-only scroll motion, so no per-frame script is mounted for them.
-  const portraitPhone = useMediaQuery("(max-width: 767px) and (orientation: portrait)");
+  const portraitPhone = useMediaQuery(PORTRAIT_PHONE_QUERY);
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopAnchorScroll.current?.(), []);
   const navigateToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {

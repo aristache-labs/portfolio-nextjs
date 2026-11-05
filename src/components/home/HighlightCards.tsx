@@ -64,7 +64,8 @@ function Cover({
       fill
       sizes={priority || loading === "eager" ? sizes : `auto, ${sizes}`}
       loading={priority ? undefined : loading}
-      quality={90}
+      // Card covers render at thumbnail size; the default quality is visually identical there
+      // and roughly a third lighter. Quick View keeps 90 for full-width screenshots.
       priority={priority}
       className={`${motionStyles.cover} ${fit}`}
     />

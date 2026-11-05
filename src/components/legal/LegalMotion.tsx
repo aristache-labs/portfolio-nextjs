@@ -7,14 +7,13 @@ import styles from "@/app/privacy/privacy.module.css";
 import { ScrollEntrance } from "@/components/motion/ScrollEntrance";
 import { GLASS_CARD } from "@/components/home/project-styles";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { COMPACT_TOUCH_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
 
 /** The extra real scroll the header stays pinned for on desktop. */
 const PIN_SPACE = "35svh";
-export const LEGAL_MOBILE_QUERY =
-  "(max-width: 767px) and (orientation: portrait), (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
+export const LEGAL_MOBILE_QUERY = COMPACT_TOUCH_QUERY;
 
 function useLegalMobileScene() {
   const mobile = useMediaQuery(LEGAL_MOBILE_QUERY);

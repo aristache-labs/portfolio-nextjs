@@ -231,8 +231,9 @@
     animation-delay: 120ms;
   }
 
+  /* Capped so the copy, a likely LCP element, is fully drawn within the first half second. */
   .hero .enter {
-    animation-delay: calc(var(--hero-enter-delay, 0s) * 1.7);
+    animation-delay: min(calc(var(--hero-enter-delay, 0s) * 1.7), 300ms);
   }
 
   .hero[data-cinematic] .halo {
@@ -560,6 +561,16 @@
     opacity: var(--hero-fade-from, 0);
     filter: blur(8px);
     transform: translateY(var(--hero-entry-distance, 10px));
+  }
+}
+
+/* An animated blur repaints the whole text box every frame, which touch GPUs drop frames on. */
+@media (pointer: coarse) {
+  @keyframes hero-focus-in {
+    from {
+      opacity: var(--hero-fade-from, 0);
+      transform: translateY(var(--hero-entry-distance, 10px));
+    }
   }
 }
 

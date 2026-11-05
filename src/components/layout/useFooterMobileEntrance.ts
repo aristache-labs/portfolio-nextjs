@@ -2,9 +2,9 @@
 
 import { useEffect, type RefObject } from "react";
 import { useScroll } from "framer-motion";
+import { COMPACT_TOUCH_QUERY } from "@/hooks/useMediaQuery";
 
-export const FOOTER_MOBILE_QUERY =
-  "(max-width: 767px) and (orientation: portrait), (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
+export const FOOTER_MOBILE_QUERY = COMPACT_TOUCH_QUERY;
 
 /** Reveal each mobile group once, with a page-end safeguard and immediate keyboard access. */
 export function useFooterMobileEntrance(footer: RefObject<HTMLElement | null>, enabled: boolean) {
