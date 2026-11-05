@@ -6,6 +6,7 @@ import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { createRevealSequence, RevealSequence } from "./RevealSequence";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { sectionNavigationPending } from "@/lib/section-navigation";
+import { scheduleRevealPreparation } from "./reveal-preparation";
 
 const VISIBLE = { opacity: 1, x: 0, y: 0 };
 
@@ -79,19 +80,26 @@ export function useProgressiveReveal({
     let active = true;
     let settled = false;
     let rightStart = 0;
-    const prepareRightSlide = () => {
-      if (!active || finished.current) return;
-      rightStart = Math.max(0, window.innerWidth - node.getBoundingClientRect().left) + 24;
+    let cancelResize: (() => void) | undefined;
+    const setRightStart = (bounds: DOMRectReadOnly) => {
+      rightStart = Math.max(0, window.innerWidth - bounds.left) + 24;
       controls.set({ opacity: effect === "fade-from-right" ? 0 : 1, x: rightStart, y: 0 });
     };
-    const show = () => {
-      const bounds = node.getBoundingClientRect();
+    const prepareRightSlide = () => {
+      cancelResize?.();
+      cancelResize = scheduleRevealPreparation(() => {
+        if (!active || finished.current || sectionNavigationPending(node)) return () => {};
+        const bounds = node.getBoundingClientRect();
+        return () => {
+          if (active && !finished.current && !sectionNavigationPending(node)) setRightStart(bounds);
+        };
+      });
+    };
+    const show = (measured?: DOMRectReadOnly) => {
+      const needsCount = countOnJump && !finished.current && mode !== "static";
+      const bounds = needsCount ? (measured ?? node.getBoundingClientRect()) : undefined;
       const countVisible =
-        countOnJump &&
-        !finished.current &&
-        mode !== "static" &&
-        bounds.top < window.innerHeight &&
-        bounds.bottom > 0;
+        bounds !== undefined && bounds.top < window.innerHeight && bounds.bottom > 0;
       settled = true;
       finished.current = true;
       observer?.disconnect();
@@ -108,98 +116,108 @@ export function useProgressiveReveal({
       sequence.publish(countVisible ? "complete" : "static");
     };
     const onScrollEnd = () => {
-      if (sectionNavigationPending(node)) return;
+      if (finished.current || sectionNavigationPending(node)) return;
       // The observer owns the first entrance after our explicit navigation completion.
       const bounds = node.getBoundingClientRect();
       if (navigation.replay && bounds.top < window.innerHeight && bounds.bottom > 0) return;
       // A jump can skip the observer's intersection entirely. Check once after scrolling.
-      if (!finished.current && node.getBoundingClientRect().top < window.innerHeight) show();
+      if (bounds.top < window.innerHeight) show(bounds);
     };
     const onFocus = () => {
       show();
     };
 
-    // Never hide content that the visitor can already see, including after a resize.
-    if (
-      finished.current ||
-      mode === "static" ||
-      typeof IntersectionObserver !== "function" ||
-      (!navigation.replay && node.getBoundingClientRect().top <= window.innerHeight)
-    ) {
-      show();
-    } else {
-      const expressive = mode === "expressive";
-      observer = new IntersectionObserver(
-        (entries) => {
-          if (!active || finished.current || sectionNavigationPending(node)) return;
-          const entry = entries.find((item) => item.target === node);
-          if (!entry) return;
-          if (!entry.isIntersecting) {
-            // Keep skipped content visible without animating above the viewport.
-            if (entry.boundingClientRect.bottom <= 0) {
+    const cancelPreparation = scheduleRevealPreparation(() => {
+      if (!active || sectionNavigationPending(node)) return () => {};
+      const staticContent =
+        finished.current || mode === "static" || typeof IntersectionObserver !== "function";
+      const needsBounds =
+        (!staticContent && (!navigation.replay || fromRight)) ||
+        (countOnJump && !finished.current && mode !== "static");
+      const bounds = needsBounds ? node.getBoundingClientRect() : undefined;
+      const visible = staticContent || (!navigation.replay && bounds!.top <= window.innerHeight);
+      return () => {
+        if (!active || sectionNavigationPending(node)) return;
+        // Never hide content that the visitor can already see, including after a resize.
+        if (visible || finished.current) {
+          show(bounds);
+        } else {
+          const expressive = mode === "expressive";
+          observer = new IntersectionObserver(
+            (entries) => {
+              if (!active || finished.current || sectionNavigationPending(node)) return;
+              const entry = entries.find((item) => item.target === node);
+              if (!entry) return;
+              if (!entry.isIntersecting) {
+                // Keep skipped content visible without animating above the viewport.
+                if (entry.boundingClientRect.bottom <= 0) {
+                  observer?.disconnect();
+                  show(entry.boundingClientRect);
+                }
+                return;
+              }
+              finished.current = true;
               observer?.disconnect();
-              show();
-            }
-            return;
-          }
-          finished.current = true;
-          observer?.disconnect();
-          if (effect === "cascade") {
-            void controls.start("visible").then(() => {
-              if (active && !settled) sequence.publish("complete");
-            });
-            return;
-          }
-          const entrance = controls.start({
-            opacity: effect === "slide-from-right" || !fade ? 1 : [0, 1],
-            ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
-            ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
-            ...(effect === "fade-from-left" ? { x: [-48, 0] } : {}),
-            ...(fromRight ? { x: [rightStart, 0] } : {}),
-            ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
-            ...(effect === "zoom" ? { scale: [0.9, 1] } : {}),
-            ...(effect === "line" ? { scaleX: [0, 1] } : {}),
-            transition: {
-              duration,
-              delay: delay ?? (expressive ? desktopDelay : 0.3),
-              ease: ease ?? (effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1]),
+              if (effect === "cascade") {
+                void controls.start("visible").then(() => {
+                  if (active && !settled) sequence.publish("complete");
+                });
+                return;
+              }
+              const entrance = controls.start({
+                opacity: effect === "slide-from-right" || !fade ? 1 : [0, 1],
+                ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
+                ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
+                ...(effect === "fade-from-left" ? { x: [-48, 0] } : {}),
+                ...(fromRight ? { x: [rightStart, 0] } : {}),
+                ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
+                ...(effect === "zoom" ? { scale: [0.9, 1] } : {}),
+                ...(effect === "line" ? { scaleX: [0, 1] } : {}),
+                transition: {
+                  duration,
+                  delay: delay ?? (expressive ? desktopDelay : 0.3),
+                  ease: ease ?? (effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1]),
+                },
+              });
+              if (effect === "zoom") {
+                void entrance.then(() => {
+                  if (active && !settled) sequence.publish("complete");
+                });
+              }
             },
-          });
-          if (effect === "zoom") {
-            void entrance.then(() => {
-              if (active && !settled) sequence.publish("complete");
-            });
+            {
+              // Wait until the element has moved beyond the bottom edge of the screen.
+              rootMargin: `0px 0px -${Math.min(viewportInset, Math.round(window.innerHeight * 0.15))}px 0px`,
+            },
+          );
+          // Prepare only offscreen content, before it can be seen during scrolling.
+          if (fromRight) {
+            setRightStart(bounds!);
+            window.addEventListener("resize", prepareRightSlide);
+          } else {
+            controls.set(
+              effect === "cascade"
+                ? "hidden"
+                : {
+                    opacity: fade ? 0 : 1,
+                    x: 0,
+                    y: 0,
+                    ...(effect === "zoom" && !fade ? { scale: 0.9 } : {}),
+                  },
+            );
           }
-        },
-        {
-          // Wait until the element has moved beyond the bottom edge of the screen.
-          rootMargin: `0px 0px -${Math.min(viewportInset, Math.round(window.innerHeight * 0.15))}px 0px`,
-        },
-      );
-      // Prepare only offscreen content, before it can be seen during scrolling.
-      if (fromRight) {
-        prepareRightSlide();
-        window.addEventListener("resize", prepareRightSlide);
-      } else {
-        controls.set(
-          effect === "cascade"
-            ? "hidden"
-            : {
-                opacity: fade ? 0 : 1,
-                x: 0,
-                y: 0,
-                ...(effect === "zoom" && !fade ? { scale: 0.9 } : {}),
-              },
-        );
-      }
-      sequence.publish("prepared");
-      observer.observe(node);
-      window.addEventListener("scrollend", onScrollEnd);
-      node.addEventListener("focusin", onFocus);
-    }
+          sequence.publish("prepared");
+          observer.observe(node);
+          window.addEventListener("scrollend", onScrollEnd);
+          node.addEventListener("focusin", onFocus);
+        }
+      };
+    });
 
     return () => {
       active = false;
+      cancelPreparation();
+      cancelResize?.();
       observer?.disconnect();
       window.removeEventListener("scrollend", onScrollEnd);
       window.removeEventListener("resize", prepareRightSlide);
