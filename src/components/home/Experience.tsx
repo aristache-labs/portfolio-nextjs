@@ -5,7 +5,7 @@ import { AnimatePresence, m, useScroll } from "framer-motion";
 import { ArrowDownToLine, MapPin } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
-import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
+import { ExperienceReveal } from "./ExperienceReveal";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
 import labelCss from "@/components/ui/section-label.module.css";
@@ -17,11 +17,7 @@ import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
 import spacing from "./experience-projects-spacing.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import {
-  EXPERIENCE_LANDSCAPE_QUERY,
-  EXPERIENCE_PORTRAIT_QUERY,
-  ExperienceMobileReveal,
-} from "./ExperienceMobileReveal";
+import { EXPERIENCE_LANDSCAPE_QUERY, EXPERIENCE_PORTRAIT_QUERY } from "./ExperienceMobileReveal";
 
 /**
  * Screen line (from the top) the rail's leading edge follows. A bullet, its card outline and the
@@ -210,7 +206,6 @@ function TimelineEntry({
   last: boolean;
   layout: EntryLayout;
 }) {
-  const { mode } = useAnimationPolicy();
   const { portrait, landscape, desktop, desktopDisclosure } = layout;
   const tags = exp.description.filter((line) => ROLE_TAG.test(line.trim()));
   const description = exp.description.filter((line) => !ROLE_TAG.test(line.trim()));
@@ -278,10 +273,10 @@ function TimelineEntry({
               ))}
             </ul>
           )}
-          {description.length > previewCount && (
+          {description.length > 1 && (
             <details
-              key={desktopDisclosure ? "desktop" : desktop ? "wide-touch" : "mobile"}
               className="group mt-1.5"
+              hidden={description.length <= previewCount}
               open={desktopDisclosure ? desktopExpanded : desktop || expanded}
               onToggle={(event) => {
                 if (desktopDisclosure) setDesktopExpanded(event.currentTarget.open);
@@ -329,16 +324,14 @@ function TimelineEntry({
         data-timeline-dot
         className={`${styles.dot} ${styles.marker} bg-background absolute top-[1.125rem] z-10 size-3 rounded-full border-2 border-(--brand-deep) ring-4 ring-(--brand-deep)/15`}
       />
-      {portrait || landscape ? (
-        <ExperienceMobileReveal kind="entry">{inner}</ExperienceMobileReveal>
-      ) : mode === "expressive" ? (
-        // The timeline rail reveals this role when it reaches the marker.
-        inner
-      ) : (
-        <ProgressiveReveal effect="fade" desktopDelay={Math.min(index * 0.04, 0.12)}>
-          {inner}
-        </ProgressiveReveal>
-      )}
+      <ExperienceReveal
+        mobile={portrait || landscape}
+        kind="entry"
+        effect="fade"
+        desktopDelay={Math.min(index * 0.04, 0.12)}
+      >
+        {inner}
+      </ExperienceReveal>
     </li>
   );
 }
@@ -422,7 +415,6 @@ export function Experience({
   const desktop = useMediaQuery("(min-width: 1024px)");
   const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
   const layout = { portrait, landscape, desktop, desktopDisclosure };
-  const HeadingReveal = portrait || landscape ? ExperienceMobileReveal : ProgressiveReveal;
   const listRef = useRef<HTMLDivElement>(null);
   const stickStart = useRef<HTMLSpanElement>(null);
   const [activeRole, setActiveRole] = useState(0);
@@ -485,7 +477,12 @@ export function Experience({
           data-compact={compact ? "" : undefined}
           className={`${styles.intro} relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start`}
         >
-          <HeadingReveal kind="title" effect="fade" className="mb-5">
+          <ExperienceReveal
+            mobile={portrait || landscape}
+            kind="title"
+            effect="fade"
+            className="mb-5"
+          >
             <p className={`${labelCss.label} ${headingCss.label}`}>
               <span className={labelCss.number}>{number}</span>
               <span>Experience</span>
@@ -495,47 +492,60 @@ export function Experience({
             <h2 className={headingCss.title}>
               Where I&apos;ve <span className={headingCss.accent}>worked</span>
             </h2>
-          </HeadingReveal>
+          </ExperienceReveal>
           <div className={styles.subtitleFold}>
             <div>
-              <HeadingReveal kind="description" effect="slide" desktopDelay={0.08}>
+              <ExperienceReveal
+                mobile={portrait || landscape}
+                kind="description"
+                effect="slide"
+                desktopDelay={0.08}
+              >
                 <p className={`${subtitleCss.subtitle} max-w-md`}>
                   Enterprise deployments, infrastructure operations and automation across
                   international restaurant locations.
                 </p>
-              </HeadingReveal>
+              </ExperienceReveal>
             </div>
           </div>
-          {folds ? (
-            // Opens in the subtitle's place once the intro has stuck for a while: the role in view
-            // with the CV link at its foot. Closed, it is hidden from pointers and keyboard.
-            <div className={styles.stuckPanel}>
-              <div>
-                <div className={styles.stuckItem}>
+          {/* The panel and standalone CV keep separate, stable positions as the layout changes. */}
+          <div
+            className={styles.stuckPanel}
+            style={folds ? undefined : { display: "none" }}
+            hidden={!folds}
+          >
+            <div>
+              <div className={styles.stuckItem}>
+                {folds && (
                   <CurrentRole
                     experiences={sorted}
                     active={activeRole}
                     resumeUrl={resumeUrl}
                     focusable={compact}
                   />
-                </div>
+                )}
               </div>
             </div>
-          ) : (
-            resumeUrl && (
-              <HeadingReveal kind="description" effect="fade" desktopDelay={0.16}>
-                <a
-                  href={resumeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={styles.resume}
-                >
-                  <ArrowDownToLine aria-hidden className="size-4" />
-                  Download CV
-                  <span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              </HeadingReveal>
-            )
+          </div>
+          {resumeUrl && (
+            <ExperienceReveal
+              mobile={portrait || landscape}
+              hidden={folds}
+              kind="description"
+              effect="fade"
+              desktopDelay={0.16}
+            >
+              <a
+                href={resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.resume}
+              >
+                <ArrowDownToLine aria-hidden className="size-4" />
+                Download CV
+                <span className="sr-only"> (opens in a new tab)</span>
+              </a>
+            </ExperienceReveal>
           )}
         </div>
 
