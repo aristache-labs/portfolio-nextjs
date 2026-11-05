@@ -55,9 +55,9 @@ function StatBar({ stats }: { stats: ProfileStats }) {
         <AboutReveal
           className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10`}
         >
-          {items.map(({ icon: Icon, value, label }, index) => (
+          {items.map(({ key, icon: Icon, value, label }, index) => (
             <div
-              key={label}
+              key={key}
               style={{ "--i": index } as CSSProperties}
               className={`${statsCss.item} flex min-w-0 items-center justify-center px-1 lg:px-3`}
             >
@@ -142,7 +142,13 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
                   the
                 </span>{" "}
                 <span className={statsCss.word} style={{ "--i": 2 } as CSSProperties}>
-                  <span className={`${statsCss.accentWord} ${headingCss.accent}`}>code</span>.
+                  <span
+                    className={`${statsCss.accentWord} ${headingCss.accent}`}
+                    style={{ color: "inherit" }}
+                  >
+                    code
+                  </span>
+                  .
                 </span>
               </h2>
             </div>

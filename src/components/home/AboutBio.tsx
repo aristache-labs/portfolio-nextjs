@@ -23,9 +23,17 @@ function Paragraphs({ text, reading = false }: { text: string; reading?: boolean
             : "text-base leading-relaxed text-white/60 sm:text-lg"
         }
       >
-        {reading ? paragraph.split(/(\s+)/).map((word, wordIndex) =>
-          /\S/.test(word) ? <span key={wordIndex} data-bio-word>{word}</span> : word,
-        ) : paragraph}
+        {reading
+          ? paragraph.split(/(\s+)/).map((word, wordIndex) =>
+              /\S/.test(word) ? (
+                <span key={wordIndex} data-bio-word>
+                  {word}
+                </span>
+              ) : (
+                word
+              ),
+            )
+          : paragraph}
       </p>
     ));
 }

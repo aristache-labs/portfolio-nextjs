@@ -11,15 +11,25 @@ export const profileInsertSchema = z.object({
     .optional()
     .transform((value) => value || null),
   bio: z.string().min(1),
-  stats: z.record(z.string(), z.union([z.string(), z.number()])).superRefine((stats, context) => {
-    for (const { key } of ABOUT_STAT_SLOTS) {
-      for (const [name, max] of [[key, 24], [`${key}Label`, 80]] as const) {
-        if (stats[name] !== undefined && String(stats[name]).length > max) {
-          context.addIssue({ code: "custom", path: [name], message: `Maximum ${max} characters` });
+  stats: z
+    .record(z.string(), z.union([z.string(), z.number()]))
+    .superRefine((stats, context) => {
+      for (const { key } of ABOUT_STAT_SLOTS) {
+        for (const [name, max] of [
+          [key, 24],
+          [`${key}Label`, 80],
+        ] as const) {
+          if (stats[name] !== undefined && String(stats[name]).length > max) {
+            context.addIssue({
+              code: "custom",
+              path: [name],
+              message: `Maximum ${max} characters`,
+            });
+          }
         }
       }
-    }
-  }).default({}),
+    })
+    .default({}),
   roles: z.array(z.string()).default([]),
   // Full http(s) URLs only — z.httpUrl() rejects javascript:/data: schemes
   // (the resume renders as <a href>, the avatar as <img src>). Store the

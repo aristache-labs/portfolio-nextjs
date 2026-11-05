@@ -126,14 +126,24 @@ export default async function ProfileEditor() {
           </Field>
           <fieldset className="border-border flex flex-col gap-4 rounded-xl border p-4">
             <legend className="px-2 text-sm font-semibold">About statistics</legend>
-            <p className="text-muted text-sm">Value and label for each card. Clear either field to hide a card.</p>
+            <p className="text-muted text-sm">
+              Value and label for each card. Clear either field to hide a card.
+            </p>
             {ABOUT_STAT_SLOTS.map(({ key, value, label }, index) => (
               <div key={key} className="grid gap-3 sm:grid-cols-2">
                 <Field label={`Card ${index + 1} value`}>
-                  <Input name={key} defaultValue={String(row?.stats?.[key] ?? value)} maxLength={24} />
+                  <Input
+                    name={key}
+                    defaultValue={String(row?.stats?.[key] ?? value)}
+                    maxLength={24}
+                  />
                 </Field>
                 <Field label={`Card ${index + 1} label`}>
-                  <Input name={`${key}Label`} defaultValue={String(row?.stats?.[`${key}Label`] ?? label)} maxLength={80} />
+                  <Input
+                    name={`${key}Label`}
+                    defaultValue={String(row?.stats?.[`${key}Label`] ?? label)}
+                    maxLength={80}
+                  />
                 </Field>
               </div>
             ))}

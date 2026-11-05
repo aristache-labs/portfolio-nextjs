@@ -8,7 +8,13 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 const COMPACT_BIO_QUERY =
   "(orientation: portrait) and (max-width: 767px), (orientation: landscape) and (max-width: 1024px) and (max-height: 500px)";
 
-export function AboutBioReading({ children, className }: { children: ReactNode; className: string }) {
+export function AboutBioReading({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) {
   const target = useRef<HTMLDivElement>(null);
   const { mode, ready } = useAnimationPolicy();
   const compact = useMediaQuery(COMPACT_BIO_QUERY);
@@ -28,7 +34,7 @@ export function AboutBioReading({ children, className }: { children: ReactNode; 
         const context = gsap.context(() => {
           gsap.fromTo(
             words,
-            { opacity: 0.65 },
+            { opacity: 0.8 },
             {
               opacity: 1,
               stagger: 0.04,
@@ -56,5 +62,9 @@ export function AboutBioReading({ children, className }: { children: ReactNode; 
     };
   }, [compact, mode, ready, children]);
 
-  return <div ref={target} className={className}>{children}</div>;
+  return (
+    <div ref={target} className={className}>
+      {children}
+    </div>
+  );
 }
