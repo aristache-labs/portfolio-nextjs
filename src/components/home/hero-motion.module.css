@@ -659,6 +659,18 @@
   }
 }
 
+/* Touch screens (and Lighthouse's mobile emulation) skip the blur: it is not compositor-driven,
+   so it repaints the headline on the main thread during the first frames. Opacity and transform
+   alone stay on the compositor. */
+@media (pointer: coarse) {
+  @keyframes hero-word-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.45em);
+    }
+  }
+}
+
 @keyframes hero-type {
   from {
     clip-path: inset(-0.3em 100% -0.3em 0);
@@ -796,7 +808,6 @@
   }
   to {
     opacity: 0;
-    filter: blur(6px);
     transform: translateY(var(--lift, -24px));
   }
 }
