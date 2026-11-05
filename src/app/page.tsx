@@ -95,6 +95,7 @@ export default async function Home() {
           profile={{
             bio: profile.bio,
             stats: profile.stats,
+            highlights: profile.aboutStats,
             name: profile.name,
             avatarUrl: profile.avatarUrl,
           }}

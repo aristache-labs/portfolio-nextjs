@@ -1,46 +1,35 @@
 import { describe, expect, it } from "vitest";
-import { aboutStatsFromForm, getAboutStats } from "./about-stats";
-import { profileInsertSchema } from "./schemas";
+import { ABOUT_STATS, aboutStats, mergeAboutStats } from "./about-stats";
 
-describe("About statistics", () => {
-  it("keeps legacy cards while allowing saved values, labels and hidden cards", () => {
-    expect(getAboutStats({}).map(({ value }) => value)).toEqual(["60%", "1,600+", "5", "8+"]);
-    const cards = getAboutStats({
-      manualWorkReduction: "75%",
-      manualWorkReductionLabel: "Time saved",
-      teamSize: "",
-      deploymentLocationsLabel: "",
-      years: 42,
-    });
-    expect(cards).toHaveLength(2);
-    expect(cards[0]).toMatchObject({ value: "75%", label: "Time saved" });
-    expect(cards[1].value).toBe("8+");
+describe("aboutStats", () => {
+  it("falls back to the defaults when nothing is stored", () => {
+    expect(aboutStats(null)).toEqual(
+      ABOUT_STATS.map(({ key, value, label }) => ({ key, value, label })),
+    );
   });
 
-  it("trims native form fields and keeps explicit blanks for hidden cards", () => {
-    const form = new FormData();
-    form.set("manualWorkReduction", " 72% ");
-    form.set("manualWorkReductionLabel", " Hours saved ");
-    expect(aboutStatsFromForm(form)).toMatchObject({
-      manualWorkReduction: "72%",
-      manualWorkReductionLabel: "Hours saved",
-      teamSize: "",
+  it("uses stored values and labels, ignoring blanks", () => {
+    const [first, second] = aboutStats({
+      manualWorkReduction: "70%",
+      manualWorkReductionLabel: "Less toil",
+      deploymentLocations: "  ",
     });
+    expect(first).toEqual({ key: "manualWorkReduction", value: "70%", label: "Less toil" });
+    expect(second.value).toBe(ABOUT_STATS[1].value);
   });
+});
 
-  it("validates card limits server-side without changing unrelated statistics", () => {
-    const base = { name: "Name", bio: "Bio" };
-    const stats = {
-      repos: 120,
-      manualWorkReduction: "72%",
-      manualWorkReductionLabel: "Time saved",
+describe("mergeAboutStats", () => {
+  it("keeps the GitHub counters and removes emptied card fields", () => {
+    const fields: Record<string, string> = {
+      teamSize: "7",
+      teamSizeLabel: "",
+      experienceYears: "9+",
     };
-    expect(profileInsertSchema.parse({ ...base, stats }).stats).toEqual(stats);
-    expect(
-      profileInsertSchema.safeParse({ ...base, stats: { teamSize: "x".repeat(25) } }).success,
-    ).toBe(false);
-    expect(
-      profileInsertSchema.safeParse({ ...base, stats: { teamSizeLabel: "x".repeat(81) } }).success,
-    ).toBe(false);
+    const merged = mergeAboutStats(
+      { repos: 6, followers: 3, teamSizeLabel: "Old label", manualWorkReduction: "60%" },
+      (name) => fields[name] ?? "",
+    );
+    expect(merged).toEqual({ repos: 6, followers: 3, teamSize: "7", experienceYears: "9+" });
   });
 });

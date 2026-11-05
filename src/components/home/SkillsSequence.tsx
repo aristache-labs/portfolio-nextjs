@@ -8,14 +8,14 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { animate, useMotionValue, type MotionValue } from "framer-motion";
+import { animate, useMotionValue, useScroll, type MotionValue } from "framer-motion";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { sectionNavigationPending } from "@/lib/section-navigation";
 import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
 import styles from "./skills-sequence.module.css";
 
 /** The scene runs from the section top at this share of the viewport up to the viewport top. */
-const START = "top 90%";
+const START = 0.9;
 
 /** Furthest progress reached. Cards follow it, so they stay assembled when scrolling back up. */
 const ScenePeak = createContext<MotionValue<number> | null>(null);
@@ -30,86 +30,78 @@ function SceneDriver({
   section: RefObject<HTMLElement | null>;
   peak: MotionValue<number>;
 }) {
+  const { scrollY } = useScroll();
   const navigation = useSectionNavigation(section, () => peak.get() === 0);
 
   useEffect(() => {
     const node = section.current;
     if (!node || navigation.pending) return;
-    let disposed = false;
-    let cleanup: (() => void) | undefined;
+    let entrance: ReturnType<typeof animate> | undefined;
+    let entering = false;
+    // The orbit lights up together with the cards and stays lit.
     const paint = () =>
       node.style.setProperty(
         "--skills-light",
         String(smoothstep(phaseProgress(peak.get(), 0.3, 1))),
       );
+    const update = () => {
+      if (sectionNavigationPending(node) || entering) return;
+      const current = Math.max(
+        0,
+        Math.min(1, 1 - node.getBoundingClientRect().top / (START * innerHeight)),
+      );
+      if (current <= peak.get()) return;
+      peak.set(current);
+      paint();
+    };
     paint();
-    void import("@/lib/gsap")
-      .then(({ ScrollTrigger }) => {
-        if (disposed) return;
-        let entrance: ReturnType<typeof animate> | undefined;
-        let entering = false;
-        const update = (current: number) => {
-          if (sectionNavigationPending(node) || entering || current <= peak.get()) return;
-          peak.set(Math.max(peak.get(), current));
+    if (navigation.replay) {
+      const destination = Math.max(
+        0,
+        Math.min(1, 1 - node.getBoundingClientRect().top / (START * innerHeight)),
+      );
+      entering = true;
+      entrance = animate(peak.get(), destination, {
+        duration: 1,
+        ease: [0.22, 1, 0.36, 1],
+        onUpdate: (value) => {
+          peak.set(Math.max(peak.get(), value));
           paint();
-        };
-        const trigger = ScrollTrigger.create({
-          trigger: node,
-          start: START,
-          end: "top top",
-          onUpdate: (self) => update(self.progress),
-        });
-        if (navigation.replay) {
-          entering = true;
-          entrance = animate(peak.get(), Math.max(peak.get(), trigger.progress), {
-            duration: 1,
-            ease: [0.22, 1, 0.36, 1],
-            onUpdate: (value) => {
-              peak.set(Math.max(peak.get(), value));
-              paint();
-            },
-            onComplete: () => {
-              entering = false;
-            },
-          });
-        } else update(trigger.progress);
-        const interrupt = () => {
-          if (!entering) return;
+        },
+        onComplete: () => {
           entering = false;
-          entrance?.stop();
-          update(trigger.progress);
-        };
-        const onKey = (event: KeyboardEvent) => {
-          if (
-            ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " ", "Escape"].includes(
-              event.key,
-            )
-          )
-            interrupt();
-        };
-        window.addEventListener("wheel", interrupt, { passive: true });
-        window.addEventListener("touchmove", interrupt, { passive: true });
-        window.addEventListener("keydown", onKey);
-        cleanup = () => {
-          trigger.kill();
-          entrance?.stop();
-          window.removeEventListener("wheel", interrupt);
-          window.removeEventListener("touchmove", interrupt);
-          window.removeEventListener("keydown", onKey);
-        };
-      })
-      .catch(() => {
-        if (!disposed) {
-          peak.set(1);
-          paint();
-        }
+        },
       });
+    } else update();
+    const interrupt = () => {
+      if (!entering) return;
+      entering = false;
+      entrance?.stop();
+      update();
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (
+        ["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " ", "Escape"].includes(
+          event.key,
+        )
+      )
+        interrupt();
+    };
+    const unsubscribe = scrollY.on("change", update);
+    window.addEventListener("wheel", interrupt, { passive: true });
+    window.addEventListener("touchmove", interrupt, { passive: true });
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("resize", update);
     return () => {
-      disposed = true;
-      cleanup?.();
+      unsubscribe();
+      entrance?.stop();
+      window.removeEventListener("wheel", interrupt);
+      window.removeEventListener("touchmove", interrupt);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("resize", update);
       node.style.removeProperty("--skills-light");
     };
-  }, [peak, section, navigation.pending, navigation.replay]);
+  }, [peak, scrollY, section, navigation.pending, navigation.replay]);
   return null;
 }
 

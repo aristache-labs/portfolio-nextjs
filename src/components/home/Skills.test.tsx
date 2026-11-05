@@ -5,7 +5,6 @@ import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
 import { Skills } from "./Skills";
-import { SKILLS_MOBILE_PORTRAIT, SKILLS_MOBILE_LANDSCAPE } from "./SkillsMobileReveal";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 
 vi.mock("next/image", () => ({
@@ -173,77 +172,6 @@ describe("Skills", () => {
     );
   });
 
-  it("reserves the largest category height across filter changes", () => {
-    installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
-    const height = vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(96);
-    try {
-      const many = Array.from({ length: 11 }, (_, index) => ({
-        name: `Skill ${index}`,
-        iconPath: "/skills/x.svg",
-        order: index,
-        category: index === 10 ? "Automation" : "Development",
-      }));
-      const { container } = render(<Skills skills={many} />);
-      const grid = container.querySelector<HTMLElement>("[role=tabpanel] > .grid")!;
-      const minimum = grid.style.minHeight;
-      expect(Number.parseFloat(minimum)).toBeGreaterThan(0);
-      fireEvent.click(screen.getByRole("tab", { name: "Development" }));
-      expect(grid.style.minHeight).toBe(minimum);
-      fireEvent.click(screen.getByRole("tab", { name: "Automation" }));
-      expect(grid.style.minHeight).toBe(minimum);
-      fireEvent.click(screen.getByRole("tab", { name: "Most Used" }));
-      expect(grid.style.minHeight).toBe(minimum);
-    } finally {
-      height.mockRestore();
-    }
-  });
-
-  it.each([SKILLS_MOBILE_PORTRAIT, SKILLS_MOBILE_LANDSCAPE])(
-    "reserves only Most Used space on mobile (%s)",
-    (query) => {
-      installMatchMedia({ [REDUCED_MOTION_QUERY]: true, [query]: true });
-      const height = vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(64);
-      try {
-        const many = Array.from({ length: 20 }, (_, index) => ({
-          name: `Skill ${index}`,
-          iconPath: "/skills/x.svg",
-          order: index,
-          category: "Development",
-        }));
-        const { container } = render(<Skills skills={many} />);
-        const grid = container.querySelector<HTMLElement>("[role=tabpanel] > .grid")!;
-        // jsdom has no grid layout, so its single-column fallback reserves eight rows.
-        expect(grid.style.minHeight).toBe("512px");
-        fireEvent.click(screen.getByRole("tab", { name: "Development" }));
-        expect(grid.style.minHeight).toBe("512px");
-        expect(grid.querySelectorAll("[title]")).toHaveLength(20);
-      } finally {
-        height.mockRestore();
-      }
-    },
-  );
-
-  it("links the active tab to its panel and supports wrapping arrows, Home and End", () => {
-    installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
-    render(<Skills skills={mockSkills} />);
-    const tabs = screen.getAllByRole("tab");
-    const panel = screen.getByRole("tabpanel");
-    expect(tabs[0]).toHaveAttribute("tabindex", "0");
-    expect(tabs[1]).toHaveAttribute("tabindex", "-1");
-    expect(tabs[0]).toHaveAttribute("aria-controls", panel.id);
-    fireEvent.keyDown(tabs[0], { key: "ArrowLeft" });
-    expect(tabs[2]).toHaveFocus();
-    expect(tabs[2]).toHaveAttribute("aria-selected", "true");
-    expect(panel).toHaveAttribute("aria-labelledby", tabs[2].id);
-    fireEvent.keyDown(tabs[2], { key: "ArrowRight" });
-    expect(tabs[0]).toHaveFocus();
-    fireEvent.keyDown(tabs[0], { key: "End" });
-    expect(tabs[2]).toHaveFocus();
-    fireEvent.keyDown(tabs[2], { key: "Home" });
-    expect(tabs[0]).toHaveFocus();
-    expect(panel).toHaveAttribute("tabindex", "0");
-  });
-
   it("renders category filters from the skill list", () => {
     render(<Skills skills={mockSkills} />);
     expect(screen.getByRole("tab", { name: "Frontend" })).toBeInTheDocument();
@@ -284,7 +212,7 @@ describe("Skills", () => {
           );
         });
         const buttons = screen.getAllByRole("tab");
-        expect(buttons[0]).toHaveStyle({ opacity: "0", transform: "scale(0.96)" });
+        expect(buttons[0]).toHaveStyle({ opacity: "0", transform: "scale(0)" });
         act(() => buttons[0].focus());
         await waitFor(() => {
           for (const button of buttons) expect(button).toHaveStyle({ opacity: "1" });

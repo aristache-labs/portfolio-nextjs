@@ -354,7 +354,8 @@
     top: 0;
   }
 
-  .hero[data-cinematic] .specialization {
+  /* The availability pill leaves with the roles line it sits above. */
+  .hero[data-cinematic] :is(.specialization, .availability) {
     transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
     opacity: calc(1 - var(--hero-exit-specialization, 0));
   }
@@ -390,7 +391,7 @@
   /* Keyboard navigation restores the entire composition, including late in the scene. */
   .hero[data-cinematic]
     .intro:focus-within
-    :is(.specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
+    :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
     transform: none;
     opacity: 1;
     filter: none;
@@ -847,6 +848,7 @@
 
   /* Layered exit: each layer leaves at its own speed, so the copy separates from the poster. */
   @supports (animation-timeline: view()) {
+    .availability,
     .specialization,
     .exitTitle {
       --lift: -80px;
@@ -860,7 +862,7 @@
       --lift: -180px;
     }
 
-    :is(.specialization, .exitTitle, .exitDetails, .exitActions) {
+    :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions) {
       animation: hero-lift linear both;
       animation-timeline: scroll(root block);
       animation-range: 0 65svh;
@@ -872,7 +874,8 @@
       animation-range: 0 55svh;
     }
 
-    .intro:focus-within :is(.specialization, .exitTitle, .exitDetails, .exitActions, .surname) {
+    .intro:focus-within
+      :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions, .surname) {
       animation: none;
     }
 
@@ -1097,7 +1100,7 @@
     transform: none;
   }
 
-  .hero[data-touch-scene] .specialization {
+  .hero[data-touch-scene] :is(.specialization, .availability) {
     transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
     opacity: calc(1 - var(--hero-exit-specialization, 0));
   }
@@ -1129,7 +1132,7 @@
 
   .hero[data-touch-scene]
     .intro:focus-within
-    :is(.specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
+    :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
     transform: none;
     opacity: 1;
     filter: none;

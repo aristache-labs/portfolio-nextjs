@@ -107,31 +107,6 @@ describe("About", () => {
     expect(screen.queryByText("120+")).not.toBeInTheDocument();
   });
 
-  it("renders saved admin statistics as final server text", () => {
-    const root = document.createElement("div");
-    root.innerHTML = renderToString(
-      <About
-        profile={{
-          ...mockProfile,
-          stats: {
-            manualWorkReduction: "73%",
-            manualWorkReductionLabel: "Hours saved",
-            deploymentLocations: "2,400+",
-            teamSize: "",
-            experienceYears: "9+",
-          },
-        }}
-      />,
-    );
-    const results = root.getElementsByClassName(styles.results)[0];
-    expect(results).toHaveTextContent("73%");
-    expect(results).toHaveTextContent("2,400+");
-    expect(results).toHaveTextContent("9+");
-    expect(results).toHaveTextContent("Hours saved");
-    expect(results).not.toHaveTextContent("Team members led");
-    expect(results).not.toHaveTextContent("0%");
-  });
-
   it("renders the section with correct id", () => {
     const { container } = render(<About profile={mockProfile} />);
     expect(container.querySelector("#about")).toBeTruthy();

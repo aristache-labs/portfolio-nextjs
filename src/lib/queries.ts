@@ -8,6 +8,7 @@ import type { MergedProject } from "@/lib/projects";
 import { getCachedUserStats } from "@/lib/github-cache";
 import { professionalYears } from "@/lib/experience";
 import { HERO_DEFAULTS, IDENTITY } from "@/lib/identity";
+import { aboutStats, type AboutStat } from "@/lib/about-stats";
 
 // Bundled asset shown when the profile has no avatar set yet (e.g. before the
 // admin uploads one). Served from `public/`, so a relative src is correct here.
@@ -73,12 +74,8 @@ export async function getProfile(): Promise<{
   heroSummary: string;
   availability: string | null;
   sectionVisibility: Record<string, boolean>;
-  stats: Record<string, string | number> & {
-    years: number;
-    repos: number;
-    stars: number;
-    followers: number;
-  };
+  stats: { years: number; repos: number; stars: number; followers: number };
+  aboutStats: AboutStat[];
 }> {
   const rows = await db.select().from(profile);
   const row = rows[0];
@@ -115,7 +112,8 @@ export async function getProfile(): Promise<{
     availability: row.availability?.trim() || null,
     sectionVisibility: (row.sectionVisibility as Record<string, boolean>) ?? {},
     roles: row.roles,
-    stats: { ...row.stats, years, repos, stars, followers },
+    stats: { years, repos, stars, followers },
+    aboutStats: aboutStats(s),
   };
 }
 

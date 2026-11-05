@@ -183,28 +183,6 @@ describe("getProfile", () => {
   });
   afterEach(() => vi.useRealTimers());
 
-  it("preserves saved About card data alongside derived GitHub statistics", async () => {
-    getCachedUserStatsMock.mockResolvedValue({ followers: 1, publicRepos: 2, totalStars: 3 });
-    _setRows([
-      {
-        name: "Name",
-        bio: "Bio",
-        roles: [],
-        stats: {
-          manualWorkReduction: "75%",
-          manualWorkReductionLabel: "Time saved",
-          teamSize: "",
-        },
-      },
-    ]);
-    expect((await getProfile()).stats).toMatchObject({
-      manualWorkReduction: "75%",
-      manualWorkReductionLabel: "Time saved",
-      teamSize: "",
-      repos: 2,
-    });
-  });
-
   it("shapes profile row deriving GitHub stats from the user cache", async () => {
     getCachedUserStatsMock.mockResolvedValue({
       followers: 112,

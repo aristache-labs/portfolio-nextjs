@@ -91,3 +91,25 @@
     display: block;
   }
 }
+
+/* Reading light: each word starts dim and brightens as it rises through the lower part of the
+   screen, so the biography reads in as you scroll. Scroll-driven CSS only, no listeners; browsers
+   without view timelines and reduced motion show the text at full strength. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .word {
+      animation: bio-light linear both;
+      animation-timeline: view();
+      animation-range: cover 5% cover 32%;
+    }
+  }
+}
+
+@keyframes bio-light {
+  from {
+    opacity: 0.18;
+  }
+  to {
+    opacity: 1;
+  }
+}
