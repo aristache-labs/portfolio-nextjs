@@ -1,3 +1,15 @@
+/* Match the roles' uppercase metrics while Geist loads, without changing its final face. */
+@font-face {
+  font-family: "Hero Roles Fallback";
+  src: local("Arial");
+  font-style: normal;
+  font-weight: 100 900;
+  size-adjust: 95.36%;
+  ascent-override: 105.38%;
+  descent-override: 30.94%;
+  line-gap-override: 0%;
+}
+
 .hero {
   /* Entrance timeline. Desktop and touch landscape stretch these for a longer reveal. */
   --hero-role-step: 120ms;
@@ -137,6 +149,7 @@
 }
 
 .specialization {
+  font-family: "GeistSans", "Hero Roles Fallback", Arial, sans-serif;
   margin-bottom: 1.25rem;
   max-width: 30rem;
   color: var(--brand-bright);
