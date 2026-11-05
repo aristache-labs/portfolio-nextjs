@@ -1,6 +1,11 @@
 /* The inset is scoped to this button so banner changes do not invalidate the whole document. */
 .button {
-  bottom: max(1.5rem, env(safe-area-inset-bottom), calc(var(--consent-inset, 0px) + 12px));
+  /* Clear of the home indicator on notched phones, and above an open consent bar. */
+  bottom: max(
+    1.5rem,
+    calc(1rem + env(safe-area-inset-bottom)),
+    calc(var(--consent-inset, 0px) + 12px)
+  );
 }
 
 @media (min-width: 640px) {

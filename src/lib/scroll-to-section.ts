@@ -70,6 +70,32 @@ function navigationGap(target: HTMLElement) {
     : SECTION_NAV_GAP;
 }
 
+/** Compact bar heights from nav-chrome.module.css, matched to the same media queries. */
+const COMPACT_NAV_HEIGHTS = { shortLandscape: 44, default: 52 } as const;
+
+function compactNavHeight() {
+  if (
+    window.matchMedia("(orientation: landscape) and (max-height: 500px) and (pointer: coarse)")
+      .matches
+  )
+    return COMPACT_NAV_HEIGHTS.shortLandscape;
+  return COMPACT_NAV_HEIGHTS.default;
+}
+
+/**
+ * The bar height a section will sit under once the jump ends. The site bar shrinks as soon as
+ * the page scrolls, so a jump that starts from the top uses the compact height it will land
+ * with, not the full height measured at the moment of the click.
+ */
+function landingNavHeight() {
+  const navigation = document.querySelector<HTMLElement>('header nav[aria-label="Primary"]');
+  const header = navigation?.closest("header");
+  if (header?.hasAttribute("data-shrinks") && !header.hasAttribute("data-compact")) {
+    return compactNavHeight();
+  }
+  return navigation?.getBoundingClientRect().height ?? 72;
+}
+
 /** Align section content consistently below the responsive navigation bar. */
 export function sectionScrollPosition(target: HTMLElement): number {
   // A pinned scene names the viewport offset where its track should sit.
@@ -80,10 +106,11 @@ export function sectionScrollPosition(target: HTMLElement): number {
   }
   const anchor = target.querySelector<HTMLElement>("[data-scroll-anchor]");
   if (anchor) {
-    const navigation = document.querySelector<HTMLElement>('header nav[aria-label="Primary"]');
-    const navigationHeight = navigation?.getBoundingClientRect().height ?? 72;
     return (
-      anchor.getBoundingClientRect().top + window.scrollY - navigationHeight - navigationGap(target)
+      anchor.getBoundingClientRect().top +
+      window.scrollY -
+      landingNavHeight() -
+      navigationGap(target)
     );
   }
   const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;

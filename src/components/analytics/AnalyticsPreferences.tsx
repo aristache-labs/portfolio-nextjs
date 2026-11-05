@@ -112,6 +112,7 @@ export function AnalyticsPreferences() {
       role="region"
       aria-label="Cookie preferences"
       aria-describedby={`${id}-copy`}
+      data-compact={editing ? undefined : ""}
       className={styles.panel}
     >
       <header className={styles.header}>

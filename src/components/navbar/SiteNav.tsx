@@ -26,6 +26,10 @@ import { Logo } from "@/components/brand/Logo";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import navStyles from "./nav-landscape.module.css";
 import panelStyles from "./nav-panel.module.css";
+import chromeStyles from "./nav-chrome.module.css";
+
+/** Past this offset the bar turns to glass and shrinks to its compact height. */
+const COMPACT_AFTER = 24;
 
 export type MenuSection = { id: string; label: string };
 
@@ -61,8 +65,8 @@ const SECTIONS: MenuSection[] = [
 ];
 
 /**
- * Fixed glass bar: mark, inline section links, and a contact CTA.
- * The mobile panel is the same list, not a full-screen overlay.
+ * Fixed glass bar: mark, inline section links, and a contact CTA. It stays on screen and
+ * shrinks to a compact height once the page scrolls. Below xl the same list opens as a panel.
  */
 export function SiteNav({
   hidden = [],
@@ -125,11 +129,32 @@ export function SiteNav({
     stopAnchorScroll.current?.();
     stopAnchorScroll.current = scrollToSection(id, reduce);
   };
+  const progressRef = useRef<HTMLSpanElement>(null);
+  // One rAF-throttled pass per frame: the compact glass state and the progress line. Progress
+  // is written straight to the DOM, so scrolling never re-renders the header.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progressRef.current?.style.setProperty(
+        "transform",
+        `scaleX(${max > 0 ? Math.min(1, Math.max(0, y / max)) : 0})`,
+      );
+      setScrolled(y > COMPACT_AFTER);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -192,17 +217,28 @@ export function SiteNav({
             animate={{ opacity: 1 }}
             exit={reduce ? undefined : { opacity: 0 }}
             transition={{ duration: reduce ? 0 : 0.3 }}
-            className={`${panelStyles.backdrop} fixed inset-0 z-40 xl:hidden`}
+            className={`${panelStyles.backdrop} fixed inset-0 z-65 xl:hidden`}
           />
         )}
       </AnimatePresence>
+      {/* Outside the header, so it stays on screen while the bar is tucked away. */}
+      <span
+        ref={progressRef}
+        aria-hidden
+        className={cn(chromeStyles.progress, (!scrolled || open) && chromeStyles.progressIdle)}
+      />
       <m.header
         ref={headerRef}
         initial={reduce ? false : { y: -70, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.2, ease: [0.52, 1, 0.26, 1] }}
+        data-shrinks=""
+        data-compact={scrolled && !open ? "" : undefined}
         className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+          chromeStyles.header,
+          "fixed inset-x-0 top-0 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
+          // The open menu sits above the consent bar (z-60); the bar returns when it closes.
+          open ? "z-70" : "z-50",
           open
             ? "bg-transparent"
             : scrolled
@@ -212,7 +248,7 @@ export function SiteNav({
       >
         <nav
           aria-label="Primary"
-          className={`${navStyles.bar} site-container flex h-[72px] items-center justify-between`}
+          className={`${navStyles.bar} ${chromeStyles.bar} site-container flex h-[72px] items-center justify-between`}
         >
           <SectionLink
             crossPage={!onHomepage}
@@ -220,9 +256,13 @@ export function SiteNav({
             href={sectionHref("hero")}
             onClick={(event) => goToSection(event, "hero")}
             aria-label="Home"
-            className={cn("flex min-w-0 items-center gap-2.5", open && panelStyles.dimmedLogo)}
+            className={cn(
+              chromeStyles.brand,
+              "flex min-w-0 items-center gap-2.5",
+              open && panelStyles.dimmedLogo,
+            )}
           >
-            <Logo className={navStyles.logo} />
+            <Logo className={cn(navStyles.logo, chromeStyles.mark)} />
             {/* Custom responsive assets share the same candidates as their priority preload. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

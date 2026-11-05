@@ -1,0 +1,75 @@
+/* The bar stays on screen and slims down once the page scrolls: the round mark folds away and
+   the ARISTACHE wordmark carries the brand alone. Compact heights are mirrored in
+   COMPACT_NAV_HEIGHTS (src/lib/scroll-to-section.ts) so section links land below them. */
+.header[data-compact] .bar {
+  height: 52px;
+}
+
+.brand {
+  transform-origin: left center;
+}
+
+/* The mark's width collapses so the wordmark slides into its place; the parent gap goes too. */
+.mark {
+  width: 48px;
+  overflow: hidden;
+}
+
+.header[data-compact] .brand {
+  gap: 0;
+  transform: scale(0.9);
+}
+
+.header[data-compact] .mark {
+  width: 0;
+  opacity: 0;
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .mark {
+    width: 34px;
+  }
+
+  .header[data-compact] .bar {
+    height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bar {
+    transition: height 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .brand {
+    transition:
+      transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      gap 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .mark {
+    transition:
+      width 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 200ms ease;
+  }
+}
+
+/* Reading progress pinned to the top edge of the screen, below a notch or status bar. It lives
+   outside the header so the bar can change height without moving it. */
+.progress {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  left: 0;
+  right: 0;
+  z-index: 71;
+  height: 3px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--brand-deep), var(--brand-mid) 55%, var(--brand-bright));
+  box-shadow: 0 0 12px rgb(var(--brand-mid-rgb) / 0.7);
+  pointer-events: none;
+  transition: opacity 300ms;
+}
+
+.progressIdle {
+  opacity: 0;
+}
