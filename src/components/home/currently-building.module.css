@@ -1,0 +1,165 @@
+/* One row on desktop; label and project stack above the date and action on narrow screens. */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 12px 16px;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-mid);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-bright);
+  box-shadow: 0 0 10px rgb(var(--brand-mid-rgb) / 0.8);
+}
+
+.title {
+  min-width: 0;
+  color: var(--foreground);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.meta {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.action {
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dot {
+    animation: building-pulse 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+}
+
+@keyframes building-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) {
+  .strip {
+    padding: 12px 14px;
+  }
+
+  .label {
+    width: 100%;
+  }
+}
+
+/* Portrait: slim strip under the heading, with its own spacing. */
+.slot {
+  margin-bottom: 24px;
+}
+
+/* Desktop and short landscape: a compact rectangular card beside the heading. */
+@media (min-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  .slot {
+    width: clamp(260px, 26vw, 340px);
+    margin-bottom: 0;
+  }
+
+  .strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "label label"
+      "title action"
+      "meta action";
+    gap: 4px 12px;
+    padding: 14px 16px;
+  }
+
+  .label {
+    grid-area: label;
+    margin-bottom: 4px;
+  }
+
+  .title {
+    grid-area: title;
+  }
+
+  .meta {
+    grid-area: meta;
+  }
+
+  .action {
+    grid-area: action;
+    align-self: center;
+    margin-left: 0;
+  }
+}
+
+/* Short landscape: smaller and tighter, since the whole heading row is only ~120px tall. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .slot {
+    width: clamp(176px, 24vw, 204px);
+  }
+
+  .strip {
+    gap: 1px 8px;
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .label {
+    gap: 6px;
+    margin-bottom: 1px;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+  }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .title {
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .meta {
+    gap: 0 8px;
+    font-size: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .action {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+}

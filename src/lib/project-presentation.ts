@@ -46,3 +46,24 @@ export function groupProjects(projects: MergedProject[]): ProjectPresentation[] 
         a.id - b.id,
     );
 }
+
+/**
+ * The project worked on most recently, for the "Currently building" strip. Projects still in
+ * development come first: a shipped site that got a typo fix is not what is being built. With
+ * only live projects the newest push wins. Returns null when no project has a push date.
+ */
+export function currentlyBuilding(projects: ProjectPresentation[]): ProjectPresentation | null {
+  const dated = projects.filter((project) => project.pushedAt);
+  const pool = dated.some((project) => !project.hasLive)
+    ? dated.filter((project) => !project.hasLive)
+    : dated;
+  return (
+    [...pool].sort((a, b) => b.pushedAt!.getTime() - a.pushedAt!.getTime() || a.id - b.id)[0] ??
+    null
+  );
+}
+
+/** "Nov 4", fixed to UTC so the server and the browser print the same day. */
+export function pushedLabel(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+}

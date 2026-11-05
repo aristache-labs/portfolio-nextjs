@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { fixture } from "@/test/project-fixture";
-import { cardDescription, groupProjects, liveFirst } from "./project-presentation";
+import {
+  cardDescription,
+  currentlyBuilding,
+  groupProjects,
+  liveFirst,
+  pushedLabel,
+} from "./project-presentation";
 import { projectInsertSchema } from "./schemas";
 
 describe("project presentation", () => {
@@ -51,5 +57,25 @@ describe("project presentation", () => {
     [undefined, null],
   ])("normalizes group %s", (group, expected) => {
     expect(projectInsertSchema.parse({ repo: "app", title: "App", group }).group).toBe(expected);
+  });
+
+  it("picks the newest push among projects still in development", () => {
+    const projects = groupProjects([
+      fixture(1, { homepage: "https://live.example", pushedAt: new Date("2026-11-04") }),
+      fixture(2, { pushedAt: new Date("2026-10-20") }),
+      fixture(3, { pushedAt: new Date("2026-10-28") }),
+    ]);
+    expect(currentlyBuilding(projects)?.id).toBe(3);
+  });
+  it("falls back to the newest live project, and to nothing without push dates", () => {
+    const live = groupProjects([
+      fixture(1, { homepage: "https://a.example", pushedAt: new Date("2026-09-01") }),
+      fixture(2, { homepage: "https://b.example", pushedAt: new Date("2026-10-01") }),
+    ]);
+    expect(currentlyBuilding(live)?.id).toBe(2);
+    expect(currentlyBuilding(groupProjects([fixture(1, { pushedAt: null })]))).toBeNull();
+  });
+  it("prints the push date in UTC so server and browser agree", () => {
+    expect(pushedLabel(new Date("2026-11-04T23:30:00Z"))).toBe("Nov 4");
   });
 });

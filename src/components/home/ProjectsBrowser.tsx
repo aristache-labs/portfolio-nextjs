@@ -1,6 +1,11 @@
 "use client";
 
-import { groupProjects, liveFirst, type ProjectPresentation } from "@/lib/project-presentation";
+import {
+  currentlyBuilding,
+  groupProjects,
+  liveFirst,
+  type ProjectPresentation,
+} from "@/lib/project-presentation";
 import { useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { m, type Variants } from "framer-motion";
@@ -11,6 +16,7 @@ import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ProjectCard } from "./ProjectCard";
 import { FeaturedCard, RecentCard } from "./HighlightCards";
+import { CurrentlyBuilding } from "./CurrentlyBuilding";
 import type { MergedProject } from "@/lib/projects";
 import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
@@ -104,7 +110,14 @@ function ColumnLabel({ children }: { children: string }) {
  * Interactive half of the Projects section - client-side because the highlights, filter and grid
  * share the quick-view state. Filters the already-loaded list rather than refetching.
  */
-export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
+export function ProjectsBrowser({
+  projects,
+  header,
+}: {
+  projects: MergedProject[];
+  /** Section heading, rendered beside the Currently building card. */
+  header?: ReactNode;
+}) {
   const { mode } = useAnimationPolicy();
   const [hasInteracted, setHasInteracted] = useState(false);
   const cardVariants: Variants = {
@@ -145,7 +158,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   // a `rest` array rebuilt every render, so it never actually memoised anything.
   const pageSize = mobileViewport ? (landscape ? 4 : 2) : 6;
   const limit = pageSize + extra;
-  const { featured, recent, rest, categories } = useMemo(() => {
+  const { featured, recent, rest, categories, building } = useMemo(() => {
     // projects arrives already sorted featured-first by mergeProjects.
     const grouped = groupProjects(projects);
     const lead = grouped
@@ -172,6 +185,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
     const counts = new Map<string, number>();
     for (const p of grid) if (p.category) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
     return {
+      building: currentlyBuilding(grouped),
       featured: lead,
       recent: latest,
       rest: grid,
@@ -203,6 +217,17 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
 
   return (
     <div ref={containerRef} tabIndex={-1} aria-label="Projects" className="outline-none">
+      {(header || building) && (
+        <div className={layoutCss.head}>
+          <div className={layoutCss.headCopy}>{header}</div>
+          {building && (
+            <CurrentlyBuilding
+              project={building}
+              onQuickView={(event) => openQuickView(building, event)}
+            />
+          )}
+        </div>
+      )}
       {(featured.length > 0 || recent.length > 0) && (
         <div
           className={`${layoutCss.highlights} ${featured.length === MAX_FEATURED && recent.length === MAX_RECENT ? layoutCss.balanced : ""}`}
@@ -210,7 +235,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
           {featured.length > 0 && (
             <div className={layoutCss.column}>
               <ColumnLabel>Featured</ColumnLabel>
-              <div className={`${TRACK} ${FEATURED_SNAP}`}>
+              <div className={`${TRACK} ${FEATURED_SNAP} ${layoutCss.stack}`}>
                 {featured.map((p, i) => (
                   <Arrival
                     key={p.id}

@@ -161,3 +161,98 @@
     background: linear-gradient(90deg, rgb(var(--brand-mid-rgb) / 0.5), transparent);
   }
 }
+
+/* Desktop stack: featured cards pin in turn and the next one slides over the previous. Sticky
+   only, so the section gains no scroll length. The previous card recedes with a transform-only
+   shrink and a scrim, driven by the next card's own travel where the browser supports it. */
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
+  .stack > * {
+    position: sticky;
+  }
+
+  .stack > :nth-child(1) {
+    top: 104px;
+    z-index: 1;
+  }
+
+  .stack > :nth-child(2) {
+    top: 128px;
+    z-index: 2;
+  }
+
+  .stack > :nth-child(n + 3) {
+    top: 152px;
+    z-index: 3;
+  }
+
+  .featuredCard::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: rgb(4 8 10 / 0.55);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .stack {
+      timeline-scope: --featured-next;
+    }
+
+    .stack > :nth-child(2) {
+      view-timeline: --featured-next block;
+    }
+
+    .stack > :nth-child(1) .featuredCard {
+      animation: featured-recede linear both;
+      animation-timeline: --featured-next;
+      animation-range: entry 55% entry 100%;
+    }
+
+    .stack > :nth-child(1) .featuredCard::after {
+      animation: featured-scrim linear both;
+      animation-timeline: --featured-next;
+      animation-range: entry 55% entry 100%;
+    }
+  }
+}
+
+@keyframes featured-recede {
+  to {
+    scale: 0.95;
+  }
+}
+
+@keyframes featured-scrim {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Heading row: the copy on the left and, on desktop and short landscape, the Currently building
+   card on the right, bottom-aligned with the subtitle so the section gains no height. Portrait
+   keeps the card as a slim strip under the heading. */
+.head {
+  display: block;
+}
+
+.headCopy {
+  min-width: 0;
+}
+
+@media (min-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px;
+  }
+
+  /* Same bottom margin as the subtitle (mb-10), so the card lines up with its last line. */
+  .head > :nth-child(2) {
+    margin-bottom: 2.5rem;
+  }
+}
