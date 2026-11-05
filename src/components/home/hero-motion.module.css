@@ -201,6 +201,13 @@
   background: rgb(var(--brand-mid-rgb) / 0.05);
 }
 
+/* box-shadow: none above also removes the Button's focus ring (a box-shadow), so keyboard users
+   need an outline of their own here. */
+.contactAction:focus-visible {
+  outline: 2px solid var(--brand-mid);
+  outline-offset: 3px;
+}
+
 .secondaryLinks {
   display: flex;
   flex-wrap: wrap;

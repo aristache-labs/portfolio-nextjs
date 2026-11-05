@@ -336,6 +336,14 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
+  /* Keyboard focus reaches a role before the rail does: show it at once, as phones already do. */
+  [data-timeline-scroll] .entry:focus-within .card,
+  [data-timeline-scroll] .entry:focus-within .step {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* Role kind ("Volunteer") as a quiet mono label beside the dates. */
