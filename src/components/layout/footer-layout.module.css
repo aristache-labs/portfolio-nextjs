@@ -237,3 +237,9 @@
     padding-right: 76px;
   }
 }
+
+/* Keep the copyright bar above the home indicator on phones with a bottom inset. It is 0
+   elsewhere, and the viewport already opts into viewport-fit=cover. */
+.stage {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

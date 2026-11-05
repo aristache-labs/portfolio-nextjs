@@ -318,7 +318,7 @@ export function SiteNav({
               crossPage={!onHomepage}
               href={navCta.href}
               onClick={(event) => goToSection(event, "contact")}
-              className="group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex"
+              className={`${chromeStyles.cta} group text-foreground focus-visible:ring-brand-mid/70 hidden items-center gap-2 rounded-full border border-(--brand-mid)/40 bg-(--brand-deep)/20 px-5 py-2.5 text-sm font-medium shadow-[0_8px_32px_rgb(var(--brand-deep-rgb)/0.45)] backdrop-blur-md transition-colors hover:bg-(--brand-deep)/35 focus-visible:ring-2 focus-visible:outline-none xl:inline-flex`}
             >
               {navCta.label}
               <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -332,7 +332,7 @@ export function SiteNav({
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-navigation"
-            className={`${navStyles.menu} border-border bg-background/40 text-foreground flex size-11 shrink-0 items-center justify-center rounded-xl border backdrop-blur-md xl:hidden`}
+            className={`${navStyles.menu} ${chromeStyles.menuButton} border-border bg-background/40 text-foreground flex size-11 shrink-0 items-center justify-center rounded-xl border backdrop-blur-md xl:hidden`}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>

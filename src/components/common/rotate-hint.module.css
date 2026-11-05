@@ -1,0 +1,258 @@
+/* Full-screen blurred overlay. The overlay itself is the glass, so it is the element that fades. It
+   waits 0.85s so the intro curtain (z 100) can lift first, then everything plays once. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+  background:
+    radial-gradient(60% 42% at 50% 44%, rgb(var(--brand-mid-rgb) / 0.2), transparent 72%),
+    rgb(4 8 10 / 0.52);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  backdrop-filter: blur(16px) saturate(1.15);
+  /* A swipe on the overlay still scrolls the page underneath. */
+  touch-action: pan-y;
+  cursor: default;
+}
+
+/* Once dismissed it must not catch the end of the same touch. */
+.leaving {
+  pointer-events: none;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 144px;
+  height: 144px;
+  margin-bottom: 12px;
+}
+
+.glow {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(var(--brand-mid-rgb) / 0.35), transparent 68%);
+}
+
+/* A curved arrow showing the direction of the turn. */
+.arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--brand-bright);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px rgb(var(--brand-mid-rgb) / 0.7));
+}
+
+.arcLine {
+  stroke-dasharray: 118;
+  stroke-dashoffset: 0;
+}
+
+.device {
+  position: relative;
+  width: 62px;
+  height: 108px;
+  border: 3px solid rgb(255 255 255 / 0.9);
+  border-radius: 15px;
+  background: #05090b;
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-bright-rgb) / 0.35),
+    0 0 28px rgb(var(--brand-mid-rgb) / 0.5),
+    0 18px 40px -12px rgb(0 0 0 / 0.8);
+}
+
+/* The speaker slot turns with the phone. */
+.device::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  z-index: 2;
+  width: 15px;
+  height: 3px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.85);
+  transform: translateX(-50%);
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.shot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 124px;
+  height: 124px;
+  margin: -62px 0 0 -62px;
+  object-fit: cover;
+}
+
+.title {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.copy {
+  max-width: 260px;
+  color: rgb(255 255 255 / 0.78);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.skip {
+  margin-top: 8px;
+  color: rgb(255 255 255 / 0.5);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Motion, slowed for a calm read: fade in after the curtain, hold upright, tip over to landscape over
+   1.4s, then hold wide with the arrow complete. */
+@media (prefers-reduced-motion: no-preference) {
+  .overlay {
+    animation: rotate-hint-in 600ms ease 850ms both;
+  }
+
+  .leaving {
+    animation: rotate-hint-out 220ms ease both;
+  }
+
+  .device {
+    animation: rotate-hint-turn 1.4s cubic-bezier(0.55, 0, 0.3, 1) 2.3s both;
+  }
+
+  .shot {
+    animation: rotate-hint-keep-upright 1.4s cubic-bezier(0.55, 0, 0.3, 1) 2.3s both;
+  }
+
+  .arcLine {
+    animation: rotate-hint-draw 1.3s cubic-bezier(0.55, 0, 0.3, 1) 2.3s both;
+  }
+
+  .arcHead {
+    animation: rotate-hint-fade 400ms ease 3.4s both;
+  }
+
+  .title,
+  .copy,
+  .skip {
+    animation: rotate-hint-rise 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .title {
+    animation-delay: 1.2s;
+  }
+
+  .copy {
+    animation-delay: 1.5s;
+  }
+
+  .skip {
+    animation-delay: 1.9s;
+  }
+}
+
+/* Reduced motion: the finished state at once, no spinning. */
+@media (prefers-reduced-motion: reduce) {
+  .device {
+    transform: rotate(-90deg);
+  }
+
+  .shot {
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes rotate-hint-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rotate-hint-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes rotate-hint-turn {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-90deg);
+  }
+}
+
+/* The picture turns the other way by the same amount, so it stays upright inside the phone. */
+@keyframes rotate-hint-keep-upright {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes rotate-hint-draw {
+  from {
+    stroke-dashoffset: 118;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes rotate-hint-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rotate-hint-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
