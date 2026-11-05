@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from "react";
 import type { MotionProps } from "framer-motion";
-
-const QUERY = "(prefers-reduced-motion: reduce)";
+import { REDUCED_MOTION_QUERY as QUERY } from "./useAnimationPolicy";
 
 function subscribe(onChange: () => void) {
   const mql = window.matchMedia(QUERY);

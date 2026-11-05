@@ -10,6 +10,11 @@ import { LateMonoFont } from "@/components/util/LateMonoFont";
 import { AmbientBackgroundGate } from "@/components/background/AmbientBackgroundGate";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE } from "@/lib/seo/site";
+import { CONSENT_KEY } from "@/lib/consent-key";
+
+// Marks <html> before first paint when the consent bar is going to appear, so layouts that make
+// room for it (the portrait hero) are final from the first frame instead of jumping on mount.
+const CONSENT_PENDING_SCRIPT = `try{var p=location.pathname;if(p.indexOf("/admin")!==0&&p.indexOf("/login")!==0&&!/^(accepted|rejected)$/.test(localStorage.getItem(${JSON.stringify(CONSENT_KEY)})||""))document.documentElement.setAttribute("data-consent-pending","")}catch(e){}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -79,6 +84,9 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
               "if(matchMedia('(pointer: coarse) and (max-width: 767px) and (orientation: portrait)').matches){document.documentElement.style.setProperty('--portrait-screen-height',screen.height+'px')}",
           }}
         />
+        {process.env.NEXT_PUBLIC_GTAG_ID && (
+          <script dangerouslySetInnerHTML={{ __html: CONSENT_PENDING_SCRIPT }} />
+        )}
       </head>
       <body className={GeistSans.className}>
         <PersonJsonLd />

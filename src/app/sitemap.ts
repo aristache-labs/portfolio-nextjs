@@ -2,11 +2,11 @@ import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/seo/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+  // No lastModified: a build timestamp claims a content change on every deploy, which
+  // teaches crawlers to ignore the field. Content dates would need a database read here.
   return [
     {
       url: new URL("/", SITE.url).toString(),
-      lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
     },

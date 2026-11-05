@@ -8,6 +8,20 @@ import { useConsentInset } from "@/lib/consent-inset";
 import { scrollToPosition } from "@/lib/scroll-to-section";
 import styles from "./scroll-to-top.module.css";
 
+/** Fallback for pages without the homepage sections, such as Privacy. */
+const MIN_THRESHOLD = 400;
+
+/**
+ * On the homepage the button appears once About has risen to the middle of the screen, the
+ * point where the reader has left the hero behind. Elsewhere it appears after a short read.
+ */
+function threshold() {
+  const about = document.getElementById("about");
+  if (!about) return MIN_THRESHOLD;
+  const top = about.getBoundingClientRect().top + window.scrollY;
+  return Math.max(MIN_THRESHOLD, top - window.innerHeight / 2);
+}
+
 const ScrollToTop = () => {
   const [show, setShow] = useState(false);
   const reduce = useReducedMotion();
@@ -16,10 +30,20 @@ const ScrollToTop = () => {
   useEffect(() => () => stopScroll.current?.(), []);
 
   useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 400);
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setShow(window.scrollY > threshold());
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    update();
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   const goToTop = () => {

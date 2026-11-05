@@ -1,12 +1,13 @@
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  /* Every pixel of a ~360px-tall screen counts; 48px still fits the 40px menu button. */
   .bar {
-    height: 54px;
+    height: 48px;
   }
 
   .logo > span,
   .logo img {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
   }
 
   .wordmark {
@@ -14,7 +15,7 @@
   }
 
   .panel {
-    max-height: calc(100dvh - 64px);
+    max-height: calc(100dvh - 56px);
   }
 
   .menu {

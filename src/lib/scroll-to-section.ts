@@ -1,6 +1,61 @@
 "use client";
 
+import type Lenis from "lenis";
 import { beginSectionNavigation } from "./section-navigation";
+import { getSmoothScroll } from "./smooth-scroll";
+
+// Smooth acceleration and deceleration, with no abrupt change at either end.
+const smoothStep = (progress: number) => progress * progress * (3 - 2 * progress);
+const NAVIGATION_KEYS = [
+  "Escape",
+  "ArrowDown",
+  "ArrowUp",
+  "PageDown",
+  "PageUp",
+  "Home",
+  "End",
+  " ",
+];
+
+/**
+ * Lenis owns the scroll position while it runs, so a paced jump goes through it. Wheel input
+ * already takes over inside Lenis; keys and pointer presses end the jump the same way as the
+ * native path below.
+ */
+function scrollWithLenis(
+  lenis: Lenis,
+  destination: number,
+  duration: number,
+  onFinish?: (arrived: boolean) => void,
+): () => void {
+  let stopped = false;
+  const stop = (arrived: boolean) => {
+    if (stopped) return;
+    stopped = true;
+    window.removeEventListener("keydown", onKey);
+    window.removeEventListener("pointerdown", cancel);
+    window.removeEventListener("wheel", release);
+    onFinish?.(arrived);
+  };
+  // Wheel input re-targets Lenis by itself; other input freezes the jump where it is.
+  const release = () => stop(false);
+  const cancel = () => {
+    if (!stopped) lenis.scrollTo(lenis.scroll, { immediate: true, force: true });
+    stop(false);
+  };
+  const onKey = (event: KeyboardEvent) => {
+    if (NAVIGATION_KEYS.includes(event.key)) cancel();
+  };
+  window.addEventListener("keydown", onKey);
+  window.addEventListener("pointerdown", cancel, { passive: true });
+  window.addEventListener("wheel", release, { passive: true });
+  lenis.scrollTo(destination, {
+    duration: duration / 1000,
+    easing: smoothStep,
+    onComplete: () => stop(true),
+  });
+  return cancel;
+}
 
 const SECTION_NAV_GAP = 38;
 /** Landscape phones have too little height to spare the full gap. */
@@ -15,6 +70,32 @@ function navigationGap(target: HTMLElement) {
     : SECTION_NAV_GAP;
 }
 
+/** Compact bar heights from nav-chrome.module.css, matched to the same media queries. */
+const COMPACT_NAV_HEIGHTS = { shortLandscape: 44, default: 52 } as const;
+
+function compactNavHeight() {
+  if (
+    window.matchMedia("(orientation: landscape) and (max-height: 500px) and (pointer: coarse)")
+      .matches
+  )
+    return COMPACT_NAV_HEIGHTS.shortLandscape;
+  return COMPACT_NAV_HEIGHTS.default;
+}
+
+/**
+ * The bar height a section will sit under once the jump ends. The site bar shrinks as soon as
+ * the page scrolls, so a jump that starts from the top uses the compact height it will land
+ * with, not the full height measured at the moment of the click.
+ */
+function landingNavHeight() {
+  const navigation = document.querySelector<HTMLElement>('header nav[aria-label="Primary"]');
+  const header = navigation?.closest("header");
+  if (header?.hasAttribute("data-shrinks") && !header.hasAttribute("data-compact")) {
+    return compactNavHeight();
+  }
+  return navigation?.getBoundingClientRect().height ?? 72;
+}
+
 /** Align section content consistently below the responsive navigation bar. */
 export function sectionScrollPosition(target: HTMLElement): number {
   // A pinned scene names the viewport offset where its track should sit.
@@ -25,10 +106,11 @@ export function sectionScrollPosition(target: HTMLElement): number {
   }
   const anchor = target.querySelector<HTMLElement>("[data-scroll-anchor]");
   if (anchor) {
-    const navigation = document.querySelector<HTMLElement>('header nav[aria-label="Primary"]');
-    const navigationHeight = navigation?.getBoundingClientRect().height ?? 72;
     return (
-      anchor.getBoundingClientRect().top + window.scrollY - navigationHeight - navigationGap(target)
+      anchor.getBoundingClientRect().top +
+      window.scrollY -
+      landingNavHeight() -
+      navigationGap(target)
     );
   }
   const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
@@ -70,6 +152,8 @@ export function scrollToPosition(
   }
 
   const duration = Math.min(1400, Math.max(300, (Math.abs(destination - start) / 1600) * 1000));
+  const lenis = getSmoothScroll();
+  if (lenis) return scrollWithLenis(lenis, destination, duration, onFinish);
   let frame = 0;
   let startedAt: number | undefined;
   let stopped = false;
@@ -85,18 +169,12 @@ export function scrollToPosition(
   };
   const cancel = () => stop();
   const onKey = (event: KeyboardEvent) => {
-    if (
-      ["Escape", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(
-        event.key,
-      )
-    )
-      stop();
+    if (NAVIGATION_KEYS.includes(event.key)) stop();
   };
   const tick = (now: number) => {
     startedAt ??= now;
     const progress = Math.min(1, (now - startedAt) / duration);
-    // Smooth acceleration and deceleration, with no abrupt change at either end.
-    const eased = progress * progress * (3 - 2 * progress);
+    const eased = smoothStep(progress);
     window.scrollTo({ top: start + (destination - start) * eased, behavior: "instant" });
     if (progress < 1) frame = requestAnimationFrame(tick);
     else stop(true);

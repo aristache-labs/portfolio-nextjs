@@ -138,6 +138,22 @@ body {
   button:disabled {
     cursor: not-allowed;
   }
+  /* Lenis (SmoothScroll.tsx) drives wheel scrolling on expressive desktops. Native smooth
+     scrolling would fight its per-frame writes, and a stopped instance must also stop the
+     page underneath an open menu or dialog. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: clip;
+  }
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
 }
 
 /* Brand gradient clipped to text. Uses --gradient-ink (theme-aware: rich on

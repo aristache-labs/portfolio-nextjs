@@ -10,32 +10,80 @@ import {
   type MouseEvent,
   type RefObject,
 } from "react";
+import { preload } from "react-dom";
+import dynamic from "next/dynamic";
 import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { HERO_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { HERO_VIDEO_QUERY, PORTRAIT_PHONE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
 import { HeroDepth } from "./HeroDepth";
+
+// Desktop-only WebGL field; its chunk loads after the page is idle, never on touch screens.
+const HeroNetwork = dynamic(() => import("./HeroNetwork"), { ssr: false });
+
+/** Resolves once the page has loaded and the main thread has a quiet moment. */
+function useIdleAfterLoad(enabled: boolean) {
+  const [idle, setIdle] = useState(false);
+  useEffect(() => {
+    if (!enabled || idle) return;
+    let handle: number | undefined;
+    const schedule = () => {
+      handle =
+        typeof window.requestIdleCallback === "function"
+          ? window.requestIdleCallback(() => setIdle(true), { timeout: 2500 })
+          : window.setTimeout(() => setIdle(true), 1200);
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
+    return () => {
+      window.removeEventListener("load", schedule);
+      if (handle === undefined) return;
+      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(handle);
+      else window.clearTimeout(handle);
+    };
+  }, [enabled, idle]);
+  return idle;
+}
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
-import { IDENTITY } from "@/lib/identity";
-import { useConsentInset } from "@/lib/consent-inset";
+import { HERO_DEFAULTS } from "@/lib/identity";
 export type HeroProfile = {
   name: string;
   roles: string[];
+  /** Admin-edited; the last word takes the accent. Defaults live in HERO_DEFAULTS. */
+  headline?: string;
+  summary?: string;
+  /** Short availability note with a live dot. Hidden when empty. */
+  availability?: string | null;
 };
-
-const HERO_COPY = IDENTITY.summary;
 const PORTRAIT_POSTER = "/media/hero-portrait.webp";
 const PORTRAIT_POSTER_QUERY =
   "(max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 3/4)";
 const FULL_POSTER_SOURCES =
   "/media/hero-960.webp 960w, /media/hero-1280.webp 1280w, /media/hero.webp 1672w";
+const FULL_POSTER_SIZES = "max(100vw, 178lvh)";
+
+/**
+ * The poster is the LCP element, but a <picture> source is invisible to the preload scanner
+ * until the body is parsed, and React only auto-preloads plain <img> tags. Announce exactly the
+ * one candidate this screen will use, in the head and at high priority, ahead of small icons.
+ */
+function preloadPoster() {
+  preload(PORTRAIT_POSTER, { as: "image", fetchPriority: "high", media: PORTRAIT_POSTER_QUERY });
+  preload("/media/hero.webp", {
+    as: "image",
+    fetchPriority: "high",
+    imageSrcSet: FULL_POSTER_SOURCES,
+    imageSizes: FULL_POSTER_SIZES,
+    media: `not all and ${PORTRAIT_POSTER_QUERY}`,
+  });
+}
 /** Quiet scroll time before a paused hero video may play again. */
 const VIDEO_RESUME_DELAY = 400;
 /** Cover-fit box for the 16:9 hero plate, centered in its size container. */
@@ -160,15 +208,16 @@ export function Hero({
   socials?: { platform: string; url: string }[];
   transitionToAbout?: boolean;
 }) {
+  preloadPoster();
   const reduce = useReducedMotion();
-  const consentInset = useConsentInset();
   const { mode } = useAnimationPolicy();
   const expressive = mode === "expressive";
+  const showNetwork = useIdleAfterLoad(expressive) && expressive;
   const desktopPinned = useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout;
   const touchScene =
     useMediaQuery(HERO_LANDSCAPE_PIN_QUERY) && mode !== "static" && transitionToAbout;
   // Portrait phones use CSS-only scroll motion, so no per-frame script is mounted for them.
-  const portraitPhone = useMediaQuery("(max-width: 767px) and (orientation: portrait)");
+  const portraitPhone = useMediaQuery(PORTRAIT_PHONE_QUERY);
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopAnchorScroll.current?.(), []);
   const navigateToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -277,6 +326,8 @@ export function Hero({
   });
 
   const [firstName, ...remainingName] = profile.name.trim().split(/\s+/);
+  const headlineWords = (profile.headline?.trim() || HERO_DEFAULTS.headline).split(/\s+/);
+  const summary = profile.summary?.trim() || HERO_DEFAULTS.summary;
 
   const toggleVideo = () => {
     const node = videoRef.current;
@@ -297,7 +348,6 @@ export function Hero({
       data-cinematic={transitionToAbout || undefined}
       data-touch-scene={touchScene || undefined}
       className={`${styles.hero} relative scroll-mt-24`}
-      style={{ "--hero-consent-inset": `${consentInset}px` } as CSSProperties}
     >
       {mode !== "static" && !portraitPhone && (
         <HeroScrollMotion
@@ -323,7 +373,7 @@ export function Hero({
                   ref={posterRef}
                   src="/media/hero.webp"
                   srcSet={FULL_POSTER_SOURCES}
-                  sizes="max(100vw, 178lvh)"
+                  sizes={FULL_POSTER_SIZES}
                   alt=""
                   fetchPriority="high"
                   onLoad={(event) => markPosterLoaded(event.currentTarget)}
@@ -356,6 +406,7 @@ export function Hero({
           <div className={`${styles.scrim} hero-vignette absolute inset-0`} />
           {expressive && <HeroSpotlight section={sectionRef} />}
           {expressive && <HeroDepth section={sectionRef} />}
+          {showNetwork && <HeroNetwork section={sectionRef} />}
           <div aria-hidden className={styles.halo} />
           <div className="hero-noise absolute inset-0" />
           <div className={styles.handoff} />
@@ -377,6 +428,12 @@ export function Hero({
           className={`${styles.content} ${styles.scrollCopy} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
         >
           <div className={`${styles.intro} min-w-0 lg:pl-8`}>
+            {profile.availability && (
+              <p className={`${styles.enter} ${styles.availability}`} style={entranceStyle(0)}>
+                <span aria-hidden className={styles.availabilityDot} />
+                {profile.availability}
+              </p>
+            )}
             <p className={styles.specialization}>
               <span className={styles.specializationEntrance}>
                 {profile.roles.map((role, i) => (
@@ -408,18 +465,24 @@ export function Hero({
               <span
                 className={`${styles.headline} font-display mt-3 block text-[clamp(1.15rem,2.2vw,1.75rem)] leading-[1.2] font-bold tracking-tight [@media(max-height:500px)]:mt-1 [@media(max-height:500px)]:text-[0.9rem]`}
               >
-                <span className={styles.word} style={staggerStyle(0)}>
-                  Infrastructure
-                </span>{" "}
-                <span className={styles.word} style={staggerStyle(1)}>
-                  meets
-                </span>{" "}
-                <span
-                  className={`${styles.word} ${styles.accentWord} text-(--brand-mid)`}
-                  style={staggerStyle(2)}
-                >
-                  innovation.
-                </span>
+                {headlineWords.map((word, index) => {
+                  const accent = index === headlineWords.length - 1 && headlineWords.length > 1;
+                  return (
+                    <Fragment key={`${word}-${index}`}>
+                      {index > 0 && " "}
+                      <span
+                        className={
+                          accent
+                            ? `${styles.word} ${styles.accentWord} text-(--brand-mid)`
+                            : styles.word
+                        }
+                        style={staggerStyle(index)}
+                      >
+                        {word}
+                      </span>
+                    </Fragment>
+                  );
+                })}
               </span>
             </h1>
 
@@ -428,7 +491,7 @@ export function Hero({
                 style={entranceStyle(0.6)}
                 className={`${styles.enter} ${styles.copy} text-foreground/95 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
               >
-                {HERO_COPY}
+                {summary}
               </p>
 
               {heroTagline && (
@@ -494,7 +557,12 @@ export function Hero({
                     : {})}
                   className={styles.textLink}
                 >
-                  <SocialGlyph platform={social.platform} className="size-8 object-contain" />
+                  {/* Lazy keeps React from preloading these icons ahead of the poster. */}
+                  <SocialGlyph
+                    platform={social.platform}
+                    loading="lazy"
+                    className="size-8 object-contain"
+                  />
                   {social.platform}
                 </a>
               ))}

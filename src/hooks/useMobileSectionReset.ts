@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
-import { useMediaQuery } from "./useMediaQuery";
+import { COMPACT_TOUCH_QUERY, useMediaQuery } from "./useMediaQuery";
 import {
   sectionNavigationInProgress,
   subscribeSectionNavigationComplete,
 } from "@/lib/section-navigation";
 
-export const MOBILE_SECTION_RESET_QUERY =
-  "(max-width: 767px) and (orientation: portrait), (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
+export const MOBILE_SECTION_RESET_QUERY = COMPACT_TOUCH_QUERY;
 
 /**
  * Keep mobile state while reading farther down the page; reset on returning to its beginning.

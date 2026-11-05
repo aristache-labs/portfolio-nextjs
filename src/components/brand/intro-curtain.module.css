@@ -1,0 +1,91 @@
+/* Hidden unless motion is welcome and this is the first homepage view of the session. */
+.curtain {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(circle at 50% 50%, rgb(var(--brand-deep-rgb) / 0.35), transparent 42%),
+      var(--background);
+    pointer-events: none;
+    animation: intro-lift 380ms cubic-bezier(0.76, 0, 0.24, 1) 520ms both;
+  }
+
+  :global(html[data-intro-seen]) .curtain {
+    display: none;
+  }
+
+  .mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    animation: intro-mark-out 300ms cubic-bezier(0.55, 0, 1, 0.45) 500ms both;
+  }
+
+  .mark img {
+    width: 72px;
+    height: 72px;
+    animation: intro-mark-in 460ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-90deg);
+  }
+
+  .ring circle {
+    fill: none;
+    stroke: var(--brand-mid);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    filter: drop-shadow(0 0 6px rgb(var(--brand-mid-rgb) / 0.7));
+    animation: intro-ring 480ms cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+}
+
+@keyframes intro-ring {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes intro-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    clip-path: circle(75% at 50% 50%);
+  }
+}
+
+@keyframes intro-mark-out {
+  to {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.94);
+  }
+}
+
+/* The curtain slides up and away; visibility ends it so nothing stays above the page. */
+@keyframes intro-lift {
+  to {
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+  }
+}

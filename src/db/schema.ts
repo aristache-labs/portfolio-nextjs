@@ -25,6 +25,12 @@ export const profile = pgTable("profile", {
   avatarUrl: text("avatar_url"),
   // Short line under the hero intro. Empty hides it.
   heroTagline: text("hero_tagline"),
+  // Hero headline under the name; its last word takes the accent. Empty uses the default.
+  heroHeadline: text("hero_headline"),
+  // Hero paragraph under the headline. Empty uses the default summary.
+  heroSummary: text("hero_summary"),
+  // Availability badge in the hero, e.g. "Available for new projects". Empty hides it.
+  availability: text("availability"),
   // Per-section show/hide, keyed by section id. Missing key = visible.
   sectionVisibility: jsonb("section_visibility")
     .$type<Record<string, boolean>>()

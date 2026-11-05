@@ -6,8 +6,9 @@ import { sectionNavigationPending } from "@/lib/section-navigation";
 import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./contact-motion.module.css";
+import { PORTRAIT_PHONE_QUERY } from "@/hooks/useMediaQuery";
 
-export const CONTACT_PORTRAIT_QUERY = "(max-width: 767px) and (orientation: portrait)";
+export const CONTACT_PORTRAIT_QUERY = PORTRAIT_PHONE_QUERY;
 export const CONTACT_LANDSCAPE_QUERY =
   "(orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
 

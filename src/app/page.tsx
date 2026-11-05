@@ -12,6 +12,7 @@ import {
 import { Hero } from "@/components/home/Hero";
 import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
+import { IntroCurtain } from "@/components/brand/IntroCurtain";
 import { Footer } from "@/components/layout/Footer";
 import { Skills, Experience, Services, Contact } from "@/components/home/HomeSections";
 import { sectionNumbers } from "@/lib/section-numbers";
@@ -64,6 +65,7 @@ export default async function Home() {
       data-site="cinematic"
       className={`${sora.variable} dark bg-background text-foreground relative min-h-screen`}
     >
+      <IntroCurtain />
       <SkipLink />
       <SiteNav
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
@@ -75,7 +77,13 @@ export default async function Home() {
 
       <Hero
         transitionToAbout={show("about")}
-        profile={{ name: profile.name, roles: profile.roles }}
+        profile={{
+          name: profile.name,
+          roles: profile.roles,
+          headline: profile.heroHeadline,
+          summary: profile.heroSummary,
+          availability: profile.availability,
+        }}
         heroTagline={profile.heroTagline}
         resumeUrl={profile.resumeUrl}
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
