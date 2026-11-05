@@ -104,7 +104,7 @@ export function SkillEntrance({
       return;
     }
     controls.set({
-      opacity: 0,
+      opacity: landscape ? 1 : 0,
       x: landscape ? -32 : 0,
       y: landscape ? 0 : 40,
       scale: landscape ? 0.94 : 0.93,
@@ -171,8 +171,6 @@ export function SkillEntrance({
     <m.div
       ref={nodeRef}
       animate={mobile ? controls : undefined}
-      layout={mode === "static" ? false : "position"}
-      transition={{ layout: { type: "spring", damping: 20, stiffness: 300 } }}
       exit={
         mode === "static"
           ? undefined

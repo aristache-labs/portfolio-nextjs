@@ -115,7 +115,7 @@ it.each([
   act(() => first("visible"));
   expect(progress.animate).toHaveBeenCalledTimes(1);
   expect(progress.animate).toHaveBeenLastCalledWith(0, 90, expect.objectContaining({ delay: 0 }));
-  expect(secondFill).toHaveStyle({ width: "0%" });
+  expect(secondFill).toHaveStyle({ transform: "scaleX(0)" });
   act(() => sequence.publish("complete"));
   expect(progress.animate).toHaveBeenCalledTimes(1);
   act(() => second("visible"));
@@ -134,7 +134,7 @@ it.each([
   const { container, rerender, unmount } = render(card);
   const bar = screen.getByRole("progressbar", { name: "React proficiency" });
   const fill = bar.firstElementChild!;
-  expect(fill).toHaveStyle({ width: "0%" });
+  expect(fill).toHaveStyle({ transform: "scaleX(0)" });
   expect(screen.getByText("0%")).toHaveAttribute("aria-hidden");
   expect(bar).toHaveAttribute("aria-valuenow", "90");
   expect(progress.animate).not.toHaveBeenCalled();
@@ -146,7 +146,7 @@ it.each([
   );
   const animation = progress.animate.mock.calls[0][2];
   act(() => animation.onUpdate(45));
-  expect(fill).toHaveStyle({ width: "45%" });
+  expect(fill).toHaveStyle({ width: "90%", transform: "scaleX(0.5)" });
   expect(screen.getByText("45%")).toBeInTheDocument();
   act(() => animation.onComplete());
   expect(fill).toHaveStyle({ width: "90%" });

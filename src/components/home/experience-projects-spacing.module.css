@@ -9,8 +9,12 @@
 }
 
 @media (orientation: portrait) and (max-width: 767px) {
+  .experience.experience {
+    padding-top: 96px;
+  }
+
   .projects {
-    padding-top: 24px;
+    padding-top: 94px;
   }
 }
 
@@ -27,7 +31,8 @@
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
-  .experience {
+  .experience.experience {
+    padding-top: 64px;
     padding-bottom: 32px;
   }
 

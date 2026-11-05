@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, LazyMotion, domMax, m } from "framer-motion";
+import { useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from "react";
+import { AnimatePresence, m } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
@@ -55,6 +55,10 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const { mode } = useAnimationPolicy();
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const tabsId = useId();
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const previousPill = useRef<DOMRect | null>(null);
   const [iconsNear, setIconsNear] = useState(false);
 
   useEffect(() => {
@@ -109,20 +113,54 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const mobileLandscape = useMediaQuery(SKILLS_MOBILE_LANDSCAPE);
   const mobile = mobilePortrait || mobileLandscape;
   const HeadingReveal = mobile ? SkillsMobileReveal : ProgressiveReveal;
-  const mostUsedGridHeight = useRef(0);
+  const filters = [MOST_USED, ...categories];
+  const activeIndex = filters.indexOf(active);
+  const maxCards = Math.max(
+    visible.length,
+    Math.min(ordered.length, desktop ? DESKTOP_MOST_USED_LIMIT : MOST_USED_LIMIT),
+    ...categories.map((category) => ordered.filter((skill) => skill.category === category).length),
+  );
 
-  useEffect(() => {
+  // Mobile keeps only the default selection's space; larger categories extend downwards.
+  const reservedCards = mobile ? Math.min(ordered.length, MOST_USED_LIMIT) : maxCards;
+
+  const selectFilter = (value: string) => {
+    if (value === active) return;
+    previousPill.current = pillRef.current?.getBoundingClientRect() ?? null;
+    setHasFiltered(true);
+    setFilter(value);
+  };
+
+  useLayoutEffect(() => {
+    const pill = pillRef.current;
+    const previous = previousPill.current;
+    previousPill.current = null;
+    if (!pill || !previous || mode === "static" || typeof pill.animate !== "function") return;
+    const current = pill.getBoundingClientRect();
+    if (!current.width || !current.height) return;
+    const animation = pill.animate(
+      [
+        {
+          transform: `translate(${previous.left - current.left}px, ${previous.top - current.top}px) scale(${previous.width / current.width}, ${previous.height / current.height})`,
+        },
+        { transform: "translate(0, 0) scale(1, 1)" },
+      ],
+      { duration: 240, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+    );
+    return () => animation.cancel();
+  }, [active, mode]);
+
+  useLayoutEffect(() => {
     const grid = gridRef.current;
-    if (!mobilePortrait || !grid) return;
-    // Keep spare space below the cards instead of stretching shorter categories' rows.
-    grid.style.alignContent = "start";
+    if (!grid) return;
     const measure = () => {
-      if (active === MOST_USED) {
-        grid.style.removeProperty("min-height");
-        mostUsedGridHeight.current = grid.offsetHeight;
-      }
-      // Larger categories may grow naturally, but never become the new minimum.
-      grid.style.minHeight = `${mostUsedGridHeight.current}px`;
+      const card = grid.firstElementChild as HTMLElement | null;
+      if (!card) return;
+      const styles = getComputedStyle(grid);
+      const columns = styles.gridTemplateColumns.split(" ").length;
+      const rows = Math.ceil(reservedCards / Math.max(1, columns));
+      const gap = Number.parseFloat(styles.rowGap) || 0;
+      grid.style.minHeight = `${rows * card.offsetHeight + Math.max(0, rows - 1) * gap}px`;
     };
     measure();
     const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
@@ -132,9 +170,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
       observer?.disconnect();
       window.removeEventListener("resize", measure);
       grid.style.removeProperty("min-height");
-      grid.style.removeProperty("align-content");
     };
-  }, [mobilePortrait, active]);
+  }, [reservedCards]);
 
   // Cards leaving a filter fade out in place while the rest move into their new positions.
   const cards = (
@@ -210,7 +247,10 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 </div>
 
                 <h2 className={headingCss.title}>
-                  Tools I <span className={headingCss.accent}>trust</span>
+                  Tools I{" "}
+                  <span className={headingCss.accent} style={{ color: "inherit" }}>
+                    trust
+                  </span>
                 </h2>
               </HeadingReveal>
               <aside className={responsiveCss.quoteAnchor}>
@@ -248,97 +288,96 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           <div className="mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.6fr]">
             <div aria-hidden className="hidden lg:block" />
 
-            {/* Layout features stay inside the dynamically loaded Skills section. */}
-            <LazyMotion features={domMax}>
-              <div className="min-w-0">
-                {ordered.length > 0 && (
-                  <ProgressiveReveal
-                    effect="cascade"
-                    duration={0}
-                    delay={0.3}
-                    staggerChildren={0.2}
+            <div className="min-w-0">
+              {ordered.length > 0 && (
+                <ProgressiveReveal effect="cascade" duration={0} delay={0.3} staggerChildren={0.2}>
+                  <div
+                    className="flex flex-wrap items-center gap-2 max-lg:justify-center"
+                    ref={tabsRef}
+                    role="tablist"
+                    aria-label="Filter skills by category"
                   >
-                    <div
-                      className="flex flex-wrap items-center gap-2 max-lg:justify-center"
-                      role="tablist"
-                      aria-label="Filter skills by category"
-                    >
-                      {[MOST_USED, ...categories].map((value) => {
-                        const selected = active === value;
-                        return (
-                          <m.button
-                            key={value}
-                            initial={false}
-                            variants={{
-                              hidden: { opacity: 0, scale: 0 },
-                              visible: {
-                                opacity: 1,
-                                scale: 1,
-                                transition:
-                                  mode === "static"
-                                    ? { duration: 0 }
-                                    : {
-                                        opacity: { duration: 0.25 },
-                                        scale: { type: "spring", visualDuration: 0.7, bounce: 0.5 },
-                                      },
-                              },
-                            }}
-                            type="button"
-                            role="tab"
-                            aria-selected={selected}
-                            onClick={() => {
-                              if (value === active) return;
-                              setHasFiltered(true);
-                              setFilter(value);
-                            }}
-                            whileHover={mode === "expressive" ? { y: -2 } : undefined}
-                            whileTap={mode === "static" ? undefined : { scale: 0.98 }}
-                            className={`relative rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
-                              selected
-                                ? "border-transparent text-white"
-                                : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
-                            }`}
-                          >
-                            {/* One shared pill slides from the previous tab to the selected one. */}
-                            {selected && (
-                              <m.span
-                                aria-hidden
-                                layoutId="skills-active-tab"
-                                transition={
-                                  mode === "static"
-                                    ? { duration: 0 }
-                                    : { type: "spring", visualDuration: 0.45, bounce: 0.2 }
-                                }
-                                className="border-brand-bright/60 absolute -inset-px rounded-full border bg-(image:--gradient-brand)"
-                              />
-                            )}
-                            <span className="relative">{value}</span>
-                          </m.button>
-                        );
-                      })}
-                    </div>
-                  </ProgressiveReveal>
-                )}
-
-                {/* Stable keys let shared cards move between their old and new grid positions. */}
-                {scene || mobile ? (
-                  // Desktop uses the scene; mobile observes each card independently.
-                  <div ref={gridRef} className={GRID}>
-                    {cards}
+                    {filters.map((value, index) => {
+                      const selected = active === value;
+                      return (
+                        <m.button
+                          key={value}
+                          initial={false}
+                          variants={{
+                            hidden: { opacity: 0, scale: 0.96 },
+                            visible: {
+                              opacity: 1,
+                              scale: 1,
+                              transition:
+                                mode === "static"
+                                  ? { duration: 0 }
+                                  : {
+                                      opacity: { duration: 0.25 },
+                                      scale: { type: "spring", visualDuration: 0.7, bounce: 0.5 },
+                                    },
+                            },
+                          }}
+                          type="button"
+                          role="tab"
+                          id={`${tabsId}-tab-${index}`}
+                          aria-controls={`${tabsId}-panel`}
+                          aria-selected={selected}
+                          tabIndex={selected ? 0 : -1}
+                          onKeyDown={(event) => {
+                            const next =
+                              event.key === "Home"
+                                ? 0
+                                : event.key === "End"
+                                  ? filters.length - 1
+                                  : event.key === "ArrowRight"
+                                    ? (index + 1) % filters.length
+                                    : event.key === "ArrowLeft"
+                                      ? (index - 1 + filters.length) % filters.length
+                                      : null;
+                            if (next === null) return;
+                            event.preventDefault();
+                            selectFilter(filters[next]);
+                            tabsRef.current
+                              ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+                              [next]?.focus();
+                          }}
+                          onClick={() => selectFilter(value)}
+                          whileHover={mode === "expressive" ? { y: -2 } : undefined}
+                          whileTap={mode === "static" ? undefined : { scale: 0.98 }}
+                          className={`${responsiveCss.tab} relative min-h-11 rounded-full px-3 text-xs font-medium transition-colors duration-200 ${
+                            selected
+                              ? "text-white"
+                              : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground"
+                          }`}
+                        >
+                          {selected && (
+                            <span
+                              ref={pillRef}
+                              aria-hidden
+                              className={`${responsiveCss.activePill} border-brand-bright/60 absolute inset-x-0 top-1/2 h-8 -translate-y-1/2 rounded-full border bg-(image:--gradient-brand)`}
+                            />
+                          )}
+                          <span className="relative">{value}</span>
+                        </m.button>
+                      );
+                    })}
                   </div>
-                ) : (
-                  <ProgressiveReveal
-                    effect="cascade"
-                    duration={1.3}
-                    delay={0.4}
-                    staggerChildren={0.18}
-                    className={GRID}
-                  >
-                    {cards}
-                  </ProgressiveReveal>
-                )}
+                </ProgressiveReveal>
+              )}
+
+              <div
+                role="tabpanel"
+                id={`${tabsId}-panel`}
+                aria-labelledby={ordered.length ? `${tabsId}-tab-${activeIndex}` : undefined}
+                aria-label={ordered.length ? undefined : "Skills"}
+                tabIndex={0}
+                className="focus-visible:ring-brand-mid/70 rounded-xl focus-visible:ring-2 focus-visible:outline-none"
+              >
+                <div ref={gridRef} className={GRID}>
+                  {cards}
+                </div>
               </div>
-            </LazyMotion>
+            </div>
           </div>
         </div>
       </SkillsScene>

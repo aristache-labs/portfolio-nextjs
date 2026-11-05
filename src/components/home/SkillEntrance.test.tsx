@@ -86,6 +86,18 @@ describe("mobile SkillEntrance", () => {
     expect(() => unmount()).not.toThrow();
   });
 
+  it("keeps landscape cards opaque before their entry starts", () => {
+    const { container } = render(
+      <LazyMotion features={domMax}>
+        <SkillEntrance mobile landscape filtered={false}>
+          <Content />
+        </SkillEntrance>
+      </LazyMotion>,
+    );
+    expect(container.firstElementChild).toHaveStyle({ opacity: "1" });
+    expect(phases.at(-1)).toBe("prepared");
+  });
+
   it("reveals a focused card immediately", () => {
     render(<Card />);
     fireEvent.focusIn(screen.getByRole("button"));

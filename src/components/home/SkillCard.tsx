@@ -3,6 +3,7 @@
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 
 import Image from "next/image";
+import styles from "./skill-card.module.css";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import { animate, m } from "framer-motion";
 import { useContext, useEffect, useRef } from "react";
@@ -51,13 +52,17 @@ export function SkillCard({
   const navigation = useSectionNavigation(card, () => !started.current);
   const entry = useSkillEntry();
 
-  // Inside the pinned scene the level follows the card's entry, in both scroll directions.
+  // The level shares the one-way scroll progress of its card.
   useEffect(() => {
     if (!entry || percent == null || !bar.current || !label.current) return;
     const fill = bar.current;
     const text = label.current;
+    let progressed = false;
     const update = (current: number) => {
-      fill.style.width = `${percent * current}%`;
+      if (current < 1) progressed = true;
+      fill.style.transform = `scaleX(${current})`;
+      if (progressed && current >= 1 && mode !== "static" && percent > 0)
+        card.current?.setAttribute("data-level-complete", "");
       text.textContent = `${current === 1 ? percent : Math.round(percent * current)}%`;
     };
     update(entry.get());
@@ -66,7 +71,7 @@ export function SkillCard({
       unsubscribe();
       update(1);
     };
-  }, [entry, percent]);
+  }, [entry, percent, mode]);
 
   useEffect(() => {
     if (entry || navigation.pending) return;
@@ -78,7 +83,7 @@ export function SkillCard({
     let observer: IntersectionObserver | undefined;
     let animation: ReturnType<typeof animate> | undefined;
     const update = (current: number) => {
-      fill.style.width = `${current}%`;
+      fill.style.transform = `scaleX(${percent === 0 ? 1 : current / percent})`;
       text.textContent = `${current === percent ? percent : Math.round(current)}%`;
     };
     const finish = () => {
@@ -102,7 +107,10 @@ export function SkillCard({
           if (active) update(current);
         },
         onComplete: () => {
-          if (active) update(percent);
+          if (active) {
+            update(percent);
+            if (percent > 0) node.setAttribute("data-level-complete", "");
+          }
         },
       });
     };
@@ -160,15 +168,15 @@ export function SkillCard({
       ref={card}
       transition={{ duration: 0.2 }}
       whileHover={mode === "expressive" ? { y: -3 } : undefined}
-      className={`${portraitCss.surface} group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/6 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5`}
+      className={`${styles.card} ${portraitCss.surface} group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/6 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5`}
     >
-      <span className="flex min-w-0 items-center gap-2.5">
+      <span className={`${styles.identity} flex min-w-0 items-center gap-2.5`}>
         <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
           {loadIcon ? icon : <noscript>{icon}</noscript>}
         </span>
         <span
           title={name}
-          className="text-foreground min-w-0 flex-1 text-[13px] leading-snug font-semibold [overflow-wrap:anywhere]"
+          className={`${styles.name} text-foreground min-w-0 flex-1 leading-snug font-semibold`}
         >
           {name}
         </span>
@@ -186,9 +194,11 @@ export function SkillCard({
           >
             <span
               ref={bar}
-              style={{ width: `${percent}%` }}
-              className="block h-full rounded-full bg-(image:--gradient-brand) shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.6)]"
-            />
+              style={{ width: `${percent}%`, transform: "scaleX(1)", transformOrigin: "left" }}
+              className="relative block h-full overflow-hidden rounded-full bg-(image:--gradient-brand) shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.6)]"
+            >
+              <span aria-hidden className={styles.glint} />
+            </span>
           </span>
           <span
             ref={label}
