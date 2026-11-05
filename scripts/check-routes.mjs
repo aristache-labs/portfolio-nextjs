@@ -60,10 +60,18 @@ const home = await group("homepage serves its DB-independent identity copy", () 
   ]),
 );
 
-// Discovered by reference, not by path - see the header note about static/chunks.
+// Next can serve CSS through external links or inline style tags with data-href metadata.
 await group("stylesheets serve with content", async () => {
-  const sheets = [...home.matchAll(/href="(\/_next\/[^"]+\.css)"/g)].map((m) => m[1]);
-  if (sheets.length === 0) {
+  const sheets = [...home.matchAll(/<link\b[^>]*\shref="(\/_next\/[^"\s]+\.css)"[^>]*>/g)].map(
+    (match) => match[1],
+  );
+  const inlineSheets = [
+    ...home.matchAll(/<style\b[^>]*\sdata-href="\/_next\/[^"]+\.css"[^>]*>([\s\S]*?)<\/style>/g),
+  ];
+  for (const sheet of inlineSheets) {
+    if (sheet[1].trim().length === 0) fail("homepage has an empty inline stylesheet");
+  }
+  if (sheets.length === 0 && inlineSheets.length === 0) {
     fail("homepage references no stylesheet");
     return;
   }

@@ -293,14 +293,74 @@ describe("Contact", () => {
     }
   });
 
+  it("validates on blur and clears errors as fields are corrected", () => {
+    render(<Contact socials={mockSocials} email={email} />);
+    const name = screen.getByLabelText("Your Name");
+    expect(screen.queryByText("Add your name.")).not.toBeInTheDocument();
+    fireEvent.change(name, { target: { value: "A" } });
+    fireEvent.blur(name);
+    expect(name).toHaveAttribute("aria-invalid", "true");
+    expect(name).toHaveAccessibleDescription("Add your name.");
+    fireEvent.change(name, { target: { value: "Adrian O'Connor-Pop" } });
+    expect(name).not.toHaveAttribute("aria-invalid");
+    expect(screen.queryByText("Add your name.")).not.toBeInTheDocument();
+    const from = screen.getByLabelText("Your Email");
+    fireEvent.change(from, { target: { value: "alex@example" } });
+    fireEvent.blur(from);
+    expect(from).toHaveAccessibleDescription("Add a valid email.");
+    fireEvent.change(from, { target: { value: "alex@example.com" } });
+    expect(from).not.toHaveAttribute("aria-invalid");
+    const message = screen.getByLabelText("Message");
+    fireEvent.change(message, { target: { value: "short" } });
+    fireEvent.blur(message);
+    expect(message).toHaveAccessibleDescription("Message should be 10 to 2000 characters.");
+  });
+
+  it("leaves empty fields quiet on blur and clears errors when their content is removed", () => {
+    render(<Contact socials={mockSocials} email={email} />);
+    for (const label of ["Your Name", "Your Email", "Message", "Subject"]) {
+      const field = screen.getByLabelText(label);
+      fireEvent.focus(field);
+      fireEvent.blur(field);
+      expect(field).not.toHaveAttribute("aria-invalid");
+      expect(field).not.toHaveAttribute("aria-describedby");
+    }
+    const from = screen.getByLabelText("Your Email");
+    fireEvent.change(from, { target: { value: "invalid" } });
+    fireEvent.blur(from);
+    expect(from).toHaveAttribute("aria-invalid", "true");
+    fireEvent.change(from, { target: { value: "" } });
+    fireEvent.blur(from);
+    expect(from).not.toHaveAttribute("aria-invalid");
+    expect(screen.queryByText("Add a valid email.")).not.toBeInTheDocument();
+    const name = screen.getByLabelText("Your Name");
+    fireEvent.change(name, { target: { value: "   " } });
+    fireEvent.blur(name);
+    expect(name).not.toHaveAttribute("aria-invalid");
+  });
+
+  it("blocks invalid submissions and focuses the first invalid field", () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const { container } = render(<Contact socials={mockSocials} email={email} />);
+    fillForm();
+    fireEvent.change(screen.getByLabelText("Your Email"), { target: { value: "invalid" } });
+    fireEvent.change(screen.getByLabelText("Message"), { target: { value: "a".repeat(2001) } });
+    fireEvent.submit(container.querySelector("form")!);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Your Email")).toHaveFocus();
+    expect(screen.getByLabelText("Your Email")).toHaveAccessibleDescription("Add a valid email.");
+    expect(screen.getByLabelText("Message")).toHaveAttribute("aria-invalid", "true");
+  });
+
   it("asks for a subject before sending and keeps the choice in the styled menu", () => {
     const fetchMock = vi.spyOn(globalThis, "fetch");
     const { container } = render(<Contact socials={mockSocials} email={email} />);
     fireEvent.submit(container.querySelector("form")!);
     expect(fetchMock).not.toHaveBeenCalled();
-    expect(screen.getByRole("status")).toHaveTextContent("Please select a subject.");
+    expect(screen.getByText("Choose a subject.")).toBeVisible();
     const trigger = screen.getByRole("combobox", { name: "Subject" });
-    expect(trigger).toHaveFocus();
+    expect(screen.getByLabelText("Your Name")).toHaveFocus();
+    expect(trigger).toHaveAttribute("aria-describedby", "contact-subject-error");
     chooseSubject("Freelance Work");
     expect(trigger).toHaveTextContent("Freelance Work");
     expect(container.querySelector<HTMLSelectElement>('select[name="subject"]')).toHaveValue(
