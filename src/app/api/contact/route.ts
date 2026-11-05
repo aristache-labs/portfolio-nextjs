@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { clientIpFromHeaders } from "@/lib/rate-limit";
+import { clientIpFromHeaders } from "@/lib/client-ip";
 import { createDbRateLimiter } from "@/lib/rate-limit-db";
 import { contactSchema } from "@/lib/contact-schema";
 

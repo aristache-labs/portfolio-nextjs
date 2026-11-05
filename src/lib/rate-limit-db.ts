@@ -1,7 +1,12 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { rateLimits } from "@/db/schema";
-import type { RateLimitResult } from "./rate-limit";
+
+export type RateLimitResult = {
+  success: boolean;
+  remaining: number;
+  resetAt: number;
+};
 
 /**
  * Persistent fixed-window limiter backed by Postgres, so the cap holds across serverless

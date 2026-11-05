@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { subscribeScroll } from "@/lib/scroll-state";
 
 /**
  * Active = the last section whose top has scrolled past `offsetPx`. A pure DOM read rather than
@@ -22,7 +23,6 @@ export function useScrollSpy(ids: string[], offsetPx = 120): string {
   useEffect(() => {
     if (ids.length === 0) return;
 
-    let ticking = false;
     const compute = () => {
       const tops: Record<string, number> = {};
       for (const id of ids) {
@@ -30,23 +30,10 @@ export function useScrollSpy(ids: string[], offsetPx = 120): string {
         if (el) tops[id] = el.getBoundingClientRect().top;
       }
       setActive(pickActive(ids, tops, offsetPx));
-      ticking = false;
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(compute);
-      }
     };
 
     compute();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    return subscribeScroll(compute);
   }, [ids, offsetPx]);
 
   return active;

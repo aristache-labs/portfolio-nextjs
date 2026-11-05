@@ -53,6 +53,7 @@ function useIdleAfterLoad(enabled: boolean) {
 }
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
+import { subscribeScroll } from "@/lib/scroll-state";
 import { HERO_DEFAULTS } from "@/lib/identity";
 export type HeroProfile = {
   name: string;
@@ -185,29 +186,6 @@ export function Hero({
   const canPlayVideo = useMediaQuery(HERO_VIDEO_QUERY);
   const portraitPoster = useMediaQuery(PORTRAIT_POSTER_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    // Some iPhone browsers paint below their reported large viewport. Reserve the
-    // physical screen height in portrait, without resizing when toolbars move.
-    const section = sectionRef.current;
-    const phone = window.matchMedia(
-      "(pointer: coarse) and (max-width: 767px) and (orientation: portrait)",
-    );
-    const sync = () => {
-      if (phone.matches) {
-        section?.style.setProperty("--portrait-screen-height", `${screen.height}px`);
-      } else {
-        section?.style.removeProperty("--portrait-screen-height");
-      }
-    };
-    sync();
-    phone.addEventListener("change", sync);
-    window.addEventListener("resize", sync);
-    return () => {
-      phone.removeEventListener("change", sync);
-      window.removeEventListener("resize", sync);
-      section?.style.removeProperty("--portrait-screen-height");
-    };
-  }, []);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(!reduce);
   const playingRef = useRef(playing);
@@ -267,10 +245,10 @@ export function Hero({
       if (visible && videoRef.current?.paused) scheduleResume();
     };
     io.observe(section);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const unsubscribe = subscribeScroll(onScroll);
     return () => {
       io.disconnect();
-      window.removeEventListener("scroll", onScroll);
+      unsubscribe();
       clearTimeout(resumeTimer);
     };
   }, [mountVideo]);
