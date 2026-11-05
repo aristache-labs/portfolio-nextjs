@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ComponentProps, type MouseEvent } from "react";
+import { useEffect, useRef, type MouseEvent } from "react";
 import { ArrowRight, ChevronRight, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import { SectionLink } from "@/components/common/SectionLink";
 import { m, type Variants } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
-import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
+import { FooterPart } from "./FooterPart";
 import type { SocialRow } from "@/components/home/social-icons";
 import { GLASS_CARD } from "@/components/home/project-styles";
 import { SectionBackdrop } from "@/components/home/SectionBackdrop";
@@ -38,26 +38,6 @@ const NAV_DIVIDER =
 const HEADING = "font-display text-[15px] font-medium tracking-[-0.01em] text-white/90";
 const FOCUS =
   "focus-visible:ring-brand-mid/70 focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none";
-
-/** On expressive desktops scrolling drives the part (see `useFooterEntrance`); elsewhere it keeps its timed reveal. */
-function FooterPart({
-  scene,
-  mobile,
-  part,
-  ...reveal
-}: ComponentProps<typeof ProgressiveReveal> & { scene: boolean; mobile: boolean; part: string }) {
-  return mobile ? (
-    <div data-footer-part={part} className={`${reveal.className ?? ""} ${mobileCss.part}`}>
-      {reveal.children}
-    </div>
-  ) : scene ? (
-    <div data-part={part} className={reveal.className}>
-      {reveal.children}
-    </div>
-  ) : (
-    <ProgressiveReveal {...reveal} />
-  );
-}
 
 export function Footer({
   sponsorUrl,
