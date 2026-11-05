@@ -82,7 +82,9 @@ export function SkillEntrance({
     if (!mobile || !ready || !node || navigation.pending) return;
     let active = true;
     let started = false;
-    const settled = { opacity: 1, x: 0, y: 0, scale: 1 };
+    // The card's glass (backdrop-filter) is not drawn while an ancestor is translucent, so the
+    // wrapper only moves and the fade travels to the card itself through a custom property.
+    const settled = { "--skill-entry-opacity": 1, x: 0, y: 0, scale: 1 };
     const finish = () => {
       controls.stop();
       controls.set(settled);
@@ -104,7 +106,7 @@ export function SkillEntrance({
       return;
     }
     controls.set({
-      opacity: 0,
+      "--skill-entry-opacity": 0,
       x: landscape ? -32 : 0,
       y: landscape ? 0 : 40,
       scale: landscape ? 0.94 : 0.93,

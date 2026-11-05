@@ -257,7 +257,9 @@
   }
 }
 
-@media (orientation: landscape) and (pointer: coarse) and (min-width: 768px) and (max-width: 1023px) and (max-height: 500px) {
+/* Phones held sideways show four compact cards per row from 600px, so the section fits in a
+   couple of screens instead of a long two-column scroll. */
+@media (orientation: landscape) and (pointer: coarse) and (min-width: 600px) and (max-width: 1023px) and (max-height: 500px) {
   .grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;

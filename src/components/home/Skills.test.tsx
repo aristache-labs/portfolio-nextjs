@@ -141,9 +141,11 @@ describe("Skills", () => {
     for (let node = name; node; node = node.parentElement) {
       expect((node as HTMLElement).style.opacity).not.toBe("0");
     }
-    expect([...container.querySelectorAll("span")].some((node) => node.style.width === "90%")).toBe(
-      true,
-    );
+    expect(
+      [...container.querySelectorAll("span")].some(
+        (node) => node.style.transform === "scaleX(0.9)",
+      ),
+    ).toBe(true);
   });
 
   it("keeps the entrance group mounted during rapid category changes", async () => {
@@ -374,5 +376,35 @@ describe("Skills", () => {
   it("renders an empty state gracefully", () => {
     render(<Skills skills={[]} />);
     expect(screen.getByText("Tools I")).toBeInTheDocument();
+  });
+});
+
+describe("Skills category tabs", () => {
+  beforeEach(() => installMatchMedia({ [REDUCED_MOTION_QUERY]: true }));
+  afterEach(cleanup);
+
+  it("links tabs to one panel and moves selection with the keyboard", () => {
+    render(
+      <MotionProvider>
+        <Skills skills={mockSkills} />
+      </MotionProvider>,
+    );
+    const tabs = screen.getAllByRole("tab");
+    const panel = screen.getByRole("tabpanel");
+    expect(tabs.map((tab) => tab.getAttribute("tabindex"))).toEqual(["0", "-1", "-1"]);
+    tabs.forEach((tab) => expect(tab).toHaveAttribute("aria-controls", panel.id));
+    expect(panel).toHaveAttribute("aria-labelledby", tabs[0].id);
+
+    tabs[0].focus();
+    fireEvent.keyDown(tabs[0], { key: "ArrowRight" });
+    expect(tabs[1]).toHaveAttribute("aria-selected", "true");
+    expect(tabs[1]).toHaveFocus();
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", tabs[1].id);
+
+    fireEvent.keyDown(tabs[1], { key: "End" });
+    expect(tabs[2]).toHaveFocus();
+    fireEvent.keyDown(tabs[2], { key: "ArrowRight" });
+    expect(tabs[0]).toHaveFocus();
+    expect(tabs[0]).toHaveAttribute("aria-selected", "true");
   });
 });

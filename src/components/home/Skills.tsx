@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, LazyMotion, domMax, m } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
@@ -99,6 +99,33 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
     setResetEpoch((epoch) => epoch + 1);
   });
   const active = filter !== MOST_USED && categories.includes(filter) ? filter : MOST_USED;
+  const tabs = [MOST_USED, ...categories];
+  const tabsId = useId();
+  const tabId = (value: string) => `${tabsId}-tab-${tabs.indexOf(value)}`;
+  const panelId = `${tabsId}-panel`;
+  const selectTab = (value: string) => {
+    if (value === active) return;
+    setHasFiltered(true);
+    setFilter(value);
+  };
+  // WAI-ARIA tabs with automatic activation: arrows, Home and End move focus and select.
+  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const index = tabs.indexOf(active);
+    const next =
+      event.key === "ArrowRight" || event.key === "ArrowDown"
+        ? (index + 1) % tabs.length
+        : event.key === "ArrowLeft" || event.key === "ArrowUp"
+          ? (index - 1 + tabs.length) % tabs.length
+          : event.key === "Home"
+            ? 0
+            : event.key === "End"
+              ? tabs.length - 1
+              : -1;
+    if (next < 0) return;
+    event.preventDefault();
+    selectTab(tabs[next]);
+    document.getElementById(tabId(tabs[next]))?.focus();
+  };
   const desktop = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
   const visible =
     active === MOST_USED
@@ -263,7 +290,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                       role="tablist"
                       aria-label="Filter skills by category"
                     >
-                      {[MOST_USED, ...categories].map((value) => {
+                      {tabs.map((value) => {
                         const selected = active === value;
                         return (
                           <m.button
@@ -285,12 +312,12 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                             }}
                             type="button"
                             role="tab"
+                            id={tabId(value)}
                             aria-selected={selected}
-                            onClick={() => {
-                              if (value === active) return;
-                              setHasFiltered(true);
-                              setFilter(value);
-                            }}
+                            aria-controls={panelId}
+                            tabIndex={selected ? 0 : -1}
+                            onKeyDown={onTabKeyDown}
+                            onClick={() => selectTab(value)}
                             whileHover={mode === "expressive" ? { y: -2 } : undefined}
                             whileTap={mode === "static" ? undefined : { scale: 0.98 }}
                             className={`relative rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
@@ -321,22 +348,28 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 )}
 
                 {/* Stable keys let shared cards move between their old and new grid positions. */}
-                {scene || mobile ? (
-                  // Desktop uses the scene; mobile observes each card independently.
-                  <div ref={gridRef} className={GRID}>
-                    {cards}
-                  </div>
-                ) : (
-                  <ProgressiveReveal
-                    effect="cascade"
-                    duration={1.3}
-                    delay={0.4}
-                    staggerChildren={0.18}
-                    className={GRID}
-                  >
-                    {cards}
-                  </ProgressiveReveal>
-                )}
+                <div
+                  id={panelId}
+                  role={ordered.length > 0 ? "tabpanel" : undefined}
+                  aria-labelledby={ordered.length > 0 ? tabId(active) : undefined}
+                >
+                  {scene || mobile ? (
+                    // Desktop uses the scene; mobile observes each card independently.
+                    <div ref={gridRef} className={GRID}>
+                      {cards}
+                    </div>
+                  ) : (
+                    <ProgressiveReveal
+                      effect="cascade"
+                      duration={1.3}
+                      delay={0.4}
+                      staggerChildren={0.18}
+                      className={GRID}
+                    >
+                      {cards}
+                    </ProgressiveReveal>
+                  )}
+                </div>
               </div>
             </LazyMotion>
           </div>

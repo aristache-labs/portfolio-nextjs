@@ -115,7 +115,7 @@ it.each([
   act(() => first("visible"));
   expect(progress.animate).toHaveBeenCalledTimes(1);
   expect(progress.animate).toHaveBeenLastCalledWith(0, 90, expect.objectContaining({ delay: 0 }));
-  expect(secondFill).toHaveStyle({ width: "0%" });
+  expect(secondFill).toHaveStyle({ transform: "scaleX(0)" });
   act(() => sequence.publish("complete"));
   expect(progress.animate).toHaveBeenCalledTimes(1);
   act(() => second("visible"));
@@ -134,7 +134,7 @@ it.each([
   const { container, rerender, unmount } = render(card);
   const bar = screen.getByRole("progressbar", { name: "React proficiency" });
   const fill = bar.firstElementChild!;
-  expect(fill).toHaveStyle({ width: "0%" });
+  expect(fill).toHaveStyle({ transform: "scaleX(0)" });
   expect(screen.getByText("0%")).toHaveAttribute("aria-hidden");
   expect(bar).toHaveAttribute("aria-valuenow", "90");
   expect(progress.animate).not.toHaveBeenCalled();
@@ -146,10 +146,10 @@ it.each([
   );
   const animation = progress.animate.mock.calls[0][2];
   act(() => animation.onUpdate(45));
-  expect(fill).toHaveStyle({ width: "45%" });
+  expect(fill).toHaveStyle({ transform: "scaleX(0.45)" });
   expect(screen.getByText("45%")).toBeInTheDocument();
   act(() => animation.onComplete());
-  expect(fill).toHaveStyle({ width: "90%" });
+  expect(fill).toHaveStyle({ transform: "scaleX(0.9)" });
   expect(screen.getByText("90%")).toBeInTheDocument();
   enter();
   act(() => window.dispatchEvent(new Event("resize")));
@@ -158,7 +158,7 @@ it.each([
   rerender(<SkillCard name="React" iconPath="/skills/react.svg" level="Expert" />);
   expect(progress.stop).toHaveBeenCalled();
   animation.onUpdate(20);
-  expect(fill).toHaveStyle({ width: "90%" });
+  expect(fill).toHaveStyle({ transform: "scaleX(0.9)" });
   expect(container.querySelector("[aria-live]")).toBeNull();
   unmount();
   expect(disconnect).toHaveBeenCalled();
@@ -171,7 +171,7 @@ it.each([false, true])(
     const container = document.createElement("div");
     container.innerHTML = renderToString(card);
     expect(container.querySelector("[role='progressbar']")?.firstElementChild).toHaveStyle({
-      width: "90%",
+      transform: "scaleX(0.9)",
     });
     expect(container).toHaveTextContent("90%");
     document.body.append(container);
