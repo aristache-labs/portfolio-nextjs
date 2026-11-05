@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, type ComponentProps } from "react";
-import { ChevronRight, Sparkle, Workflow } from "lucide-react";
+import { useEffect, useRef, type ComponentProps, type MouseEvent } from "react";
+import { ArrowRight, ChevronRight, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { SectionLink } from "@/components/common/SectionLink";
@@ -16,6 +16,7 @@ import subtitleCss from "@/components/home/section-subtitle.module.css";
 import headingCss from "@/components/home/section-heading.module.css";
 import { PREFERENCES_EVENT } from "@/lib/analytics-consent";
 import { SITE } from "@/lib/seo/site";
+import { scrollToSection } from "@/lib/scroll-to-section";
 import layout from "./footer-layout.module.css";
 import { useFooterEntrance } from "./useFooterEntrance";
 import { FOOTER_MOBILE_QUERY, useFooterMobileEntrance } from "./useFooterMobileEntrance";
@@ -86,6 +87,18 @@ export function Footer({
     ? { label: "Buy me a coffee", href: supportUrl, external: true }
     : null;
   const { mode } = useAnimationPolicy();
+  // Footer section links glide like the header links do. Left to the browser, the first click\n  // only rewrites the hash and the page stays put until a second click.
+  const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
+  useEffect(() => () => stopAnchorScroll.current?.(), []);
+  const glideToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    if (homeHrefPrefix || !document.getElementById(id)) return;
+    event.preventDefault();
+    stopAnchorScroll.current?.();
+    stopAnchorScroll.current = scrollToSection(id, mode === "static");
+  };
   const itemVariants: Variants = {
     hidden: mode === "static" ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 },
     visible: {
@@ -159,6 +172,18 @@ export function Footer({
               <p className={`${subtitleCss.subtitle} mx-auto mt-2 max-w-[580px]`}>
                 IT infrastructure, deployment automation, web and mobile development.
               </p>
+              {sectionVisibility.contact !== false && (
+                <SectionLink
+                  crossPage={!!homeHrefPrefix}
+                  scroll={!homeHrefPrefix}
+                  href={`${homeHrefPrefix}#contact`}
+                  onClick={(event) => glideToSection(event, "contact")}
+                  className={`${layout.cta} mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 text-[14px] font-medium text-white backdrop-blur-md transition-colors duration-300 hover:border-(--brand-mid)/50 hover:bg-white/10 ${FOCUS}`}
+                >
+                  Let&apos;s build something
+                  <ArrowRight className="text-brand-bright size-4" aria-hidden />
+                </SectionLink>
+              )}
             </FooterPart>
             <div className="mx-auto mt-5 flex w-full max-w-[620px] items-center gap-4">
               <FooterPart
@@ -266,6 +291,7 @@ export function Footer({
                         crossPage={!!homeHrefPrefix}
                         scroll={!homeHrefPrefix}
                         href={link.href}
+                        onClick={(event) => glideToSection(event, link.href.split("#")[1] ?? "")}
                         className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
                       >
                         <ChevronRight
