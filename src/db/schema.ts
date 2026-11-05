@@ -194,6 +194,14 @@ export const githubUserCache = pgTable("github_user_cache", {
   fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Fixed-window counters for the contact form. Persistent so the limit holds across
+// serverless instances; one row per key, rewritten when its window expires.
+export const rateLimits = pgTable("rate_limits", {
+  key: varchar("key", { length: 255 }).primaryKey(),
+  count: integer("count").notNull().default(0),
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+});
+
 // Inferred types
 export type Profile = typeof profile.$inferSelect;
 export type NewProfile = typeof profile.$inferInsert;

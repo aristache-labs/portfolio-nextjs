@@ -223,7 +223,7 @@ describe("ProjectsBrowser categories and responsive limits", () => {
   it("shows six recent and six lower cards on desktop without duplicates", () => {
     render(<ProjectsBrowser projects={list} />);
     expect(screen.getAllByRole("article")).toHaveLength(14);
-    expect(screen.queryByText("Show more recently updated")).not.toBeInTheDocument();
+    expect(screen.queryByText("Show more Latest work")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
     expect(screen.getAllByRole("article")).toHaveLength(14);
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
@@ -265,13 +265,13 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     installMatchMedia({ "(max-width: 1023px)": true, "(orientation: landscape)": true });
     render(<ProjectsBrowser projects={list} />);
     expect(screen.getAllByRole("article")).toHaveLength(9);
-    const recentHeading = screen.getByText("Recently updated");
+    const recentHeading = screen.getByText("Latest work");
     const recentColumn = recentHeading.parentElement!.parentElement!;
     expect(within(recentColumn).getAllByRole("article")).toHaveLength(3);
     expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText("More projects").tagName).toBe("P");
-    expect(screen.getByText("Recently updated").tagName).toBe("P");
+    expect(screen.getByText("Latest work").tagName).toBe("P");
     expect(screen.getByText("Featured", { exact: true, selector: "p" }).tagName).toBe("P");
   });
 

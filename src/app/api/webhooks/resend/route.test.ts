@@ -54,6 +54,7 @@ describe("incoming email forwarding", () => {
     vi.stubEnv("RESEND_API_KEY", "test-key");
     vi.stubEnv("RESEND_FROM_EMAIL", "Aristache <no-reply@aristache.dev>");
     vi.stubEnv("RESEND_WEBHOOK_SECRET", secret);
+    vi.stubEnv("RESEND_FORWARD_TO", "ad.cristache@gmail.com");
     forward.mockResolvedValue({ data: { id: "forwarded-email" }, error: null });
   });
 

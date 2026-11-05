@@ -25,10 +25,11 @@ import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./so
 import { GLASS_CARD } from "./project-styles";
 import { ContactSubject } from "./ContactSubject";
 import { cn } from "@/utils/cn";
+import { CONTACT_SUBJECTS } from "@/lib/contact-schema";
 
 export { platformIcon, type SocialIcon, type SocialRow };
 
-const SUBJECTS = ["Project Collaboration", "Job Opportunity", "Freelance Work", "General Question"];
+const SUBJECTS = [...CONTACT_SUBJECTS];
 /** How long the thank-you stays over the form before it can send again. */
 const SENT_CONFIRMATION_MS = 4500;
 

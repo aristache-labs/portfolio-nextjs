@@ -33,17 +33,6 @@ const RECENT_COVER_SIZES = [
   "calc(100vw - clamp(3rem, 5vw, 5.5rem) - 1.75rem)",
 ].join(", ");
 
-const UPDATED_DATE_FORMATTER = new Intl.DateTimeFormat("en", {
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-/** "Oct 2026". Fixed to UTC so the server render and the browser agree on the month. */
-export function formatUpdated(date: Date): string {
-  return Number.isNaN(date.getTime()) ? "Invalid Date" : UPDATED_DATE_FORMATTER.format(date);
-}
-
 function Cover({
   project,
   sizes,
@@ -166,13 +155,10 @@ function Actions({
           Live
         </Button>
       )}
-      {compact && project.pushedAt && (
-        <time
-          dateTime={project.pushedAt.toISOString()}
-          className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[10px] tracking-[0.04em] uppercase"
-        >
-          {formatUpdated(project.pushedAt)}
-        </time>
+      {compact && (
+        <span className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[10px] tracking-[0.04em] uppercase">
+          {project.homepage ? "Live" : "In development"}
+        </span>
       )}
     </div>
   );

@@ -15,7 +15,10 @@ vi.mock("resend", () => ({
 
 vi.mock("@/lib/rate-limit", () => ({
   clientIpFromHeaders: () => "127.0.0.1",
-  createRateLimiter: () => allowRequest,
+}));
+
+vi.mock("@/lib/rate-limit-db", () => ({
+  createDbRateLimiter: () => allowRequest,
 }));
 
 import { POST } from "./route";

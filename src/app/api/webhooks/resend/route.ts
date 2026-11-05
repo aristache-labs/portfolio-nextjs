@@ -15,7 +15,8 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.RESEND_API_KEY;
   const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
   const from = process.env.RESEND_FROM_EMAIL;
-  if (!apiKey || !webhookSecret || !from) {
+  const forwardTo = process.env.RESEND_FORWARD_TO;
+  if (!apiKey || !webhookSecret || !from || !forwardTo) {
     return NextResponse.json({ error: "Email forwarding is not configured." }, { status: 503 });
   }
 
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { error } = await resend.emails.receiving.forward(
-      { emailId, from, to: "ad.cristache@gmail.com" },
+      { emailId, from, to: forwardTo },
       // Resend retains sending idempotency keys for 24 hours.
       { idempotencyKey: `inbound-forward/${emailId}` },
     );
