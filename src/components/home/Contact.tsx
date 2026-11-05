@@ -6,7 +6,6 @@ import { Merienda } from "next/font/google";
 import { AnimatePresence, m, type Variants } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
-import { ScrollEntrance } from "@/components/motion/ScrollEntrance";
 import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArrowRight, ArrowUpRight, Loader2, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -88,10 +87,11 @@ const FORM_GLASS = cn(
 
 /** The contact cards cascade in on a timer, unless the desktop scene drives each card. */
 function CardList({ scene, children }: { scene: boolean; children: ReactNode }) {
-  return scene ? (
-    <div className="mt-9">{children}</div>
-  ) : (
-    <ProgressiveReveal
+  return (
+    <ContactArrival
+      kind="list"
+      mobile={false}
+      plain={scene}
       effect="cascade"
       duration={0}
       delay={0.15}
@@ -99,7 +99,7 @@ function CardList({ scene, children }: { scene: boolean; children: ReactNode }) 
       className="mt-9"
     >
       {children}
-    </ProgressiveReveal>
+    </ContactArrival>
   );
 }
 
@@ -165,60 +165,49 @@ export function Contact({
   const landscape = useMediaQuery(CONTACT_LANDSCAPE_QUERY);
   const mobile = portrait || landscape;
   /** From the left with scrolling on expressive desktops, the timed reveal elsewhere. */
-  const leftArrival = (effect: "slide" | "fade", lag: number, content: ReactNode) =>
-    mobile ? (
-      <ContactArrival kind={effect === "slide" ? "heading" : "description"}>
-        {content}
-      </ContactArrival>
-    ) : scene ? (
-      <ScrollEntrance enabled from="left" lag={lag}>
-        {content}
-      </ScrollEntrance>
-    ) : (
-      <ProgressiveReveal effect={effect} desktopDelay={effect === "fade" ? 0.08 : 0.3}>
-        {content}
-      </ProgressiveReveal>
-    );
-  // Each glass surface is the element that fades, so its blur is there from the first frame.
-  const quoteFrame = (content: ReactNode) =>
-    mobile ? (
-      <ContactArrival kind="quote" className={`${QUOTE_GLASS} mt-8 max-w-[575px]`}>
-        {content}
-      </ContactArrival>
-    ) : scene ? (
-      <ScrollEntrance enabled from="left" lag={0.14} className="mt-8 max-w-[575px]">
-        <div className={QUOTE_GLASS}>{content}</div>
-      </ScrollEntrance>
-    ) : (
-      <ProgressiveReveal
-        effect="zoom"
-        duration={0.7}
-        delay={0.15}
-        className={`${QUOTE_GLASS} mt-8 max-w-[575px]`}
-      >
-        {content}
-      </ProgressiveReveal>
-    );
-  const formFrame = (content: ReactNode) =>
-    mobile ? (
-      <ContactArrival kind="form" className={FORM_COLUMN}>
-        <div className={FORM_GLASS}>{content}</div>
-      </ContactArrival>
-    ) : scene ? (
-      <ScrollEntrance enabled from="right" lag={0.05} className={FORM_COLUMN}>
-        <div className={FORM_GLASS}>{content}</div>
-      </ScrollEntrance>
-    ) : (
-      <ProgressiveReveal
-        effect="fade-from-right"
-        duration={0.75}
-        delay={0.15}
-        className={FORM_COLUMN}
-        innerClassName={FORM_GLASS}
-      >
-        {content}
-      </ProgressiveReveal>
-    );
+  const leftArrival = (effect: "slide" | "fade", lag: number, content: ReactNode) => (
+    <ContactArrival
+      mobile={mobile}
+      scrollFrom={scene ? "left" : undefined}
+      scrollLag={lag}
+      kind={effect === "slide" ? "heading" : "description"}
+      effect={effect}
+      desktopDelay={effect === "fade" ? 0.08 : 0.3}
+    >
+      {content}
+    </ContactArrival>
+  );
+  // Keep each glass surface on the layer faded by its active driver.
+  const quoteFrame = (content: ReactNode) => (
+    <ContactArrival
+      kind="quote"
+      mobile={mobile}
+      scrollFrom={scene ? "left" : undefined}
+      scrollLag={0.14}
+      effect="zoom"
+      duration={0.7}
+      delay={0.15}
+      className="mt-8 max-w-[575px]"
+      surfaceClassName={QUOTE_GLASS}
+    >
+      {content}
+    </ContactArrival>
+  );
+  const formFrame = (content: ReactNode) => (
+    <ContactArrival
+      kind="form"
+      mobile={mobile}
+      scrollFrom={scene ? "right" : undefined}
+      scrollLag={0.05}
+      effect="fade-from-right"
+      duration={0.75}
+      delay={0.15}
+      className={FORM_COLUMN}
+      surfaceClassName={FORM_GLASS}
+    >
+      {content}
+    </ContactArrival>
+  );
 
   const inputClass =
     "mt-2 h-10 w-full rounded-lg border border-white/12 bg-black/40 px-3 text-base text-white placeholder:text-white/50 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
@@ -353,6 +342,8 @@ export function Contact({
                     <m.a
                       initial={false}
                       variants={linkVariants}
+                      animate={scene || mobile ? { opacity: "", x: 0 } : undefined}
+                      transformTemplate={scene || mobile ? () => "" : undefined}
                       href={card.href}
                       aria-labelledby={`${cardId}-${index}-title ${cardId}-${index}-value`}
                       {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
@@ -393,22 +384,17 @@ export function Contact({
                   );
                   return (
                     <li key={card.key}>
-                      {mobile ? (
-                        <ContactArrival kind="card" order={index} className="h-full">
-                          {link}
-                        </ContactArrival>
-                      ) : scene ? (
-                        <ScrollEntrance
-                          enabled
-                          from="left"
-                          lag={0.06 + index * 0.04}
-                          className="h-full"
-                        >
-                          {link}
-                        </ScrollEntrance>
-                      ) : (
-                        link
-                      )}
+                      <ContactArrival
+                        kind="card"
+                        mobile={mobile}
+                        plain
+                        scrollFrom={scene ? "left" : undefined}
+                        scrollLag={0.06 + index * 0.04}
+                        order={index}
+                        className="h-full"
+                      >
+                        {link}
+                      </ContactArrival>
                     </li>
                   );
                 })}
