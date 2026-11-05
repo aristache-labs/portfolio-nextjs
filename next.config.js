@@ -58,6 +58,9 @@ const nextConfig = {
     cssChunking: false,
     // Production app router only. Imported CSS ships inside <style> in the HTML, so the first
     // paint does not wait on separate stylesheet requests. Dev (Turbopack) ignores this.
+    // Tested off on 2026-11-05 and kept ON: the HTML shrank from 680KB to 312KB, but the CSS came
+    // back as three render-blocking files (~0.3-0.45s each in the simulation), so LCP did not move
+    // (3.85-4.16s vs 3.84-4.10s), FCP got worse (1.81s vs 2.12s) and the score stayed 81-84.
     inlineCss: true,
   },
   // Do not redirect www -> apex here. Vercel already redirects aristache.dev to
