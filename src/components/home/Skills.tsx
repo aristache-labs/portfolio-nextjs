@@ -9,6 +9,7 @@ import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Quote } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SkillEntrance } from "./SkillEntrance";
+import { SkillsMarquee } from "./SkillsMarquee";
 import { SkillSlot, SkillsScene } from "./SkillsSequence";
 import { SkillsGridReveal, SkillsReveal } from "./SkillsReveal";
 import { SectionBackdrop } from "./SectionBackdrop";
@@ -361,6 +362,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     {cards}
                   </SkillsGridReveal>
                 </div>
+                <SkillsMarquee skills={ordered} loadIcons={iconsNear && !desktop} />
               </div>
             </LazyMotion>
           </div>

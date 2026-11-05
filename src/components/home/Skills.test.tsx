@@ -51,8 +51,21 @@ describe("Skills", () => {
 
     const activeIcons = (container: HTMLElement) =>
       Array.from(container.querySelectorAll('img[src^="/skills/"]')).filter(
-        (image) => !image.closest("noscript"),
+        // The decorative marquee repeats the logos; these tests are about the cards.
+        (image) => !image.closest("noscript") && !image.closest("[aria-hidden]"),
       );
+
+    it("shows each logo in the decorative marquee once icons are near, hidden from assistive tech", () => {
+      const { container } = render(<Skills skills={mockSkills} />);
+      const strip = () => container.querySelector('[aria-hidden="true"] img[src^="/skills/"]');
+      expect(strip()).toBeNull();
+      act(() =>
+        notify([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver),
+      );
+      const logos = container.querySelectorAll('[aria-hidden="true"] img[src^="/skills/"]');
+      expect(logos).toHaveLength(mockSkills.length * 2);
+      logos.forEach((logo) => expect(logo).toHaveAttribute("alt", ""));
+    });
 
     it("waits for Skills to approach before exposing icon URLs", async () => {
       const { container } = render(<Skills skills={mockSkills} />);
