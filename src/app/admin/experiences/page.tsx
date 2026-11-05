@@ -39,6 +39,7 @@ const fields: AdminField[] = [
   },
   { name: "order", label: "Order", type: "number" },
   { name: "isCurrent", label: "Current role", type: "checkbox" },
+  { name: "volunteer", label: "Volunteer (shows a badge beside the dates)", type: "checkbox" },
 ];
 
 function parse(formData: FormData) {
@@ -48,6 +49,7 @@ function parse(formData: FormData) {
     period: String(formData.get("period")),
     location: (formData.get("location") as string) || null,
     isCurrent: formData.get("isCurrent") === "on",
+    volunteer: formData.get("volunteer") === "on",
     description: String(formData.get("description") || "")
       .split("\n")
       .map((l) => l.trim())
@@ -83,7 +85,12 @@ export default async function ExperiencesEditor() {
       toRow={(e) => ({
         primary: `${e.role} @ ${e.org}`,
         meta: e.period,
-        badges: e.isCurrent ? <Badge tone="success">Current</Badge> : null,
+        badges: (
+          <>
+            {e.isCurrent && <Badge tone="success">Current</Badge>}
+            {e.volunteer && <Badge tone="brand">Volunteer</Badge>}
+          </>
+        ),
       })}
       createAction={create}
       updateAction={update}

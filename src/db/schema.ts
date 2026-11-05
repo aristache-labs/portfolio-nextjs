@@ -73,6 +73,8 @@ export const experiences = pgTable("experiences", {
   period: text("period").notNull(),
   location: text("location"),
   isCurrent: boolean("is_current").notNull().default(false),
+  /** Shows a Volunteer badge beside the dates. Edited in Admin -> Experiences. */
+  volunteer: boolean("volunteer").notNull().default(false),
   description: jsonb("description").$type<string[]>().notNull().default([]),
   order: integer("order").notNull().default(0),
 });

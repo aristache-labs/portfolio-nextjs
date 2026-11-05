@@ -187,6 +187,9 @@ const step = (order: number) => ({ "--step": order }) as CSSProperties;
 const ROLE_TAG =
   /^(volunteer(ing)?|internship|freelance|part[- ]time|contract)( experience| work| role)?\.?$/i;
 
+/** "Volunteer Experience" and "Volunteer" name the same badge. */
+const TAG_SUFFIX = /\s*(experience|work|role)\.?$/i;
+
 /** Screen classes measured once by the timeline and shared with every role. */
 type EntryLayout = {
   portrait: boolean;
@@ -207,7 +210,17 @@ function TimelineEntry({
   layout: EntryLayout;
 }) {
   const { portrait, landscape, desktop, desktopDisclosure } = layout;
-  const tags = exp.description.filter((line) => ROLE_TAG.test(line.trim()));
+  // The Volunteer checkbox in Admin owns that badge; a "Volunteer Experience" line still works too.
+  const tags = [
+    ...(exp.volunteer ? ["Volunteer"] : []),
+    ...exp.description.filter((line) => ROLE_TAG.test(line.trim())),
+  ].filter(
+    (tag, index, all) =>
+      all.findIndex(
+        (other) =>
+          other.replace(TAG_SUFFIX, "").toLowerCase() === tag.replace(TAG_SUFFIX, "").toLowerCase(),
+      ) === index,
+  );
   const description = exp.description.filter((line) => !ROLE_TAG.test(line.trim()));
   const previewCount = desktopDisclosure ? 3 : desktop ? 2 : 1;
   const [expanded, setExpanded] = useState(false);
@@ -237,7 +250,7 @@ function TimelineEntry({
             </span>
             {tags.map((tag) => (
               <span key={tag} className={styles.tag}>
-                {tag.replace(/\s*(experience|work|role)\.?$/i, "")}
+                {tag.replace(TAG_SUFFIX, "")}
               </span>
             ))}
           </p>

@@ -70,6 +70,7 @@ export const experienceInsertSchema = z.object({
   period: z.string().min(1),
   location: z.string().nullable().optional(),
   isCurrent: z.boolean().default(false),
+  volunteer: z.boolean().default(false),
   description: z.array(z.string()).default([]),
   order: z.number().int().nonnegative().default(0),
 });
