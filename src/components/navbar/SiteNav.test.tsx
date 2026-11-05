@@ -30,6 +30,29 @@ const socials = [
 ];
 
 describe("SiteNav", () => {
+  it("shows availability after scrolling and hides it while the menu is open", () => {
+    const scroll = vi.spyOn(window, "scrollY", "get").mockReturnValue(100);
+    render(<SiteNav socials={socials} availability="Available for new projects" />);
+    expect(screen.getByText("Available for new projects").closest("header")).not.toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    expect(screen.queryByText("Available for new projects")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Close menu" }));
+    expect(screen.getByText("Available for new projects")).toBeInTheDocument();
+    scroll.mockRestore();
+  });
+
+  it("hides availability while the header is transparent at the top", () => {
+    const scroll = vi.spyOn(window, "scrollY", "get").mockReturnValue(0);
+    render(<SiteNav socials={socials} availability="Available for new projects" />);
+    expect(screen.queryByText("Available for new projects")).toBeNull();
+    scroll.mockRestore();
+  });
+
+  it("does not show the availability status on legal pages", () => {
+    vi.mocked(usePathname).mockReturnValue("/privacy");
+    render(<SiteNav socials={socials} availability="Available for new projects" />);
+    expect(screen.queryByText("Available for new projects")).toBeNull();
+  });
   it("preloads the same responsive wordmark candidates it renders in server HTML", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(<SiteNav socials={socials} />);

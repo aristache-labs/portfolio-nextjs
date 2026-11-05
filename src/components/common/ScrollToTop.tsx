@@ -11,17 +11,17 @@ import styles from "./scroll-to-top.module.css";
 
 /** Fallback for pages without the homepage sections, such as Privacy. */
 const MIN_THRESHOLD = 400;
+const CONTENT_SECTIONS = ["about", "skills", "experience", "projects", "contact"];
 
 /**
- * On the homepage the button appears after Experience, falling back to earlier visible
- * sections when it is hidden. Other pages use a short reading threshold.
+ * On the homepage the button appears at About, or the first visible section after Hero.
+ * Other pages use a short reading threshold.
  */
 function threshold() {
-  const section = ["experience", "skills", "about", "hero"]
-    .map((id) => document.getElementById(id))
-    .find(Boolean);
-  if (!section) return MIN_THRESHOLD;
-  return section.getBoundingClientRect().bottom + window.scrollY;
+  const section = CONTENT_SECTIONS.map((id) => document.getElementById(id)).find(Boolean);
+  if (section) return section.getBoundingClientRect().top + window.scrollY;
+  const hero = document.getElementById("hero");
+  return hero ? hero.getBoundingClientRect().bottom + window.scrollY : MIN_THRESHOLD;
 }
 
 const ScrollToTop = () => {
@@ -45,7 +45,7 @@ const ScrollToTop = () => {
     window.addEventListener("resize", onScroll);
     const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(onScroll);
     observer?.observe(document.body);
-    ["experience", "skills", "about", "hero"].forEach((id) => {
+    [...CONTENT_SECTIONS, "hero"].forEach((id) => {
       const section = document.getElementById(id);
       if (section) observer?.observe(section);
     });
