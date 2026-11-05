@@ -231,7 +231,7 @@ export function Contact({
   );
 
   const inputClass =
-    "mt-2 h-10 w-full rounded-lg border border-white/12 bg-black/40 px-3 text-base text-white placeholder:text-white/50 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
+    "pointer-coarse:h-11 mt-2 h-10 w-full rounded-lg border border-white/12 bg-black/40 px-3 text-base text-white placeholder:text-white/50 outline-none transition focus:border-brand-mid/60 focus:bg-black/55 focus:ring-1 focus:ring-brand-mid/30 lg:px-3.5";
   const labelClass = "block text-[13.5px] font-medium text-white/85";
 
   // The send button confirms a delivered message for a moment, then offers sending again.
@@ -442,17 +442,20 @@ export function Contact({
                   );
                   return (
                     <li key={card.key}>
-                      <ContactArrival
-                        kind="card"
-                        mobile={mobile}
-                        plain
-                        scrollFrom={scene ? "left" : undefined}
-                        scrollLag={0.06 + index * 0.04}
-                        order={index}
-                        className="h-full"
-                      >
-                        {link}
-                      </ContactArrival>
+                      {/* Outside the arrival: that fades its direct child, which must stay the glass card. */}
+                      <Magnetic className="block h-full w-full">
+                        <ContactArrival
+                          kind="card"
+                          mobile={mobile}
+                          plain
+                          scrollFrom={scene ? "left" : undefined}
+                          scrollLag={0.06 + index * 0.04}
+                          order={index}
+                          className="h-full"
+                        >
+                          {link}
+                        </ContactArrival>
+                      </Magnetic>
                     </li>
                   );
                 })}
@@ -477,7 +480,7 @@ export function Contact({
                     href="https://classics.mit.edu/Plato/republic.3.ii.html"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-brand-bright focus-visible:outline-brand-mid rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-4"
+                    className="hover:text-brand-bright focus-visible:outline-brand-mid rounded-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 pointer-coarse:relative pointer-coarse:after:absolute pointer-coarse:after:-inset-x-2 pointer-coarse:after:-inset-y-3.5 pointer-coarse:after:content-['']"
                   >
                     Plato
                   </a>
@@ -613,7 +616,7 @@ export function Contact({
                       if ("message" in fieldErrors) validateField("message", event.target.value);
                     }}
                     placeholder="Project scope, current stack, constraints and timeline."
-                    className={`${inputClass} h-[92px] resize-none py-2.5`}
+                    className={`${inputClass} h-[92px] resize-none py-2.5 pointer-coarse:h-[92px]`}
                   />
                   <span aria-hidden className={formCss.focusLine} />
                 </div>
@@ -635,7 +638,10 @@ export function Contact({
             </div>
             <p className="text-muted mt-4 text-xs leading-relaxed">
               Read the{" "}
-              <Link href="/privacy" className="text-brand-bright underline">
+              <Link
+                href="/privacy"
+                className="text-brand-bright underline pointer-coarse:relative pointer-coarse:after:absolute pointer-coarse:after:-inset-x-1 pointer-coarse:after:-inset-y-3.5 pointer-coarse:after:content-['']"
+              >
                 Privacy policy
               </Link>{" "}
               for details about how your message is handled.
@@ -648,7 +654,7 @@ export function Contact({
                 disabled={status === "submitting"}
                 variant="primary"
                 size="md"
-                className="group w-full rounded-xl py-2.5 shadow-[0_6px_18px_-10px_rgb(var(--brand-deep-rgb)/0.5)] disabled:pointer-events-none"
+                className="group w-full rounded-xl py-2.5 shadow-[0_6px_18px_-10px_rgb(var(--brand-deep-rgb)/0.5)] disabled:pointer-events-none pointer-coarse:min-h-11"
               >
                 {status === "submitting" ? (
                   <>
