@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { PersonJsonLd, WebSiteJsonLd } from "../jsonld";
+import { HomeJsonLd, PersonJsonLd, WebSiteJsonLd } from "../jsonld";
 
 function parse(html: string) {
   return JSON.parse(html);
@@ -33,5 +33,40 @@ describe("JSON-LD", () => {
     expect(data).not.toHaveProperty("givenName");
     expect(data).not.toHaveProperty("familyName");
     expect(data.url).toMatch(/^https?:\/\//);
+  });
+
+  it("emits a ProfilePage and a project ItemList tied to the Person id", () => {
+    const { container } = render(
+      <HomeJsonLd
+        skills={[{ name: "PowerShell" }, { name: "PowerShell" }, { name: "Next.js" }]}
+        projects={[
+          {
+            title: "Rippl",
+            description: "A thing.",
+            htmlUrl: "https://github.com/aristache-labs/rippl",
+            homepage: null,
+            language: "Dart",
+          },
+          { title: "No repo", description: null, htmlUrl: null, homepage: null, language: null },
+        ]}
+      />,
+    );
+    const [profile, list] = [...container.querySelectorAll("script")].map((s) =>
+      parse(s.innerHTML),
+    );
+    const personId = parse(render(<PersonJsonLd />).container.querySelector("script")!.innerHTML)[
+      "@id"
+    ];
+    expect(profile["@type"]).toBe("ProfilePage");
+    expect(profile.mainEntity["@id"]).toBe(personId);
+    expect(profile.mainEntity.knowsAbout).toEqual(["PowerShell", "Next.js"]);
+    expect(list["@type"]).toBe("ItemList");
+    expect(list.itemListElement).toHaveLength(1);
+    expect(list.itemListElement[0].item).toMatchObject({
+      "@type": "SoftwareSourceCode",
+      name: "Rippl",
+      programmingLanguage: "Dart",
+      author: { "@id": personId },
+    });
   });
 });

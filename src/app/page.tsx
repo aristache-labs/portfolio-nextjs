@@ -16,6 +16,7 @@ import { IntroCurtain } from "@/components/brand/IntroCurtain";
 import { Footer } from "@/components/layout/Footer";
 import { Skills, Experience, Services, Contact } from "@/components/home/HomeSections";
 import { sectionNumbers } from "@/lib/section-numbers";
+import { HomeJsonLd } from "@/lib/seo/jsonld";
 
 // ISR: prerendered at build time, so the build needs a reachable database. 12h is a Neon compute
 // budget decision, not a freshness one - admin saves publish immediately. See AGENTS.md.
@@ -65,6 +66,7 @@ export default async function Home() {
       data-site="cinematic"
       className={`${sora.variable} dark bg-background text-foreground relative min-h-screen`}
     >
+      <HomeJsonLd projects={projects} skills={skills} />
       <IntroCurtain />
       <SkipLink />
       <SiteNav
