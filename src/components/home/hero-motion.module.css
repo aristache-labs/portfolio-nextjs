@@ -749,8 +749,8 @@
 
 @media (max-width: 767px) and (orientation: portrait) {
   .content {
-    padding-top: calc(12rem - var(--hero-consent-lift, 0rem));
-    padding-bottom: 2rem;
+    padding-top: calc(10rem - var(--hero-consent-lift, 0rem));
+    padding-bottom: 0rem;
   }
 
   .specialization {
