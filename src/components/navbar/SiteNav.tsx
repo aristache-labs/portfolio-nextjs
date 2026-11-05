@@ -72,8 +72,10 @@ const SECTIONS: MenuSection[] = [
 export function SiteNav({
   hidden = [],
   sections = SECTIONS,
+  availability,
 }: {
   socials: { platform: string; url: string }[];
+  availability?: string | null;
   hidden?: string[];
   sections?: MenuSection[];
 }) {
@@ -283,6 +285,12 @@ export function SiteNav({
             />
           </SectionLink>
 
+          {availability?.trim() && onHomepage && scrolled && !open && (
+            <span className={navStyles.availability}>
+              <span aria-hidden className={navStyles.availabilityDot} />
+              <span className={navStyles.availabilityText}>{availability}</span>
+            </span>
+          )}
           <ul className="hidden items-center gap-8 xl:flex">
             {visibleSections.map((section) => {
               const isActive = section.id === active;

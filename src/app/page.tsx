@@ -70,6 +70,7 @@ export default async function Home() {
       <IntroCurtain />
       <SkipLink />
       <SiteNav
+        availability={profile.availability}
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}
         hidden={Object.entries(vis)
           .filter(([, v]) => v === false)

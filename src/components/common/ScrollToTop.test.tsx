@@ -15,14 +15,16 @@ afterEach(() => {
   window.history.replaceState(null, "", "/");
 });
 
-it.each(["experience", "skills", "about", "hero"])(
-  "waits for the bottom of %s and remeasures after resize",
+it.each(["about", "skills", "experience", "projects", "contact"])(
+  "appears at the start of %s and remeasures after resize",
   async (id) => {
     const section = document.createElement("section");
     section.id = id;
     document.body.append(section);
-    let bottom = 200;
-    vi.spyOn(section, "getBoundingClientRect").mockImplementation(() => ({ bottom }) as DOMRect);
+    let top = 200;
+    vi.spyOn(section, "getBoundingClientRect").mockImplementation(
+      () => ({ top, bottom: top + 1500 }) as DOMRect,
+    );
     vi.spyOn(window, "scrollY", "get").mockReturnValue(1000);
     render(
       <LazyMotion features={domAnimation}>
@@ -30,7 +32,7 @@ it.each(["experience", "skills", "about", "hero"])(
       </LazyMotion>,
     );
     expect(screen.queryByRole("button", { name: "Scroll to top" })).toBeNull();
-    bottom = -1;
+    top = 0;
     fireEvent.resize(window);
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "Scroll to top" })).toBeVisible(),
@@ -42,6 +44,27 @@ it.each(["experience", "skills", "about", "hero"])(
     section.remove();
   },
 );
+
+it("uses About before later sections even while their bottoms remain below the viewport", () => {
+  const sections = ["about", "experience", "projects"].map((id, i) => {
+    const section = document.createElement("section");
+    section.id = id;
+    vi.spyOn(section, "getBoundingClientRect").mockReturnValue({
+      top: i * 1000,
+      bottom: (i + 1) * 1000,
+    } as DOMRect);
+    document.body.append(section);
+    return section;
+  });
+  vi.spyOn(window, "scrollY", "get").mockReturnValue(900);
+  render(
+    <LazyMotion features={domAnimation}>
+      <ScrollToTop />
+    </LazyMotion>,
+  );
+  expect(screen.getByRole("button", { name: "Scroll to top" })).toBeVisible();
+  sections.forEach((section) => section.remove());
+});
 
 it.each(["/", "/privacy"])("clears the old hash on %s while preserving the query", (path) => {
   window.history.replaceState({ __NA: true }, "", `${path}?preview=1#contact`);
