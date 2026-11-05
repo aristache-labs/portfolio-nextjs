@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { ABOUT_STAT_SLOTS } from "./about-stats";
 import { PROJECT_CATEGORIES } from "./project-categories";
 
 // ---------- Table insert/update validators (admin form input) ----------
@@ -11,15 +10,7 @@ export const profileInsertSchema = z.object({
     .optional()
     .transform((value) => value || null),
   bio: z.string().min(1),
-  stats: z.record(z.string(), z.union([z.string(), z.number()])).superRefine((stats, context) => {
-    for (const { key } of ABOUT_STAT_SLOTS) {
-      for (const [name, max] of [[key, 24], [`${key}Label`, 80]] as const) {
-        if (stats[name] !== undefined && String(stats[name]).length > max) {
-          context.addIssue({ code: "custom", path: [name], message: `Maximum ${max} characters` });
-        }
-      }
-    }
-  }).default({}),
+  stats: z.record(z.string(), z.union([z.string(), z.number()])).default({}),
   roles: z.array(z.string()).default([]),
   // Full http(s) URLs only — z.httpUrl() rejects javascript:/data: schemes
   // (the resume renders as <a href>, the avatar as <img src>). Store the
@@ -41,6 +32,12 @@ export const projectInsertSchema = z.object({
   title: z.string().min(1),
   category: z.enum(PROJECT_CATEGORIES).nullable().optional(),
   customBlurb: z.string().nullable().optional(),
+  tagline: z.string().max(120).nullable().optional(),
+  problem: z.string().nullable().optional(),
+  solution: z.string().nullable().optional(),
+  outcome: z.string().nullable().optional(),
+  role: z.string().nullable().optional(),
+  liveUrl: z.httpUrl().nullable().optional(),
   tags: z.array(z.string()).default([]),
   featured: z.boolean().default(false),
   order: z.number().int().nonnegative().default(0),

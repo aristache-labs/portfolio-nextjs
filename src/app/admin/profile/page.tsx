@@ -5,8 +5,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Panel, Field, Input, Textarea, SubmitButton } from "@/components/admin/ui";
 import { AvatarField } from "@/components/admin/AvatarField";
 import { HERO_DEFAULTS, IDENTITY } from "@/lib/identity";
-
-import { ABOUT_STAT_SLOTS, aboutStatsFromForm } from "@/lib/about-stats";
+import { ABOUT_STATS, aboutStats, mergeAboutStats } from "@/lib/about-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +28,8 @@ export default async function ProfileEditor() {
       name: String(formData.get("name")),
       email: String(formData.get("email") ?? "").trim() || null,
       bio: String(formData.get("bio")),
-      stats: { ...row?.stats, ...aboutStatsFromForm(formData) },
+      // The About cards live in stats beside the GitHub counters; only their keys are rewritten.
+      stats: mergeAboutStats(row?.stats ?? {}, (name) => String(formData.get(name) ?? "")),
       roles,
       // Visibility is managed on the dashboard; preserve it unchanged on save.
       sectionVisibility: row?.sectionVisibility ?? {},
@@ -124,16 +124,28 @@ export default async function ProfileEditor() {
               maxLength={80}
             />
           </Field>
-          <fieldset className="border-border flex flex-col gap-4 rounded-xl border p-4">
-            <legend className="px-2 text-sm font-semibold">About statistics</legend>
-            <p className="text-muted text-sm">Value and label for each card. Clear either field to hide a card.</p>
-            {ABOUT_STAT_SLOTS.map(({ key, value, label }, index) => (
-              <div key={key} className="grid gap-3 sm:grid-cols-2">
+          <fieldset className="flex flex-col gap-3">
+            <legend className="mb-1 text-sm font-medium">About results</legend>
+            <p className="text-muted text-xs">
+              The four cards under About. Leave a field empty to use its default.
+            </p>
+            {aboutStats(row?.stats).map((stat, index) => (
+              <div key={stat.key} className="grid gap-3 sm:grid-cols-[8rem_minmax(0,1fr)]">
                 <Field label={`Card ${index + 1} value`}>
-                  <Input name={key} defaultValue={String(row?.stats?.[key] ?? value)} maxLength={24} />
+                  <Input
+                    name={stat.key}
+                    defaultValue={String(row?.stats?.[stat.key] ?? "")}
+                    placeholder={ABOUT_STATS[index].value}
+                    maxLength={12}
+                  />
                 </Field>
                 <Field label={`Card ${index + 1} label`}>
-                  <Input name={`${key}Label`} defaultValue={String(row?.stats?.[`${key}Label`] ?? label)} maxLength={80} />
+                  <Input
+                    name={`${stat.key}Label`}
+                    defaultValue={String(row?.stats?.[`${stat.key}Label`] ?? "")}
+                    placeholder={ABOUT_STATS[index].label}
+                    maxLength={40}
+                  />
                 </Field>
               </div>
             ))}

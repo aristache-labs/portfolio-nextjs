@@ -21,6 +21,29 @@ const fields: AdminField[] = [
     hint: "Optional - fallback when the README has no description.",
   },
   {
+    name: "tagline",
+    label: "Tagline",
+    type: "text",
+    placeholder: "One-line pitch, 120 characters max",
+    hint: "Shown on cards and the quick view in place of the README excerpt.",
+  },
+  { name: "problem", label: "Problem", type: "textarea", rows: 2, hint: "Quick view block." },
+  { name: "solution", label: "Solution", type: "textarea", rows: 2, hint: "Quick view block." },
+  {
+    name: "outcome",
+    label: "Result",
+    type: "textarea",
+    rows: 2,
+    hint: "What it achieved, ideally with a number.",
+  },
+  { name: "role", label: "My role", type: "text", placeholder: "e.g. Solo developer" },
+  {
+    name: "liveUrl",
+    label: "Live URL",
+    type: "url",
+    hint: "Overrides the GitHub homepage field for the Live button.",
+  },
+  {
     name: "category",
     label: "Category",
     type: "select",
@@ -86,6 +109,12 @@ function parse(formData: FormData) {
       String(formData.get("category") || "") || null,
     ),
     customBlurb: (formData.get("customBlurb") as string) || null,
+    tagline: String(formData.get("tagline") || "").trim() || null,
+    problem: String(formData.get("problem") || "").trim() || null,
+    solution: String(formData.get("solution") || "").trim() || null,
+    outcome: String(formData.get("outcome") || "").trim() || null,
+    role: String(formData.get("role") || "").trim() || null,
+    liveUrl: String(formData.get("liveUrl") || "").trim() || null,
     tags: String(formData.get("tags") || "")
       .split(",")
       .map((t) => t.trim())

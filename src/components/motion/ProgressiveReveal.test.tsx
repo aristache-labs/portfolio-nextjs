@@ -250,7 +250,7 @@ describe("ProgressiveReveal", () => {
         </ProgressiveReveal>,
       );
       const fill = container.querySelector("[role='progressbar']")!.firstElementChild!;
-      expect(fill).toHaveStyle({ width: "0%" });
+      expect(fill).toHaveStyle({ transform: "scaleX(0)" });
       intersect(container.firstElementChild!);
       expect(controls.start).toHaveBeenCalledWith("visible");
       expect(count.animate).not.toHaveBeenCalled();
@@ -262,14 +262,14 @@ describe("ProgressiveReveal", () => {
       );
       const options = count.animate.mock.calls[0][2];
       act(() => options.onUpdate(45));
-      expect(fill).toHaveStyle({ width: "45%" });
+      expect(fill).toHaveStyle({ transform: "scaleX(0.45)" });
       expect(container).toHaveTextContent("45%");
       await act(async () => {
         complete();
       });
       expect(count.animate).toHaveBeenCalledTimes(1);
       change(REDUCED_MOTION_QUERY, true);
-      expect(fill).toHaveStyle({ width: "90%" });
+      expect(fill).toHaveStyle({ transform: "scaleX(0.9)" });
       expect(count.stop).toHaveBeenCalled();
     },
   );

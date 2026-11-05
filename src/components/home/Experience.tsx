@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { AnimatePresence, m, useScroll } from "framer-motion";
-import { MapPin } from "lucide-react";
+import { ArrowDownToLine, MapPin } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
@@ -23,13 +23,23 @@ import {
   ExperienceMobileReveal,
 } from "./ExperienceMobileReveal";
 
+/**
+ * Screen line (from the top) the rail's leading edge follows. A bullet, its card outline and the
+ * role indicator change when the bullet crosses it. Phones and tablets, then lg+ desktop.
+ */
+export const RAIL_LINE = "40%";
+export const RAIL_LINE_DESKTOP = "25%";
+
 /** Keep frame-based content measurements local to the visible timeline. */
 function NearbyTimelineRail({
   listRef,
   highlightEntries,
   trackCurrent,
   onActive,
+  tallScreen,
 }: {
+  /** Desktop (lg+) layout, which uses its own rail line. */
+  tallScreen: boolean;
   listRef: RefObject<HTMLDivElement | null>;
   highlightEntries: boolean;
   trackCurrent: boolean;
@@ -61,6 +71,7 @@ function NearbyTimelineRail({
       highlightEntries={highlightEntries}
       trackCurrent={trackCurrent}
       onActive={onActive}
+      tallScreen={tallScreen}
     />
   ) : null;
 }
@@ -71,7 +82,10 @@ function ScrollTimelineRail({
   highlightEntries,
   trackCurrent,
   onActive,
+  tallScreen,
 }: {
+  /** Desktop (lg+) layout, which uses its own rail line. */
+  tallScreen: boolean;
   listRef: RefObject<HTMLDivElement | null>;
   highlightEntries: boolean;
   trackCurrent: boolean;
@@ -79,9 +93,13 @@ function ScrollTimelineRail({
   onActive: (index: number) => void;
 }) {
   // The rail follows scrolling directly, so a role enters exactly when the line reaches it.
+  // Its leading edge stays on one screen line from the first role to the last, so every bullet,
+  // and the role indicator with it, lights as it crosses that line. Desktop and touch screens
+  // tune that line separately (RAIL_LINE_DESKTOP, RAIL_LINE).
+  const line = tallScreen ? RAIL_LINE_DESKTOP : RAIL_LINE;
   const { scrollYProgress: fill } = useScroll({
     target: listRef,
-    offset: ["start 70%", "end 60%"],
+    offset: [`start ${line}`, `end ${line}`],
     trackContentSize: true,
   });
 
@@ -95,13 +113,24 @@ function ScrollTimelineRail({
     if (highlightEntries) list.setAttribute("data-timeline-scroll", "");
     let positions: number[] = [];
     let length = 0;
+    let lastActive: number | undefined;
     const update = (progress: number) => {
+      let filled = -1;
       dots.forEach((dot, index) => {
-        dot.toggleAttribute(
-          "data-timeline-filled",
-          progress > 0 && progress * length >= positions[index],
-        );
+        const lit = progress > 0 && progress * length >= positions[index];
+        dot.toggleAttribute("data-timeline-filled", lit);
+        if (lit && index < entries.length) filled = index;
       });
+      // The current role is the one whose bullet the rail lit last, so the indicator, the card
+      // outline and the bullet always change together. Before the first bullet, keep role one.
+      if (trackCurrent && filled !== lastActive) {
+        lastActive = filled;
+        entries.forEach((entry, index) => {
+          if (index === filled) entry.setAttribute("data-timeline-active", "true");
+          else entry.removeAttribute("data-timeline-active");
+        });
+        onActive(Math.max(0, filled));
+      }
       if (!highlightEntries || progress <= 0) return;
       // A role enters slightly ahead of the rail, which then lights its marker. One way:
       // a role that has entered stays visible when scrolling back up.
@@ -131,53 +160,11 @@ function ScrollTimelineRail({
       resize?.disconnect();
       window.removeEventListener("resize", measure);
       dots.forEach((dot) => dot.removeAttribute("data-timeline-filled"));
+      entries.forEach((entry) => entry.removeAttribute("data-timeline-active"));
       // Entered roles keep their state; without this attribute nothing is hidden anyway.
       list.removeAttribute("data-timeline-scroll");
     };
-  }, [fill, highlightEntries, listRef]);
-
-  useEffect(() => {
-    const list = listRef.current;
-    if ((!highlightEntries && !trackCurrent) || !list || typeof IntersectionObserver !== "function")
-      return;
-    const entries = Array.from(list.querySelectorAll<HTMLElement>("[data-experience-id]"));
-    const visible = new Set<Element>();
-    let observer: IntersectionObserver;
-    let active = true;
-    const connect = () => {
-      observer?.disconnect();
-      visible.clear();
-      entries.forEach((entry) => entry.removeAttribute("data-timeline-active"));
-      observer = new IntersectionObserver(
-        (records) => {
-          if (!active) return;
-          for (const record of records) {
-            if (record.isIntersecting) visible.add(record.target);
-            else visible.delete(record.target);
-          }
-          const current = entries.find((entry) => visible.has(entry));
-          entries.forEach((entry) => {
-            if (entry === current) entry.setAttribute("data-timeline-active", "true");
-            else entry.removeAttribute("data-timeline-active");
-          });
-          // Between roles the indicator keeps the last one rather than going blank.
-          if (current) onActive(entries.indexOf(current));
-        },
-        {
-          rootMargin: `-${Math.round(window.innerHeight * 0.25)}px 0px -${Math.round(window.innerHeight * 0.45)}px 0px`,
-        },
-      );
-      entries.forEach((entry) => observer.observe(entry));
-    };
-    connect();
-    window.addEventListener("resize", connect);
-    return () => {
-      active = false;
-      observer.disconnect();
-      window.removeEventListener("resize", connect);
-      entries.forEach((entry) => entry.removeAttribute("data-timeline-active"));
-    };
-  }, [highlightEntries, trackCurrent, listRef, onActive]);
+  }, [fill, highlightEntries, trackCurrent, onActive, listRef]);
 
   return (
     <m.span
@@ -189,17 +176,44 @@ function ScrollTimelineRail({
 }
 
 /** Sticky offset of the intro column (lg:top-24). */
-const INTRO_TOP = 96;
+export const INTRO_TOP = 96;
+/** Extra scroll after the intro sticks before the subtitle folds into the role card. */
+export const FOLD_AFTER = 10;
+const FOLD_AFTER_LANDSCAPE = 40;
 
 /** Order of a card part in its staggered entrance. */
 const step = (order: number) => ({ "--step": order }) as CSSProperties;
 
-function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number; last: boolean }) {
+/**
+ * A description line that only names the kind of role ("Volunteer Experience") reads as a label
+ * beside the dates rather than as an achievement. Admins keep writing it as a normal line.
+ */
+const ROLE_TAG =
+  /^(volunteer(ing)?|internship|freelance|part[- ]time|contract)( experience| work| role)?\.?$/i;
+
+/** Screen classes measured once by the timeline and shared with every role. */
+type EntryLayout = {
+  portrait: boolean;
+  landscape: boolean;
+  desktop: boolean;
+  desktopDisclosure: boolean;
+};
+
+function TimelineEntry({
+  exp,
+  index,
+  last,
+  layout,
+}: {
+  exp: ExperienceRow;
+  index: number;
+  last: boolean;
+  layout: EntryLayout;
+}) {
   const { mode } = useAnimationPolicy();
-  const portrait = useMediaQuery(EXPERIENCE_PORTRAIT_QUERY);
-  const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
-  const desktop = useMediaQuery("(min-width: 1024px)");
-  const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
+  const { portrait, landscape, desktop, desktopDisclosure } = layout;
+  const tags = exp.description.filter((line) => ROLE_TAG.test(line.trim()));
+  const description = exp.description.filter((line) => !ROLE_TAG.test(line.trim()));
   const previewCount = desktopDisclosure ? 3 : desktop ? 2 : 1;
   const [expanded, setExpanded] = useState(false);
   const [desktopExpanded, setDesktopExpanded] = useState(false);
@@ -216,10 +230,21 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
           className={`${styles.card} ${portraitCss.surface} w-full rounded-2xl border border-white/8 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-4 py-3.5 backdrop-blur-[18px] sm:px-5`}
         >
           <p
-            className={`${styles.step} font-mono text-xs leading-none tracking-[0.18em] text-(--period) uppercase`}
+            className={`${styles.step} flex flex-wrap items-center gap-x-2.5 gap-y-1.5`}
             style={step(0)}
           >
-            {exp.period}
+            {/* Typed out like a log line as the role enters; --chars sets the steps. */}
+            <span
+              className={`${styles.period} font-mono text-xs leading-none tracking-[0.18em] text-(--period) uppercase`}
+              style={{ "--chars": exp.period.length } as CSSProperties}
+            >
+              {exp.period}
+            </span>
+            {tags.map((tag) => (
+              <span key={tag} className={styles.tag}>
+                {tag.replace(/\s*(experience|work|role)\.?$/i, "")}
+              </span>
+            ))}
           </p>
           <h3
             className={`${styles.step} mt-1.5 text-lg leading-snug font-semibold sm:text-xl`}
@@ -239,9 +264,9 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
               </span>
             )}
           </div>
-          {exp.description.length > 0 && (
+          {description.length > 0 && (
             <ul className="mt-3 space-y-1.5">
-              {exp.description.slice(0, previewCount).map((d, i) => (
+              {description.slice(0, previewCount).map((d, i) => (
                 <li
                   key={`${exp.id}-bullet-${i}`}
                   style={step(3 + i)}
@@ -253,7 +278,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
               ))}
             </ul>
           )}
-          {exp.description.length > previewCount && (
+          {description.length > previewCount && (
             <details
               key={desktopDisclosure ? "desktop" : desktop ? "wide-touch" : "mobile"}
               className="group mt-1.5"
@@ -276,7 +301,7 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
                 </span>
               </summary>
               <ul className={cn("space-y-1.5", desktop && !desktopDisclosure ? "mt-0" : "mt-1.5")}>
-                {exp.description.slice(previewCount).map((d, i) => (
+                {description.slice(previewCount).map((d, i) => (
                   <li
                     key={`${exp.id}-more-${i}`}
                     style={step(3 + previewCount + i)}
@@ -319,37 +344,63 @@ function TimelineEntry({ exp, index, last }: { exp: ExperienceRow; index: number
 }
 
 /** Companion to the timeline: the role in view, kept beside the sticky heading. */
-function CurrentRole({ experiences, active }: { experiences: ExperienceRow[]; active: number }) {
+function CurrentRole({
+  experiences,
+  active,
+  resumeUrl,
+  focusable,
+}: {
+  experiences: ExperienceRow[];
+  active: number;
+  resumeUrl?: string | null;
+  /** False while the panel is closed, so the hidden link is skipped by the keyboard. */
+  focusable: boolean;
+}) {
   const index = Math.min(active, experiences.length - 1);
   const role = experiences[index];
   const count = (value: number) => String(value).padStart(2, "0");
   return (
-    // The same details are in the timeline itself, so assistive technology skips this copy.
-    <div aria-hidden data-current-role className={`${styles.currentRole} hidden max-w-xs lg:block`}>
-      <p className="text-muted font-mono text-[11px] tracking-[0.18em]">
-        {count(index + 1)} / {count(experiences.length)}
-      </p>
-      <span className="mt-2 block h-px w-full overflow-hidden bg-white/10">
-        <span
-          className="block h-full origin-left bg-(image:--gradient-brand) transition-transform duration-500 ease-out motion-reduce:transition-none"
-          style={{ transform: `scaleX(${(index + 1) / experiences.length})` }}
-        />
-      </span>
-      <AnimatePresence mode="wait" initial={false}>
-        <m.div
-          key={role.id}
-          className="mt-3"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+    <div data-current-role className={`${styles.currentRole} max-w-xs`}>
+      {/* The same details are in the timeline itself, so assistive technology skips this copy. */}
+      <div aria-hidden>
+        <p className="text-muted font-mono text-[11px] tracking-[0.18em]">
+          {count(index + 1)} / {count(experiences.length)}
+        </p>
+        <span className="mt-2 block h-px w-full overflow-hidden bg-white/10">
+          <span
+            className="block h-full origin-left bg-(image:--gradient-brand) transition-transform duration-500 ease-out motion-reduce:transition-none"
+            style={{ transform: `scaleX(${(index + 1) / experiences.length})` }}
+          />
+        </span>
+        <AnimatePresence mode="wait" initial={false}>
+          <m.div
+            key={role.id}
+            className="mt-3"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="font-mono text-xs tracking-[0.18em] text-(--period) uppercase">
+              {role.period}
+            </p>
+            <p className="text-foreground/80 mt-1.5 text-sm">{role.org}</p>
+          </m.div>
+        </AnimatePresence>
+      </div>
+      {resumeUrl && (
+        <a
+          href={resumeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          tabIndex={focusable ? undefined : -1}
+          className={styles.resumeLink}
         >
-          <p className="font-mono text-xs tracking-[0.18em] text-(--period) uppercase">
-            {role.period}
-          </p>
-          <p className="text-foreground/80 mt-1.5 text-sm">{role.org}</p>
-        </m.div>
-      </AnimatePresence>
+          <ArrowDownToLine aria-hidden className="size-3.5" />
+          Download CV
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      )}
     </div>
   );
 }
@@ -357,14 +408,20 @@ function CurrentRole({ experiences, active }: { experiences: ExperienceRow[]; ac
 export function Experience({
   experiences,
   number = "03",
+  resumeUrl,
 }: {
   experiences: ExperienceRow[];
   number?: string;
+  /** Profile resume link from the admin; the CV button is hidden without one. */
+  resumeUrl?: string | null;
 }) {
   const sorted = [...experiences].sort((a, b) => a.order - b.order);
   const { mode } = useAnimationPolicy();
   const portrait = useMediaQuery(EXPERIENCE_PORTRAIT_QUERY);
   const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
+  const desktop = useMediaQuery("(min-width: 1024px)");
+  const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
+  const layout = { portrait, landscape, desktop, desktopDisclosure };
   const HeadingReveal = portrait || landscape ? ExperienceMobileReveal : ProgressiveReveal;
   const listRef = useRef<HTMLDivElement>(null);
   const stickStart = useRef<HTMLSpanElement>(null);
@@ -374,19 +431,23 @@ export function Experience({
   const folds = (mode === "expressive" || (landscape && mode !== "static")) && sorted.length > 1;
   const compact = folds && stuck;
   const introTop = landscape ? 80 : INTRO_TOP;
+  // The subtitle stays readable for a stretch after the intro sticks, including right after a
+  // menu jump lands here; only further reading folds it.
+  const foldAfter = landscape ? FOLD_AFTER_LANDSCAPE : FOLD_AFTER;
 
   useEffect(() => {
     const marker = stickStart.current;
     if (!folds || !marker || typeof IntersectionObserver !== "function") return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry) setStuck(!entry.isIntersecting && entry.boundingClientRect.top < introTop);
+        if (entry)
+          setStuck(!entry.isIntersecting && entry.boundingClientRect.top < introTop - foldAfter);
       },
-      { rootMargin: `-${introTop}px 0px 0px 0px` },
+      { rootMargin: `${foldAfter - introTop}px 0px 0px 0px` },
     );
     observer.observe(marker);
     return () => observer.disconnect();
-  }, [folds, introTop]);
+  }, [folds, introTop, foldAfter]);
 
   return (
     <Section
@@ -445,7 +506,37 @@ export function Experience({
               </HeadingReveal>
             </div>
           </div>
-          {folds && <CurrentRole experiences={sorted} active={activeRole} />}
+          {folds ? (
+            // Opens in the subtitle's place once the intro has stuck for a while: the role in view
+            // with the CV link at its foot. Closed, it is hidden from pointers and keyboard.
+            <div className={styles.stuckPanel}>
+              <div>
+                <div className={styles.stuckItem}>
+                  <CurrentRole
+                    experiences={sorted}
+                    active={activeRole}
+                    resumeUrl={resumeUrl}
+                    focusable={compact}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            resumeUrl && (
+              <HeadingReveal kind="description" effect="fade" desktopDelay={0.16}>
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.resume}
+                >
+                  <ArrowDownToLine aria-hidden className="size-4" />
+                  Download CV
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              </HeadingReveal>
+            )
+          )}
         </div>
 
         <div ref={listRef} className="relative">
@@ -466,8 +557,9 @@ export function Experience({
                 <NearbyTimelineRail
                   listRef={listRef}
                   highlightEntries={mode === "expressive"}
-                  trackCurrent={portrait || landscape}
+                  trackCurrent={folds || portrait || landscape}
                   onActive={setActiveRole}
+                  tallScreen={desktop}
                 />
               )}
             </>
@@ -479,6 +571,7 @@ export function Experience({
                 exp={exp}
                 index={index}
                 last={index === sorted.length - 1}
+                layout={layout}
               />
             ))}
           </ol>

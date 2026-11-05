@@ -12,7 +12,7 @@ import labelCss from "@/components/ui/section-label.module.css";
 import statsCss from "./about-stats.module.css";
 import { AboutBio } from "./AboutBio";
 import { SITE } from "@/lib/seo/site";
-import { getAboutStats, type ProfileStats } from "@/lib/about-stats";
+import { aboutStats, type AboutStat, type AboutStatKey } from "@/lib/about-stats";
 import { AboutSequence } from "./AboutSequence";
 import { AboutReveal } from "./AboutReveal";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
@@ -20,7 +20,9 @@ import headingCss from "./section-heading.module.css";
 
 export type AboutProfile = {
   bio: string;
-  stats: ProfileStats;
+  stats: { years: number; repos: number; stars: number; followers: number };
+  /** The four result cards, edited in Admin -> Profile. Defaults apply when absent. */
+  highlights?: AboutStat[];
   name?: string;
   avatarUrl?: string;
 };
@@ -28,18 +30,15 @@ export type AboutProfile = {
 const GLASS =
   "border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] backdrop-blur-[18px]";
 
-function StatBar({ stats }: { stats: ProfileStats }) {
-  const icons: Record<string, LucideIcon> = {
-    manualWorkReduction: TrendingDown,
-    deploymentLocations: MapPin,
-    teamSize: Users,
-    experienceYears: CalendarDays,
-  };
-  const items = getAboutStats(stats).map((stat) => ({
-    ...stat,
-    icon: icons[stat.key],
-  }));
-  if (!items.length) return null;
+const STAT_ICONS: Record<AboutStatKey, LucideIcon> = {
+  manualWorkReduction: TrendingDown,
+  deploymentLocations: MapPin,
+  teamSize: Users,
+  experienceYears: CalendarDays,
+};
+
+function StatBar({ stats }: { stats: AboutStat[] }) {
+  const items = stats.map((stat) => ({ ...stat, icon: STAT_ICONS[stat.key] }));
 
   return (
     <AboutResults
@@ -55,9 +54,9 @@ function StatBar({ stats }: { stats: ProfileStats }) {
         <AboutReveal
           className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10`}
         >
-          {items.map(({ icon: Icon, value, label }, index) => (
+          {items.map(({ key, icon: Icon, value, label }, index) => (
             <div
-              key={label}
+              key={key}
               style={{ "--i": index } as CSSProperties}
               className={`${statsCss.item} flex min-w-0 items-center justify-center px-1 lg:px-3`}
             >
@@ -161,7 +160,7 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
           )}
         </div>
       </AboutSequence>
-      <StatBar stats={profile.stats} />
+      <StatBar stats={profile.highlights ?? aboutStats(null)} />
     </Section>
   );
 }

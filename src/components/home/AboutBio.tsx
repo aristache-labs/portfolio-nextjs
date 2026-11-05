@@ -5,11 +5,26 @@ import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ChevronDown } from "lucide-react";
 import styles from "./about-bio.module.css";
 import { AboutReveal } from "./AboutReveal";
-import { AboutBioReading } from "./AboutBioReading";
 
 const END = "technical challenges into practical, dependable solutions.";
 
-function Paragraphs({ text, reading = false }: { text: string; reading?: boolean }) {
+/**
+ * Each word is its own box, so CSS can light it up as it reaches the reading line
+ * (about-bio.module.css). Spaces stay plain text, so wrapping and copy-paste are unchanged.
+ */
+function ReadingWords({ text }: { text: string }) {
+  return text.split(/(\s+)/).map((part, index) =>
+    /^\s+$/.test(part) || !part ? (
+      part
+    ) : (
+      <span key={index} className={styles.word}>
+        {part}
+      </span>
+    ),
+  );
+}
+
+function Paragraphs({ text }: { text: string }) {
   return text
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
@@ -17,15 +32,10 @@ function Paragraphs({ text, reading = false }: { text: string; reading?: boolean
     .map((paragraph, index) => (
       <p
         key={index}
-        className={
-          index === 0
-            ? "text-base leading-relaxed text-white sm:text-lg"
-            : "text-base leading-relaxed text-white/60 sm:text-lg"
-        }
+        // Every paragraph reads in to full white; the reading light dims what is still ahead.
+        className="text-base leading-relaxed text-white sm:text-lg"
       >
-        {reading ? paragraph.split(/(\s+)/).map((word, wordIndex) =>
-          /\S/.test(word) ? <span key={wordIndex} data-bio-word>{word}</span> : word,
-        ) : paragraph}
+        <ReadingWords text={paragraph} />
       </p>
     ));
 }
@@ -43,9 +53,9 @@ export function AboutBio({ bio }: { bio: string }) {
 
   return (
     <>
-      <AboutBioReading className={`${styles.desktop} space-y-4`}>
-        <Paragraphs text={bio} reading />
-      </AboutBioReading>
+      <div className={`${styles.desktop} space-y-4`}>
+        <Paragraphs text={bio} />
+      </div>
       <div ref={mobileRef} className={styles.mobile}>
         <div className="space-y-4">
           <Paragraphs text={intro} />
