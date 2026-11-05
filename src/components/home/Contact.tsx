@@ -25,7 +25,7 @@ import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./so
 import { GLASS_CARD } from "./project-styles";
 import { ContactSubject } from "./ContactSubject";
 import { cn } from "@/utils/cn";
-import { CONTACT_SUBJECTS } from "@/lib/contact-schema";
+import { CONTACT_SUBJECTS } from "@/lib/contact-subjects";
 
 export { platformIcon, type SocialIcon, type SocialRow };
 

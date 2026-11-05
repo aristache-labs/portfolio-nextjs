@@ -1,12 +1,7 @@
 import { z } from "zod";
+import { CONTACT_SUBJECTS } from "./contact-subjects";
 
-/** Single source for the subject menu: the form renders it, the route validates against it. */
-export const CONTACT_SUBJECTS = [
-  "Project Collaboration",
-  "Job Opportunity",
-  "Freelance Work",
-  "General Question",
-] as const;
+export { CONTACT_SUBJECTS };
 
 export const contactSchema = z.object({
   name: z.string().trim().min(2, "Add your name.").max(80, "Add your name."),
