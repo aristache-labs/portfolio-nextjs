@@ -5,10 +5,11 @@ import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ChevronDown } from "lucide-react";
 import styles from "./about-bio.module.css";
 import { AboutReveal } from "./AboutReveal";
+import { AboutBioReading } from "./AboutBioReading";
 
 const END = "technical challenges into practical, dependable solutions.";
 
-function Paragraphs({ text }: { text: string }) {
+function Paragraphs({ text, reading = false }: { text: string; reading?: boolean }) {
   return text
     .split(/\n\s*\n/)
     .map((paragraph) => paragraph.trim())
@@ -22,7 +23,9 @@ function Paragraphs({ text }: { text: string }) {
             : "text-base leading-relaxed text-white/60 sm:text-lg"
         }
       >
-        {paragraph}
+        {reading ? paragraph.split(/(\s+)/).map((word, wordIndex) =>
+          /\S/.test(word) ? <span key={wordIndex} data-bio-word>{word}</span> : word,
+        ) : paragraph}
       </p>
     ));
 }
@@ -40,9 +43,9 @@ export function AboutBio({ bio }: { bio: string }) {
 
   return (
     <>
-      <div className={`${styles.desktop} space-y-4`}>
-        <Paragraphs text={bio} />
-      </div>
+      <AboutBioReading className={`${styles.desktop} space-y-4`}>
+        <Paragraphs text={bio} reading />
+      </AboutBioReading>
       <div ref={mobileRef} className={styles.mobile}>
         <div className="space-y-4">
           <Paragraphs text={intro} />

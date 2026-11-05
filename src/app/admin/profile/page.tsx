@@ -6,6 +6,8 @@ import { Panel, Field, Input, Textarea, SubmitButton } from "@/components/admin/
 import { AvatarField } from "@/components/admin/AvatarField";
 import { HERO_DEFAULTS, IDENTITY } from "@/lib/identity";
 
+import { ABOUT_STAT_SLOTS, aboutStatsFromForm } from "@/lib/about-stats";
+
 export const dynamic = "force-dynamic";
 
 export default async function ProfileEditor() {
@@ -27,7 +29,7 @@ export default async function ProfileEditor() {
       name: String(formData.get("name")),
       email: String(formData.get("email") ?? "").trim() || null,
       bio: String(formData.get("bio")),
-      stats: row?.stats ?? {},
+      stats: { ...row?.stats, ...aboutStatsFromForm(formData) },
       roles,
       // Visibility is managed on the dashboard; preserve it unchanged on save.
       sectionVisibility: row?.sectionVisibility ?? {},
@@ -122,6 +124,20 @@ export default async function ProfileEditor() {
               maxLength={80}
             />
           </Field>
+          <fieldset className="border-border flex flex-col gap-4 rounded-xl border p-4">
+            <legend className="px-2 text-sm font-semibold">About statistics</legend>
+            <p className="text-muted text-sm">Value and label for each card. Clear either field to hide a card.</p>
+            {ABOUT_STAT_SLOTS.map(({ key, value, label }, index) => (
+              <div key={key} className="grid gap-3 sm:grid-cols-2">
+                <Field label={`Card ${index + 1} value`}>
+                  <Input name={key} defaultValue={String(row?.stats?.[key] ?? value)} maxLength={24} />
+                </Field>
+                <Field label={`Card ${index + 1} label`}>
+                  <Input name={`${key}Label`} defaultValue={String(row?.stats?.[`${key}Label`] ?? label)} maxLength={80} />
+                </Field>
+              </div>
+            ))}
+          </fieldset>
           <SubmitButton>Save changes</SubmitButton>
         </form>
       </Panel>

@@ -12,7 +12,7 @@ import labelCss from "@/components/ui/section-label.module.css";
 import statsCss from "./about-stats.module.css";
 import { AboutBio } from "./AboutBio";
 import { SITE } from "@/lib/seo/site";
-import { IDENTITY } from "@/lib/identity";
+import { getAboutStats, type ProfileStats } from "@/lib/about-stats";
 import { AboutSequence } from "./AboutSequence";
 import { AboutReveal } from "./AboutReveal";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
@@ -20,7 +20,7 @@ import headingCss from "./section-heading.module.css";
 
 export type AboutProfile = {
   bio: string;
-  stats: { years: number; repos: number; stars: number; followers: number };
+  stats: ProfileStats;
   name?: string;
   avatarUrl?: string;
 };
@@ -28,17 +28,18 @@ export type AboutProfile = {
 const GLASS =
   "border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] backdrop-blur-[18px]";
 
-function StatBar() {
-  const items: { icon: LucideIcon; value: string; label: string }[] = [
-    { icon: TrendingDown, value: IDENTITY.manualWorkReduction, label: "Less manual work" },
-    {
-      icon: MapPin,
-      value: IDENTITY.deploymentLocations,
-      label: "Locations upgraded",
-    },
-    { icon: Users, value: IDENTITY.teamSize, label: "Team members led" },
-    { icon: CalendarDays, value: IDENTITY.experienceYears, label: "Years of experience" },
-  ];
+function StatBar({ stats }: { stats: ProfileStats }) {
+  const icons: Record<string, LucideIcon> = {
+    manualWorkReduction: TrendingDown,
+    deploymentLocations: MapPin,
+    teamSize: Users,
+    experienceYears: CalendarDays,
+  };
+  const items = getAboutStats(stats).map((stat) => ({
+    ...stat,
+    icon: icons[stat.key],
+  }));
+  if (!items.length) return null;
 
   return (
     <AboutResults
@@ -160,7 +161,7 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
           )}
         </div>
       </AboutSequence>
-      <StatBar />
+      <StatBar stats={profile.stats} />
     </Section>
   );
 }

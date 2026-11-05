@@ -73,7 +73,7 @@ export async function getProfile(): Promise<{
   heroSummary: string;
   availability: string | null;
   sectionVisibility: Record<string, boolean>;
-  stats: { years: number; repos: number; stars: number; followers: number };
+  stats: Record<string, string | number> & { years: number; repos: number; stars: number; followers: number };
 }> {
   const rows = await db.select().from(profile);
   const row = rows[0];
@@ -110,7 +110,7 @@ export async function getProfile(): Promise<{
     availability: row.availability?.trim() || null,
     sectionVisibility: (row.sectionVisibility as Record<string, boolean>) ?? {},
     roles: row.roles,
-    stats: { years, repos, stars, followers },
+    stats: { ...row.stats, years, repos, stars, followers },
   };
 }
 
