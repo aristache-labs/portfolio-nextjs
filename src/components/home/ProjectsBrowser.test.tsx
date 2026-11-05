@@ -70,6 +70,31 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     ),
   ];
 
+  it("shows the project in development with the newest push as Building now", () => {
+    render(
+      <ProjectsBrowser
+        projects={[
+          project(1, {
+            title: "Shipped Site",
+            homepage: "https://x.example",
+            pushedAt: new Date("2026-11-04"),
+          }),
+          project(2, { title: "Old Draft", pushedAt: new Date("2026-09-10") }),
+          project(3, { title: "Fresh Build", pushedAt: new Date("2026-10-28") }),
+        ]}
+      />,
+    );
+    expect(screen.getByText("Building now")).toBeInTheDocument();
+    const strip = screen.getByText("Building now").closest("div") as HTMLElement;
+    expect(within(strip).getByText("Fresh Build")).toBeInTheDocument();
+    expect(within(strip).getByText("Oct 28")).toBeInTheDocument();
+  });
+
+  it("omits Building now when no project has a push date", () => {
+    render(<ProjectsBrowser projects={[project(1), project(2)]} />);
+    expect(screen.queryByText("Building now")).not.toBeInTheDocument();
+  });
+
   it("serves visible headings and project cards before hydration", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(<Projects projects={list} />);

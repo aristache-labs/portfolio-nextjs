@@ -1,17 +1,8 @@
 "use client";
 
-import {
-  Fragment,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type MouseEvent,
-  type RefObject,
-} from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { preload } from "react-dom";
 import dynamic from "next/dynamic";
-import { m, useMotionTemplate, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -108,40 +99,6 @@ function HeroNameText({ text, surname = false }: { text: string; surname?: boole
       <span className={`${styles.nameInk} ${styles.nameSingle}`}>{text}</span>
     </span>
   );
-}
-
-/** Mounted only for desktop motion, so touch devices never create pointer springs. */
-function HeroSpotlight({ section }: { section: RefObject<HTMLElement | null> }) {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const sx = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const sy = useSpring(mouseY, { stiffness: 50, damping: 20 });
-  const spotX = useTransform(sx, [-0.5, 0.5], [30, 70]);
-  const spotY = useTransform(sy, [-0.5, 0.5], [25, 65]);
-  const background = useMotionTemplate`radial-gradient(520px circle at ${spotX}% ${spotY}%, rgb(var(--brand-mid-rgb) / 0.18), transparent 65%)`;
-
-  useEffect(() => {
-    const node = section.current;
-    if (!node) return;
-    const move = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
-      const bounds = node.getBoundingClientRect();
-      mouseX.set((event.clientX - bounds.left) / bounds.width - 0.5);
-      mouseY.set((event.clientY - bounds.top) / bounds.height - 0.5);
-    };
-    const reset = () => {
-      mouseX.set(0);
-      mouseY.set(0);
-    };
-    node.addEventListener("pointermove", move);
-    node.addEventListener("pointerleave", reset);
-    return () => {
-      node.removeEventListener("pointermove", move);
-      node.removeEventListener("pointerleave", reset);
-    };
-  }, [mouseX, mouseY, section]);
-
-  return <m.div className="absolute inset-0" style={{ background }} />;
 }
 
 /**
@@ -343,7 +300,6 @@ export function Hero({
             </div>
           </div>
           <div className={`${styles.scrim} hero-vignette absolute inset-0`} />
-          {expressive && <HeroSpotlight section={sectionRef} />}
           {expressive && <HeroDepth section={sectionRef} />}
           {showNetwork && <HeroNetwork section={sectionRef} />}
           <div aria-hidden className={styles.halo} />

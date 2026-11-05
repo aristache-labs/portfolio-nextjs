@@ -487,3 +487,13 @@
   outline-offset: 4px;
   border-radius: 4px;
 }
+
+/* Desktop: the intro column names the current role, so each role keeps the scroll distance of a
+   short reading pause. Cards shrink when descriptions are trimmed, which used to flip the
+   indicator after only a quarter of a screen; the floor keeps it on screen at least this long.
+   The extra space sits below the card and the last role adds none. */
+@media (min-width: 1024px) and (pointer: fine) {
+  .entry:not(:last-child) {
+    min-height: 42svh;
+  }
+}

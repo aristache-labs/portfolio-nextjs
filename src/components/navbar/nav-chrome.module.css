@@ -53,23 +53,28 @@
   }
 }
 
-/* Reading progress pinned to the top edge of the screen, below a notch or status bar. It lives
-   outside the header so the bar can change height without moving it. */
+/* Reading progress on the bottom edge of the header, so it travels with the bar as it changes
+   height. The chapter rail covers progress on wide homepages, where this line is hidden. */
 .progress {
-  position: fixed;
-  top: env(safe-area-inset-top, 0px);
-  left: 0;
+  position: absolute;
   right: 0;
-  z-index: 71;
-  height: 3px;
+  bottom: 0;
+  left: 0;
+  height: 0.7px;
   transform: scaleX(0);
   transform-origin: left center;
   background: linear-gradient(90deg, var(--brand-deep), var(--brand-mid) 55%, var(--brand-bright));
-  box-shadow: 0 0 12px rgb(var(--brand-mid-rgb) / 0.7);
+  box-shadow: 0 0 10px rgb(var(--brand-mid-rgb) / 0.7);
   pointer-events: none;
   transition: opacity 300ms;
 }
 
 .progressIdle {
   opacity: 0;
+}
+
+@media (min-width: 1280px) {
+  .progressWithRail {
+    display: none;
+  }
 }

@@ -15,8 +15,9 @@
 }
 
 @media (min-width: 1024px) and (pointer: fine) {
+  /* The extra room sits below Experience, so the Projects heading keeps its anchor landing. */
   .experience {
-    padding-bottom: 40px;
+    padding-bottom: 120px;
   }
 
   .projects {
@@ -28,7 +29,7 @@
 
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   .experience {
-    padding-bottom: 32px;
+    padding-bottom: 90px;
   }
 
   .projects {

@@ -51,9 +51,33 @@
   }
 }
 
+/* Latest work is built from rows so each row can stack on the previous one. Below 1024px the
+   rows and their cards flatten (display: contents) into the plain list the layout always had. */
+.recentRow,
+.stackItem {
+  display: contents;
+}
+
 @media (orientation: landscape) and (min-width: 1024px) {
   .recentTrack {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .recentRow {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .stackItem {
+    display: flex;
+    min-width: 0;
+  }
+
+  .stackItem > * {
+    flex: 1;
+    min-width: 0;
   }
 
   /* Share the showcase height only when both groups have enough projects.
@@ -64,7 +88,11 @@
 
   .balanced .recentTrack {
     flex: 1;
-    grid-auto-rows: minmax(0, 1fr);
+  }
+
+  .balanced .recentRow {
+    flex: 1 1 0;
+    min-height: 0;
   }
 
   .balanced .recentCard {
@@ -85,6 +113,7 @@
     object-fit: cover;
   }
 }
+
 .groupTitle {
   display: flex;
   align-items: center;
@@ -159,5 +188,176 @@
 
   .groupTitle::after {
     background: linear-gradient(90deg, rgb(var(--brand-mid-rgb) / 0.5), transparent);
+  }
+}
+
+/* Stacking: featured cards, and Latest work row by row, pin in turn and the next slides over the
+   previous. Sticky only, so the section gains no scroll length. The previous card recedes with a
+   transform-only shrink and a scrim, driven by the next one's travel where the browser supports
+   it. Desktop pins below the 72px bar; short landscape pins below its 44px bar. */
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
+  .stack > *,
+  .recentRow {
+    position: sticky;
+  }
+
+  .stack > :nth-child(1),
+  .recentRow:nth-child(1) {
+    top: 104px;
+    z-index: 1;
+  }
+
+  .stack > :nth-child(2),
+  .recentRow:nth-child(2) {
+    top: 128px;
+    z-index: 2;
+  }
+
+  .stack > :nth-child(n + 3),
+  .recentRow:nth-child(n + 3) {
+    top: 152px;
+    z-index: 3;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .stack > *,
+  .stackItem {
+    position: sticky;
+    top: calc(60px + var(--stack, 0) * 12px);
+    z-index: calc(var(--stack, 0) + 1);
+  }
+
+  .stack > :nth-child(1) {
+    --stack: 0;
+  }
+
+  .stack > :nth-child(2) {
+    --stack: 1;
+  }
+
+  .stack > :nth-child(n + 3) {
+    --stack: 2;
+  }
+
+  /* Each card is its own sticky box here (rows stay flattened), and the list becomes a plain
+     column because sticky cannot cross grid areas. */
+  .stackItem {
+    display: block;
+  }
+
+  .recentTrack {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
+  (orientation: landscape) and (max-height: 500px) {
+  .featuredCard::after,
+  .recentCard::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: rgb(4 8 10 / 0.55);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
+    (orientation: landscape) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+    .stack {
+      timeline-scope: --featured-next;
+    }
+
+    .stack > :nth-child(2) {
+      view-timeline: --featured-next block;
+    }
+
+    .stack > :nth-child(1) .featuredCard,
+    .stack > :nth-child(1) .featuredCard::after {
+      animation: featured-recede linear both;
+      animation-timeline: --featured-next;
+      animation-range: entry 55% entry 100%;
+    }
+
+    .stack > :nth-child(1) .featuredCard::after {
+      animation-name: featured-scrim;
+    }
+  }
+
+  /* Latest work (desktop rows): each row recedes as the next one arrives. */
+  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .recentTrack {
+      timeline-scope: --recent-2, --recent-3;
+    }
+
+    .recentRow:nth-child(2) {
+      view-timeline: --recent-2 block;
+    }
+
+    .recentRow:nth-child(3) {
+      view-timeline: --recent-3 block;
+    }
+
+    .recentRow:nth-child(-n + 2) .recentCard,
+    .recentRow:nth-child(-n + 2) .recentCard::after {
+      animation: featured-recede linear both;
+      animation-range: entry 55% entry 100%;
+    }
+
+    .recentRow:nth-child(-n + 2) .recentCard::after {
+      animation-name: featured-scrim;
+    }
+
+    .recentRow:nth-child(1) .recentCard,
+    .recentRow:nth-child(1) .recentCard::after {
+      animation-timeline: --recent-2;
+    }
+
+    .recentRow:nth-child(2) .recentCard,
+    .recentRow:nth-child(2) .recentCard::after {
+      animation-timeline: --recent-3;
+    }
+  }
+}
+
+@keyframes featured-recede {
+  to {
+    scale: 0.95;
+  }
+}
+
+@keyframes featured-scrim {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Heading row: the copy on the left and, on desktop and short landscape, the Building now card on
+   the right, bottom-aligned with the subtitle so the section gains no height. Portrait keeps the
+   card under the heading. */
+.head {
+  display: block;
+}
+
+.headCopy {
+  min-width: 0;
+}
+
+@media (min-width: 1024px), (orientation: landscape) and (max-height: 500px) {
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px;
+  }
+
+  /* Same bottom margin as the subtitle (mb-10), so the card lines up with its last line. */
+  .head > :nth-child(2) {
+    margin-bottom: 2.5rem;
   }
 }

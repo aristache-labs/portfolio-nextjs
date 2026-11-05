@@ -24,10 +24,40 @@ export function Projects({
   projects: MergedProject[];
   number?: string;
 }) {
+  // The heading lives inside the browser so the Building now card can sit beside it.
+  const header = (
+    <ProjectsArrival
+      kind="heading"
+      effect="slide"
+      className="portrait-phone:mb-10 portrait-phone:flex portrait-phone:flex-col"
+    >
+      <div className="portrait-phone:contents mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        {/* Same scale and weight as the About, Skills and Experience headings. */}
+        <div className="portrait-phone:mb-4">
+          <p className={`${labelCss.label} ${headingCss.label}`}>
+            <span className={labelCss.number}>{number}</span>
+            <span>Projects</span>
+            <span aria-hidden className={labelCss.rule} />
+          </p>
+          <h2 className={headingCss.title}>
+            Selected <span className={headingCss.accent}>Projects</span>
+          </h2>
+        </div>
+      </div>
+      <p
+        className={`${subtitleCss.subtitle} portrait-phone:order-1 portrait-phone:mb-0 mb-10 max-w-2xl text-pretty`}
+      >
+        Web and mobile applications, infrastructure projects and automation tools.
+      </p>
+    </ProjectsArrival>
+  );
+
   return (
     <Section
       id="projects"
-      className={`${spacing.projects} ${motionCss.section} scroll-mt-[80px] pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
+      // overflow-clip, not hidden: hidden makes the section a scroll container, which stops the
+      // featured cards from sticking to the page.
+      className={`${spacing.projects} ${motionCss.section} scroll-mt-[80px] overflow-clip pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
       backdrop={
         <>
           <SectionBackdrop
@@ -50,34 +80,9 @@ export function Projects({
         </>
       }
     >
-      <ProjectsArrival
-        kind="heading"
-        effect="slide"
-        className="portrait-phone:mb-10 portrait-phone:flex portrait-phone:flex-col"
-      >
-        <div className="portrait-phone:contents mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          {/* Same scale and weight as the About, Skills and Experience headings. */}
-          <div className="portrait-phone:mb-4">
-            <p className={`${labelCss.label} ${headingCss.label}`}>
-              <span className={labelCss.number}>{number}</span>
-              <span>Projects</span>
-              <span aria-hidden className={labelCss.rule} />
-            </p>
-            <h2 className={headingCss.title}>
-              Selected <span className={headingCss.accent}>Projects</span>
-            </h2>
-          </div>
-        </div>
-        <p
-          className={`${subtitleCss.subtitle} portrait-phone:order-1 portrait-phone:mb-0 mb-10 max-w-2xl text-pretty`}
-        >
-          Web and mobile applications, infrastructure projects and automation tools.
-        </p>
-      </ProjectsArrival>
-
       <div id="project-list" className="scroll-mt-24">
         <ProjectCoverGate>
-          <ProjectsBrowser projects={projects} />
+          <ProjectsBrowser projects={projects} header={header} />
         </ProjectCoverGate>
       </div>
 
