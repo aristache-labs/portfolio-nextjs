@@ -11,6 +11,7 @@ import { ProjectsGridCard } from "./ProjectsGrid";
 import { PROJECTS_LANDSCAPE_QUERY, PROJECTS_PORTRAIT_QUERY } from "./ProjectsArrival";
 
 const projects: MergedProject[] = Array.from({ length: 14 }, (_, i) => ({
+  group: null,
   id: i,
   repo: `repo-${i}`,
   title: `Project ${i}`,

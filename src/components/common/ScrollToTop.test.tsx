@@ -1,17 +1,47 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { afterEach, expect, it, vi } from "vitest";
 import { setConsentInset } from "@/lib/consent-inset";
 import ScrollToTop from "./ScrollToTop";
+import { setMobileMenuOpen } from "@/lib/mobile-menu-state";
 
 vi.mock("@/hooks/useReducedMotion", () => ({ useReducedMotion: () => true }));
 
 afterEach(() => {
   cleanup();
   setConsentInset(0);
+  setMobileMenuOpen(false);
   vi.restoreAllMocks();
   window.history.replaceState(null, "", "/");
 });
+
+it.each(["experience", "skills", "about", "hero"])(
+  "waits for the bottom of %s and remeasures after resize",
+  async (id) => {
+    const section = document.createElement("section");
+    section.id = id;
+    document.body.append(section);
+    let bottom = 200;
+    vi.spyOn(section, "getBoundingClientRect").mockImplementation(() => ({ bottom }) as DOMRect);
+    vi.spyOn(window, "scrollY", "get").mockReturnValue(1000);
+    render(
+      <LazyMotion features={domAnimation}>
+        <ScrollToTop />
+      </LazyMotion>,
+    );
+    expect(screen.queryByRole("button", { name: "Scroll to top" })).toBeNull();
+    bottom = -1;
+    fireEvent.resize(window);
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Scroll to top" })).toBeVisible(),
+    );
+    act(() => setMobileMenuOpen(true));
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Scroll to top" })).toBeNull());
+    act(() => setMobileMenuOpen(false));
+    expect(screen.getByRole("button", { name: "Scroll to top" })).toBeVisible();
+    section.remove();
+  },
+);
 
 it.each(["/", "/privacy"])("clears the old hash on %s while preserving the query", (path) => {
   window.history.replaceState({ __NA: true }, "", `${path}?preview=1#contact`);
@@ -37,7 +67,7 @@ it.each(["/", "/privacy"])("clears the old hash on %s while preserving the query
   expect(scroll).toHaveBeenCalledWith({ top: 0, behavior: "instant" });
 });
 
-it("reads an earlier inset and updates only its own button", () => {
+it("hides while a consent prompt is visible and returns after it closes", () => {
   vi.spyOn(window, "scrollY", "get").mockReturnValue(1000);
   setConsentInset(180);
   render(
@@ -45,11 +75,7 @@ it("reads an earlier inset and updates only its own button", () => {
       <ScrollToTop />
     </LazyMotion>,
   );
-  const button = screen.getByRole("button", { name: "Scroll to top" });
-  expect(button.style.getPropertyValue("--consent-inset")).toBe("180px");
-  expect(document.documentElement.style.getPropertyValue("--consent-inset")).toBe("");
-  act(() => setConsentInset(220));
-  expect(button.style.getPropertyValue("--consent-inset")).toBe("220px");
+  expect(screen.queryByRole("button", { name: "Scroll to top" })).toBeNull();
   act(() => setConsentInset(0));
-  expect(button.style.getPropertyValue("--consent-inset")).toBe("0px");
+  expect(screen.getByRole("button", { name: "Scroll to top" })).toBeVisible();
 });

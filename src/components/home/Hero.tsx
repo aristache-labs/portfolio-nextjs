@@ -3,7 +3,6 @@
 import {
   Fragment,
   useEffect,
-  useId,
   useRef,
   useState,
   type CSSProperties,
@@ -23,6 +22,8 @@ import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
 import { HeroDepth } from "./HeroDepth";
+import { useConsentInset } from "@/lib/consent-inset";
+import { useAnalyticsConsent } from "@/lib/analytics-consent";
 
 // Desktop-only WebGL field; its chunk loads after the page is idle, never on touch screens.
 const HeroNetwork = dynamic(() => import("./HeroNetwork"), { ssr: false });
@@ -101,58 +102,9 @@ function staggerStyle(index: number) {
 
 /** The mask stays aligned with the text; only the reflected light moves. */
 function HeroNameText({ text, surname = false }: { text: string; surname?: boolean }) {
-  const line = useRef<HTMLSpanElement>(null);
-  const baseline = useRef<HTMLSpanElement>(null);
-  const maskText = useRef<SVGTextElement>(null);
-  const id = useId().replace(/:/g, "");
-  useEffect(() => {
-    const node = line.current;
-    const marker = baseline.current;
-    if (!node || !marker) return;
-    let active = true;
-    const measure = () => {
-      if (active) maskText.current?.setAttribute("y", String(marker.offsetTop));
-    };
-    measure();
-    void document.fonts?.ready.then(measure);
-    const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;
-    observer?.observe(node);
-    return () => {
-      active = false;
-      observer?.disconnect();
-    };
-  }, [text]);
-
   return (
-    <span ref={line} className={`${styles.nameLine}${surname ? ` ${styles.surname}` : ""}`}>
-      <span className={styles.nameInk}>
-        {text}
-        <span ref={baseline} aria-hidden className={styles.nameBaseline} />
-      </span>
-      <svg aria-hidden focusable="false" className={styles.nameSheen}>
-        <defs>
-          <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
-            <text ref={maskText} x="0" className={styles.nameMask}>
-              {text}
-            </text>
-          </mask>
-          <linearGradient id={`${id}-light`}>
-            <stop offset="0" stopColor="white" stopOpacity="0" />
-            <stop offset="0.4" stopColor="white" stopOpacity="0.12" />
-            <stop offset="0.5" stopColor="white" />
-            <stop offset="0.6" stopColor="white" stopOpacity="0.12" />
-            <stop offset="1" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <g mask={`url(#${id}-mask)`}>
-          <rect
-            className={styles.nameReflection}
-            width="35%"
-            height="100%"
-            fill={`url(#${id}-light)`}
-          />
-        </g>
-      </svg>
+    <span className={`${styles.nameLine}${surname ? ` ${styles.surname}` : ""}`}>
+      <span className={`${styles.nameInk} ${styles.nameSingle}`}>{text}</span>
     </span>
   );
 }
@@ -210,6 +162,8 @@ export function Hero({
 }) {
   preloadPoster();
   const reduce = useReducedMotion();
+  const consentInset = useConsentInset();
+  const consent = useAnalyticsConsent();
   const { mode } = useAnimationPolicy();
   const expressive = mode === "expressive";
   const showNetwork = useIdleAfterLoad(expressive) && expressive;
@@ -347,6 +301,13 @@ export function Hero({
       ref={sectionRef}
       data-cinematic={transitionToAbout || undefined}
       data-touch-scene={touchScene || undefined}
+      data-consent-visible={consentInset > 0 || undefined}
+      data-consent-resolved={consent !== null || undefined}
+      style={
+        consentInset > 0
+          ? ({ "--hero-consent-inset": `${consentInset}px` } as CSSProperties)
+          : undefined
+      }
       className={`${styles.hero} relative scroll-mt-24`}
     >
       {mode !== "static" && !portraitPhone && (

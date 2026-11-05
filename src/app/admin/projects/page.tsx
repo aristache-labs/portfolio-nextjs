@@ -11,6 +11,12 @@ import { PROJECT_CATEGORIES } from "@/lib/project-categories";
 export const dynamic = "force-dynamic";
 
 const fields: AdminField[] = [
+  {
+    name: "group",
+    label: "Project group",
+    type: "text",
+    hint: "Optional shared identifier, e.g. mitugym. Lowest order supplies the group card.",
+  },
   { name: "repo", label: "GitHub slug", type: "text", placeholder: "e.g. siphon", required: true },
   { name: "title", label: "Title", type: "text", placeholder: "Project title", required: true },
   {
@@ -103,6 +109,7 @@ function parseScreenshots(value: FormDataEntryValue | null): string[] {
 
 function parse(formData: FormData) {
   return {
+    group: String(formData.get("group") || ""),
     repo: String(formData.get("repo")),
     title: String(formData.get("title")),
     category: projectInsertSchema.shape.category.parse(

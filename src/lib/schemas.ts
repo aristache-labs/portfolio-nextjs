@@ -25,6 +25,11 @@ export const profileInsertSchema = z.object({
 });
 
 export const projectInsertSchema = z.object({
+  group: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((value) => value?.trim().toLowerCase() || null),
   repo: z
     .string()
     .min(1)
@@ -155,7 +160,7 @@ export const githubUserStatsSchema = z.object({
 
 // ---------- Inferred types ----------
 export type ProfileInput = z.infer<typeof profileInsertSchema>;
-export type ProjectInput = z.infer<typeof projectInsertSchema>;
+export type ProjectInput = z.input<typeof projectInsertSchema>;
 export type ExperienceInput = z.infer<typeof experienceInsertSchema>;
 export type SkillInput = z.infer<typeof skillInsertSchema>;
 export type ServiceInput = z.infer<typeof serviceInsertSchema>;

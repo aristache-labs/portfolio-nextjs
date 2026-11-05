@@ -126,17 +126,27 @@ function PosterCarousel({
  * Dialog per card - 20 projects would otherwise mount 20 portals, focus traps and scroll locks.
  */
 export function ProjectQuickView({
-  project,
+  project: presentation,
   open: openProp,
   onClose,
   onRestoreFocus,
 }: {
-  project: MergedProject | null;
+  project: (MergedProject & { components?: MergedProject[] }) | null;
   /** Kept separate from `project`, so the dialog stays mounted while it animates closed. */
   open?: boolean;
   onClose: () => void;
   onRestoreFocus?: () => void;
 }) {
+  const [componentId, setComponentId] = useState(presentation?.id);
+  const [previousPresentation, setPreviousPresentation] = useState(presentation);
+  const [wasOpen, setWasOpen] = useState(openProp);
+  if (presentation !== previousPresentation || (openProp && !wasOpen)) {
+    setPreviousPresentation(presentation);
+    setComponentId(presentation?.id);
+  }
+  if (wasOpen !== openProp) setWasOpen(openProp);
+  const components = presentation?.components ?? (presentation ? [presentation] : []);
+  const project = components.find((member) => member.id === componentId) ?? presentation;
   const [index, setIndex] = useState(0);
   const [descriptionElement, setDescriptionElement] = useState<HTMLSpanElement | null>(null);
   const [previousProjectId, setPreviousProjectId] = useState(project?.id ?? null);
@@ -163,10 +173,10 @@ export function ProjectQuickView({
       }
       span.replaceChildren(document.createTextNode(`${words.slice(0, low).join(" ")}…`));
     };
-    const observer = new ResizeObserver(fit);
-    observer.observe(container);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(fit);
+    observer?.observe(container);
     fit();
-    return () => observer.disconnect();
+    return () => observer?.disconnect();
   }, [project, descriptionElement]);
   const open = openProp ?? project !== null;
   const [previousOpen, setPreviousOpen] = useState(open);
@@ -182,7 +192,7 @@ export function ProjectQuickView({
   const slideCount = project ? (project.coverImage ? 1 : 0) + project.screenshots.length : 0;
 
   useEffect(() => {
-    if (!sourceKey) return;
+    if (!sourceKey || openProp === false) return;
     let cancelled = false;
     for (const src of sourceKey.split("\n")) {
       const img = new window.Image();
@@ -196,11 +206,12 @@ export function ProjectQuickView({
     return () => {
       cancelled = true;
     };
-  }, [sourceKey]);
+  }, [sourceKey, openProp]);
 
   useEffect(() => {
-    if (slideCount < 2) return;
+    if (slideCount < 2 || openProp === false) return;
     const onKey = (event: KeyboardEvent) => {
+      if ((event.target as HTMLElement)?.closest("select, input, textarea, [role=tablist]")) return;
       if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
       event.preventDefault();
       const delta = event.key === "ArrowRight" ? 1 : -1;
@@ -208,7 +219,7 @@ export function ProjectQuickView({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [slideCount]);
+  }, [slideCount, openProp]);
 
   if (!project) return null;
 
@@ -257,6 +268,26 @@ export function ProjectQuickView({
         className={`max-w-2xl ${styles.dialog}`}
         style={{ "--preview-ratio": activeRatio ?? 16 / 9 } as CSSProperties}
       >
+        {components.length > 1 && (
+          <label className="block px-5 pt-4 text-sm">
+            Component
+            <select
+              aria-label="Project component"
+              className="bg-surface mt-2 block min-h-11 w-full rounded-lg border p-2"
+              value={project.id}
+              onChange={(event) => {
+                setComponentId(Number(event.target.value));
+                setIndex(0);
+              }}
+            >
+              {components.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <PosterCarousel
           title={project.title}
           slides={slides}

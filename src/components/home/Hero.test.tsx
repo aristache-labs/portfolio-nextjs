@@ -6,10 +6,13 @@ import { HERO_VIDEO_QUERY } from "@/hooks/useMediaQuery";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { IDENTITY } from "@/lib/identity";
 import { Hero } from "./Hero";
+import { setConsentInset } from "@/lib/consent-inset";
+import { CONSENT_KEY, saveAnalyticsConsent } from "@/lib/analytics-consent";
 
 beforeEach(() => installMatchMedia());
 afterEach(() => {
   cleanup();
+  setConsentInset(0);
   vi.restoreAllMocks();
 });
 
@@ -19,6 +22,28 @@ const profile = {
 };
 
 describe("Hero", () => {
+  it("reserves the measured consent height and clears it when the panel closes", () => {
+    const previousChoice = localStorage.getItem(CONSENT_KEY);
+    localStorage.removeItem(CONSENT_KEY);
+    const { container } = render(<Hero profile={profile} />);
+    const hero = container.querySelector("#hero") as HTMLElement;
+    expect(hero).not.toHaveAttribute("data-consent-visible");
+    expect(hero).not.toHaveAttribute("data-consent-resolved");
+    act(() => setConsentInset(125));
+    expect(hero).toHaveAttribute("data-consent-visible", "true");
+    expect(hero.style.getPropertyValue("--hero-consent-inset")).toBe("125px");
+    act(() => setConsentInset(62));
+    expect(hero.style.getPropertyValue("--hero-consent-inset")).toBe("62px");
+    act(() => {
+      saveAnalyticsConsent("rejected");
+      setConsentInset(0);
+    });
+    expect(hero).not.toHaveAttribute("data-consent-visible");
+    expect(hero).toHaveAttribute("data-consent-resolved", "true");
+    expect(hero.style.getPropertyValue("--hero-consent-inset")).toBe("");
+    if (previousChoice === null) localStorage.removeItem(CONSENT_KEY);
+    else localStorage.setItem(CONSENT_KEY, previousChoice);
+  });
   it("reserves the cinematic transition only when About is enabled", () => {
     const { container, rerender } = render(<Hero profile={profile} />);
     expect(container.querySelector("#hero")).not.toHaveAttribute("data-cinematic");
@@ -94,6 +119,8 @@ describe("Hero", () => {
     expect(h1).toHaveAccessibleName("Adrian Cristache Infrastructure meets innovation.");
     expect(screen.getByText("Adrian", { selector: "span" })).toBeVisible();
     expect(h1.querySelector(".sr-only")).toBeNull();
+    expect(h1.textContent).toBe("Adrian Cristache Infrastructure meets innovation.");
+    expect(h1.querySelector("svg text")).toBeNull();
     expect(h1).toHaveTextContent("Adrian");
     expect(h1.lastElementChild).not.toBeEmptyDOMElement();
     expect(
@@ -121,6 +148,8 @@ describe("Hero", () => {
       );
     } else {
       expect(h1.querySelector(".sr-only")).toBeNull();
+      expect(h1.textContent).toBe(`${first} Infrastructure meets innovation.`);
+      expect(h1.querySelector("svg text")).toBeNull();
     }
   });
 

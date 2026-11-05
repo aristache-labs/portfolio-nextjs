@@ -39,6 +39,15 @@ function curation(p: Partial<Project> & { repo: string }): Project {
 }
 
 describe("mergeProjects", () => {
+  it("retains full README prose when a short tagline exists", () => {
+    const [project] = mergeProjects(
+      [curation({ repo: "a", tagline: "Short pitch" })],
+      [repo("a", 0)],
+      new Map([["a", "Full case study prose"]]),
+    );
+    expect(project.tagline).toBe("Short pitch");
+    expect(project.description).toBe("Full case study prose");
+  });
   it("drops hidden rows", () => {
     const out = mergeProjects(
       [curation({ repo: "a", hidden: true }), curation({ repo: "b" })],

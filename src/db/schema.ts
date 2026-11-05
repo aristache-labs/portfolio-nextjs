@@ -42,6 +42,7 @@ export const profile = pgTable("profile", {
 // projects — curation rows; live stats merged from GitHub at request time
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
+  group: text("group"),
   // GitHub slug only (e.g. "flutter_carousel_widget"), NOT full URL
   repo: varchar("repo", { length: 255 }).notNull().unique(),
   title: text("title").notNull(),

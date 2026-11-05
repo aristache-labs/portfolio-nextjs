@@ -5,6 +5,7 @@ import { Magnetic } from "@/components/motion/Magnetic";
 import { Section } from "@/components/ui/Section";
 import labelCss from "@/components/ui/section-label.module.css";
 import { Button } from "@/components/ui/Button";
+import { ProjectCoverGate } from "./ProjectCoverGate";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { SectionBackdrop } from "./SectionBackdrop";
 import subtitleCss from "./section-subtitle.module.css";
@@ -75,7 +76,9 @@ export function Projects({
       </ProjectsArrival>
 
       <div id="project-list" className="scroll-mt-24">
-        <ProjectsBrowser projects={projects} />
+        <ProjectCoverGate>
+          <ProjectsBrowser projects={projects} />
+        </ProjectCoverGate>
       </div>
 
       <ProjectsArrival kind="action" effect="fade" className="mt-12 text-center">

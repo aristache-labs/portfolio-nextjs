@@ -128,8 +128,8 @@ export function AnalyticsPreferences() {
       </header>
 
       <p id={`${id}-copy`} className={styles.copy}>
-        Google Analytics cookies measure visits, only with your consent. Nothing loads until you
-        choose; change it anytime from Cookie settings in the footer.{" "}
+        Optional Google Analytics cookies measure visits with your consent. Change your choice in
+        Cookie settings.{" "}
         <Link href="/privacy" prefetch={false} className={styles.privacyLink}>
           Privacy policy
         </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { setMobileMenuOpen } from "@/lib/mobile-menu-state";
 import { preload } from "react-dom";
 import { SectionLink } from "@/components/common/SectionLink";
 import { useHydratedPathname } from "@/hooks/useHydratedPathname";
@@ -94,6 +95,10 @@ export function SiteNav({
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    setMobileMenuOpen(open);
+    return () => setMobileMenuOpen(false);
+  }, [open]);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
