@@ -82,7 +82,8 @@ describe("SiteNav", () => {
     const { container } = render(<SiteNav socials={socials} />);
     fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
     const anchors = container.querySelectorAll('a[href^="#"]');
-    expect(anchors).toHaveLength(17);
+    // 17 header and menu links plus 6 chapter rail dots.
+    expect(anchors).toHaveLength(23);
     anchors.forEach((anchor) => expect(anchor).not.toHaveAttribute("data-prefetch"));
   });
 

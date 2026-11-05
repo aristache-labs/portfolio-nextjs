@@ -36,7 +36,7 @@ export function AvatarPortrait({
   const heroReady = useHeroPosterReady();
 
   return (
-    <div className="relative flex w-72 max-w-full sm:w-80 lg:w-96 [@media(orientation:landscape)_and_(max-height:500px)]:w-64">
+    <div className="landscape-short:w-64 relative flex w-72 max-w-full sm:w-80 lg:w-96">
       {/* p-0.5 over the gradient paints a 2px ring no border-color token can produce. */}
       <div
         className={`relative flex aspect-square flex-1 bg-(image:--gradient-brand) p-0.5 shadow-xl ${SHAPE}`}

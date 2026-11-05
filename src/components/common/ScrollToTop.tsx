@@ -7,6 +7,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useMobileMenuOpen } from "@/lib/mobile-menu-state";
 import { useConsentInset } from "@/lib/consent-inset";
 import { scrollToPosition } from "@/lib/scroll-to-section";
+import { subscribeScroll } from "@/lib/scroll-state";
 import styles from "./scroll-to-top.module.css";
 
 /** Fallback for pages without the homepage sections, such as Privacy. */
@@ -33,17 +34,9 @@ const ScrollToTop = () => {
   useEffect(() => () => stopScroll.current?.(), []);
 
   useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      setShow(window.scrollY >= threshold());
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(onScroll);
+    const update = () => setShow(window.scrollY >= threshold());
+    const unsubscribe = subscribeScroll(update);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
     observer?.observe(document.body);
     [...CONTENT_SECTIONS, "hero"].forEach((id) => {
       const section = document.getElementById(id);
@@ -52,9 +45,7 @@ const ScrollToTop = () => {
     update();
     return () => {
       observer?.disconnect();
-      window.removeEventListener("resize", onScroll);
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
+      unsubscribe();
     };
   }, []);
 

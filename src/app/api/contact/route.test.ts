@@ -13,7 +13,7 @@ vi.mock("resend", () => ({
   },
 }));
 
-vi.mock("@/lib/rate-limit", () => ({
+vi.mock("@/lib/client-ip", () => ({
   clientIpFromHeaders: () => "127.0.0.1",
 }));
 

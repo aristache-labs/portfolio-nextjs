@@ -2,6 +2,8 @@
 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SplitText } from "gsap/SplitText";
+import { Flip } from "gsap/Flip";
 import { useGSAP } from "@gsap/react";
 import { onSmoothScrollChange } from "./smooth-scroll";
 
@@ -15,7 +17,7 @@ let registered = false;
 function register() {
   if (registered || typeof window === "undefined") return;
   registered = true;
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
+  gsap.registerPlugin(ScrollTrigger, SplitText, Flip, useGSAP);
   // Only transform, opacity and clip-path are animated, so lag smoothing would only add
   // catch-up jumps after a long frame.
   gsap.ticker.lagSmoothing(0);
@@ -24,4 +26,4 @@ function register() {
 
 register();
 
-export { gsap, ScrollTrigger, useGSAP };
+export { gsap, ScrollTrigger, SplitText, Flip, useGSAP };

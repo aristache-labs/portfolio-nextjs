@@ -1,0 +1,1 @@
+ALTER TABLE "experiences" ADD COLUMN "volunteer" boolean DEFAULT false NOT NULL;

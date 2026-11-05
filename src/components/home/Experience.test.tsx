@@ -32,6 +32,7 @@ const mockExperiences: ExperienceRow[] = [
     period: "2022 – Present",
     location: "Remote",
     isCurrent: true,
+    volunteer: false,
     description: ["Built scalable APIs", "Led team of 5 engineers"],
     order: 1,
   },
@@ -42,6 +43,7 @@ const mockExperiences: ExperienceRow[] = [
     period: "2020 – 2022",
     location: "New York",
     isCurrent: false,
+    volunteer: false,
     description: ["Developed React apps", "Improved test coverage"],
     order: 2,
   },
@@ -617,6 +619,29 @@ describe("Experience role tags and resume", () => {
     expect(within(entry).getByText("Volunteer")).toHaveClass(styles.tag);
     expect(within(entry).queryByText("Volunteer Experience")).not.toBeInTheDocument();
     expect(within(entry).getAllByRole("listitem")).toHaveLength(1);
+  });
+
+  it("shows a Volunteer badge from the admin checkbox, once, and none when it is off", () => {
+    const { unmount } = render(
+      <Experience
+        experiences={[
+          { ...mockExperiences[1], id: 98, volunteer: true },
+          {
+            ...mockExperiences[1],
+            id: 97,
+            volunteer: true,
+            description: ["Volunteer Experience", "Administered Linux hosting servers."],
+          },
+          { ...mockExperiences[0], id: 96, volunteer: false },
+        ]}
+      />,
+    );
+    const entry = (id: number) =>
+      document.querySelector(`[data-experience-id="${id}"]`) as HTMLElement;
+    expect(within(entry(98)).getByText("Volunteer")).toHaveClass(styles.tag);
+    expect(within(entry(97)).getAllByText("Volunteer")).toHaveLength(1);
+    expect(within(entry(96)).queryByText("Volunteer")).not.toBeInTheDocument();
+    unmount();
   });
 
   it("links the profile resume from the intro column only when one is set", () => {

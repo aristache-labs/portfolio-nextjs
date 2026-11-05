@@ -14,6 +14,7 @@ const experiences = [1, 2].map((id) => ({
   period: "2024 - 2026",
   location: "Remote",
   isCurrent: id === 1,
+  volunteer: false,
   description: ["First task", "Second task", "Third task", "Fourth task"],
   order: id,
 }));

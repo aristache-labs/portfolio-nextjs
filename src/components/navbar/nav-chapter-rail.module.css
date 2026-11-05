@@ -1,0 +1,126 @@
+/* Right-edge chapter rail. Transform and opacity only; it never touches layout. */
+.rail {
+  transform: translateY(-50%) translateX(12px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rail[data-visible] {
+  transform: translateY(-50%);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rail {
+    transition:
+      opacity 320ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+.list {
+  display: grid;
+  gap: 2px;
+}
+
+/* 28px of hit area around a 6px dot. */
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 28px;
+  min-width: 28px;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  margin: 0 11px;
+  border-radius: 999px;
+  background: rgb(var(--brand-mid-rgb) / 0.35);
+  transform-origin: center;
+}
+
+.active .dot {
+  height: 22px;
+  background: linear-gradient(to bottom, var(--brand-mid), var(--brand-bright));
+  box-shadow: 0 0 10px rgb(var(--brand-mid-rgb) / 0.7);
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 10px;
+  border: 1px solid rgb(var(--brand-mid-rgb) / 0.2);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--foreground);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+}
+
+.number {
+  color: var(--brand-bright);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.item:focus-visible {
+  outline: 2px solid var(--brand-mid);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.item:focus-visible .label,
+.item:focus-visible .dot {
+  opacity: 1;
+}
+
+.item:focus-visible .label {
+  transform: translateX(0);
+}
+
+@media (hover: hover) {
+  .item:hover .label {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .item:hover .dot {
+    background: var(--brand-mid);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .label {
+    transition:
+      opacity 180ms ease,
+      transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dot {
+    transition:
+      height 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 200ms;
+  }
+}
+
+/* Short desktop windows: the rail would crowd the content. */
+@media (max-height: 520px) {
+  .rail {
+    display: none;
+  }
+}

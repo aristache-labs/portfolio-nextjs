@@ -7,7 +7,7 @@ const SEEN_KEY = "aristache:intro";
  * session hides the curtain at once. A first visit marks itself seen just after the curtain has
  * lifted, so returning to the homepage through client navigation does not replay it.
  */
-const SESSION_SCRIPT = `(function(){var d=document.documentElement;try{if(sessionStorage.getItem("${SEEN_KEY}")){d.setAttribute("data-intro-seen","");return}sessionStorage.setItem("${SEEN_KEY}","1")}catch(e){d.setAttribute("data-intro-seen","");return}setTimeout(function(){d.setAttribute("data-intro-seen","")},1200)})()`;
+const SESSION_SCRIPT = `(function(){var d=document.documentElement;try{if(sessionStorage.getItem("${SEEN_KEY}")){d.setAttribute("data-intro-seen","");return}sessionStorage.setItem("${SEEN_KEY}","1")}catch(e){d.setAttribute("data-intro-seen","");return}setTimeout(function(){d.setAttribute("data-intro-seen","")},900)})()`;
 
 /**
  * First-visit intro: the monogram resolves inside a drawn ring, then the curtain lifts off the

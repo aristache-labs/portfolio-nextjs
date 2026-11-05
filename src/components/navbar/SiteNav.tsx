@@ -22,6 +22,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
+import { subscribeScroll } from "@/lib/scroll-state";
+import { sectionNumbers } from "@/lib/section-numbers";
+import { NavChapterRail } from "./NavChapterRail";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
 import { scrollToSection } from "@/lib/scroll-to-section";
@@ -97,6 +100,10 @@ export function SiteNav({
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const numbers = useMemo(
+    () => sectionNumbers(Object.fromEntries(hidden.map((id) => [id, false]))),
+    [hidden],
+  );
   useEffect(() => {
     setMobileMenuOpen(open);
     return () => setMobileMenuOpen(false);
@@ -137,12 +144,10 @@ export function SiteNav({
     stopAnchorScroll.current = scrollToSection(id, reduce);
   };
   const progressRef = useRef<HTMLSpanElement>(null);
-  // One rAF-throttled pass per frame: the compact glass state and the progress line. Progress
+  // One shared per-frame pass: the compact glass state and the progress line. Progress
   // is written straight to the DOM, so scrolling never re-renders the header.
   useEffect(() => {
-    let frame = 0;
     const update = () => {
-      frame = 0;
       const y = window.scrollY;
       const max = document.documentElement.scrollHeight - window.innerHeight;
       progressRef.current?.style.setProperty(
@@ -151,17 +156,8 @@ export function SiteNav({
       );
       setScrolled(y > COMPACT_AFTER);
     };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
-    };
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
+    return subscribeScroll(update);
   }, []);
 
   useEffect(() => {
@@ -412,6 +408,16 @@ export function SiteNav({
           )}
         </AnimatePresence>
       </m.header>
+      {onHomepage && (
+        <NavChapterRail
+          sections={visibleSections.filter((section) => section.id !== "hero")}
+          numbers={numbers}
+          active={active}
+          visible={scrolled && !open}
+          onSelect={goToSection}
+          hrefFor={sectionHref}
+        />
+      )}
     </>
   );
 }

@@ -187,6 +187,9 @@ const step = (order: number) => ({ "--step": order }) as CSSProperties;
 const ROLE_TAG =
   /^(volunteer(ing)?|internship|freelance|part[- ]time|contract)( experience| work| role)?\.?$/i;
 
+/** "Volunteer Experience" and "Volunteer" name the same badge. */
+const TAG_SUFFIX = /\s*(experience|work|role)\.?$/i;
+
 /** Screen classes measured once by the timeline and shared with every role. */
 type EntryLayout = {
   portrait: boolean;
@@ -207,7 +210,17 @@ function TimelineEntry({
   layout: EntryLayout;
 }) {
   const { portrait, landscape, desktop, desktopDisclosure } = layout;
-  const tags = exp.description.filter((line) => ROLE_TAG.test(line.trim()));
+  // The Volunteer checkbox in Admin owns that badge; a "Volunteer Experience" line still works too.
+  const tags = [
+    ...(exp.volunteer ? ["Volunteer"] : []),
+    ...exp.description.filter((line) => ROLE_TAG.test(line.trim())),
+  ].filter(
+    (tag, index, all) =>
+      all.findIndex(
+        (other) =>
+          other.replace(TAG_SUFFIX, "").toLowerCase() === tag.replace(TAG_SUFFIX, "").toLowerCase(),
+      ) === index,
+  );
   const description = exp.description.filter((line) => !ROLE_TAG.test(line.trim()));
   const previewCount = desktopDisclosure ? 3 : desktop ? 2 : 1;
   const [expanded, setExpanded] = useState(false);
@@ -237,7 +250,7 @@ function TimelineEntry({
             </span>
             {tags.map((tag) => (
               <span key={tag} className={styles.tag}>
-                {tag.replace(/\s*(experience|work|role)\.?$/i, "")}
+                {tag.replace(TAG_SUFFIX, "")}
               </span>
             ))}
           </p>
@@ -465,7 +478,7 @@ export function Experience({
       {/* Two columns on lg+: sticky intro on the left, timeline on the right,
           both inside the shared page width so the block does not drift left
           on a wide monitor. Stacks to one column below lg. */}
-      <div className="relative grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14 [@media(orientation:landscape)_and_(max-height:500px)]:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] [@media(orientation:landscape)_and_(max-height:500px)]:gap-8">
+      <div className="landscape-short:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] landscape-short:gap-8 relative grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14">
         {/* Marks where the intro starts sticking (lg:top-24, matching INTRO_TOP). */}
         <span
           ref={stickStart}
@@ -475,7 +488,7 @@ export function Experience({
         />
         <div
           data-compact={compact ? "" : undefined}
-          className={`${styles.intro} relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start [@media(orientation:landscape)_and_(max-height:500px)]:sticky [@media(orientation:landscape)_and_(max-height:500px)]:top-20 [@media(orientation:landscape)_and_(max-height:500px)]:z-10 [@media(orientation:landscape)_and_(max-height:500px)]:self-start`}
+          className={`${styles.intro} landscape-short:sticky landscape-short:top-20 landscape-short:z-10 landscape-short:self-start relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start`}
         >
           <ExperienceReveal
             mobile={portrait || landscape}

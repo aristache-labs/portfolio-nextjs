@@ -53,11 +53,11 @@ export function Projects({
       <ProjectsArrival
         kind="heading"
         effect="slide"
-        className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-10 [@media(orientation:portrait)_and_(max-width:767px)]:flex [@media(orientation:portrait)_and_(max-width:767px)]:flex-col"
+        className="portrait-phone:mb-10 portrait-phone:flex portrait-phone:flex-col"
       >
-        <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between [@media(orientation:portrait)_and_(max-width:767px)]:contents">
+        <div className="portrait-phone:contents mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           {/* Same scale and weight as the About, Skills and Experience headings. */}
-          <div className="[@media(orientation:portrait)_and_(max-width:767px)]:mb-4">
+          <div className="portrait-phone:mb-4">
             <p className={`${labelCss.label} ${headingCss.label}`}>
               <span className={labelCss.number}>{number}</span>
               <span>Projects</span>
@@ -69,7 +69,7 @@ export function Projects({
           </div>
         </div>
         <p
-          className={`${subtitleCss.subtitle} mb-10 max-w-2xl text-pretty [@media(orientation:portrait)_and_(max-width:767px)]:order-1 [@media(orientation:portrait)_and_(max-width:767px)]:mb-0`}
+          className={`${subtitleCss.subtitle} portrait-phone:order-1 portrait-phone:mb-0 mb-10 max-w-2xl text-pretty`}
         >
           Web and mobile applications, infrastructure projects and automation tools.
         </p>

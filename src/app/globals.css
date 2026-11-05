@@ -30,6 +30,9 @@
 
 /* <html> always carries .dark, so `dark:` utilities always apply. */
 @custom-variant dark (&:where(.dark, .dark *));
+/* Same queries as src/lib/motion-queries.ts. Use these instead of arbitrary [@media(...)] values. */
+@custom-variant landscape-short (@media (orientation: landscape) and (max-height: 500px));
+@custom-variant portrait-phone (@media (max-width: 767px) and (orientation: portrait));
 
 /* Obsidian dark, the only theme. Raw values for the @theme var() references. */
 :root {
@@ -92,12 +95,13 @@
 /* Section links animate explicitly through scrollToSection. Native scroll restoration must
    remain instant, otherwise reloading animates the entire page before hydration. */
 /* Phone in landscape: the viewport is only ~360px tall, so rem-based spacing and type fill it
-   with one section at a time. Every Tailwind size is rem, so shrinking the root zooms the whole
-   page out. Coarse pointer keeps short desktop windows untouched. Only font-size is set here, so
-   no utility is overridden. */
+   with one section at a time. Every Tailwind size is rem, so scaling the root zooms the whole
+   page out. The root follows the viewport height (11px at 375px tall, capped at 13px) instead of
+   a fixed percentage, so short windows scale smoothly. Coarse pointer keeps short desktop
+   windows untouched. Only font-size is set here, so no utility is overridden. */
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   html {
-    font-size: 68.75%;
+    font-size: clamp(10px, 2.93svh, 13px);
   }
 }
 /* clip, not hidden + 100vw. The hero plate is wider than the screen and
