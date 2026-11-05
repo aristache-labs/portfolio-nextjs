@@ -224,12 +224,6 @@ export function SiteNav({
           />
         )}
       </AnimatePresence>
-      {/* Outside the header, so it stays on screen while the bar is tucked away. */}
-      <span
-        ref={progressRef}
-        aria-hidden
-        className={cn(chromeStyles.progress, (!scrolled || open) && chromeStyles.progressIdle)}
-      />
       <m.header
         ref={headerRef}
         initial={reduce ? false : { y: -70, opacity: 0 }}
@@ -407,6 +401,17 @@ export function SiteNav({
             </m.div>
           )}
         </AnimatePresence>
+        {/* Reading progress on the header's bottom edge. Where the chapter rail is shown (xl and up
+            on the homepage) the rail already tracks progress, so the line is hidden there. */}
+        <span
+          ref={progressRef}
+          aria-hidden
+          className={cn(
+            chromeStyles.progress,
+            onHomepage && chromeStyles.progressWithRail,
+            (!scrolled || open) && chromeStyles.progressIdle,
+          )}
+        />
       </m.header>
       {onHomepage && (
         <NavChapterRail

@@ -53,10 +53,11 @@ describe("Hero", () => {
 
   it.each([
     [false, false, 0],
-    [true, false, 1],
+    [true, false, 0],
     [true, true, 0],
   ])(
-    "runs pointer geometry only for desktop motion (%s, reduced %s)",
+    // The cursor-following spotlight was removed: moving the mouse must read no geometry.
+    "never measures layout on mouse movement (desktop %s, reduced %s)",
     (desktop, reduced, calls) => {
       installMatchMedia({
         [EXPRESSIVE_MOTION_QUERY]: desktop,

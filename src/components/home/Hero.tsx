@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Fragment,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type MouseEvent,
-  type RefObject,
-} from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { preload } from "react-dom";
 import dynamic from "next/dynamic";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
