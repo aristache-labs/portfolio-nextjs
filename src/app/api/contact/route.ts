@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { clientIpFromHeaders, createRateLimiter } from "@/lib/rate-limit";
+import { clientIpFromHeaders } from "@/lib/rate-limit";
+import { createDbRateLimiter } from "@/lib/rate-limit-db";
+import { contactSchema } from "@/lib/contact-schema";
 
-const limit = createRateLimiter({ limit: 5, windowMs: 60 * 60 * 1000 });
-
-const SUBJECTS = new Set([
-  "Project Collaboration",
-  "Job Opportunity",
-  "Freelance Work",
-  "General Question",
-]);
+const limit = createDbRateLimiter({ limit: 5, windowMs: 60 * 60 * 1000, prefix: "contact" });
 
 function escapeHtml(value: string): string {
   return value
@@ -20,7 +15,7 @@ function escapeHtml(value: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  if (!limit(clientIpFromHeaders(req.headers)).success) {
+  if (!(await limit(clientIpFromHeaders(req.headers))).success) {
     return NextResponse.json({ error: "Too many messages. Try again later." }, { status: 429 });
   }
 
@@ -36,26 +31,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const name = typeof data.name === "string" ? data.name.trim() : "";
-  const email = typeof data.email === "string" ? data.email.trim() : "";
-  const subject = typeof data.subject === "string" ? data.subject.trim() : "";
-  const message = typeof data.message === "string" ? data.message.trim() : "";
-
-  if (name.length < 2 || name.length > 80) {
-    return NextResponse.json({ error: "Add your name." }, { status: 400 });
+  const parsed = contactSchema.safeParse(data);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 120) {
-    return NextResponse.json({ error: "Add a valid email." }, { status: 400 });
-  }
-  if (!SUBJECTS.has(subject)) {
-    return NextResponse.json({ error: "Choose a subject." }, { status: 400 });
-  }
-  if (message.length < 10 || message.length > 2000) {
-    return NextResponse.json(
-      { error: "Message should be 10 to 2000 characters." },
-      { status: 400 },
-    );
-  }
+  const { name, email, subject, message } = parsed.data;
 
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_EMAIL;

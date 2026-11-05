@@ -183,6 +183,13 @@
       "when": 1793849568119,
       "tag": "0025_project_case_study",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793850868037,
+      "tag": "0026_rate_limits",
+      "breakpoints": true
     }
   ]
 }
