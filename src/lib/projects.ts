@@ -39,8 +39,9 @@ export function mergeProjects(
         stars: live ? live.stargazers_count : null,
         forks: live ? live.forks_count : null,
         language,
-        description: readmeExcerpt ?? (c.customBlurb?.trim() || live?.description || null),
-        homepage: live ? live.homepage : null,
+        description:
+          c.tagline?.trim() || readmeExcerpt || c.customBlurb?.trim() || live?.description || null,
+        homepage: c.liveUrl?.trim() || (live ? live.homepage : null),
         htmlUrl: live ? live.html_url : null,
         readmeExcerpt,
         pushedAt: Number.isNaN(pushed) ? null : new Date(pushed),

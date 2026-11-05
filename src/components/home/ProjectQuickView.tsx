@@ -219,6 +219,14 @@ export function ProjectQuickView({
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
   const blurb = project.description ?? "";
   const excerpt = blurb.trim() || null;
+  const caseBlocks = (
+    [
+      ["Problem", project.problem],
+      ["Solution", project.solution],
+      ["Result", project.outcome],
+      ["My role", project.role],
+    ] as const
+  ).flatMap(([label, text]) => (text?.trim() ? [[label, text.trim()] as const] : []));
   const tags =
     project.language || project.tags.length > 0 ? (
       <div className="flex flex-wrap items-center justify-end gap-1.5">
@@ -309,6 +317,18 @@ export function ProjectQuickView({
               </a>
             </p>
           </div>
+          {caseBlocks.length > 0 && (
+            <dl className="border-border space-y-3 border-t pt-4">
+              {caseBlocks.map(([label, text]) => (
+                <div key={label}>
+                  <dt className="text-foreground text-xs font-semibold tracking-wide uppercase">
+                    {label}
+                  </dt>
+                  <dd className="text-muted mt-1 text-sm leading-relaxed lg:text-[15px]">{text}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
           <div className={`lg:hidden ${styles.mobileOnlyHidden}`}>{tags}</div>
         </DialogBody>
 

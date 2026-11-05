@@ -47,6 +47,14 @@ export const projects = pgTable("projects", {
   title: text("title").notNull(),
   customBlurb: text("custom_blurb"),
   category: text("category"),
+  // Case-study copy shown in the quick view. All optional: an empty field hides its block.
+  tagline: varchar("tagline", { length: 120 }),
+  problem: text("problem"),
+  solution: text("solution"),
+  outcome: text("outcome"),
+  role: text("role"),
+  // Overrides the GitHub homepage field when set.
+  liveUrl: text("live_url"),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
   featured: boolean("featured").notNull().default(false),
   order: integer("order").notNull().default(0),
