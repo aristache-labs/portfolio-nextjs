@@ -41,6 +41,10 @@ const contentSecurityPolicy = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The shared layout reads this on dynamic routes too, so every serverless function needs it.
+  outputFileTracingIncludes: {
+    "/*": ["./scripts/poster-script-gate.js"],
+  },
   reactStrictMode: true,
   devIndicators: false,
   // LAN device hitting the dev server (HMR /_next/webpack-hmr). Dev-only.

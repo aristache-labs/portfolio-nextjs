@@ -18,8 +18,8 @@ import { CONSENT_KEY } from "@/lib/consent-key";
 // room for it (the portrait hero) are final from the first frame instead of jumping on mount.
 const CONSENT_PENDING_SCRIPT = `try{var p=location.pathname;if(p.indexOf("/admin")!==0&&p.indexOf("/login")!==0&&!/^(accepted|rejected)$/.test(localStorage.getItem(${JSON.stringify(CONSENT_KEY)})||""))document.documentElement.setAttribute("data-consent-pending","")}catch(e){}`;
 
-// Read at build time. On a portrait phone the homepage build marks chunk scripts with
-// data-poster-src, and this gate gives them a src only after the hero poster arrives.
+// Read at module initialization, including on dynamic routes. next.config.js includes this
+// runtime asset in server traces. Portrait homepage chunks wait for the hero poster via this gate.
 const POSTER_SCRIPT_GATE = readFileSync(
   join(process.cwd(), "scripts/poster-script-gate.js"),
   "utf8",
