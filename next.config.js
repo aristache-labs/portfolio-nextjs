@@ -56,6 +56,9 @@ const nextConfig = {
     // CSS files instead of five, and stops downloading Privacy's styles. Measured on a throttled
     // phone profile: LCP 2.31s -> 2.19s. "strict" made six files and was slower.
     cssChunking: false,
+    // Production app router only. Imported CSS ships inside <style> in the HTML, so the first
+    // paint does not wait on separate stylesheet requests. Dev (Turbopack) ignores this.
+    inlineCss: true,
   },
   // Do not redirect www -> apex here. Vercel already redirects aristache.dev to
   // www.aristache.dev. Adding the opposite redirect makes the two hosts loop.
