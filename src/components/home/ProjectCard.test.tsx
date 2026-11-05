@@ -5,6 +5,7 @@ import type { MergedProject } from "@/lib/projects";
 
 const base: MergedProject = {
   category: null,
+  group: null,
   id: 1,
   repo: "rippl",
   title: "Rippl",

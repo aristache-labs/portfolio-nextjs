@@ -1,5 +1,8 @@
 "use client";
 
+import { cardDescription } from "@/lib/project-presentation";
+import { ProjectComponents } from "./ProjectComponents";
+
 import type { MouseEventHandler } from "react";
 
 import actionStyles from "./project-actions.module.css";
@@ -22,7 +25,7 @@ export function ProjectCard({
   onQuickView?: MouseEventHandler<HTMLButtonElement>;
 }) {
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
-  const blurb = project.description ?? "";
+  const blurb = cardDescription(project);
 
   return (
     <Card
@@ -82,6 +85,7 @@ export function ProjectCard({
           </div>
         )}
 
+        <ProjectComponents project={project} />
         {/* Action links */}
         <div
           className={`${actionStyles.actions} ${actionStyles.compact} mt-auto flex flex-wrap items-center gap-2 pt-4`}

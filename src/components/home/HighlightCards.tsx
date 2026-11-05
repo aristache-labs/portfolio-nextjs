@@ -1,5 +1,8 @@
 "use client";
 
+import { cardDescription } from "@/lib/project-presentation";
+import { ProjectComponents } from "./ProjectComponents";
+
 import type { MouseEventHandler } from "react";
 
 import actionStyles from "./project-actions.module.css";
@@ -7,6 +10,7 @@ import motionStyles from "./project-motion.module.css";
 import layoutStyles from "./projects-layout.module.css";
 
 import Image from "next/image";
+import { useProjectCoversReady } from "./ProjectCoverGate";
 import { ExternalLink, GitFork, Github, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ScrollDepth } from "@/components/motion/ScrollDepth";
@@ -46,6 +50,23 @@ function Cover({
   priority?: boolean;
   loading?: "eager" | "lazy";
 }) {
+  const ready = useProjectCoversReady();
+  if (project.coverImage && !ready)
+    return (
+      <>
+        <div className="size-full bg-white/3" />
+        <noscript>
+          {/* Native fallback is intentionally outside Next image optimization when JS is off. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={project.coverImage}
+            alt=""
+            loading="lazy"
+            className={`absolute inset-0 size-full ${fit}`}
+          />
+        </noscript>
+      </>
+    );
   return project.coverImage ? (
     <Image
       src={project.coverImage}
@@ -55,6 +76,7 @@ function Cover({
       loading={priority ? undefined : loading}
       // Card covers render at thumbnail size; the default quality is visually identical there
       // and roughly a third lighter. Quick View keeps 90 for full-width screenshots.
+      fetchPriority="low"
       priority={priority}
       className={`${motionStyles.cover} ${fit}`}
     />
@@ -157,7 +179,7 @@ function Actions({
       )}
       {compact && (
         <span className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[10px] tracking-[0.04em] uppercase">
-          {project.homepage ? "Live" : "In development"}
+          {("hasLive" in project ? project.hasLive : project.homepage) ? "Live" : "In development"}
         </span>
       )}
     </div>
@@ -171,9 +193,11 @@ export function FeaturedCard({
   project,
   onQuickView,
   depth = false,
+  eager = false,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
+  eager?: boolean;
   /** Let the cover drift and settle inside its frame while scrolling (expressive desktops). */
   depth?: boolean;
 }) {
@@ -183,7 +207,12 @@ export function FeaturedCard({
         enabled={depth}
         className={`${layoutStyles.featuredImage} relative aspect-video w-full shrink-0 overflow-hidden border-b border-white/8`}
       >
-        <Cover project={project} sizes={FEATURED_COVER_SIZES} fit="object-cover" />
+        <Cover
+          project={project}
+          sizes={FEATURED_COVER_SIZES}
+          fit="object-cover"
+          loading={eager ? "eager" : "lazy"}
+        />
       </ScrollDepth>
       <div className={`${layoutStyles.featuredBody} flex flex-1 flex-col p-4 sm:p-5`}>
         <span
@@ -204,13 +233,14 @@ export function FeaturedCard({
             <Stats project={project} />
           </div>
         )}
-        {project.description && (
+        {cardDescription(project) && (
           <p
             className={`${actionStyles.featuredDescription} text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty lg:line-clamp-3`}
           >
-            {project.description}
+            {cardDescription(project)}
           </p>
         )}
+        <ProjectComponents project={project} />
         <div className="mt-auto">
           <Actions project={project} onQuickView={onQuickView} />
         </div>
@@ -280,15 +310,16 @@ export function RecentCard({
             )}
           </div>
           {(project.forks ?? 0) > 0 && <Stats project={project} />}
-          {project.description && (
+          {cardDescription(project) && (
             <p
               className={`${actionStyles.recentDescription} text-muted mt-1.5 line-clamp-2 text-sm leading-relaxed text-pretty`}
             >
-              {project.description}
+              {cardDescription(project)}
             </p>
           )}
         </div>
         <div className={`${actionStyles.recentFooter} mt-auto`}>
+          <ProjectComponents project={project} />
           <Actions project={project} onQuickView={onQuickView} compact />
         </div>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { groupProjects, liveFirst, type ProjectPresentation } from "@/lib/project-presentation";
 import { useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { m, type Variants } from "framer-motion";
@@ -125,7 +126,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const recentLimit = mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
   const containerRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
-  function openQuickView(project: MergedProject, event: MouseEvent<HTMLButtonElement>) {
+  function openQuickView(project: ProjectPresentation, event: MouseEvent<HTMLButtonElement>) {
     openerRef.current = event.currentTarget;
     setQuickView(project);
     setQuickViewOpen(true);
@@ -135,7 +136,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
     if (opener?.isConnected) opener.focus();
     else containerRef.current?.focus();
   }
-  const [quickView, setQuickView] = useState<MergedProject | null>(null);
+  const [quickView, setQuickView] = useState<ProjectPresentation | null>(null);
   // The last project stays mounted after closing, so the dialog can animate out.
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   useMobileSectionReset(containerRef, extra > 0, () => setExtra(0), quickViewOpen);
@@ -146,15 +147,19 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const limit = pageSize + extra;
   const { featured, recent, rest, categories } = useMemo(() => {
     // projects arrives already sorted featured-first by mergeProjects.
-    const lead = projects.filter((p) => p.featured).slice(0, MAX_FEATURED);
+    const grouped = groupProjects(projects);
+    const lead = grouped
+      .filter((p) => p.featured)
+      .sort(liveFirst)
+      .slice(0, MAX_FEATURED);
     const leadIds = new Set(lead.map((p) => p.id));
-    const others = projects.filter((p) => !leadIds.has(p.id));
+    const others = grouped.filter((p) => !leadIds.has(p.id));
 
     // Newest push first. A project with no recorded push date sorts last instead of first, and
     // the sort is stable, so ties keep the curated order. Featured ones are excluded so the same
     // project never appears in both columns.
     const byPush = [...others].sort(
-      (a, b) => (b.pushedAt?.getTime() ?? 0) - (a.pushedAt?.getTime() ?? 0),
+      (a, b) => liveFirst(a, b) || (b.pushedAt?.getTime() ?? 0) - (a.pushedAt?.getTime() ?? 0),
     );
     const latest = byPush.slice(0, recentLimit);
     const latestIds = new Set(latest.map((p) => p.id));
@@ -162,7 +167,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
     // their curated order.
     const grid = others
       .filter((p) => !latestIds.has(p.id))
-      .sort((a, b) => Number(b.featured) - Number(a.featured));
+      .sort((a, b) => liveFirst(a, b) || Number(b.featured) - Number(a.featured));
 
     const counts = new Map<string, number>();
     for (const p of grid) if (p.category) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
@@ -220,6 +225,7 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
                     <FeaturedCard
                       project={p}
                       depth={scene}
+                      eager={i === 0}
                       onQuickView={(event) => openQuickView(p, event)}
                     />
                   </Arrival>

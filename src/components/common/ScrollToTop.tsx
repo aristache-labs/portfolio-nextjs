@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, type CSSProperties } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useMobileMenuOpen } from "@/lib/mobile-menu-state";
 import { useConsentInset } from "@/lib/consent-inset";
 import { scrollToPosition } from "@/lib/scroll-to-section";
 import styles from "./scroll-to-top.module.css";
@@ -12,20 +13,22 @@ import styles from "./scroll-to-top.module.css";
 const MIN_THRESHOLD = 400;
 
 /**
- * On the homepage the button appears once About has risen to the middle of the screen, the
- * point where the reader has left the hero behind. Elsewhere it appears after a short read.
+ * On the homepage the button appears after Experience, falling back to earlier visible
+ * sections when it is hidden. Other pages use a short reading threshold.
  */
 function threshold() {
-  const about = document.getElementById("about");
-  if (!about) return MIN_THRESHOLD;
-  const top = about.getBoundingClientRect().top + window.scrollY;
-  return Math.max(MIN_THRESHOLD, top - window.innerHeight / 2);
+  const section = ["experience", "skills", "about", "hero"]
+    .map((id) => document.getElementById(id))
+    .find(Boolean);
+  if (!section) return MIN_THRESHOLD;
+  return section.getBoundingClientRect().bottom + window.scrollY;
 }
 
 const ScrollToTop = () => {
   const [show, setShow] = useState(false);
   const reduce = useReducedMotion();
   const inset = useConsentInset();
+  const menuOpen = useMobileMenuOpen();
   const stopScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopScroll.current?.(), []);
 
@@ -33,14 +36,23 @@ const ScrollToTop = () => {
     let frame = 0;
     const update = () => {
       frame = 0;
-      setShow(window.scrollY > threshold());
+      setShow(window.scrollY >= threshold());
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(onScroll);
+    observer?.observe(document.body);
+    ["experience", "skills", "about", "hero"].forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) observer?.observe(section);
+    });
     update();
     return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
     };
@@ -58,7 +70,7 @@ const ScrollToTop = () => {
 
   return (
     <AnimatePresence>
-      {show && (
+      {show && inset === 0 && !menuOpen && (
         <m.button
           style={{ "--consent-inset": `${inset}px` } as CSSProperties}
           type="button"

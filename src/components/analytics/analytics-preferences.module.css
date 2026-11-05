@@ -554,3 +554,45 @@
     margin-top: 0;
   }
 }
+
+/* Compact prompt: preserve full touch targets while keeping the hero readable. */
+.panel[data-compact] .action,
+.panel[data-compact] .manage {
+  min-height: 44px;
+}
+.panel[data-compact] {
+  padding: 8px 12px;
+}
+.panel[data-compact] .actions {
+  margin-top: 4px;
+}
+@media (min-width: 768px) {
+  .panel[data-compact] {
+    padding: 8px 12px;
+  }
+  .panel[data-compact] .actions {
+    margin-top: 0;
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 600px) {
+  .panel[data-compact] {
+    width: auto;
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
+    translate: none;
+    gap: 10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+  }
+  .panel[data-compact] .copy {
+    font-size: 11px;
+    line-height: 14px;
+  }
+  .panel[data-compact] .action {
+    width: auto;
+    min-width: 64px;
+  }
+  .panel[data-compact] .actions {
+    gap: 4px;
+  }
+}

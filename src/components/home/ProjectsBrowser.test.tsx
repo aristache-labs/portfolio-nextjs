@@ -13,6 +13,7 @@ beforeEach(() => installMatchMedia());
 
 function project(id: number, over: Partial<MergedProject> = {}): MergedProject {
   return {
+    group: null,
     id,
     repo: `repo-${id}`,
     title: `Project ${id}`,
@@ -43,6 +44,21 @@ function project(id: number, over: Partial<MergedProject> = {}): MergedProject {
 }
 
 describe("ProjectsBrowser categories and responsive limits", () => {
+  it("renders one card per group and exposes every component repository", () => {
+    const list = [
+      project(1, { group: "gym", title: "Gym App" }),
+      project(2, { group: "gym", title: "Gym Scanner" }),
+      project(3, { group: "gym", title: "Gym Panel" }),
+    ];
+    render(<ProjectsBrowser projects={list} />);
+    expect(screen.getAllByRole("article")).toHaveLength(1);
+    for (const member of list) {
+      expect(screen.getByRole("link", { name: member.title })).toHaveAttribute(
+        "href",
+        member.htmlUrl,
+      );
+    }
+  });
   const list = [
     project(1, { featured: true }),
     project(2, { featured: true }),
