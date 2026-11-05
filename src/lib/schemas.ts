@@ -18,6 +18,9 @@ export const profileInsertSchema = z.object({
   resumeUrl: z.httpUrl().nullable().optional(),
   avatarUrl: z.httpUrl().nullable().optional(),
   heroTagline: z.string().nullable().optional(),
+  heroHeadline: z.string().max(120).nullable().optional(),
+  heroSummary: z.string().max(400).nullable().optional(),
+  availability: z.string().max(80).nullable().optional(),
   sectionVisibility: z.record(z.string(), z.boolean()).default({}),
 });
 

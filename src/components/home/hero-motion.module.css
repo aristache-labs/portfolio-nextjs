@@ -73,6 +73,64 @@
   max-width: 42rem;
 }
 
+/* Availability: a quiet glass pill above the roles, with a slow "live" pulse on the dot. */
+.availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.8rem 0.35rem 0.65rem;
+  border: 1px solid rgb(var(--brand-mid-rgb) / 0.28);
+  border-radius: 999px;
+  background: rgb(var(--brand-deep-rgb) / 0.22);
+  color: rgb(245 247 247 / 0.86);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(10px);
+}
+
+.availabilityDot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--brand-bright);
+  box-shadow: 0 0 8px rgb(var(--brand-bright-rgb) / 0.8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .availabilityDot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--brand-bright);
+    animation: availability-pulse 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+}
+
+@keyframes availability-pulse {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .availability {
+    margin-bottom: 0.4rem;
+    padding: 0.2rem 0.6rem 0.2rem 0.5rem;
+    font-size: 0.7rem;
+  }
+}
+
 .content {
   padding-top: 9rem;
   padding-bottom: 7rem;
@@ -650,9 +708,15 @@
   }
 }
 
+/* While the consent bar is due, the copy starts higher so the bar never covers the actions. The
+   flag is set before first paint (layout.tsx), so this never moves content after it is drawn. */
+:global(html[data-consent-pending]) .content {
+  --hero-consent-lift: 4rem;
+}
+
 @media (max-width: 767px) and (orientation: portrait) {
   .content {
-    padding-top: max(7rem, calc(12rem - var(--hero-consent-inset, 0px) * 0.5));
+    padding-top: calc(12rem - var(--hero-consent-lift, 0rem));
     padding-bottom: 2rem;
   }
 

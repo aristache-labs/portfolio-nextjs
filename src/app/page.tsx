@@ -77,7 +77,13 @@ export default async function Home() {
 
       <Hero
         transitionToAbout={show("about")}
-        profile={{ name: profile.name, roles: profile.roles }}
+        profile={{
+          name: profile.name,
+          roles: profile.roles,
+          headline: profile.heroHeadline,
+          summary: profile.heroSummary,
+          availability: profile.availability,
+        }}
         heroTagline={profile.heroTagline}
         resumeUrl={profile.resumeUrl}
         socials={socials.map((s) => ({ platform: s.platform, url: s.url }))}

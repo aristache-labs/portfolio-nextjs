@@ -1,9 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { CONSENT_KEY } from "./consent-key";
 
 export type AnalyticsConsent = "accepted" | "rejected" | null;
-export const CONSENT_KEY = "analytics-consent-v2";
+export { CONSENT_KEY };
 export const PREFERENCES_EVENT = "analytics-preferences-open";
 export const CHANGE_EVENT = "analytics-consent-change";
 let memoryConsent: AnalyticsConsent = null;

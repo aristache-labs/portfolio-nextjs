@@ -4,7 +4,7 @@ import { updateProfile } from "../actions";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Panel, Field, Input, Textarea, SubmitButton } from "@/components/admin/ui";
 import { AvatarField } from "@/components/admin/AvatarField";
-import { IDENTITY } from "@/lib/identity";
+import { HERO_DEFAULTS, IDENTITY } from "@/lib/identity";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +33,9 @@ export default async function ProfileEditor() {
       sectionVisibility: row?.sectionVisibility ?? {},
       resumeUrl: (formData.get("resumeUrl") as string) || null,
       heroTagline: (formData.get("heroTagline") as string) || null,
+      heroHeadline: String(formData.get("heroHeadline") ?? "").trim() || null,
+      heroSummary: String(formData.get("heroSummary") ?? "").trim() || null,
+      availability: String(formData.get("availability") ?? "").trim() || null,
     });
   }
 
@@ -83,6 +86,40 @@ export default async function ProfileEditor() {
               name="heroTagline"
               defaultValue={row?.heroTagline ?? ""}
               placeholder="AI-native engineering"
+            />
+          </Field>
+          <Field
+            label="Hero headline"
+            hint="Line under your name. The last word is highlighted. Leave empty for the default."
+          >
+            <Input
+              name="heroHeadline"
+              defaultValue={row?.heroHeadline ?? ""}
+              placeholder={HERO_DEFAULTS.headline}
+              maxLength={120}
+            />
+          </Field>
+          <Field
+            label="Hero summary"
+            hint="Paragraph under the headline. Leave empty for the default."
+          >
+            <Textarea
+              name="heroSummary"
+              defaultValue={row?.heroSummary ?? ""}
+              rows={3}
+              placeholder={HERO_DEFAULTS.summary}
+              maxLength={400}
+            />
+          </Field>
+          <Field
+            label="Availability"
+            hint="Badge with a live dot above the hero, e.g. Available for new projects. Leave empty to hide."
+          >
+            <Input
+              name="availability"
+              defaultValue={row?.availability ?? ""}
+              placeholder="Available for new projects"
+              maxLength={80}
             />
           </Field>
           <SubmitButton>Save changes</SubmitButton>

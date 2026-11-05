@@ -169,6 +169,13 @@
       "when": 1792718275805,
       "tag": "0023_project_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793840280335,
+      "tag": "0024_hero_copy",
+      "breakpoints": true
     }
   ]
 }

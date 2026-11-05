@@ -1,0 +1,17 @@
+/* Sits above the scrim so it reads on the dark plate, and fades out toward the copy column so it
+   never competes with the text. Screen blending keeps it luminous without darkening anything. */
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(90deg, transparent 0%, rgb(0 0 0 / 0.35) 38%, black 62%);
+  pointer-events: none;
+}
+
+.canvas[data-ready] {
+  opacity: 0.85;
+  transition: opacity 1.4s ease;
+}

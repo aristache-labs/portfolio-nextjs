@@ -138,7 +138,11 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       try {
         const card = screen.getByRole("heading", { name: `Project ${id}` }).closest("article")!;
         fireEvent.click(within(card).getByRole("button", { name: /^View Project/ }));
-        expect(await screen.findByRole("dialog", { name: `Project ${id}` })).toBeInTheDocument();
+        // The dialog module is lazy; its first import can outlast the 1s default when the whole
+        // suite runs in parallel.
+        expect(
+          await screen.findByRole("dialog", { name: `Project ${id}` }, { timeout: 5000 }),
+        ).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: "Close" }));
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
         expect(card).toBeVisible();
