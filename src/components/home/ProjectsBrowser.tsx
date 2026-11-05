@@ -1,11 +1,11 @@
 "use client";
 
-import { Fragment, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { m, type Variants } from "framer-motion";
 import { Star, History, Layers3 } from "lucide-react";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
-import { ScrollEntrance } from "@/components/motion/ScrollEntrance";
+import { ProjectsGrid, ProjectsGridCard } from "./ProjectsGrid";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ProjectCard } from "./ProjectCard";
@@ -69,12 +69,10 @@ function Arrival({
   className: string;
   children: ReactNode;
 }) {
-  return scene ? (
-    <ScrollEntrance enabled from={from} lag={lag} className={className}>
-      {children}
-    </ScrollEntrance>
-  ) : (
+  return (
     <ProjectsArrival
+      scrollFrom={scene ? from : undefined}
+      scrollLag={lag}
       kind={from === "left" ? "featured" : "recent"}
       order={order}
       effect={effect}
@@ -191,33 +189,6 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
   const portraitMotion = useMediaQuery(PROJECTS_PORTRAIT_QUERY);
   const landscapeMotion = useMediaQuery(PROJECTS_LANDSCAPE_QUERY);
   const mobileMotion = portraitMotion || landscapeMotion;
-  /** `lag` turns on the scroll entrance, placed directly around the glass card it fades. */
-  const gridCard = (p: MergedProject, lag?: number) => {
-    const card = <ProjectCard project={p} onQuickView={(event) => openQuickView(p, event)} />;
-    if (mobileMotion) {
-      return (
-        <ProjectsArrival kind="card" order={lag ? 1 : 0} className="h-full">
-          {card}
-        </ProjectsArrival>
-      );
-    }
-    return (
-      <m.div
-        initial={hasInteracted && mode !== "static" ? "hidden" : false}
-        animate={hasInteracted ? "visible" : undefined}
-        variants={cardVariants}
-        className="h-full"
-      >
-        {lag === undefined ? (
-          card
-        ) : (
-          <ScrollEntrance enabled from="below" lag={lag} className="h-full">
-            {card}
-          </ScrollEntrance>
-        )}
-      </m.div>
-    );
-  };
   function selectCategory(name: string) {
     if (name === category) return;
     setHasInteracted(true);
@@ -336,29 +307,21 @@ export function ProjectsBrowser({ projects }: { projects: MergedProject[] }) {
             </ProgressiveReveal>
           )}
 
-          {scene || mobileMotion ? (
-            // Each card rises as it comes into view instead of a timed cascade.
-            <div className={GRID}>
-              {visible.map((p, i) => (
-                <Fragment key={`${category}-${p.id}`}>
-                  {gridCard(p, (i % (mobileMotion ? 2 : 3)) * 0.05)}
-                </Fragment>
-              ))}
-            </div>
-          ) : (
-            <ProgressiveReveal
-              effect="cascade"
-              duration={0}
-              delay={0}
-              staggerChildren={0.1}
-              viewportInset={0}
-              className={GRID}
-            >
-              {visible.map((p) => (
-                <Fragment key={`${category}-${p.id}`}>{gridCard(p)}</Fragment>
-              ))}
-            </ProgressiveReveal>
-          )}
+          <ProjectsGrid enabled={!scene && !mobileMotion} className={GRID}>
+            {visible.map((p, i) => (
+              <ProjectsGridCard
+                key={`${category}-${p.id}`}
+                mobile={mobileMotion}
+                scene={scene}
+                interacted={hasInteracted}
+                staticMotion={mode === "static"}
+                order={i}
+                variants={cardVariants}
+              >
+                <ProjectCard project={p} onQuickView={(event) => openQuickView(p, event)} />
+              </ProjectsGridCard>
+            ))}
+          </ProjectsGrid>
 
           {filtered.length > limit && (
             <ProjectsArrival kind="action" effect="fade" className="mt-8 text-center">

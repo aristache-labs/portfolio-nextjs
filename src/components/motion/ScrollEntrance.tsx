@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
 import { animate, useScroll } from "framer-motion";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
@@ -33,15 +33,32 @@ export function ScrollEntrance({
   children: ReactNode;
 }) {
   const node = useRef<HTMLDivElement>(null);
+  useScrollEntrance(node, { enabled, lag });
+
+  return (
+    <div
+      ref={node}
+      data-from={enabled ? from : undefined}
+      className={className ? `${styles.entrance} ${className}` : styles.entrance}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function useScrollEntrance(
+  ref: RefObject<HTMLDivElement | null>,
+  { enabled, lag = 0 }: { enabled: boolean; lag?: number },
+) {
   const { scrollY } = useScroll();
   const navigation = useSectionNavigation(
-    node,
-    () => Number(node.current?.style.getPropertyValue("--entry") || 0) <= 0,
+    ref,
+    () => Number(ref.current?.style.getPropertyValue("--entry") || 0) <= 0,
   );
   const { mode } = useAnimationPolicy();
 
   useLayoutEffect(() => {
-    const element = node.current;
+    const element = ref.current;
     if (!enabled || !element) return;
     if (navigation.pending && mode !== "static") {
       element.style.setProperty("--entry", "0");
@@ -86,15 +103,5 @@ export function ScrollEntrance({
       element.removeEventListener("focusin", reveal);
       element.style.removeProperty("--entry");
     };
-  }, [enabled, lag, scrollY, navigation.pending, navigation.replay, mode]);
-
-  return (
-    <div
-      ref={node}
-      data-from={enabled ? from : undefined}
-      className={className ? `${styles.entrance} ${className}` : styles.entrance}
-    >
-      {children}
-    </div>
-  );
+  }, [enabled, lag, scrollY, navigation.pending, navigation.replay, mode, ref]);
 }

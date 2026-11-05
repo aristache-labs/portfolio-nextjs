@@ -561,7 +561,7 @@ describe("Experience", () => {
       if (i < 3) expect(bullet).toBeVisible();
       else expect(bullet).not.toBeVisible();
     });
-    expect(entry.querySelector("details") !== null).toBe(count > 3);
+    expect(entry.querySelector("details:not([hidden])") !== null).toBe(count > 3);
   });
 
   it("keeps desktop disclosures independent across roles and viewport changes", async () => {

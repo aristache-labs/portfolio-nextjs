@@ -73,23 +73,23 @@ describe("ProjectsBrowser categories and responsive limits", () => {
         <ProjectsBrowser projects={list} />
       </MotionProvider>,
     );
-    const grid = screen.getByRole("heading", { name: "Project 11" }).closest("article")
-      ?.parentElement?.parentElement;
+    const grid = screen.getByRole("heading", { name: "Project 11" }).closest(".grid");
     for (const name of [/^Desktop Apps/, /^Websites/, /^Desktop Apps/]) {
       fireEvent.click(screen.getByRole("button", { name }));
     }
-    expect(
-      screen.getByRole("heading", { name: "Project 19" }).closest("article")?.parentElement
-        ?.parentElement,
-    ).toBe(grid);
+    expect(screen.getByRole("heading", { name: "Project 19" }).closest(".grid")).toBe(grid);
     expect(screen.queryByRole("heading", { name: "Project 11" })).not.toBeInTheDocument();
     expect(grid).not.toHaveStyle({ opacity: "0" });
     fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     const added = screen.getByRole("heading", { name: "Project 18" }).closest("article");
-    expect(added?.parentElement?.parentElement).toBe(grid);
+    expect(added?.closest(".grid")).toBe(grid);
     await waitFor(
-      () => expect(added?.parentElement).toHaveStyle({ opacity: "1", transform: "none" }),
+      () =>
+        expect(added?.closest("[data-project-grid-card]")).toHaveStyle({
+          opacity: "1",
+          transform: "none",
+        }),
       { timeout: 1800 },
     );
   });
@@ -114,7 +114,7 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
       const entrance = screen
         .getByRole("heading", { name: "Project 11" })
-        .closest("article")!.parentElement!;
+        .closest("[data-project-grid-card]")!;
       const grid = entrance.parentElement;
       expect(entrance).toHaveStyle({ opacity: "0", transform: "scale(0.9)" });
       await waitFor(() => expect(entrance).toHaveStyle({ opacity: "1", transform: "none" }), {
@@ -123,7 +123,7 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
       const next = screen
         .getByRole("heading", { name: "Project 19" })
-        .closest("article")!.parentElement!;
+        .closest("[data-project-grid-card]")!;
       expect(next.parentElement).toBe(grid);
       expect(next).toHaveStyle({ opacity: "0", transform: "scale(0.9)" });
     },

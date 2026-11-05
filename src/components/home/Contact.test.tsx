@@ -283,10 +283,13 @@ describe("Contact", () => {
     const form = container.querySelector("form")!;
     expect(form).not.toHaveClass("backdrop-blur-[18px]");
     expect(form.parentElement).toHaveClass("backdrop-blur-[18px]");
-    expect(container.querySelector("figure")!.parentElement).toHaveClass("backdrop-blur-[18px]");
+    const quoteSurface = container.querySelector("figure")!.closest(".backdrop-blur-\\[18px\\]")!;
+    expect(quoteSurface).toHaveClass("backdrop-blur-[18px]");
+    expect(quoteSurface).not.toHaveClass("contents");
     for (const card of container.querySelectorAll("ul a")) {
       expect(card).toHaveClass("backdrop-blur-[18px]");
-      expect(card.parentElement!.tagName).toBe("LI");
+      expect(card.closest("li")).not.toBeNull();
+      expect(card.parentElement).not.toHaveClass("backdrop-blur-[18px]");
     }
   });
 

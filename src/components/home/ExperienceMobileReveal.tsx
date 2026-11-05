@@ -3,7 +3,7 @@
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { sectionNavigationPending } from "@/lib/section-navigation";
 
-import { useLayoutEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./experience-layout.module.css";
 import { PORTRAIT_PHONE_QUERY } from "@/hooks/useMediaQuery";
@@ -12,21 +12,12 @@ export const EXPERIENCE_PORTRAIT_QUERY = PORTRAIT_PHONE_QUERY;
 export const EXPERIENCE_LANDSCAPE_QUERY =
   "(orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
 
-/** Each role observes its own stationary box and remains visible after its first entrance. */
-export function ExperienceMobileReveal({
-  children,
-  kind,
-  className,
-}: {
-  children: ReactNode;
-  kind: "title" | "description" | "entry";
-  className?: string;
-}) {
-  const target = useRef<HTMLDivElement>(null);
+export function useExperienceMobileReveal(ref: RefObject<HTMLDivElement | null>, enabled = true) {
   const { mode, ready } = useAnimationPolicy();
-  const navigation = useSectionNavigation(target);
+  const navigation = useSectionNavigation(ref);
   useLayoutEffect(() => {
-    const node = target.current;
+    if (!enabled) return;
+    const node = ref.current;
     if (navigation.pending && node && mode !== "static") {
       node.dataset.mobileReveal = "armed";
       return () => {
@@ -57,7 +48,21 @@ export function ExperienceMobileReveal({
       node.removeEventListener("focusin", focus);
       delete node.dataset.mobileReveal;
     };
-  }, [mode, ready, navigation.pending, navigation.replay]);
+  }, [enabled, mode, ready, navigation.pending, navigation.replay, ref]);
+}
+
+/** Each role observes its own stationary box and remains visible after its first entrance. */
+export function ExperienceMobileReveal({
+  children,
+  kind,
+  className,
+}: {
+  children: ReactNode;
+  kind: "title" | "description" | "entry";
+  className?: string;
+}) {
+  const target = useRef<HTMLDivElement>(null);
+  useExperienceMobileReveal(target);
   return (
     <div
       ref={target}
