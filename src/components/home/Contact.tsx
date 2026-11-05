@@ -32,9 +32,12 @@ import { platformIcon, SocialGlyph, type SocialIcon, type SocialRow } from "./so
 import { GLASS_CARD } from "./project-styles";
 import { ContactSubject } from "./ContactSubject";
 import { cn } from "@/utils/cn";
-import { CONTACT_SUBJECTS } from "@/lib/contact-subjects";
+import { CONTACT_SUBJECTS, contactSchema, type ContactInput } from "@/lib/contact-schema";
 
 export { platformIcon, type SocialIcon, type SocialRow };
+
+type ContactField = keyof ContactInput;
+type FieldErrors = Partial<Record<ContactField, string | undefined>>;
 
 const SUBJECTS = [...CONTACT_SUBJECTS];
 /** How long the thank-you stays over the form before it can send again. */
@@ -140,6 +143,7 @@ export function Contact({
   const [website, setWebsite] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [error, setError] = useState("");
   const [justSent, setJustSent] = useState(false);
   const [shaking, setShaking] = useState(false);
@@ -244,14 +248,49 @@ export function Contact({
     setShaking(true);
   }
 
+  function validateField(field: ContactField, value: string) {
+    const result = value.trim() ? contactSchema.shape[field].safeParse(value) : undefined;
+    setFieldErrors((previous) => ({
+      ...previous,
+      [field]: result && !result.success ? result.error.issues[0].message : undefined,
+    }));
+  }
+
+  function fieldProps(field: ContactField, value: string) {
+    return {
+      "aria-invalid": fieldErrors[field] ? true : undefined,
+      "aria-describedby": fieldErrors[field] ? `contact-${field}-error` : undefined,
+      onBlur: () => validateField(field, value),
+    };
+  }
+
+  function fieldError(field: ContactField) {
+    return (
+      <p id={`contact-${field}-error`} aria-live="polite" className="mt-1 text-[13px] text-red-300">
+        {fieldErrors[field]}
+      </p>
+    );
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (inFlight.current) return;
-    if (!subject) {
-      fail("Please select a subject.");
-      document.getElementById("contact-subject")?.focus();
+    const parsed = contactSchema.safeParse({ name, email: from, subject, message });
+    if (!parsed.success) {
+      const errors: FieldErrors = {};
+      for (const issue of parsed.error.issues) {
+        const field = issue.path[0] as ContactField;
+        errors[field] ??= issue.message;
+      }
+      setFieldErrors(errors);
+      setError("");
+      setStatus("idle");
+      setShaking(true);
+      const first = Object.keys(errors)[0];
+      document.getElementById(`contact-${first}`)?.focus();
       return;
     }
+    setFieldErrors({});
     inFlight.current = true;
     setStatus("submitting");
     setError("");
@@ -451,6 +490,7 @@ export function Contact({
         {formFrame(
           <form
             onSubmit={handleSubmit}
+            noValidate
             data-replay-block
             data-shaking={shaking ? "" : undefined}
             onAnimationEnd={(event) => {
@@ -496,12 +536,17 @@ export function Contact({
                       type="text"
                       required
                       value={name}
-                      onChange={(event) => setName(event.target.value)}
+                      {...fieldProps("name", name)}
+                      onChange={(event) => {
+                        setName(event.target.value);
+                        if ("name" in fieldErrors) validateField("name", event.target.value);
+                      }}
                       placeholder="Your name"
                       className={inputClass}
                     />
                     <span aria-hidden className={formCss.focusLine} />
                   </div>
+                  {fieldError("name")}
                 </div>
                 <div className={formCss.group} data-contact-step>
                   <label htmlFor="contact-email" className={labelClass}>
@@ -515,12 +560,17 @@ export function Contact({
                       type="email"
                       required
                       value={from}
-                      onChange={(event) => setFrom(event.target.value)}
+                      {...fieldProps("email", from)}
+                      onChange={(event) => {
+                        setFrom(event.target.value);
+                        if ("email" in fieldErrors) validateField("email", event.target.value);
+                      }}
                       placeholder="you@example.com"
                       className={inputClass}
                     />
                     <span aria-hidden className={formCss.focusLine} />
                   </div>
+                  {fieldError("email")}
                 </div>
               </div>
 
@@ -533,11 +583,16 @@ export function Contact({
                     id="contact-subject"
                     value={subject}
                     options={SUBJECTS}
-                    onChange={setSubject}
+                    {...fieldProps("subject", subject)}
+                    onChange={(value) => {
+                      setSubject(value);
+                      if ("subject" in fieldErrors) validateField("subject", value);
+                    }}
                     className={`${inputClass} pr-3.5`}
                   />
                   <span aria-hidden className={formCss.focusLine} />
                 </div>
+                {fieldError("subject")}
               </div>
 
               <div className={formCss.group} data-contact-step>
@@ -552,12 +607,17 @@ export function Contact({
                     required
                     minLength={10}
                     value={message}
-                    onChange={(event) => setMessage(event.target.value)}
+                    {...fieldProps("message", message)}
+                    onChange={(event) => {
+                      setMessage(event.target.value);
+                      if ("message" in fieldErrors) validateField("message", event.target.value);
+                    }}
                     placeholder="Project scope, current stack, constraints and timeline."
                     className={`${inputClass} h-[92px] resize-none py-2.5`}
                   />
                   <span aria-hidden className={formCss.focusLine} />
                 </div>
+                {fieldError("message")}
               </div>
             </div>
 

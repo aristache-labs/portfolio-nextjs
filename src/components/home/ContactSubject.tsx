@@ -15,17 +15,29 @@ export function ContactSubject({
   options,
   onChange,
   className,
+  onBlur,
+  "aria-invalid": invalid,
+  "aria-describedby": describedBy,
 }: {
   id: string;
   value: string;
   options: string[];
   onChange: (value: string) => void;
   className: string;
+  onBlur?: () => void;
+  "aria-invalid"?: boolean;
+  "aria-describedby"?: string;
 }) {
   return (
     <Select.Root name="subject" value={value} onValueChange={onChange}>
       <Select.Trigger
         id={id}
+        aria-required="true"
+        aria-invalid={invalid}
+        aria-describedby={describedBy}
+        onBlur={(event) => {
+          if (!event.relatedTarget?.closest('[role="listbox"]')) onBlur?.();
+        }}
         className={`${className} ${styles.trigger} flex items-center justify-between gap-2 text-left ${value ? "text-white" : "text-white/60"}`}
       >
         <Select.Value placeholder="Select a subject" />
@@ -35,6 +47,7 @@ export function ContactSubject({
       </Select.Trigger>
       <Select.Portal>
         <Select.Content
+          onCloseAutoFocus={() => onBlur?.()}
           position="popper"
           sideOffset={6}
           className={`${styles.menu} z-50 overflow-hidden rounded-xl border border-white/10 bg-(--overlay-bg) shadow-2xl backdrop-blur-xl`}
