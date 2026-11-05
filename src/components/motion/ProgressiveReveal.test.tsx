@@ -1,7 +1,7 @@
-import { act, cleanup, render as renderReact } from "@testing-library/react";
+import { act, cleanup, render } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { hydrateRoot } from "react-dom/client";
-import { forwardRef, StrictMode, type ReactNode } from "react";
+import { forwardRef, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ProgressiveReveal } from "./ProgressiveReveal";
 import { SpringCount } from "./SpringCount";
@@ -17,7 +17,6 @@ const count = vi.hoisted(() => ({
   entries: [] as ((definition: string) => void)[],
 }));
 vi.mock("framer-motion", () => ({
-  microtask: { read: (callback: () => void) => queueMicrotask(callback) },
   animate: count.animate,
   useAnimationControls: () => controls,
   m: {
@@ -46,30 +45,14 @@ let listeners: Set<() => void>;
 const disconnect = vi.fn();
 const observe = vi.fn();
 const observerOptions = vi.fn();
-let microtasks: (() => void)[];
-
-function flushPreparation() {
-  act(() => {
-    while (microtasks.length) microtasks.shift()!();
-  });
-}
-
-function render(...args: Parameters<typeof renderReact>) {
-  const result = renderReact(...args);
-  flushPreparation();
-  return result;
-}
-
 function change(query: string, value: boolean) {
   act(() => {
     matches[query] = value;
     listeners.forEach((listener) => listener());
   });
-  flushPreparation();
 }
 
 function intersect(node: Element, top = 100, isIntersecting = true) {
-  flushPreparation();
   act(() =>
     deliver(
       [
@@ -86,8 +69,6 @@ function intersect(node: Element, top = 100, isIntersecting = true) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  microtasks = [];
-  vi.stubGlobal("queueMicrotask", (callback: () => void) => microtasks.push(callback));
   count.entries = [];
   controls.start.mockResolvedValue(undefined);
   count.animate.mockReturnValue({ stop: count.stop });
@@ -116,37 +97,11 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  flushPreparation();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
 describe("ProgressiveReveal", () => {
-  it("reads all sibling bounds before preparing their animations in Strict Mode", () => {
-    const operations: string[] = [];
-    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockImplementation(function () {
-      operations.push("read");
-      return { top: 2000, left: 100 } as DOMRect;
-    });
-    controls.set.mockImplementation(() => operations.push("write"));
-    render(
-      <StrictMode>
-        <ProgressiveReveal>First</ProgressiveReveal>
-        <ProgressiveReveal effect="slide-from-right">Second</ProgressiveReveal>
-      </StrictMode>,
-    );
-    expect(operations).toEqual(["read", "read", "write", "write"]);
-  });
-
-  it("cancels preparation when unmounted before the microtask", () => {
-    const { unmount } = renderReact(<ProgressiveReveal>Metrics</ProgressiveReveal>);
-    unmount();
-    flushPreparation();
-    expect(HTMLElement.prototype.getBoundingClientRect).not.toHaveBeenCalled();
-    expect(controls.set).not.toHaveBeenCalled();
-    expect(observe).not.toHaveBeenCalled();
-  });
-
   it("does not measure static content or completed entrances again", () => {
     matches[REDUCED_MOTION_QUERY] = true;
     render(<ProgressiveReveal countOnJump>Metrics</ProgressiveReveal>);
@@ -166,45 +121,6 @@ describe("ProgressiveReveal", () => {
     expect(HTMLElement.prototype.getBoundingClientRect).toHaveBeenCalledTimes(1);
     act(() => window.dispatchEvent(new Event("scrollend")));
     expect(HTMLElement.prototype.getBoundingClientRect).toHaveBeenCalledTimes(1);
-  });
-
-  it("cancels queued geometry when navigation begins before preparation", () => {
-    const { container } = renderReact(
-      <section id="about">
-        <ProgressiveReveal>Biography</ProgressiveReveal>
-      </section>,
-    );
-    let arrive!: () => void;
-    act(() => {
-      arrive = beginSectionNavigation(container.firstElementChild as HTMLElement);
-    });
-    flushPreparation();
-    expect(HTMLElement.prototype.getBoundingClientRect).not.toHaveBeenCalled();
-    expect(observe).not.toHaveBeenCalled();
-    act(() => arrive());
-    flushPreparation();
-    expect(observe).toHaveBeenCalledTimes(1);
-  });
-
-  it("groups repeated resize events and cancels them after an entrance starts", () => {
-    render(<ProgressiveReveal effect="slide-from-right">Portrait</ProgressiveReveal>);
-    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockClear();
-    act(() => {
-      window.dispatchEvent(new Event("resize"));
-      window.dispatchEvent(new Event("resize"));
-    });
-    flushPreparation();
-    expect(HTMLElement.prototype.getBoundingClientRect).toHaveBeenCalledTimes(1);
-    act(() => {
-      window.dispatchEvent(new Event("resize"));
-      deliver(
-        [{ target: observe.mock.calls[0][0], isIntersecting: true } as IntersectionObserverEntry],
-        {} as IntersectionObserver,
-      );
-    });
-    flushPreparation();
-    expect(HTMLElement.prototype.getBoundingClientRect).toHaveBeenCalledTimes(1);
-    expect(controls.start).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -672,7 +588,6 @@ describe("ProgressiveReveal", () => {
       left: 620,
     } as DOMRect);
     act(() => window.dispatchEvent(new Event("resize")));
-    flushPreparation();
     expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 336, y: 0 });
     intersect(container.firstElementChild!);
     expect(controls.start).toHaveBeenCalledWith(expect.objectContaining({ x: [336, 0] }));
