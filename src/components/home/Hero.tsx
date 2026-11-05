@@ -458,7 +458,7 @@ export function Hero({
               {heroTagline && (
                 <p
                   style={entranceStyle(0.7)}
-                  className={`${styles.enter} mt-4 [@media(max-height:500px)]:mt-2`}
+                  className={`${styles.enter} ${styles.taglineRow} mt-4 [@media(max-height:500px)]:mt-2`}
                 >
                   <span className={styles.tagline}>{heroTagline}</span>
                 </p>

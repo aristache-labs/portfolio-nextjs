@@ -989,7 +989,7 @@
     margin-bottom: 8px;
   }
 
-  .exitDetails > p:has(.tagline) {
+  .taglineRow {
     display: none;
   }
 
