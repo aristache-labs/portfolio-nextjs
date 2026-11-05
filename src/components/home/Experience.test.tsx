@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { Experience } from "./Experience";
+import { Experience, FOLD_AFTER, INTRO_TOP, RAIL_LINE, RAIL_LINE_DESKTOP } from "./Experience";
 import type { ExperienceRow } from "@/lib/queries";
 import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
@@ -218,13 +218,17 @@ describe("Experience", () => {
     ["mobile portrait", false, 430, 932],
     ["mobile landscape", false, 932, 430],
   ])("mounts the scroll rail on %s", (_profile, desktop, width, height) => {
-    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop });
+    installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: desktop, "(min-width: 1024px)": desktop });
+    const line = desktop ? RAIL_LINE_DESKTOP : RAIL_LINE;
     vi.stubGlobal("innerWidth", width);
     vi.stubGlobal("innerHeight", height);
     try {
       const { container } = render(<Experience experiences={mockExperiences} />);
       expect(scrollHook).toHaveBeenCalledWith(
-        expect.objectContaining({ offset: ["start 70%", "end 60%"], trackContentSize: true }),
+        expect.objectContaining({
+          offset: [`start ${line}`, `end ${line}`],
+          trackContentSize: true,
+        }),
       );
       expect(scrollHook.mock.calls[0][0].target.current).toBe(
         container.querySelector("ol")?.parentElement,
@@ -303,20 +307,13 @@ describe("Experience", () => {
       expect(rail).not.toBeNull();
       act(() => scrollProgress.current!.set(1));
       expect(container.querySelector("[data-timeline-filled]")).not.toBeNull();
-      const highlighting = observers.find((observer) => observer.target?.matches("li"))!;
-      act(() =>
-        highlighting.callback(
-          [{ target: highlighting.target, isIntersecting: true } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        ),
-      );
+      // The lit bullet marks its role active, with no separate observer.
       expect(container.querySelector("[data-timeline-active]")).not.toBeNull();
 
       emit(false);
       expect(container.querySelector(".origin-top")).toBeNull();
       expect(container.querySelector("[data-timeline-filled]")).toBeNull();
       expect(container.querySelector("[data-timeline-active]")).toBeNull();
-      expect(highlighting.disconnect).toHaveBeenCalled();
 
       scrollHook.mockClear();
       emit(true);
@@ -400,78 +397,54 @@ describe("Experience", () => {
     }
   });
 
-  it("highlights the central entry on desktop and clears it when reduced motion is enabled", () => {
-    const originalObserver = globalThis.IntersectionObserver;
-    let notify: IntersectionObserverCallback;
-    const observed: Element[] = [];
-    const disconnect = vi.fn();
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        constructor(
-          private callback: IntersectionObserverCallback,
-          private options?: IntersectionObserverInit,
-        ) {}
-        observe(target: Element) {
-          if (this.options?.rootMargin === "200px 0px") {
-            this.callback(
-              [{ target, isIntersecting: true } as IntersectionObserverEntry],
-              this as unknown as IntersectionObserver,
-            );
-          }
-          if (target.matches("[data-experience-id]")) {
-            observed.push(target);
-            notify = this.callback;
-          }
-        }
-        unobserve() {}
-        disconnect = disconnect;
-      },
-    );
+  it("changes the current role exactly when the rail lights that role's bullet", () => {
+    const trackHeight = vi
+      .spyOn(HTMLElement.prototype, "offsetHeight", "get")
+      .mockImplementation(function (this: HTMLElement) {
+        return this.hasAttribute("data-timeline-track") ? 1000 : 0;
+      });
+    const trackTop = vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockReturnValue(0);
+    const bounds = vi
+      .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockImplementation(function (this: HTMLElement) {
+        const second = this.closest("li")?.dataset.experienceId === "2";
+        const end = this.hasAttribute("data-timeline-end");
+        return { top: end ? 990 : second ? 400 : 0, height: 0 } as DOMRect;
+      });
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
     const { container, rerender, unmount } = render(<Experience experiences={mockExperiences} />);
     try {
-      expect(container.querySelector("[data-current-role]")).toHaveTextContent("01 / 02");
-      expect(container.querySelector("[data-current-role]")).toHaveTextContent("Acme Corp");
-      expect(observed).toHaveLength(2);
-      act(() =>
-        notify!(
-          [{ target: observed[0], isIntersecting: true } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        ),
-      );
-      expect(observed[0]).toHaveAttribute("data-timeline-active", "true");
-      act(() =>
-        notify!(
-          [
-            { target: observed[0], isIntersecting: false } as IntersectionObserverEntry,
-            { target: observed[1], isIntersecting: true } as IntersectionObserverEntry,
-          ],
-          {} as IntersectionObserver,
-        ),
-      );
-      expect(observed[0]).not.toHaveAttribute("data-timeline-active");
-      expect(observed[1]).toHaveAttribute("data-timeline-active", "true");
-      const indicator = container.querySelector("[data-current-role]")!;
-      expect(indicator).toHaveAttribute("aria-hidden");
-      expect(indicator).toHaveTextContent("02 / 02");
-      expect(indicator).toHaveTextContent("Beta Inc");
-      act(() =>
-        notify!(
-          [{ target: observed[1], isIntersecting: false } as IntersectionObserverEntry],
-          {} as IntersectionObserver,
-        ),
-      );
-      // Between roles the indicator keeps the last one in view.
-      expect(indicator).toHaveTextContent("02 / 02");
+      const entries = container.querySelectorAll("[data-experience-id]");
+      const indicator = () => container.querySelector("[data-current-role]")!;
+      expect(indicator()).toHaveTextContent("01 / 02");
+      expect(indicator().firstElementChild).toHaveAttribute("aria-hidden");
+
+      act(() => scrollProgress.current!.set(0.1));
+      expect(entries[0]).toHaveAttribute("data-timeline-active", "true");
+      expect(indicator()).toHaveTextContent("Acme Corp");
+
+      // Just short of the second bullet: still the first role.
+      act(() => scrollProgress.current!.set(0.39));
+      expect(indicator()).toHaveTextContent("01 / 02");
+
+      act(() => scrollProgress.current!.set(0.4));
+      expect(entries[1]).toHaveAttribute("data-timeline-active", "true");
+      expect(entries[0]).not.toHaveAttribute("data-timeline-active");
+      expect(indicator()).toHaveTextContent("02 / 02");
+      expect(indicator()).toHaveTextContent("Beta Inc");
+
+      act(() => scrollProgress.current!.set(0.2));
+      expect(indicator()).toHaveTextContent("01 / 02");
+
       installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [REDUCED_MOTION_QUERY]: true });
       rerender(<Experience experiences={[...mockExperiences]} />);
       expect(container.querySelector("[data-timeline-active]")).toBeNull();
       expect(container.querySelector("[data-current-role]")).toBeNull();
-      expect(disconnect).toHaveBeenCalled();
     } finally {
       unmount();
-      vi.stubGlobal("IntersectionObserver", originalObserver);
+      bounds.mockRestore();
+      trackTop.mockRestore();
+      trackHeight.mockRestore();
     }
   });
 
@@ -488,7 +461,9 @@ describe("Experience", () => {
             private options?: IntersectionObserverInit,
           ) {}
           observe() {
-            if (this.options?.rootMargin === "-96px 0px 0px 0px") notifyStick = this.callback;
+            // The intro sticks at INTRO_TOP; the fold waits FOLD_AFTER more.
+            if (this.options?.rootMargin === `${FOLD_AFTER - INTRO_TOP}px 0px 0px 0px`)
+              notifyStick = this.callback;
           }
           unobserve() {}
           disconnect() {}
@@ -511,7 +486,10 @@ describe("Experience", () => {
             ),
           );
         expect(intro).not.toHaveAttribute("data-compact");
-        stick(false, -40);
+        // Just stuck (e.g. right after a menu jump): the subtitle stays readable.
+        stick(false, INTRO_TOP - FOLD_AFTER / 2);
+        expect(intro).not.toHaveAttribute("data-compact");
+        stick(false, INTRO_TOP - FOLD_AFTER - 40);
         expect(intro).toHaveAttribute("data-compact");
         expect(intro.querySelector(`.${styles.subtitleFold}`)).toHaveTextContent(
           "Enterprise deployments",
@@ -622,5 +600,35 @@ describe("Experience", () => {
   it("renders location when provided", () => {
     render(<Experience experiences={mockExperiences} />);
     expect(screen.getByText("Remote")).toBeInTheDocument();
+  });
+});
+
+describe("Experience role tags and resume", () => {
+  beforeEach(() => installMatchMedia({ [REDUCED_MOTION_QUERY]: true }));
+
+  it("shows a role-kind line as a label beside the dates, not as a bullet", () => {
+    const volunteer: ExperienceRow = {
+      ...mockExperiences[1],
+      id: 99,
+      description: ["Volunteer Experience", "Administered Linux hosting servers."],
+    };
+    render(<Experience experiences={[volunteer]} />);
+    const entry = document.querySelector('[data-experience-id="99"]') as HTMLElement;
+    expect(within(entry).getByText("Volunteer")).toHaveClass(styles.tag);
+    expect(within(entry).queryByText("Volunteer Experience")).not.toBeInTheDocument();
+    expect(within(entry).getAllByRole("listitem")).toHaveLength(1);
+  });
+
+  it("links the profile resume from the intro column only when one is set", () => {
+    const { unmount } = render(
+      <Experience experiences={mockExperiences} resumeUrl="https://example.com/cv.pdf" />,
+    );
+    expect(screen.getByRole("link", { name: /download cv/i })).toHaveAttribute(
+      "href",
+      "https://example.com/cv.pdf",
+    );
+    unmount();
+    render(<Experience experiences={mockExperiences} />);
+    expect(screen.queryByRole("link", { name: /download cv/i })).not.toBeInTheDocument();
   });
 });
