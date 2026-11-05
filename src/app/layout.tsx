@@ -1,4 +1,6 @@
 import "./globals.css";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { GeistSans } from "geist/font/sans";
 import { ReactNode } from "react";
 import { Metadata, Viewport } from "next";
@@ -15,6 +17,13 @@ import { CONSENT_KEY } from "@/lib/consent-key";
 // Marks <html> before first paint when the consent bar is going to appear, so layouts that make
 // room for it (the portrait hero) are final from the first frame instead of jumping on mount.
 const CONSENT_PENDING_SCRIPT = `try{var p=location.pathname;if(p.indexOf("/admin")!==0&&p.indexOf("/login")!==0&&!/^(accepted|rejected)$/.test(localStorage.getItem(${JSON.stringify(CONSENT_KEY)})||""))document.documentElement.setAttribute("data-consent-pending","")}catch(e){}`;
+
+// Read at build time. On a portrait phone the homepage build marks chunk scripts with
+// data-poster-src, and this gate gives them a src only after the hero poster arrives.
+const POSTER_SCRIPT_GATE = readFileSync(
+  join(process.cwd(), "scripts/poster-script-gate.js"),
+  "utf8",
+);
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -87,6 +96,7 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
         {process.env.NEXT_PUBLIC_GTAG_ID && (
           <script dangerouslySetInnerHTML={{ __html: CONSENT_PENDING_SCRIPT }} />
         )}
+        <script id="poster-script-gate" dangerouslySetInnerHTML={{ __html: POSTER_SCRIPT_GATE }} />
       </head>
       <body className={GeistSans.className}>
         <PersonJsonLd />
