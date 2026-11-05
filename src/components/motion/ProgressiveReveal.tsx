@@ -1,7 +1,7 @@
 "use client";
 
 import { m, useAnimationControls } from "framer-motion";
-import { useLayoutEffect, useMemo, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { createRevealSequence, RevealSequence } from "./RevealSequence";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
@@ -9,20 +9,7 @@ import { sectionNavigationPending } from "@/lib/section-navigation";
 
 const VISIBLE = { opacity: 1, x: 0, y: 0 };
 
-export function ProgressiveReveal({
-  children,
-  className,
-  innerClassName,
-  desktopDelay = 0.3,
-  duration = 1,
-  delay,
-  staggerChildren,
-  effect = "rise",
-  fade = true,
-  ease,
-  viewportInset = 120,
-  countOnJump = false,
-}: {
+export type ProgressiveRevealProps = {
   children: ReactNode;
   className?: string;
   /**
@@ -51,16 +38,36 @@ export function ProgressiveReveal({
     | "line";
   /** Glass surfaces can keep their background visible while their entrance moves or scales. */
   fade?: boolean;
+};
+
+export function useProgressiveReveal({
+  desktopDelay = 0.3,
+  duration = 1,
+  delay,
+  effect = "rise",
+  fade = true,
+  ease,
+  viewportInset = 120,
+  countOnJump = false,
+  element,
+  enabled = true,
+}: Omit<ProgressiveRevealProps, "children" | "className" | "innerClassName"> & {
+  element: RefObject<HTMLDivElement | null>;
+  enabled?: boolean;
 }) {
   const { mode, ready } = useAnimationPolicy();
   const controls = useAnimationControls();
-  const element = useRef<HTMLDivElement>(null);
   const finished = useRef(false);
   const sequence = useMemo(() => createRevealSequence(), []);
   const navigation = useSectionNavigation(element, () => !finished.current);
   const fromRight = effect === "slide-from-right" || effect === "fade-from-right";
 
   useLayoutEffect(() => {
+    if (!enabled) {
+      finished.current = false;
+      controls.set({ ...VISIBLE, scale: 1, scaleX: 1 });
+      return;
+    }
     if (!ready || !element.current) return;
     const node = element.current;
     if (navigation.pending) {
@@ -201,6 +208,8 @@ export function ProgressiveReveal({
     };
   }, [
     controls,
+    element,
+    enabled,
     navigation.pending,
     navigation.replay,
     countOnJump,
@@ -216,6 +225,37 @@ export function ProgressiveReveal({
     sequence,
     viewportInset,
   ]);
+
+  return { controls, sequence, mode, fromRight };
+}
+
+export function ProgressiveReveal({
+  children,
+  className,
+  innerClassName,
+  desktopDelay = 0.3,
+  duration = 1,
+  delay,
+  staggerChildren,
+  effect = "rise",
+  fade = true,
+  ease,
+  viewportInset = 120,
+  countOnJump = false,
+}: ProgressiveRevealProps) {
+  const element = useRef<HTMLDivElement>(null);
+  const { controls, sequence, mode, fromRight } = useProgressiveReveal({
+    element,
+    desktopDelay,
+    duration,
+    delay,
+    staggerChildren,
+    effect,
+    fade,
+    ease,
+    viewportInset,
+    countOnJump,
+  });
 
   // Observe the stationary layout box: an offscreen translated target cannot intersect.
   if (fromRight) {

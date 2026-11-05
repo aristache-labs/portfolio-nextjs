@@ -10,17 +10,14 @@ import { Quote } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SkillEntrance } from "./SkillEntrance";
 import { SkillSlot, SkillsScene } from "./SkillsSequence";
+import { SkillsGridReveal, SkillsReveal } from "./SkillsReveal";
 import { SectionBackdrop } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
 import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
-import {
-  SKILLS_MOBILE_LANDSCAPE,
-  SKILLS_MOBILE_PORTRAIT,
-  SkillsMobileReveal,
-} from "./SkillsMobileReveal";
+import { SKILLS_MOBILE_LANDSCAPE, SKILLS_MOBILE_PORTRAIT } from "./SkillsMobileReveal";
 
 export type SkillRow = {
   name: string;
@@ -135,7 +132,6 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const mobilePortrait = useMediaQuery(SKILLS_MOBILE_PORTRAIT);
   const mobileLandscape = useMediaQuery(SKILLS_MOBILE_LANDSCAPE);
   const mobile = mobilePortrait || mobileLandscape;
-  const HeadingReveal = mobile ? SkillsMobileReveal : ProgressiveReveal;
   const mostUsedGridHeight = useRef(0);
 
   useEffect(() => {
@@ -220,7 +216,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
             <div aria-hidden className="hidden lg:block" />
             <div className={`${responsiveCss.heading} min-w-0 text-left`}>
-              <HeadingReveal
+              <SkillsReveal
+                mobile={mobile}
                 kind="title"
                 effect="focus"
                 duration={1.3}
@@ -239,9 +236,15 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 <h2 className={headingCss.title}>
                   Tools I <span className={headingCss.accent}>trust</span>
                 </h2>
-              </HeadingReveal>
+              </SkillsReveal>
               <aside className={responsiveCss.quoteAnchor}>
-                <HeadingReveal kind="quote" effect="fade-from-right" duration={1.3} delay={0.4}>
+                <SkillsReveal
+                  mobile={mobile}
+                  kind="quote"
+                  effect="fade-from-right"
+                  duration={1.3}
+                  delay={0.4}
+                >
                   <blockquote className={`${responsiveCss.quote} ${portraitCss.surface}`}>
                     <Quote aria-hidden className={responsiveCss.quoteIcon} />
                     <p>
@@ -251,9 +254,10 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     </p>
                     <span aria-hidden className={responsiveCss.quoteAccent} />
                   </blockquote>
-                </HeadingReveal>
+                </SkillsReveal>
               </aside>
-              <HeadingReveal
+              <SkillsReveal
+                mobile={mobile}
                 kind="description"
                 effect="fade"
                 duration={1.3}
@@ -268,7 +272,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     Infrastructure, automation &amp; development.
                   </span>
                 </p>
-              </HeadingReveal>
+              </SkillsReveal>
             </div>
           </div>
 
@@ -353,22 +357,9 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   role={ordered.length > 0 ? "tabpanel" : undefined}
                   aria-labelledby={ordered.length > 0 ? tabId(active) : undefined}
                 >
-                  {scene || mobile ? (
-                    // Desktop uses the scene; mobile observes each card independently.
-                    <div ref={gridRef} className={GRID}>
-                      {cards}
-                    </div>
-                  ) : (
-                    <ProgressiveReveal
-                      effect="cascade"
-                      duration={1.3}
-                      delay={0.4}
-                      staggerChildren={0.18}
-                      className={GRID}
-                    >
-                      {cards}
-                    </ProgressiveReveal>
-                  )}
+                  <SkillsGridReveal enabled={!scene && !mobile} gridRef={gridRef} className={GRID}>
+                    {cards}
+                  </SkillsGridReveal>
                 </div>
               </div>
             </LazyMotion>
