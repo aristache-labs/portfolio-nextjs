@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import { Merienda } from "next/font/google";
 import { AnimatePresence, m, type Variants } from "framer-motion";
@@ -164,6 +172,15 @@ export function Contact({
   const portrait = useMediaQuery(CONTACT_PORTRAIT_QUERY);
   const landscape = useMediaQuery(CONTACT_LANDSCAPE_QUERY);
   const mobile = portrait || landscape;
+  const cssCards = scene || mobile;
+  useLayoutEffect(() => {
+    if (!cssCards) return;
+    contentRef.current
+      ?.querySelectorAll<HTMLAnchorElement>("a[aria-labelledby]")
+      .forEach((link) => {
+        link.style.opacity = "";
+      });
+  }, [cssCards]);
   /** From the left with scrolling on expressive desktops, the timed reveal elsewhere. */
   const leftArrival = (effect: "slide" | "fade", lag: number, content: ReactNode) => (
     <ContactArrival
@@ -339,11 +356,13 @@ export function Contact({
                 {cards.map((card, index) => {
                   const link = (
                     // The card fades itself, so its glass blur shows from the first frame.
+                    // Motion must not own opacity here: an empty target is not animatable,
+                    // and an inline opacity would hide the glass fade.
                     <m.a
                       initial={false}
-                      variants={linkVariants}
-                      animate={scene || mobile ? { opacity: "", x: 0 } : undefined}
-                      transformTemplate={scene || mobile ? () => "" : undefined}
+                      variants={cssCards ? undefined : linkVariants}
+                      animate={cssCards ? { x: 0 } : undefined}
+                      transformTemplate={cssCards ? () => "" : undefined}
                       href={card.href}
                       aria-labelledby={`${cardId}-${index}-title ${cardId}-${index}-value`}
                       {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
