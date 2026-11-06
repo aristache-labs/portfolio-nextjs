@@ -113,6 +113,16 @@ body {
   max-width: 100%;
   overflow-x: clip;
 }
+/* Radix locks the page with `overflow: hidden` on the body. Together with the `overflow-x: clip`
+   above that turns the body into a scroll container, and every `position: sticky` card inside it
+   (the Projects stack) loses its pin and jumps to its flow position while a dialog is open.
+   `clip` keeps the body from scrolling without becoming a scroll container. The lock itself still
+   holds: react-remove-scroll blocks wheel and touch outside the dialog, and smooth scrolling
+   stops while the attribute is present. */
+html body[data-scroll-locked] {
+  overflow: clip !important;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);

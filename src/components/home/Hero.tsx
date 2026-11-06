@@ -79,6 +79,13 @@ function preloadPoster() {
 }
 /** Quiet scroll time before a paused hero video may play again. */
 const VIDEO_RESUME_DELAY = 400;
+/**
+ * Touch devices drop the hero video for good once the hero has been out of view this long.
+ * Each play() of a revisited video asks the phone for a hardware decoder, and bouncing between the
+ * hero, Contact and the footer repeatedly exhausted native memory until the tab crashed. The
+ * poster underneath is the same frame, so a revisit shows the still picture instead.
+ */
+const VIDEO_RETIRE_DELAY = 800;
 /** Cover-fit box for the 16:9 hero plate, centered in its size container. */
 const PLATE =
   "absolute top-1/2 left-1/2 aspect-video w-[max(100cqw,calc(100cqh*16/9))] -translate-x-1/2 -translate-y-1/2";
@@ -151,6 +158,8 @@ export function Hero({
   }, [playing]);
   const [posterLoaded, setPosterLoaded] = useState<"portrait" | "full" | null>(null);
   const [videoOk, setVideoOk] = useState(true);
+  const [videoRetired, setVideoRetired] = useState(false);
+  const touchDevice = useMediaQuery("(pointer: coarse)");
   const [posterOk, setPosterOk] = useState(true);
 
   const showVideo = videoOk && !reduce;
@@ -159,6 +168,7 @@ export function Hero({
   const mountVideo =
     showVideo &&
     canPlayVideo &&
+    !videoRetired &&
     (posterLoaded === (portraitPoster ? "portrait" : "full") || !posterOk);
 
   const markPosterLoaded = (node: HTMLImageElement) => {
@@ -178,6 +188,7 @@ export function Hero({
     if (!mountVideo || !section) return;
     let visible = false;
     let resumeTimer: ReturnType<typeof setTimeout> | undefined;
+    let retireTimer: ReturnType<typeof setTimeout> | undefined;
     const scheduleResume = () => {
       clearTimeout(resumeTimer);
       resumeTimer = setTimeout(() => {
@@ -190,10 +201,13 @@ export function Hero({
         visible = entry.isIntersecting;
         const node = videoRef.current;
         if (!node) return;
+        clearTimeout(retireTimer);
         if (visible) scheduleResume();
         else {
           clearTimeout(resumeTimer);
           if (!node.paused) node.pause();
+          if (touchDevice)
+            retireTimer = setTimeout(() => setVideoRetired(true), VIDEO_RETIRE_DELAY);
         }
       },
       { rootMargin: "200px 0px", threshold: 0 },
@@ -207,8 +221,9 @@ export function Hero({
       io.disconnect();
       unsubscribe();
       clearTimeout(resumeTimer);
+      clearTimeout(retireTimer);
     };
-  }, [mountVideo]);
+  }, [mountVideo, touchDevice]);
   const iconSocials = ["github", "linkedin"].flatMap((id) => {
     const match = socials.find((s) => s.platform.toLowerCase() === id && s.url);
     return match ? [match] : [];

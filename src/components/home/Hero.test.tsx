@@ -306,4 +306,63 @@ describe("Hero", () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
   });
+
+  it("drops the hero video for good on touch devices once the hero has been left", () => {
+    vi.useFakeTimers();
+    let notify: (entries: Partial<IntersectionObserverEntry>[]) => void = () => {};
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(callback: typeof notify) {
+          notify = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    installMatchMedia({ [HERO_VIDEO_QUERY]: true, "(pointer: coarse)": true });
+    const { container } = render(<Hero profile={profile} />);
+    fireEvent.load(container.querySelector("picture img")!);
+    expect(container.querySelector("video")).not.toBeNull();
+
+    act(() => notify([{ isIntersecting: false }]));
+    act(() => vi.advanceTimersByTime(900));
+    expect(container.querySelector("video")).toBeNull();
+    // Coming back never rebuilds a decoder: the still poster stays.
+    act(() => notify([{ isIntersecting: true }]));
+    act(() => vi.advanceTimersByTime(1000));
+    expect(container.querySelector("video")).toBeNull();
+    expect(container.querySelector("picture img")).not.toBeNull();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps the video through a quick scroll away and back on touch devices", () => {
+    vi.useFakeTimers();
+    let notify: (entries: Partial<IntersectionObserverEntry>[]) => void = () => {};
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        constructor(callback: typeof notify) {
+          notify = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    installMatchMedia({ [HERO_VIDEO_QUERY]: true, "(pointer: coarse)": true });
+    const { container } = render(<Hero profile={profile} />);
+    fireEvent.load(container.querySelector("picture img")!);
+    act(() => notify([{ isIntersecting: false }]));
+    act(() => vi.advanceTimersByTime(300));
+    act(() => notify([{ isIntersecting: true }]));
+    act(() => vi.advanceTimersByTime(1000));
+    expect(container.querySelector("video")).not.toBeNull();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
 });
