@@ -41,7 +41,9 @@
 <sub><b>AI agents / LLMs:</b> the deployed site is machine-readable at <code>/llms.txt</code>, or as one blob at <code>/llms-full.txt</code>. Repo conventions and pitfalls live in <a href="AGENTS.md"><code>AGENTS.md</code></a>.</sub>
 <br><br/>
 
-https://github.com/user-attachments/assets/d005bf66-5f5f-427f-9bea-c0fa4f0f10af
+
+https://github.com/user-attachments/assets/2229d2b8-244a-46c6-9eb9-1f38a0a405fb
+
 
 <br />
 </div>
