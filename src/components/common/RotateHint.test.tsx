@@ -8,7 +8,7 @@ import RotateHint from "./RotateHint";
 vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/") }));
 
 const PORTRAIT_TOUCH = `${PORTRAIT_PHONE_QUERY} and (pointer: coarse)`;
-const HINT = /better in landscape/i;
+const HINT = /rotate your device for the full experience/i;
 
 beforeEach(() => {
   sessionStorage.clear();
@@ -25,8 +25,9 @@ afterEach(() => {
 describe("RotateHint overlay", () => {
   it("covers the first homepage view on a portrait phone", () => {
     render(<RotateHint everyVisit={false} />);
+    expect(screen.getByRole("status")).toHaveTextContent(/shift your perspective/i);
     expect(screen.getByRole("status")).toHaveTextContent(HINT);
-    expect(screen.getByRole("status")).toHaveTextContent(/tap anywhere/i);
+    expect(screen.getByRole("status")).toHaveTextContent(/tap to continue/i);
   });
 
   it("never shows on screens that are not portrait touch phones", () => {
