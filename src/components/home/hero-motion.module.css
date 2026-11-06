@@ -1375,3 +1375,23 @@
     margin-inline: auto;
   }
 }
+
+/* Portrait tablets keep the copy on the left over a 16:9 poster cropped to a tall box, so the
+   monitor and mug land under the paragraph. Slide the picture right so the subject clears the
+   text, and keep the paragraph to the room that is left of it. */
+@media (min-width: 768px) and (orientation: portrait) {
+  .poster img {
+    object-position: calc(50% + min(110px, 9vw)) 50%;
+  }
+
+  .hero .copy {
+    max-width: min(25rem, 52vw);
+  }
+}
+
+/* The landscape-phone root is 10-13px, so 0.75rem would render the role line at 7.5-9.75px. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  .specialization {
+    font-size: max(0.75rem, 10px);
+  }
+}

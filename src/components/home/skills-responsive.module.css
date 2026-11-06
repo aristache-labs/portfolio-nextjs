@@ -103,6 +103,7 @@
   }
 }
 .heading {
+  --skills-quote-width: clamp(124px, 18vw, 220px);
   position: relative;
 }
 
@@ -140,13 +141,13 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: clamp(124px, 18vw, 220px);
+  width: var(--skills-quote-width);
   min-width: 0;
   margin: 0;
 }
 
 .sectionLabel {
-  width: calc(100% - clamp(124px, 18vw, 220px) - 16px);
+  width: calc(100% - var(--skills-quote-width) - 16px);
   grid-column: 1 / -1;
   grid-row: 1;
 }
@@ -220,6 +221,16 @@
     top: 100px;
     left: -30px;
     height: calc(100svh - 100px);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* The quote card hangs from the top-right corner and is taller than the title row, so a
+     subtitle that runs the full width collides with it on narrower tablets (about 1133px).
+     Capping it to the room left of the card wraps it to two lines there and changes nothing on
+     wide screens, where the line already ends before the card. */
+  .description {
+    max-width: calc(100% - var(--skills-quote-width) - 16px);
   }
 }
 
