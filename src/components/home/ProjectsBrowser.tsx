@@ -155,8 +155,10 @@ export function ProjectsBrowser({
   }
   function restoreFocus() {
     const opener = openerRef.current;
-    if (opener?.isConnected) opener.focus();
-    else containerRef.current?.focus();
+    // preventScroll: the opener can sit below the fold of a pinned card, and bringing it into
+    // view would scroll the page by a whole card when the dialog closes.
+    if (opener?.isConnected) opener.focus({ preventScroll: true });
+    else containerRef.current?.focus({ preventScroll: true });
   }
   const [quickView, setQuickView] = useState<ProjectPresentation | null>(null);
   // The last project stays mounted after closing, so the dialog can animate out.

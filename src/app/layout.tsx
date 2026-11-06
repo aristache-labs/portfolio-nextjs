@@ -85,14 +85,6 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
       className={`dark ${GeistSans.variable}`}
     >
       <head>
-        {/* Match the portrait hero's screen floor before its first paint, so hydration
-            does not resize the cover image and visibly change its crop. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "if(matchMedia('(pointer: coarse) and (max-width: 767px) and (orientation: portrait)').matches){document.documentElement.style.setProperty('--portrait-screen-height',screen.height+'px')}",
-          }}
-        />
         {process.env.NEXT_PUBLIC_GTAG_ID && (
           <script dangerouslySetInnerHTML={{ __html: CONSENT_PENDING_SCRIPT }} />
         )}
