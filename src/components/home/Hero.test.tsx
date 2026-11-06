@@ -307,8 +307,7 @@ describe("Hero", () => {
     vi.unstubAllGlobals();
   });
 
-  it("drops the hero video for good on touch devices once the hero has been left", () => {
-    vi.useFakeTimers();
+  const stubObserver = () => {
     let notify: (entries: Partial<IntersectionObserverEntry>[]) => void = () => {};
     vi.stubGlobal(
       "IntersectionObserver",
@@ -320,84 +319,92 @@ describe("Hero", () => {
         disconnect() {}
       },
     );
+    return (entries: Partial<IntersectionObserverEntry>[]) => notify(entries);
+  };
+  const stubPlayback = () => {
     vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
     vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    return vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
+  };
+
+  it("releases the decoder after a long absence on touch devices and plays a fresh video on return", () => {
+    vi.useFakeTimers();
+    const notify = stubObserver();
+    const load = stubPlayback();
     installMatchMedia({ [HERO_VIDEO_QUERY]: true, "(pointer: coarse)": true });
     const { container } = render(<Hero profile={profile} />);
     fireEvent.load(container.querySelector("picture img")!);
-    expect(container.querySelector("video")).not.toBeNull();
+    const first = container.querySelector("video")!;
 
     act(() => notify([{ isIntersecting: false }]));
-    act(() => vi.advanceTimersByTime(900));
-    expect(container.querySelector("video")).toBeNull();
-    // Coming back never rebuilds a decoder: the still poster stays.
+    act(() => vi.advanceTimersByTime(1600));
+    expect(first.querySelector("source")).toBeNull();
+    expect(load).toHaveBeenCalled();
+
     act(() => notify([{ isIntersecting: true }]));
-    act(() => vi.advanceTimersByTime(1000));
-    expect(container.querySelector("video")).toBeNull();
-    expect(container.querySelector("picture img")).not.toBeNull();
+    const second = container.querySelector("video")!;
+    expect(second).not.toBe(first);
+    expect(second.querySelector("source")).not.toBeNull();
     vi.useRealTimers();
     vi.unstubAllGlobals();
   });
 
-  it("lets go of the video decoder when the page is hidden, and returns as a poster from the cache", () => {
-    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
-    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
-    const load = vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        observe() {}
-        disconnect() {}
-      },
-    );
+  it("keeps the very same video through a short scroll away and back", () => {
+    vi.useFakeTimers();
+    const notify = stubObserver();
+    stubPlayback();
+    installMatchMedia({ [HERO_VIDEO_QUERY]: true, "(pointer: coarse)": true });
+    const { container } = render(<Hero profile={profile} />);
+    fireEvent.load(container.querySelector("picture img")!);
+    const video = container.querySelector("video")!;
+    act(() => notify([{ isIntersecting: false }]));
+    act(() => vi.advanceTimersByTime(300));
+    act(() => notify([{ isIntersecting: true }]));
+    act(() => vi.advanceTimersByTime(1000));
+    expect(container.querySelector("video")).toBe(video);
+    expect(video.querySelector("source")).not.toBeNull();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("never releases the video on desktop pointers while the hero is away", () => {
+    vi.useFakeTimers();
+    const notify = stubObserver();
+    stubPlayback();
     installMatchMedia({ [HERO_VIDEO_QUERY]: true });
     const { container } = render(<Hero profile={profile} />);
     fireEvent.load(container.querySelector("picture img")!);
     const video = container.querySelector("video")!;
+    act(() => notify([{ isIntersecting: false }]));
+    act(() => vi.advanceTimersByTime(5000));
     expect(video.querySelector("source")).not.toBeNull();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("lets go of the decoder when the page is hidden and rebuilds the video when it is restored", () => {
+    stubObserver();
+    const load = stubPlayback();
+    installMatchMedia({ [HERO_VIDEO_QUERY]: true });
+    const { container } = render(<Hero profile={profile} />);
+    fireEvent.load(container.querySelector("picture img")!);
+    const first = container.querySelector("video")!;
 
     act(() => {
       window.dispatchEvent(new Event("pagehide"));
     });
-    expect(video.querySelector("source")).toBeNull();
-    expect(video.hasAttribute("src")).toBe(false);
+    expect(first.querySelector("source")).toBeNull();
+    expect(first.hasAttribute("src")).toBe(false);
     expect(load).toHaveBeenCalled();
 
-    // Restored from the back-forward cache: the video is not rebuilt, the poster stays.
     const restored = new Event("pageshow");
     Object.defineProperty(restored, "persisted", { value: true });
     act(() => {
       window.dispatchEvent(restored);
     });
-    expect(container.querySelector("video")).toBeNull();
-    expect(container.querySelector("picture img")).not.toBeNull();
-    vi.unstubAllGlobals();
-  });
-
-  it("keeps the video through a quick scroll away and back on touch devices", () => {
-    vi.useFakeTimers();
-    let notify: (entries: Partial<IntersectionObserverEntry>[]) => void = () => {};
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        constructor(callback: typeof notify) {
-          notify = callback;
-        }
-        observe() {}
-        disconnect() {}
-      },
-    );
-    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
-    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
-    installMatchMedia({ [HERO_VIDEO_QUERY]: true, "(pointer: coarse)": true });
-    const { container } = render(<Hero profile={profile} />);
-    fireEvent.load(container.querySelector("picture img")!);
-    act(() => notify([{ isIntersecting: false }]));
-    act(() => vi.advanceTimersByTime(300));
-    act(() => notify([{ isIntersecting: true }]));
-    act(() => vi.advanceTimersByTime(1000));
-    expect(container.querySelector("video")).not.toBeNull();
-    vi.useRealTimers();
+    const second = container.querySelector("video")!;
+    expect(second).not.toBe(first);
+    expect(second.querySelector("source")).not.toBeNull();
     vi.unstubAllGlobals();
   });
 });
