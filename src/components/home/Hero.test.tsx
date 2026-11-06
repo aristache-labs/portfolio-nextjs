@@ -339,6 +339,41 @@ describe("Hero", () => {
     vi.unstubAllGlobals();
   });
 
+  it("lets go of the video decoder when the page is hidden, and returns as a poster from the cache", () => {
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    const load = vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
+    vi.stubGlobal(
+      "IntersectionObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    installMatchMedia({ [HERO_VIDEO_QUERY]: true });
+    const { container } = render(<Hero profile={profile} />);
+    fireEvent.load(container.querySelector("picture img")!);
+    const video = container.querySelector("video")!;
+    expect(video.querySelector("source")).not.toBeNull();
+
+    act(() => {
+      window.dispatchEvent(new Event("pagehide"));
+    });
+    expect(video.querySelector("source")).toBeNull();
+    expect(video.hasAttribute("src")).toBe(false);
+    expect(load).toHaveBeenCalled();
+
+    // Restored from the back-forward cache: the video is not rebuilt, the poster stays.
+    const restored = new Event("pageshow");
+    Object.defineProperty(restored, "persisted", { value: true });
+    act(() => {
+      window.dispatchEvent(restored);
+    });
+    expect(container.querySelector("video")).toBeNull();
+    expect(container.querySelector("picture img")).not.toBeNull();
+    vi.unstubAllGlobals();
+  });
+
   it("keeps the video through a quick scroll away and back on touch devices", () => {
     vi.useFakeTimers();
     let notify: (entries: Partial<IntersectionObserverEntry>[]) => void = () => {};

@@ -224,6 +224,30 @@ export function Hero({
       clearTimeout(retireTimer);
     };
   }, [mountVideo, touchDevice]);
+  // A page left for Privacy, GDPR or anywhere else can stay alive in the browser's back-forward
+  // cache, and WebKit keeps its video decoder and frames with it. Several round trips to the
+  // legal pages piled those up until iPhones killed the tab. Letting go of the video as the page
+  // is hidden frees them; if the page is restored from the cache, it comes back as the poster.
+  useEffect(() => {
+    if (!mountVideo) return;
+    const release = () => {
+      const node = videoRef.current;
+      if (!node) return;
+      node.pause();
+      node.removeAttribute("src");
+      node.querySelectorAll("source").forEach((source) => source.remove());
+      node.load();
+    };
+    const restored = (event: PageTransitionEvent) => {
+      if (event.persisted) setVideoRetired(true);
+    };
+    window.addEventListener("pagehide", release);
+    window.addEventListener("pageshow", restored);
+    return () => {
+      window.removeEventListener("pagehide", release);
+      window.removeEventListener("pageshow", restored);
+    };
+  }, [mountVideo]);
   const iconSocials = ["github", "linkedin"].flatMap((id) => {
     const match = socials.find((s) => s.platform.toLowerCase() === id && s.url);
     return match ? [match] : [];
