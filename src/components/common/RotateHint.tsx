@@ -15,7 +15,7 @@ const LIFETIME_MS = 6400;
  * Set to true to bring the overlay back on every visit, for reviewing it. The real behaviour is
  * once per browser session.
  */
-export const SHOW_EVERY_VISIT = true;
+export const SHOW_EVERY_VISIT = false;
 
 /** Matches the fade-out in the stylesheet. */
 const FADE_OUT_MS = 240;
@@ -84,6 +84,9 @@ export default function RotateHint({ everyVisit = SHOW_EVERY_VISIT }: { everyVis
       className={`${styles.overlay} ${phase === "leaving" ? styles.leaving : ""}`}
     >
       <div className={styles.stage}>
+        <p className={`${styles.title} font-display`}>
+          Shift Your <span className={styles.accent}>Perspective</span>
+        </p>
         <div aria-hidden className={styles.scene}>
           <span className={styles.glow} />
           <svg className={styles.arc} viewBox="0 0 168 168" focusable="false">
@@ -107,9 +110,11 @@ export default function RotateHint({ everyVisit = SHOW_EVERY_VISIT }: { everyVis
             </div>
           </div>
         </div>
-        <p className={`${styles.title} font-display`}>Better in landscape</p>
-        <p className={styles.copy}>Turn your phone sideways for a wider, richer view.</p>
-        <p className={styles.skip}>Tap anywhere to continue</p>
+        <p className={styles.message}>Rotate your device for the full experience</p>
+        <p className={styles.tap}>
+          <span aria-hidden className={styles.tapDot} />
+          Tap to continue
+        </p>
       </div>
     </div>
   );
