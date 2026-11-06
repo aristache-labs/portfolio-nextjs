@@ -80,12 +80,19 @@ function preloadPoster() {
 /** Quiet scroll time before a paused hero video may play again. */
 const VIDEO_RESUME_DELAY = 400;
 /**
- * Touch devices drop the hero video for good once the hero has been out of view this long.
- * Each play() of a revisited video asks the phone for a hardware decoder, and bouncing between the
- * hero, Contact and the footer repeatedly exhausted native memory until the tab crashed. The
- * poster underneath is the same frame, so a revisit shows the still picture instead.
+ * On touch devices the hero video's decoder is released once the hero has been out of view this
+ * long, and a fresh video is built when it comes back, so the video always plays again. A phone
+ * parked on Contact or the footer is no longer holding a hardware decoder for a scene nobody sees.
  */
-const VIDEO_RETIRE_DELAY = 800;
+const VIDEO_RELEASE_DELAY = 1500;
+
+/** Stops playback and drops the sources so the browser can free the decoder and its frames. */
+function releaseVideo(node: HTMLVideoElement) {
+  node.pause();
+  node.removeAttribute("src");
+  node.querySelectorAll("source").forEach((source) => source.remove());
+  node.load();
+}
 /** Cover-fit box for the 16:9 hero plate, centered in its size container. */
 const PLATE =
   "absolute top-1/2 left-1/2 aspect-video w-[max(100cqw,calc(100cqh*16/9))] -translate-x-1/2 -translate-y-1/2";
@@ -158,7 +165,8 @@ export function Hero({
   }, [playing]);
   const [posterLoaded, setPosterLoaded] = useState<"portrait" | "full" | null>(null);
   const [videoOk, setVideoOk] = useState(true);
-  const [videoRetired, setVideoRetired] = useState(false);
+  // A new epoch replaces the <video>, which is how a released decoder is rebuilt.
+  const [videoEpoch, setVideoEpoch] = useState(0);
   const touchDevice = useMediaQuery("(pointer: coarse)");
   const [posterOk, setPosterOk] = useState(true);
 
@@ -168,7 +176,6 @@ export function Hero({
   const mountVideo =
     showVideo &&
     canPlayVideo &&
-    !videoRetired &&
     (posterLoaded === (portraitPoster ? "portrait" : "full") || !posterOk);
 
   const markPosterLoaded = (node: HTMLImageElement) => {
@@ -183,12 +190,14 @@ export function Hero({
   // Pause while scrolled away, resume only if the visitor has not paused it themselves.
   // Resuming waits for scrolling to settle: phones rebuild the video decoder on every
   // play(), and repeated jumps to Contact and back made landscape phones freeze, then crash.
+  // On touch devices a long absence also releases the decoder; the return builds a fresh video.
   useEffect(() => {
     const section = sectionRef.current;
     if (!mountVideo || !section) return;
     let visible = false;
+    let released = false;
     let resumeTimer: ReturnType<typeof setTimeout> | undefined;
-    let retireTimer: ReturnType<typeof setTimeout> | undefined;
+    let releaseTimer: ReturnType<typeof setTimeout> | undefined;
     const scheduleResume = () => {
       clearTimeout(resumeTimer);
       resumeTimer = setTimeout(() => {
@@ -199,15 +208,26 @@ export function Hero({
     const io = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting;
+        clearTimeout(releaseTimer);
+        if (visible && released) {
+          released = false;
+          setVideoEpoch((epoch) => epoch + 1);
+          return;
+        }
         const node = videoRef.current;
         if (!node) return;
-        clearTimeout(retireTimer);
         if (visible) scheduleResume();
         else {
           clearTimeout(resumeTimer);
           if (!node.paused) node.pause();
-          if (touchDevice)
-            retireTimer = setTimeout(() => setVideoRetired(true), VIDEO_RETIRE_DELAY);
+          if (touchDevice) {
+            releaseTimer = setTimeout(() => {
+              const current = videoRef.current;
+              if (!current || visible) return;
+              releaseVideo(current);
+              released = true;
+            }, VIDEO_RELEASE_DELAY);
+          }
         }
       },
       { rootMargin: "200px 0px", threshold: 0 },
@@ -221,25 +241,20 @@ export function Hero({
       io.disconnect();
       unsubscribe();
       clearTimeout(resumeTimer);
-      clearTimeout(retireTimer);
+      clearTimeout(releaseTimer);
     };
   }, [mountVideo, touchDevice]);
   // A page left for Privacy, GDPR or anywhere else can stay alive in the browser's back-forward
   // cache, and WebKit keeps its video decoder and frames with it. Several round trips to the
   // legal pages piled those up until iPhones killed the tab. Letting go of the video as the page
-  // is hidden frees them; if the page is restored from the cache, it comes back as the poster.
+  // is hidden frees them; a page restored from the cache gets a fresh video that plays again.
   useEffect(() => {
     if (!mountVideo) return;
     const release = () => {
-      const node = videoRef.current;
-      if (!node) return;
-      node.pause();
-      node.removeAttribute("src");
-      node.querySelectorAll("source").forEach((source) => source.remove());
-      node.load();
+      if (videoRef.current) releaseVideo(videoRef.current);
     };
     const restored = (event: PageTransitionEvent) => {
-      if (event.persisted) setVideoRetired(true);
+      if (event.persisted) setVideoEpoch((epoch) => epoch + 1);
     };
     window.addEventListener("pagehide", release);
     window.addEventListener("pageshow", restored);
@@ -324,9 +339,10 @@ export function Hero({
               {/* The poster stays put beneath the video, preserving its framing during playback. */}
               {mountVideo && (
                 <video
+                  key={videoEpoch}
                   ref={videoRef}
                   className="absolute inset-0 h-full w-full object-cover"
-                  autoPlay
+                  autoPlay={playing}
                   muted
                   loop
                   playsInline
