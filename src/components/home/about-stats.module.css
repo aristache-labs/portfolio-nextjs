@@ -153,7 +153,7 @@
 
   .copy button {
     margin-top: 12px;
-    min-height: 32px;
+    min-height: 44px;
     padding: 4px 12px;
     font-size: 12px;
   }
@@ -213,7 +213,8 @@
 }
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
-  (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
+  (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) and (prefers-reduced-motion: no-preference) {
   .portrait {
     width: clamp(220px, calc(100svh - 470px), 250px);
   }
@@ -247,6 +248,12 @@
 
 .results {
   position: relative;
+}
+
+@media (orientation: landscape) and (pointer: coarse) {
+  .panel {
+    background-color: var(--surface);
+  }
 }
 
 @media (max-width: 1023px) {
@@ -398,7 +405,8 @@
 }
 
 /* Touch landscape: the desktop two-column composition, sized for short screens. */
-@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) {
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px),
+  (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
   .biography {
     grid-template-columns: minmax(0, 1fr) minmax(110px, 170px);
     column-gap: 32px;
@@ -443,6 +451,27 @@
     break-inside: avoid;
     font-size: 0.875rem;
     line-height: 1.6;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .section {
+    padding-top: 112px;
+    scroll-margin-top: 8px;
+  }
+
+  .biography .portrait {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .panel {
+    background-color: var(--surface);
+  }
+
+  .results {
+    margin-top: 32px;
   }
 }
 
@@ -500,7 +529,7 @@
 
   .copy button {
     margin-top: 6px;
-    min-height: 28px;
+    min-height: 44px;
     padding: 3px 10px;
     font-size: 12px;
     gap: 4px;
@@ -535,7 +564,7 @@
    Layers move at different speeds (backdrop, portrait, copy), and every element enters from
    below and leaves through the top. Entry fills both ways; exits fill forwards only, so an
    exit never applies before its range and simply overrides the settled entry once it starts. */
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+@media (max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 4/5) and (prefers-reduced-motion: no-preference),
   (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     /* The backdrop clips its overflow, which would freeze a nested view(), so it follows the
@@ -603,7 +632,7 @@
 }
 
 /* Portrait keeps the frame intact while the image moves inside it. */
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 4/5) and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     .introduction p span {
       animation: about-word linear both;

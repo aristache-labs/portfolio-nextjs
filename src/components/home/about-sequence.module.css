@@ -11,7 +11,8 @@
 }
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
-  (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
+  (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) and (prefers-reduced-motion: no-preference) {
   /* The stage hugs its content. Introduction and portrait play while About
      enters, so this tail only has to carry the biography hand-off. */
   .track::after {
@@ -47,6 +48,19 @@
     transform: translate(
       calc(var(--column) * (1 - var(--column-entry)) * min(80px, 50vw - 32rem + 16px)),
       calc((1 - var(--column)) * (1 - var(--column-entry)) * 48px)
+    );
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .details {
+    padding-top: 32px;
+  }
+
+  .details p {
+    transform: translate(
+      calc(var(--column, 0) * (1 - var(--column-entry, 1)) * 48px),
+      calc((1 - var(--column, 0)) * (1 - var(--column-entry, 1)) * 48px)
     );
   }
 }

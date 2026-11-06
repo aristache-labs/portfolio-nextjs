@@ -5,7 +5,12 @@ import { useScroll } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import styles from "./about-introduction.module.css";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { ABOUT_PORTRAIT_QUERY, phaseProgress, useAboutSequence } from "./AboutSequence";
+import {
+  ABOUT_FOLD_QUERY,
+  ABOUT_PORTRAIT_QUERY,
+  phaseProgress,
+  useAboutSequence,
+} from "./AboutSequence";
 
 function SequenceReading({ target }: { target: RefObject<HTMLParagraphElement | null> }) {
   const sequence = useAboutSequence();
@@ -59,7 +64,8 @@ export function AboutIntroduction({ text }: { text: string }) {
   const target = useRef<HTMLParagraphElement>(null);
   const { mode } = useAnimationPolicy();
   const sequence = useAboutSequence();
-  const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
+  const foldViewport = useMediaQuery(ABOUT_FOLD_QUERY);
+  const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY) && !foldViewport;
   const words = text.trim().split(/\s+/).filter(Boolean);
   return (
     <p
