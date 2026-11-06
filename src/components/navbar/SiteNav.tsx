@@ -292,7 +292,9 @@ export function SiteNav({
                     href={sectionHref(section.id)}
                     onClick={(event) => goToSection(event, section.id)}
                     className={cn(
-                      "group relative text-[15px] transition-colors",
+                      // The invisible ::before lifts the touch target from the 19px text line to
+                      // about 43px (iPads in landscape show this row), inside the 32px gap.
+                      "group relative text-[15px] transition-colors before:absolute before:-inset-x-2 before:-inset-y-3",
                       isActive
                         ? "font-medium text-(--brand-bright)"
                         : "text-foreground/70 hover:text-foreground",

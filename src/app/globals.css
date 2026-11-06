@@ -102,6 +102,11 @@
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   html {
     font-size: clamp(10px, 2.93svh, 13px);
+    /* The smaller root would render text-xs at 7.5-9.75px (skill percentages, dates, notes).
+       Floor the two smallest Tailwind sizes; the variables are read by the text-xs/text-sm
+       utilities, so no utility is overridden. */
+    --text-xs: max(0.75rem, 10px);
+    --text-sm: max(0.875rem, 10.5px);
   }
 }
 /* clip, not hidden + 100vw. The hero plate is wider than the screen and
