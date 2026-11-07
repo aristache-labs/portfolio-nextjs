@@ -64,12 +64,12 @@ const SHORT_LANDSCAPE_NAV_GAP = 14;
 
 function navigationGap(target: HTMLElement) {
   if (
-    (target.id === "skills" || target.id === "about") &&
+    (target.id === "skills" || target.id === "about" || target.id === "experience") &&
     window.matchMedia(
       "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
     ).matches
   ) {
-    return SECTION_NAV_GAP + (target.id === "skills" ? 70 : 40);
+    return SECTION_NAV_GAP + (target.id === "about" ? 40 : 70);
   }
   if (
     target.id === "projects" &&

@@ -465,8 +465,12 @@ export function Experience({
   const portrait = useMediaQuery(EXPERIENCE_PORTRAIT_QUERY);
   const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
   const fold = useMediaQuery(FOLD_VIEWPORT_QUERY);
-  const desktop = useMediaQuery("(min-width: 1024px)") && !fold;
-  const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)") && !fold;
+  const ultraPortrait = useMediaQuery(
+    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+  );
+  const desktop = useMediaQuery("(min-width: 1024px)") && !fold && !ultraPortrait;
+  const desktopDisclosure =
+    useMediaQuery("(min-width: 1024px) and (pointer: fine)") && !fold && !ultraPortrait;
   // A touch tablet held wide has the desktop layout but not the mouse, so it needs the same
   // sticky current-role panel that short landscape phones get.
   const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
