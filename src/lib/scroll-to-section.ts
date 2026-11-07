@@ -71,7 +71,12 @@ function navigationGap(target: HTMLElement) {
   ) {
     return SECTION_NAV_GAP - 8;
   }
-  if (target.id === "skills" && window.matchMedia(FOLD_VIEWPORT_QUERY).matches) {
+  if (
+    target.id === "skills" &&
+    (window.matchMedia(FOLD_VIEWPORT_QUERY).matches ||
+      window.matchMedia("(min-width: 740px) and (max-width: 1023px) and (orientation: portrait)")
+        .matches)
+  ) {
     return SECTION_NAV_GAP + 40;
   }
   // Touch landscape tablets: land Skills higher so the last card row stays on screen.
