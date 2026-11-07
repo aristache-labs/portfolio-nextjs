@@ -316,15 +316,23 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
   });
-  it.each(["(orientation: landscape)", FOLD_VIEWPORT_QUERY])(
-    "shows landscape card limits for %s and omits empty categories",
-    (query) => {
+  it.each([
+    ["(orientation: landscape)", 3, 9],
+    [FOLD_VIEWPORT_QUERY, 4, 10],
+    [
+      "(min-width: 740px) and (max-width: 1100px) and (min-height: 900px) and (max-height: 1400px) and (orientation: portrait)",
+      4,
+      8,
+    ],
+  ] as const)(
+    "shows responsive card limits for %s and omits empty categories",
+    (query, recentCount, totalCount) => {
       installMatchMedia({ "(max-width: 1023px)": true, [query]: true });
       render(<ProjectsBrowser projects={list} />);
-      expect(screen.getAllByRole("article")).toHaveLength(9);
+      expect(screen.getAllByRole("article")).toHaveLength(totalCount);
       const recentHeading = screen.getByText("Latest work");
       const recentColumn = recentHeading.parentElement!.parentElement!;
-      expect(within(recentColumn).getAllByRole("article")).toHaveLength(3);
+      expect(within(recentColumn).getAllByRole("article")).toHaveLength(recentCount);
       expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByText("More projects").tagName).toBe("P");

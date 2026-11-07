@@ -465,7 +465,15 @@
 
 /* Fold viewports keep two compact cards per row in either orientation. */
 @media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  .recentTrack,
   .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Portrait tablets show four Latest work cards as two rows. */
+@media (min-width: 740px) and (max-width: 1100px) and (min-height: 900px) and (max-height: 1400px) and (orientation: portrait) {
+  .recentTrack {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -486,9 +494,31 @@
   }
 }
 
-/* iPad Pro 11 portrait keeps Latest work and More projects in two columns. */
-@media (min-width: 830px) and (max-width: 840px) and (min-height: 1100px) and (max-height: 1250px) and (orientation: portrait) {
-  .recentTrack,
+/* Galaxy Tab S7 portrait shows its two initial More projects cards side by side. */
+@media (min-width: 790px) and (max-width: 805px) and (min-height: 1100px) and (max-height: 1300px) and (orientation: portrait) {
+  .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* iPad mini and Air 4 portrait keep four Latest work cards in one column. */
+@media (min-width: 760px) and (max-width: 780px) and (min-height: 900px) and (max-height: 1050px) and (orientation: portrait),
+  (min-width: 810px) and (max-width: 825px) and (min-height: 1000px) and (max-height: 1200px) and (orientation: portrait) {
+  .recentTrack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* iPad Pro 11 portrait keeps four Latest work cards readable in one column. */
+@media (min-width: 830px) and (max-width: 840px) and (min-height: 1000px) and (max-height: 1250px) and (orientation: portrait) {
+  .recentTrack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .projectGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -543,6 +573,7 @@
   }
 
   .recentTrack {
+    grid-template-columns: minmax(0, 1fr);
     gap: 1rem;
   }
 
