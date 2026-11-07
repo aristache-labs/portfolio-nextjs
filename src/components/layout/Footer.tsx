@@ -395,6 +395,9 @@ export function Footer({
                 reserved.
               </span>
             </m.div>
+            <m.div initial={false} variants={itemVariants} className={layout.expertise}>
+              WEB <span aria-hidden>·</span> MOBILE <span aria-hidden>·</span> INFRASTRUCTURE
+            </m.div>
             <m.p
               initial={false}
               variants={itemVariants}

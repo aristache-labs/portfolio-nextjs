@@ -245,7 +245,10 @@ export function ProjectsBrowser({
   );
   // iPad Pro 11 held sideways has the desktop room but a touch pointer, so it never reaches
   // "expressive". Give it the same scroll scene unless motion is off.
-  const proLandscape = useMediaQuery(PRO_LANDSCAPE_QUERY) && mode !== "static";
+  const ultraLandscape = useMediaQuery(
+    "(min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape)",
+  );
+  const proLandscape = (useMediaQuery(PRO_LANDSCAPE_QUERY) || ultraLandscape) && mode !== "static";
   const scene =
     (useMediaQuery(PINNED_SCENE_QUERY) &&
       !foldViewport &&

@@ -64,7 +64,10 @@ const SHORT_LANDSCAPE_NAV_GAP = 14;
 
 function navigationGap(target: HTMLElement) {
   if (
-    (target.id === "about" || target.id === "skills" || target.id === "experience") &&
+    (target.id === "about" ||
+      target.id === "skills" ||
+      target.id === "experience" ||
+      target.id === "projects") &&
     window.matchMedia(
       "(min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape)",
     ).matches
