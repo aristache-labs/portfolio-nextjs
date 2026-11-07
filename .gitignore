@@ -18,6 +18,7 @@
 # production
 /build
 /source-example
+/.cursor/
 # misc
 .DS_Store
 *.pem

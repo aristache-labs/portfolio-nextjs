@@ -1391,6 +1391,18 @@
   }
 }
 
+/* Tall portrait tablets: zoom the poster in a little and lift the scroll cue off the bottom. */
+@media (min-width: 680px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+  .poster img {
+    scale: 1.14;
+    transform-origin: 70% 45%;
+  }
+
+  .hero .scrollCue {
+    bottom: clamp(56px, 8svh, 96px);
+  }
+}
+
 /* The landscape-phone root is 10-13px, so 0.75rem would render the role line at 7.5-9.75px. */
 @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
   .specialization {
