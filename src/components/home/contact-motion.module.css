@@ -156,3 +156,10 @@
     margin-inline: auto;
   }
 }
+
+/* Portrait tablets: the quote plate sits on the centre line, like the form below it. */
+@media (min-width: 680px) and (max-width: 1023px) and (orientation: portrait) {
+  .quote {
+    margin-inline: auto;
+  }
+}

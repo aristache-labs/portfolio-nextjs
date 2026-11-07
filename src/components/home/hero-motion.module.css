@@ -1569,3 +1569,95 @@
     bottom: 20px;
   }
 }
+
+/* Large portrait tablets (iPad Air, 800-1023px wide). The 56rem scene cap leaves the hero shorter
+   than the screen, so About rides up over it and the copy reads small. Fill the screen instead
+   and scale the type up. */
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
+  .scene,
+  .hero[data-touch-scene] {
+    min-height: 100svh;
+  }
+
+  .name {
+    font-size: clamp(4.5rem, 9vw, 6.25rem);
+  }
+
+  .headline {
+    font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  }
+
+  .hero .copy {
+    max-width: min(30rem, 60vw);
+    font-size: 1.1875rem;
+  }
+
+  .specialization {
+    font-size: 0.8125rem;
+  }
+
+  .actions a {
+    font-size: 1.125rem;
+  }
+
+  .textLink {
+    font-size: 1.1875rem;
+  }
+
+  .poster img {
+    scale: 1.14;
+    transform-origin: 70% 45%;
+  }
+}
+
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  .hero[data-touch-scene] {
+    min-height: calc(100svh + 45svh);
+  }
+
+  .hero[data-touch-scene] + :global(#about) {
+    margin-top: -45svh;
+  }
+}
+
+/* Keep the paragraph readable where it crosses the mug and monitor, and size the tagline up. */
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
+  .hero .copy {
+    max-width: min(27rem, 54vw);
+    text-shadow: 0 1px 12px rgb(8 12 13 / 0.9);
+  }
+
+  .scrim {
+    background-image: linear-gradient(
+      90deg,
+      rgb(8 12 13 / 0.93),
+      rgb(8 12 13 / 0.72) 42%,
+      rgb(8 12 13 / 0.1) 75%
+    );
+  }
+
+  .tagline {
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+  }
+}
+
+/* Second pass: a soft plate under the paragraph and a bolder, larger tagline. */
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
+  .hero .copy {
+    width: fit-content;
+    padding: 0.75rem 1rem;
+    margin-left: -1rem;
+    border-radius: 16px;
+    background: rgb(8 12 13 / 0);
+    color: rgb(255 255 255 / 0.94);
+  }
+
+  .tagline {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--brand-bright);
+    text-shadow: 0 1px 10px rgb(8 12 13 / 0.9);
+  }
+}

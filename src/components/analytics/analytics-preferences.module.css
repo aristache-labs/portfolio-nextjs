@@ -694,3 +694,10 @@
     min-width: 68px;
   }
 }
+
+/* Portrait tablets (iPad Air): a wider preferences card so the Google Analytics note fits two lines. */
+@media (min-width: 740px) and (max-width: 1023px) and (orientation: portrait) {
+  .panel:not([data-compact]) {
+    width: min(460px, calc(100% - 24px));
+  }
+}

@@ -411,3 +411,16 @@
     padding-bottom: 18svh;
   }
 }
+
+/* Portrait tablets have room to spare under the grid, so scale the cards (icon, name, bar and
+   percentage together) instead of leaving them phone-sized. */
+@media (min-width: 680px) and (max-width: 1023px) and (orientation: portrait) {
+  .tools,
+  .quoteAnchor {
+    zoom: 1.2;
+  }
+
+  .sectionLabel {
+    width: calc(100% - 240px);
+  }
+}
