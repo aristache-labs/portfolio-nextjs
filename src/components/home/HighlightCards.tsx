@@ -22,7 +22,7 @@ import { FOLD_VIEWPORT_QUERY } from "@/lib/motion-queries";
 // Fallbacks follow site-container padding and the two-column highlights layout.
 // Lazy covers use their actual layout width when the browser supports auto sizes.
 const FEATURED_COVER_SIZES = [
-  `${FOLD_VIEWPORT_QUERY} calc(100vw - clamp(3rem, 5vw, 5.5rem))`,
+  `${FOLD_VIEWPORT_QUERY} calc((100vw - clamp(3rem, 5vw, 5.5rem)) * 0.86)`,
   "(orientation: portrait) calc(100vw - clamp(3rem, 5vw, 5.5rem))",
   "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
   "(orientation: landscape) and (min-width: 640px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",

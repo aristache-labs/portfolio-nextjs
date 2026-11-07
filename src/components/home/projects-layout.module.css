@@ -167,7 +167,7 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .groupTitle {
     width: 100%;
     justify-content: center;
@@ -362,7 +362,7 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .sectionHeading {
     display: flex;
     flex-direction: column;
@@ -379,7 +379,7 @@
     margin-bottom: 0;
   }
 }
-@media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
   .head {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -394,17 +394,19 @@
     align-items: flex-end;
     justify-content: space-between;
   }
+  /* Featured swipes sideways in both orientations, like the portrait phone, with the next card
+     peeking in. Latest work below stays a single full-width column. */
   .stack {
-    flex-direction: column;
-    scroll-snap-type: none;
-    overflow-x: visible;
-    overscroll-behavior-x: auto;
-    padding-bottom: 0;
+    flex-direction: row;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding-bottom: 8px;
   }
   .stack > * {
-    width: 100%;
-    flex-shrink: 1;
-    scroll-snap-align: none;
+    width: 86%;
+    flex-shrink: 0;
+    scroll-snap-align: center;
   }
   .highlights,
   .projectGrid {

@@ -8,7 +8,7 @@
   }
 }
 
-@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .projects {
     padding-top: 24px;
   }
@@ -38,7 +38,7 @@
   }
 }
 
-@media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
   .projects {
     padding-top: 112px;
     padding-bottom: 72px;

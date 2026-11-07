@@ -1,5 +1,5 @@
 /* A solid ground keeps portrait cards readable over decorative section media. */
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .surface.surface {
     background-color: var(--surface);
   }

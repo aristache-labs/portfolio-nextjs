@@ -167,7 +167,7 @@
 }
 
 @media (orientation: landscape) and (min-width: 600px),
-  (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
   .content {
     grid-template-columns: minmax(0, 1fr) minmax(210px, 0.42fr);
     align-items: center;
@@ -344,7 +344,7 @@
 }
 
 @media (orientation: landscape) and (min-width: 600px) and (max-width: 1279px),
-  (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
   .panel {
     width: calc(100% - 64px);
     max-width: 780px;
@@ -452,7 +452,7 @@
   }
 }
 
-@media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
   .links > li[data-section="skills"],
   .links > li[data-section="contact"] {
     margin-top: 0;

@@ -84,8 +84,7 @@ test.describe("Fold whole-page landscape behavior", () => {
                 )
                 .toBe(1);
               const stack = highlights.locator('[class*="stack"]').first();
-              if (await stack.count())
-                await expect.soft(stack).toHaveCSS("flex-direction", "column");
+              if (await stack.count()) await expect.soft(stack).toHaveCSS("flex-direction", "row");
             }
             const preview = section.locator('button[aria-label^="View "]').first();
             if (await preview.count()) {
@@ -192,15 +191,18 @@ test.describe("Fold whole-page landscape behavior", () => {
   }
 });
 
-test.describe("Fold Projects single column", () => {
+test.describe("Fold Projects layout", () => {
   test.use({ hasTouch: true });
   for (const [width, height] of [
+    [690, 829],
+    [829, 690],
+    [701, 841],
     [744, 860],
     [860, 744],
     [836, 842],
     [842, 836],
   ]) {
-    test(`${width}x${height}: cards use one column and Building now stays compact`, async ({
+    test(`${width}x${height}: Featured swipes, Latest work is one column and Building now sits beside the heading`, async ({
       page,
     }) => {
       await open(page, width, height);
@@ -222,9 +224,16 @@ test.describe("Fold Projects single column", () => {
             .toBe(1);
         }
       }
+      const stack = section.locator('[class*="highlights"] [class*="stack"]').first();
+      if (await stack.count()) {
+        await expect.soft(stack).toHaveCSS("flex-direction", "row");
+        await expect.soft(stack).toHaveCSS("overflow-x", "auto");
+        await expect.soft(stack).toHaveCSS("scroll-snap-type", "x mandatory");
+      }
       const building = section.locator('[class*="currently-building"][class*="slot"]');
       if (await building.count()) {
         const bounds = await building.boundingBox();
+        expect.soft(bounds!.x, "Building now sits on the right").toBeGreaterThan(width / 2);
         expect.soft(bounds!.width).toBeLessThanOrEqual(300);
         expect.soft(bounds!.width).toBeGreaterThanOrEqual(260);
         await building.locator('button[aria-label^="Open "]').tap();

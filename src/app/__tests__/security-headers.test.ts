@@ -89,12 +89,18 @@ describe("security headers", () => {
   });
 
   it("allows the development runtime without relaxing the production policy", async () => {
-    const dev = (await security(loadConfig("development"))).get("Content-Security-Policy")!;
+    const devHeaders = await security(loadConfig("development"));
+    const dev = devHeaders.get("Content-Security-Policy")!;
+    expect(devHeaders.has("X-Frame-Options")).toBe(false);
+    expect(dev).not.toContain("frame-ancestors");
     expect(dev).toContain("'unsafe-eval'");
     expect(dev).not.toContain("https://va.vercel-scripts.com");
     expect(dev).toContain("ws://localhost:*");
     expect(dev).toContain("http://localhost:*");
-    const production = (await security(loadConfig("production"))).get("Content-Security-Policy")!;
+    const productionHeaders = await security(loadConfig("production"));
+    const production = productionHeaders.get("Content-Security-Policy")!;
+    expect(productionHeaders.get("X-Frame-Options")).toBe("DENY");
+    expect(production).toContain("frame-ancestors 'none'");
     expect(production).not.toContain("'unsafe-eval'");
     expect(production).not.toContain("ws://");
     expect(production).not.toContain("localhost");
