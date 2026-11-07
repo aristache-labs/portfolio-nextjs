@@ -214,7 +214,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
         <div
           className={`${responsiveCss.content} relative z-10 mx-auto flex max-w-7xl flex-col px-5 pt-6 pb-10 sm:px-8 md:pt-8 lg:block`}
         >
-          <div className="lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6">
+          <div className={`${responsiveCss.split} lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6`}>
             <div aria-hidden className="hidden lg:block" />
             <div className={`${responsiveCss.heading} min-w-0 text-left`}>
               <SkillsReveal
@@ -277,7 +277,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
             </div>
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.6fr]">
+          <div className={`${responsiveCss.split} mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.6fr]`}>
             <div aria-hidden className="hidden lg:block" />
 
             {/* Layout features stay inside the dynamically loaded Skills section. */}

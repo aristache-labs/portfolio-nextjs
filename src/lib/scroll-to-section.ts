@@ -3,7 +3,7 @@
 import type Lenis from "lenis";
 import { beginSectionNavigation } from "./section-navigation";
 import { getSmoothScroll } from "./smooth-scroll";
-import { FOLD_VIEWPORT_QUERY } from "./motion-queries";
+import { FOLD_VIEWPORT_QUERY, TOUCH_LANDSCAPE_QUERY } from "./motion-queries";
 
 // Smooth acceleration and deceleration, with no abrupt change at either end.
 const smoothStep = (progress: number) => progress * progress * (3 - 2 * progress);
@@ -73,6 +73,15 @@ function navigationGap(target: HTMLElement) {
   }
   if (target.id === "skills" && window.matchMedia(FOLD_VIEWPORT_QUERY).matches) {
     return SECTION_NAV_GAP + 40;
+  }
+  // Touch landscape tablets: land Skills higher so the last card row stays on screen.
+  if (
+    target.id === "skills" &&
+    window.matchMedia(TOUCH_LANDSCAPE_QUERY).matches &&
+    window.innerHeight > 500 &&
+    window.innerHeight <= 800
+  ) {
+    return SECTION_NAV_GAP - 28;
   }
   return window.innerHeight <= 500 && window.innerWidth > window.innerHeight
     ? SHORT_LANDSCAPE_NAV_GAP

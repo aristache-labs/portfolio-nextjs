@@ -379,6 +379,27 @@
   }
 }
 
+/* iPad-sized touch landscape has no room for a globe column beside the cards. Use the single
+   full-width column of portrait, with the orbit faint behind the cards. */
+@media (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) and (orientation: landscape) and (pointer: coarse) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .split > [aria-hidden] {
+    display: none;
+  }
+
+  /* A slightly wider quote card, so "Tools evolve." sits on fewer lines. */
+  .heading {
+    --skills-quote-width: 224px;
+  }
+
+  .backdrop {
+    opacity: 0.3;
+  }
+}
+
 /* Tall portrait tablets put the orbit behind the right-hand cards too. Keep it faint. */
 @media (min-width: 680px) and (max-width: 1023px) and (orientation: portrait) {
   .backdrop {
