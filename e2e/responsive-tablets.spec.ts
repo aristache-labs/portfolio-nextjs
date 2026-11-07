@@ -82,7 +82,7 @@ test.describe("Fold whole-page landscape behavior", () => {
                     (node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length,
                   ),
                 )
-                .toBe(2);
+                .toBe(1);
               const stack = highlights.locator('[class*="stack"]').first();
               if (await stack.count())
                 await expect.soft(stack).toHaveCSS("flex-direction", "column");
@@ -189,6 +189,58 @@ test.describe("Fold whole-page landscape behavior", () => {
         ).toBeLessThanOrEqual(1);
       });
     }
+  }
+});
+
+test.describe("Fold Projects single column", () => {
+  test.use({ hasTouch: true });
+  for (const [width, height] of [
+    [744, 860],
+    [860, 744],
+    [836, 842],
+    [842, 836],
+  ]) {
+    test(`${width}x${height}: cards use one column and Building now stays compact`, async ({
+      page,
+    }) => {
+      await open(page, width, height);
+      await page.getByRole("button", { name: "Open menu", exact: true }).click();
+      const link = page.locator('header a[href="#projects"]:visible').first();
+      test.skip(!(await link.count()), "Projects is hidden in site settings");
+      await link.tap();
+      await page.waitForTimeout(1400);
+      const section = page.locator("#projects");
+      for (const selector of ['[class*="highlights"]', '[class*="projectGrid"]']) {
+        const grid = section.locator(selector).first();
+        if (await grid.count()) {
+          expect
+            .soft(
+              await grid.evaluate(
+                (node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length,
+              ),
+            )
+            .toBe(1);
+        }
+      }
+      const building = section.locator('[class*="currently-building"][class*="slot"]');
+      if (await building.count()) {
+        const bounds = await building.boundingBox();
+        expect.soft(bounds!.width).toBeLessThanOrEqual(300);
+        expect.soft(bounds!.width).toBeGreaterThanOrEqual(260);
+        await building.locator('button[aria-label^="Open "]').tap();
+        await expect(page.getByRole("dialog")).toBeVisible();
+        await page.keyboard.press("Escape");
+      }
+      const title = section.locator('[class*="recentCard"] h3').first();
+      if (await title.count()) {
+        expect
+          .soft(await title.evaluate((node) => node.scrollWidth - node.clientWidth))
+          .toBeLessThanOrEqual(1);
+      }
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+      ).toBeLessThanOrEqual(1);
+    });
   }
 });
 
