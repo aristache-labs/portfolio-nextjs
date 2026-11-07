@@ -529,8 +529,22 @@
 
 /* Galaxy Tab S9 Ultra portrait enlarges the full Skills composition. */
 @media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+  .section {
+    min-height: 108svh;
+  }
+
+  .section + :global(#experience) {
+    margin-top: 0;
+  }
+
+  .grid,
+  .grid > div,
+  .grid > div > div {
+    opacity: 1 !important;
+  }
+
   .content {
-    zoom: 1.8;
+    zoom: 1.9;
   }
 
   .split {
