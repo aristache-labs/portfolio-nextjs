@@ -3,6 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { AboutPortraitMotion } from "./AboutPortraitMotion";
+import {
+  ABOUT_COMPACT_LANDSCAPE_QUERY,
+  ABOUT_FOLD_QUERY,
+  ABOUT_PORTRAIT_QUERY,
+} from "./AboutSequence";
 
 const scroll = vi.hoisted(() => ({
   progress: null as import("framer-motion").MotionValue<number> | null,
@@ -22,6 +27,22 @@ vi.mock("framer-motion", async (importOriginal) => {
 afterEach(cleanup);
 
 describe("AboutPortraitMotion", () => {
+  it.each([ABOUT_PORTRAIT_QUERY, ABOUT_COMPACT_LANDSCAPE_QUERY, ABOUT_FOLD_QUERY])(
+    "keeps the entry reversible with scroll for %s",
+    (query) => {
+      installMatchMedia({ [query]: true });
+      const { container } = render(<AboutPortraitMotion>Portrait</AboutPortraitMotion>);
+      const reveal = container.firstElementChild!.firstElementChild as HTMLElement;
+      act(() => scroll.progress!.set(0.2));
+      const entryMask = reveal.style.getPropertyValue("--portrait-mask");
+      expect(Number.parseFloat(entryMask)).toBeGreaterThan(0);
+      act(() => scroll.progress!.set(1));
+      expect(reveal.style.getPropertyValue("--portrait-mask")).toBe("0%");
+      act(() => scroll.progress!.set(0.2));
+      expect(reveal.style.getPropertyValue("--portrait-mask")).toBe(entryMask);
+    },
+  );
+
   it("reveals the image with scroll while leaving the layout frame stationary", () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true });
     const { container } = render(<AboutPortraitMotion>Portrait</AboutPortraitMotion>);

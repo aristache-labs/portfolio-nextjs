@@ -12,7 +12,6 @@ import {
   phaseProgress,
   useAboutSequence,
 } from "./AboutSequence";
-import { AboutReveal } from "./AboutReveal";
 
 function paintPortrait(node: HTMLDivElement, value: number, expressive: boolean) {
   const progress = Math.max(0, Math.min(1, value));
@@ -97,20 +96,12 @@ export function AboutPortraitMotion({
   const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
   const landscapePhone = useMediaQuery(ABOUT_COMPACT_LANDSCAPE_QUERY);
   const fold = useMediaQuery(ABOUT_FOLD_QUERY);
-  if (fold) {
-    return (
-      <div className={className}>
-        <AboutReveal className={styles.foldReveal}>{children}</AboutReveal>
-      </div>
-    );
-  }
+  const localScroll = portraitPhone || landscapePhone || fold;
   return (
     <div className={className}>
       <div ref={target} className={styles.reveal}>
         {mode !== "static" &&
-          !portraitPhone &&
-          !landscapePhone &&
-          (sequence ? (
+          (sequence && !localScroll ? (
             <SequencePortrait target={target} />
           ) : (
             <PortraitScroll target={target} expressive={mode === "expressive"} />

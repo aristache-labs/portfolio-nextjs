@@ -26,12 +26,12 @@ export function CurrentlyBuilding({
   return (
     <ProjectsArrival
       kind="recent"
-      effect="fade-from-right"
+      effect="slide-from-right"
       duration={0.7}
       delay={0.25}
       className={styles.slot}
     >
-      {/* motionStyles.card lets the shared entrance fade this glass surface itself. */}
+      {/* Keep the shared card styling while the solid surface slides into place. */}
       <div className={`${GLASS_CARD} ${motionStyles.card} ${styles.card} rounded-2xl border`}>
         <p className={styles.label}>
           <span aria-hidden className={styles.dot} />

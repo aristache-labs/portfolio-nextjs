@@ -425,6 +425,41 @@
   }
 }
 
+/* iPad Pro 13 landscape matches the Hero and About content increase. */
+@media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) {
+  .backdrop video {
+    object-fit: contain;
+    scale: 1.05;
+    transform-origin: 20% center;
+  }
+
+  /* The still has its orbit on the opposite side from the video. */
+  .backdrop img {
+    translate: -56% 0;
+    mask-image: linear-gradient(to right, black 85%, transparent);
+  }
+
+  /* The grid and both SkillEntrance wrappers must stay opaque during entry and filtering.
+     Motion writes inline opacity, so these scoped overrides preserve the solid card ground. */
+  .grid,
+  .grid > div,
+  .grid > div > div {
+    opacity: 1 !important;
+  }
+
+  .heading,
+  .tools > :not([aria-hidden]) {
+    zoom: 1.2;
+  }
+
+  .grid {
+    width: 100%;
+    max-width: 660px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
 /* iPad Pro 13 portrait uses the Fold layout at the shared 1.376 root scale. */
 @media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .content {

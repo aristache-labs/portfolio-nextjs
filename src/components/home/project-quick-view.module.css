@@ -189,6 +189,40 @@
   overflow: visible;
 }
 
+/* The large landscape iPad has room for a larger preview and readable dialog chrome. */
+@media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) {
+  .dialog {
+    --preview-stage-max: min(54dvh, 32rem);
+    width: min(calc(100vw - 96px), 56rem);
+    max-width: 56rem;
+    max-height: calc(100dvh - 80px);
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .body p {
+    font-size: 16.5px;
+  }
+
+  .footer > a {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .dialog.dialog > button:last-child {
+    width: 44px;
+    height: 44px;
+  }
+
+  .dialog button[aria-label="Previous image"],
+  .dialog button[aria-label="Next image"] {
+    width: 44px;
+    height: 44px;
+  }
+}
+
 /* Quick View rises and grows into place, the image settles from a slight zoom and the
    header, text and actions follow in turn. Closing sinks and fades quickly. Replaces the
    generic dialog-pop animation (more specific selector). `scale` and `transform` are free:

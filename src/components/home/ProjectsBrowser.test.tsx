@@ -220,6 +220,20 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     expect(wrapper(11)).toHaveAttribute("data-from", "below");
   });
 
+  it.each([false, true])(
+    "shares the iPad landscape scroll scene on touch, with reduced motion %s",
+    (reduce) => {
+      installMatchMedia({
+        [REDUCED_MOTION_QUERY]: reduce,
+        "(min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse), (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)": true,
+      });
+      const { container } = render(<ProjectsBrowser projects={list} />);
+      expect(Boolean(container.querySelector('[data-from="left"]'))).toBe(!reduce);
+      expect(Boolean(container.querySelector('[data-from="right"]'))).toBe(!reduce);
+      expect(Boolean(container.querySelector('[data-from="below"]'))).toBe(!reduce);
+    },
+  );
+
   it("keeps reduced-motion projects static and filters usable", () => {
     installMatchMedia({ [REDUCED_MOTION_QUERY]: true, [EXPRESSIVE_MOTION_QUERY]: true });
     const { container } = render(<ProjectsBrowser projects={list} />);
@@ -302,15 +316,23 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
   });
-  it.each(["(orientation: landscape)", FOLD_VIEWPORT_QUERY])(
-    "shows landscape card limits for %s and omits empty categories",
-    (query) => {
+  it.each([
+    ["(orientation: landscape)", 3, 9],
+    [FOLD_VIEWPORT_QUERY, 4, 10],
+    [
+      "(min-width: 740px) and (max-width: 1100px) and (min-height: 900px) and (max-height: 1400px) and (orientation: portrait)",
+      4,
+      8,
+    ],
+  ] as const)(
+    "shows responsive card limits for %s and omits empty categories",
+    (query, recentCount, totalCount) => {
       installMatchMedia({ "(max-width: 1023px)": true, [query]: true });
       render(<ProjectsBrowser projects={list} />);
-      expect(screen.getAllByRole("article")).toHaveLength(9);
+      expect(screen.getAllByRole("article")).toHaveLength(totalCount);
       const recentHeading = screen.getByText("Latest work");
       const recentColumn = recentHeading.parentElement!.parentElement!;
-      expect(within(recentColumn).getAllByRole("article")).toHaveLength(3);
+      expect(within(recentColumn).getAllByRole("article")).toHaveLength(recentCount);
       expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByText("More projects").tagName).toBe("P");

@@ -22,11 +22,12 @@ import { FOLD_VIEWPORT_QUERY } from "@/lib/motion-queries";
 type Slide = { src: string; poster: boolean };
 
 /** Tallest the poster well may grow. A 9:16 shot uses this height; a 16:9 shot is shorter. */
-const STAGE_MAX = "min(50vh, 26rem)";
+const STAGE_MAX = "var(--preview-stage-max, min(50vh, 26rem))";
 
 // Match the dialog's portrait width, landscape image column and desktop max-w-2xl.
 // These are CSS widths, without a manual pixel-density multiplier.
 const PREVIEW_SIZES = [
+  "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) min(calc(100vw - 96px), 56rem)",
   `${FOLD_VIEWPORT_QUERY} min(calc(100vw - 2rem), 42rem)`,
   "(orientation: portrait) and (max-width: 1023px) min(calc(100vw - 48px), 42rem)",
   "(orientation: landscape) and (max-width: 1023px) and (max-height: 600px) min(calc((100vw - 72px) * 0.42), 352.8px)",
