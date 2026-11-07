@@ -37,7 +37,9 @@ describe("security headers", () => {
     expect(headers.has("Cross-Origin-Embedder-Policy")).toBe(false);
     expect(headers.get("X-Frame-Options")).toBe("DENY");
     expect(headers.has("Content-Security-Policy-Report-Only")).toBe(false);
-    expect(headers.get("Strict-Transport-Security")).toBe("max-age=63072000; includeSubDomains");
+    expect(headers.get("Strict-Transport-Security")).toBe(
+      "max-age=63072000; includeSubDomains; preload",
+    );
     const csp = headers.get("Content-Security-Policy")!;
     expect(csp).not.toMatch(/nonce-|unsafe-eval|upgrade-insecure-requests/);
     expect(csp).toContain("frame-ancestors 'none'");
