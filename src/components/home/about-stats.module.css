@@ -893,3 +893,14 @@
     border-left: 1px solid rgb(255 255 255 / 0.1);
   }
 }
+/* Tall portrait tablets that are a little shorter than the iPad Air's 1180px (Safari toolbar):
+   shrink the portrait with the height so the results row stays on screen. */
+@media (min-width: 740px) and (max-width: 1023px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+  .biography .portrait {
+    width: clamp(200px, calc(100svh - 840px), 320px);
+  }
+
+  .results {
+    margin-top: 24px;
+  }
+}
