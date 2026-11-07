@@ -158,8 +158,26 @@
   left: calc(var(--timeline-axis) - 0.5px);
 }
 
+/* Touch tablets held wide are scaled down in previews, so a 1px rail vanishes. Keep it centred
+   on the same axis at 2px. */
+@media (min-width: 1024px) and (max-width: 1180px) and (orientation: landscape) and (pointer: coarse) {
+  .rail {
+    left: calc(var(--timeline-axis) - 1px);
+    width: 2px;
+  }
+}
+
 .marker {
   left: calc(var(--timeline-axis) - 0.375rem);
+}
+
+/* A 1px line vanishes when a touch tablet is scaled down, so the rail and its scroll fill are
+   2px there. The marker keeps its centre on the same axis. */
+@media (min-width: 1024px) and (max-width: 1180px) and (orientation: landscape) and (pointer: coarse) {
+  .rail {
+    left: calc(var(--timeline-axis) - 1px);
+    width: 2px;
+  }
 }
 
 .dot[data-timeline-filled] {
