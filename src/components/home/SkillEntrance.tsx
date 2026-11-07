@@ -46,14 +46,14 @@ export function SolidSkillEntrance({
       transform: "translateY(0px) scale(1)",
       clipPath: "inset(0% 0% 0% 0% round 16px)",
     };
-    if (mode === "static" || entered.current) {
+    if (mode === "static" || entered.current || typeof IntersectionObserver !== "function") {
       controls.set(settled);
       sequence.publish("static");
       return;
     }
     controls.set({
       transform: `translateY(${entersOnMount ? 18 : 32}px) scale(0.97)`,
-      clipPath: "inset(0% 0% 100% 0% round 16px)",
+      clipPath: entersOnMount ? "inset(0% 0% 0% 0% round 16px)" : "inset(0% 0% 100% 0% round 16px)",
     });
     sequence.publish("prepared");
     const start = () => {
@@ -76,7 +76,8 @@ export function SolidSkillEntrance({
     };
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry?.isIntersecting && !sectionNavigationPending(node.current)) start();
+        if (entry?.isIntersecting && node.current && !sectionNavigationPending(node.current))
+          start();
       },
       { threshold: 0.1 },
     );
@@ -107,25 +108,21 @@ export function SolidSkillEntrance({
   ]);
 
   return (
-    <m.div
-      ref={node}
-      className="min-w-0"
-      layout={mode === "static" ? false : "position"}
-      initial={false}
-      transition={{ layout: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } }}
-      exit={
-        mode === "static"
-          ? undefined
-          : {
-              clipPath: "inset(0% 0% 100% 0% round 16px)",
-              transition: { duration: 0.16, ease: [0.22, 1, 0.36, 1] },
-            }
-      }
-    >
-      <m.div className="h-full" initial={false} animate={controls}>
+    <div ref={node} className="min-w-0">
+      <m.div
+        className="h-full"
+        initial={
+          entersOnMount && mode !== "static"
+            ? {
+                transform: "translateY(18px) scale(0.97)",
+              }
+            : false
+        }
+        animate={controls}
+      >
         <RevealSequence.Provider value={sequence}>{children}</RevealSequence.Provider>
       </m.div>
-    </m.div>
+    </div>
   );
 }
 

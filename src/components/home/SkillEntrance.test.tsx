@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RevealSequence, type RevealPhase } from "@/components/motion/RevealSequence";
 import { REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { installMatchMedia } from "@/test/matchMedia";
-import { SkillEntrance } from "./SkillEntrance";
+import { SkillEntrance, SolidSkillEntrance } from "./SkillEntrance";
 
 const phases: RevealPhase[] = [];
 let notify: IntersectionObserverCallback;
@@ -96,5 +96,38 @@ describe("mobile SkillEntrance", () => {
     installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
     render(<Card />);
     expect(phases.at(-1)).toBe("static");
+  });
+});
+
+describe("solid tablet SkillEntrance", () => {
+  it("waits for intersection before revealing the card and starting its contents", async () => {
+    render(
+      <LazyMotion features={domMax}>
+        <SolidSkillEntrance filtered={false}>
+          <Content />
+        </SolidSkillEntrance>
+      </LazyMotion>,
+    );
+    expect(phases.at(-1)).toBe("prepared");
+    act(() =>
+      notify(
+        [{ isIntersecting: true, intersectionRatio: 1 } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      ),
+    );
+    await waitFor(() => expect(phases.at(-1)).toBe("complete"));
+  });
+
+  it("shows filtered cards immediately with reduced motion", () => {
+    installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
+    render(
+      <LazyMotion features={domMax}>
+        <SolidSkillEntrance filtered>
+          <Content />
+        </SolidSkillEntrance>
+      </LazyMotion>,
+    );
+    expect(phases.at(-1)).toBe("static");
+    expect(phases).not.toContain("prepared");
   });
 });

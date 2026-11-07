@@ -372,13 +372,50 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   role={ordered.length > 0 ? "tabpanel" : undefined}
                   aria-labelledby={ordered.length > 0 ? tabId(active) : undefined}
                 >
-                  <SkillsGridReveal
-                    enabled={!scene && !mobile && !ipadProLandscape}
-                    gridRef={gridRef}
-                    className={GRID}
-                  >
-                    {cards}
-                  </SkillsGridReveal>
+                  {ipadProLandscape ? (
+                    <AnimatePresence mode="wait" initial={false}>
+                      <m.div
+                        key={active}
+                        ref={gridRef}
+                        className={GRID}
+                        initial={false}
+                        animate={{
+                          transform: "translateY(0px)",
+                        }}
+                        exit={
+                          mode === "static"
+                            ? undefined
+                            : {
+                                transform: "translateY(-8px)",
+                                transition: { duration: 0.16, ease: [0.22, 1, 0.36, 1] },
+                              }
+                        }
+                      >
+                        {visible.map((skill, index) => (
+                          <SolidSkillEntrance
+                            key={`${skill.category}-${skill.name}`}
+                            filtered={hasFiltered}
+                            order={index}
+                          >
+                            <SkillCard
+                              name={skill.name}
+                              iconPath={skill.iconPath}
+                              level={skill.level}
+                              loadIcon={iconsNear}
+                            />
+                          </SolidSkillEntrance>
+                        ))}
+                      </m.div>
+                    </AnimatePresence>
+                  ) : (
+                    <SkillsGridReveal
+                      enabled={!scene && !mobile}
+                      gridRef={gridRef}
+                      className={GRID}
+                    >
+                      {cards}
+                    </SkillsGridReveal>
+                  )}
                 </div>
                 {!tabletLandscape && (
                   <SkillsMarquee skills={ordered} loadIcons={iconsNear && !desktop} />
