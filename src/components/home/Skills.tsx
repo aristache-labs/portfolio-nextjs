@@ -277,7 +277,9 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
             </div>
           </div>
 
-          <div className={`${responsiveCss.split} mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.6fr]`}>
+          <div
+            className={`${responsiveCss.split} ${responsiveCss.tools} mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.6fr]`}
+          >
             <div aria-hidden className="hidden lg:block" />
 
             {/* Layout features stay inside the dynamically loaded Skills section. */}

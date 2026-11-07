@@ -19,3 +19,10 @@
     background-color: var(--surface);
   }
 }
+
+/* Portrait tablets: solid from the first frame, as on phones and Fold. */
+@media (min-width: 680px) and (max-width: 1023px) and (orientation: portrait) {
+  .surface.surface {
+    background-color: var(--surface);
+  }
+}
