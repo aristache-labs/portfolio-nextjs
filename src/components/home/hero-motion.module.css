@@ -1398,6 +1398,14 @@
 
 /* Fold viewports keep landscape content alignment in either orientation. */
 @media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .videoPlate {
+    display: block;
+  }
+
+  .hero button.sceneControl {
+    display: flex;
+  }
+
   .scene {
     min-height: min(100svh, 56rem);
     justify-content: center;

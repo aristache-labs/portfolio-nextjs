@@ -19,6 +19,7 @@ export function useMediaQuery(query: string): boolean {
 
 export {
   BACKGROUND_VIDEO_QUERY,
+  FOLD_VIEWPORT_QUERY,
   COMPACT_TOUCH_QUERY,
   HERO_VIDEO_QUERY,
   PINNED_SCENE_QUERY,

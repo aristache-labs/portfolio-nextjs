@@ -17,6 +17,10 @@ export const PORTRAIT_PHONE_QUERY = "(max-width: 767px) and (orientation: portra
 /** Touch phones and tablets held sideways. */
 export const TOUCH_LANDSCAPE_QUERY = "(orientation: landscape) and (pointer: coarse)";
 
+/** Fold-sized viewports share their layout in either orientation. */
+export const FOLD_VIEWPORT_QUERY =
+  "(min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4)";
+
 /** The hero also animates on touch devices held in landscape. */
 export const HERO_VIDEO_QUERY = `${BACKGROUND_VIDEO_QUERY}, ${TOUCH_LANDSCAPE_QUERY}`;
 

@@ -17,6 +17,46 @@ const VIEWPORTS = [
 test.use({ colorScheme: "dark" });
 test.setTimeout(120_000);
 
+test.describe("Hero Fold portrait background video", () => {
+  test.use({ hasTouch: true });
+
+  test("plays, pauses and resumes in Fold portrait, and preserves static phone and reduced-motion fallbacks", async ({
+    page,
+  }) => {
+    await open(page, 744, 860);
+    const video = page.locator("#hero video");
+    await expect(video).toHaveCount(1);
+    await expect(video).toBeVisible();
+    await expect
+      .poll(() =>
+        video.evaluate(
+          (node: HTMLVideoElement) => node.readyState >= 2 && !node.paused && node.currentTime > 0,
+        ),
+      )
+      .toBe(true);
+    const firstTime = await video.evaluate((node: HTMLVideoElement) => node.currentTime);
+    await expect
+      .poll(() => video.evaluate((node: HTMLVideoElement) => node.currentTime))
+      .toBeGreaterThan(firstTime);
+    const pause = page.getByRole("button", { name: "Pause background video", exact: true });
+    await expect(pause).toBeVisible();
+    await pause.tap();
+    await expect.poll(() => video.evaluate((node: HTMLVideoElement) => node.paused)).toBe(true);
+    await page.getByRole("button", { name: "Play background video", exact: true }).tap();
+    await expect.poll(() => video.evaluate((node: HTMLVideoElement) => node.paused)).toBe(false);
+    await page.setViewportSize({ width: 860, height: 744 });
+    await expect(video).toBeVisible();
+    await page.setViewportSize({ width: 836, height: 842 });
+    await expect(video).toBeVisible();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(video).toHaveCount(0);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 744, height: 860 });
+    await expect(video).toHaveCount(0);
+    await expect(page.locator("#hero picture img")).toBeVisible();
+  });
+});
+
 test.describe("Hero fold content layout", () => {
   test.use({ hasTouch: true });
 
