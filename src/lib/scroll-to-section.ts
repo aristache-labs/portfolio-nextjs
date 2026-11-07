@@ -64,6 +64,14 @@ const SHORT_LANDSCAPE_NAV_GAP = 14;
 
 function navigationGap(target: HTMLElement) {
   if (
+    (target.id === "skills" || target.id === "about") &&
+    window.matchMedia(
+      "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+    ).matches
+  ) {
+    return SECTION_NAV_GAP + (target.id === "skills" ? 70 : 40);
+  }
+  if (
     target.id === "projects" &&
     window.matchMedia(
       "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)",
@@ -120,6 +128,7 @@ function navigationGap(target: HTMLElement) {
 
 /** Compact bar heights from nav-chrome.module.css, matched to the same media queries. */
 const COMPACT_NAV_HEIGHTS = {
+  galaxyUltraPortrait: 80,
   shortLandscape: 44,
   ipadProPortrait: 64,
   ipadProLandscape: 70,
@@ -127,6 +136,12 @@ const COMPACT_NAV_HEIGHTS = {
 } as const;
 
 function compactNavHeight() {
+  if (
+    window.matchMedia(
+      "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+    ).matches
+  )
+    return COMPACT_NAV_HEIGHTS.galaxyUltraPortrait;
   if (
     window.matchMedia(
       "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)",
