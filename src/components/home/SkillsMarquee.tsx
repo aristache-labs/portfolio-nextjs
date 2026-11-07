@@ -26,19 +26,18 @@ export function SkillsMarquee({
     if (!node || !loadIcons || skills.length === 0) return;
     if (
       typeof IntersectionObserver !== "function" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-      node.dataset.entrance === "visible"
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
     )
       return;
 
     node.dataset.entrance = "armed";
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        node.dataset.entrance = "visible";
-        observer.disconnect();
+        if (!entry) return;
+        node.dataset.entrance =
+          entry.isIntersecting && entry.intersectionRatio >= 0.5 ? "visible" : "armed";
       },
-      { threshold: 0.15 },
+      { threshold: [0, 0.5] },
     );
     observer.observe(node);
     return () => {
