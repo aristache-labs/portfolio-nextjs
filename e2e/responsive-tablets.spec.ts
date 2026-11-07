@@ -573,9 +573,17 @@ test.describe("About fold viewport", () => {
             };
           });
           expect(biography).toEqual({ visible: true, columns: "2" });
-          await expect.poll(() => section.locator('[class*="biography"] > [class*="portrait"]').evaluate((node) =>
-            (node.firstElementChild as HTMLElement).style.getPropertyValue("--portrait-mask"),
-          )).not.toBe("");
+          await expect
+            .poll(() =>
+              section
+                .locator('[class*="biography"] > [class*="portrait"]')
+                .evaluate((node) =>
+                  (node.firstElementChild as HTMLElement).style.getPropertyValue("--portrait-mask"),
+                ),
+            )
+            .not.toBe("");
+          // Real reader input cancels anchor restoration before the reversible scroll check.
+          await page.mouse.wheel(0, -1);
           const start = await section.evaluate(
             (node) => scrollY + node.getBoundingClientRect().top - innerHeight * 0.8,
           );
@@ -586,14 +594,25 @@ test.describe("About fold viewport", () => {
               (y) => window.scrollTo({ top: y, behavior: "instant" }),
               start + step * 100,
             );
+            await expect
+              .poll(async () =>
+                Math.abs((await page.evaluate(() => scrollY)) - (start + step * 100)),
+              )
+              .toBeLessThanOrEqual(1);
             await page.waitForTimeout(1400);
             const sample = await section.evaluate((node) => {
               const portrait = node.querySelector('[class*="biography"] > [class*="portrait"]')!;
               const reveal = portrait.firstElementChild!;
               const paragraphs = [...node.querySelectorAll<HTMLElement>('[class*="details"] p')];
               return {
-                visible: portrait.getBoundingClientRect().top < innerHeight && portrait.getBoundingClientRect().bottom > 0,
+                visible:
+                  portrait.getBoundingClientRect().top < innerHeight &&
+                  portrait.getBoundingClientRect().bottom > 0,
                 opacity: Number(getComputedStyle(portrait).opacity),
+                scroll: scrollY,
+                top: portrait.getBoundingClientRect().top,
+                clip: getComputedStyle(reveal).clipPath,
+                paintedMask: (reveal as HTMLElement).style.getPropertyValue("--portrait-mask"),
                 bottomClip: parseFloat(
                   getComputedStyle(reveal).clipPath.slice(6, -1).split(/\s+/)[2] || "0",
                 ),
@@ -606,10 +625,8 @@ test.describe("About fold viewport", () => {
               };
             });
             expect(sample.opacity).toBe(1);
-            if (sample.visible) {
-              expect(sample.bottomClip).toBeLessThanOrEqual(previousMask + 0.1);
-              previousMask = sample.bottomClip;
-            }
+            expect(sample.bottomClip).toBeLessThanOrEqual(previousMask + 0.1);
+            previousMask = sample.bottomClip;
             expect(sample.columns.every((x) => x >= -0.1)).toBe(true);
             expect(sample.overflow).toBeLessThanOrEqual(1);
           }
@@ -1060,7 +1077,9 @@ for (const hasTouch of [true, false]) {
             ),
           )
           .toBe(columns);
-        await expect.poll(() => latest.locator('article[class*="recentCard"]').count()).toBeLessThanOrEqual(4);
+        await expect
+          .poll(() => latest.locator('article[class*="recentCard"]').count())
+          .toBeLessThanOrEqual(4);
         const more = section.locator('[class*="projectGrid"]').first();
         if (await more.count()) {
           await expect
@@ -1198,6 +1217,8 @@ test("1280x600 desktop keeps the desktop layout without horizontal overflow", as
     const section = page.locator(`#${id}`);
     if (!(await section.count())) continue;
     await section.scrollIntoViewIfNeeded();
-    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth))
+      .toBeLessThanOrEqual(1);
   }
 });
