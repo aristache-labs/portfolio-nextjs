@@ -458,6 +458,8 @@
 @media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
   .section {
     padding-top: 112px;
+    /* Reaches the bottom edge so the Skills label and quote do not peek in under the results. */
+    padding-bottom: 18svh;
     scroll-margin-top: 8px;
   }
 

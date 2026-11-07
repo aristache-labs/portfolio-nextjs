@@ -379,29 +379,13 @@
   }
 }
 
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
-  .content {
-    padding-top: 32px;
-    padding-bottom: 40px;
-  }
 
-  /* The orbit sits behind the right-hand cards here, so keep it faint enough that icons and
-     labels never compete with the card titles. */
+
+/* Tall portrait tablets put the orbit behind the right-hand cards too. Keep it faint. */
+@media (min-width: 680px) and (max-width: 1023px) and (orientation: portrait) {
   .backdrop {
     opacity: 0.3;
   }
 }
 
-/* A short Fold keeps the cards in four rows of two, trimmed (see skill-card.module.css) so the
-   grid and the icon strip below it end above the bottom edge when Skills is opened from the
-   menu. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
-  /* Reach the bottom edge from the 58px the menu scrolls it to, so Experience does not peek in. */
-  .section {
-    min-height: calc(100svh - 34px);
-  }
 
-  .grid {
-    gap: 8px;
-  }
-}
