@@ -157,6 +157,68 @@
   }
 }
 
+/* iPad Pro 13 portrait keeps the Fold stack at the shared 1.376 root scale. */
+@media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  .section {
+    padding-top: 1.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .layout {
+    flex-direction: column;
+    gap: 3rem;
+    align-items: stretch;
+  }
+
+  .copy,
+  .formColumn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .formColumn {
+    padding-top: 0;
+  }
+
+  .formSurface {
+    max-width: 33.4375rem;
+    margin-inline: auto;
+  }
+
+  .contactCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .quote {
+    max-width: 35.9375rem;
+  }
+
+  .quote p {
+    font-size: 1rem;
+  }
+
+  .quote figcaption {
+    font-size: 0.875rem;
+  }
+
+  .contactCards [id$="-title"] {
+    font-size: 0.875rem;
+  }
+
+  .contactCards [id$="-value"] {
+    font-size: 0.75rem;
+  }
+
+  .copy p {
+    max-width: 29.6875rem;
+  }
+
+  .copy > div > p {
+    font-size: 1.0625rem;
+  }
+}
+
 /* Portrait tablets: the quote plate sits on the centre line, like the form below it. */
 @media (min-width: 680px) and (max-width: 1023px) and (orientation: portrait) {
   .quote {

@@ -15,6 +15,12 @@
   text-wrap: balance;
 }
 
+@media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  .name {
+    font-size: clamp(0.71875rem, 8.6cqi, 0.8125rem);
+  }
+}
+
 /* Full-width fill scaled from the left: compositor-only, unlike animating width. */
 .fill {
   position: relative;

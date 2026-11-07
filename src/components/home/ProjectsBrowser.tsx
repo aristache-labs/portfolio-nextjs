@@ -150,8 +150,8 @@ export function ProjectsBrowser({
   const tabletTouchLandscape = useMediaQuery(
     "(orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px)",
   );
-  const mobileViewport = narrowViewport || tabletTouchLandscape;
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
+  const mobileViewport = narrowViewport || tabletTouchLandscape || foldViewport;
   const landscape = useMediaQuery("(orientation: landscape)") || foldViewport;
   const recentLimit = mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -230,7 +230,8 @@ export function ProjectsBrowser({
   // iPad Pro 11 held sideways has the desktop room but a touch pointer, so it never reaches
   // "expressive". Give it the same scroll scene unless motion is off.
   const proLandscape = useMediaQuery(PRO_LANDSCAPE_QUERY) && mode !== "static";
-  const scene = (useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive") || proLandscape;
+  const scene =
+    (useMediaQuery(PINNED_SCENE_QUERY) && !foldViewport && mode === "expressive") || proLandscape;
   const portraitMotion = useMediaQuery(PROJECTS_PORTRAIT_QUERY);
   const landscapeMotion = useMediaQuery(PROJECTS_LANDSCAPE_QUERY);
   const mobileMotion = portraitMotion || landscapeMotion;

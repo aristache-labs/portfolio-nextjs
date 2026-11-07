@@ -65,6 +65,14 @@ const SHORT_LANDSCAPE_NAV_GAP = 14;
 function navigationGap(target: HTMLElement) {
   if (
     target.id === "about" &&
+    window.matchMedia(
+      "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)",
+    ).matches
+  ) {
+    return SECTION_NAV_GAP + 60;
+  }
+  if (
+    target.id === "about" &&
     window.innerWidth <= 767 &&
     window.innerHeight > window.innerWidth &&
     !window.matchMedia(FOLD_VIEWPORT_QUERY).matches
@@ -95,9 +103,26 @@ function navigationGap(target: HTMLElement) {
 }
 
 /** Compact bar heights from nav-chrome.module.css, matched to the same media queries. */
-const COMPACT_NAV_HEIGHTS = { shortLandscape: 44, default: 52 } as const;
+const COMPACT_NAV_HEIGHTS = {
+  shortLandscape: 44,
+  ipadProPortrait: 64,
+  ipadProLandscape: 60,
+  default: 52,
+} as const;
 
 function compactNavHeight() {
+  if (
+    window.matchMedia(
+      "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)",
+    ).matches
+  )
+    return COMPACT_NAV_HEIGHTS.ipadProLandscape;
+  if (
+    window.matchMedia(
+      "(min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)",
+    ).matches
+  )
+    return COMPACT_NAV_HEIGHTS.ipadProPortrait;
   if (
     window.matchMedia("(orientation: landscape) and (max-height: 500px) and (pointer: coarse)")
       .matches
@@ -126,7 +151,8 @@ export function sectionScrollPosition(target: HTMLElement): number {
   const landing = target.querySelector<HTMLElement>("[data-scroll-landing]");
   if (landing) {
     const offset = Number(landing.dataset.scrollLanding) || 0;
-    return landing.getBoundingClientRect().top + window.scrollY - offset;
+    const extraGap = target.id === "about" ? navigationGap(target) - SECTION_NAV_GAP : 0;
+    return landing.getBoundingClientRect().top + window.scrollY - offset - extraGap;
   }
   const anchor = target.querySelector<HTMLElement>("[data-scroll-anchor]");
   if (anchor) {

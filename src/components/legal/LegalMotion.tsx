@@ -60,7 +60,8 @@ function useLegalMobileReveal(ref: RefObject<HTMLElement | null>, enabled: boole
 function useLegalScene() {
   const { mode } = useAnimationPolicy();
   const pinned = useMediaQuery(PINNED_SCENE_QUERY);
-  return pinned && mode === "expressive";
+  const fold = useMediaQuery(FOLD_VIEWPORT_QUERY);
+  return pinned && !fold && mode === "expressive";
 }
 
 /** How far the header scene has run: 0 at the top of the page, 1 once the panel covers it. */

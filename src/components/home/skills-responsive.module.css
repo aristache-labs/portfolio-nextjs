@@ -425,6 +425,73 @@
   }
 }
 
+/* iPad Pro 13 portrait uses the Fold layout at the shared 1.376 root scale. */
+@media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  .content {
+    padding-top: 2rem;
+    padding-bottom: 18svh;
+  }
+
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .split > [aria-hidden] {
+    display: none;
+  }
+
+  .heading {
+    display: block;
+  }
+
+  .tools,
+  .quoteAnchor {
+    zoom: 1.2;
+  }
+
+  .quoteAnchor {
+    width: 11.5rem;
+  }
+
+  .quote {
+    padding: 0.875rem 1rem 0.75rem;
+  }
+
+  .section .quote p {
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .sectionLabel {
+    width: calc(100% - 15rem);
+  }
+
+  .description {
+    max-width: calc(100% - 15rem);
+  }
+
+  .tools [role="tablist"] {
+    justify-content: center;
+  }
+
+  .grid {
+    max-width: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .backdrop {
+    inset: 0;
+    height: 100svh;
+    opacity: 0.3;
+  }
+
+  .backdrop::after {
+    content: none;
+  }
+}
+
 /* iPad Air landscape: the desktop four-column grid (twelve Most Used skills, three rows). */
 @media (min-width: 1100px) and (max-width: 1300px) and (orientation: landscape) and (pointer: coarse) {
   .grid {
