@@ -152,7 +152,12 @@ function ScrollLanding({ target }: { target: RefObject<HTMLDivElement | null> })
     const measure = () => {
       const distance = Math.max(0, track.offsetHeight - stage.getBoundingClientRect().height);
       // Fold viewports land the content 40px lower, clear of the bar.
-      const offset = window.matchMedia(FOLD_VIEWPORT_QUERY).matches ? 120 : 80;
+      // Touch landscape (iPad mini held wide) lands 50px higher so the results panel shows.
+      const offset = window.matchMedia(FOLD_VIEWPORT_QUERY).matches
+        ? 120
+        : window.matchMedia(TOUCH_LANDSCAPE_QUERY).matches
+          ? 40
+          : 80;
       track.setAttribute("data-scroll-landing", String(offset - distance));
     };
     measure();
