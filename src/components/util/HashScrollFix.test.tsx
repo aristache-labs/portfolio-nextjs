@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { HashScrollFix } from "./HashScrollFix";
+import { installMatchMedia } from "@/test/matchMedia";
 
 const route = vi.hoisted(() => ({ pathname: "/" }));
 vi.mock("next/navigation", () => ({ usePathname: () => route.pathname }));
@@ -29,6 +30,7 @@ describe("HashScrollFix", () => {
   }
 
   beforeEach(() => {
+    installMatchMedia();
     vi.useFakeTimers();
     route.pathname = "/";
     scroll = 0;

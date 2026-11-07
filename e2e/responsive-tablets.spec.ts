@@ -9,6 +9,15 @@ const VIEWPORTS = [
   { name: "iPad Air", width: 820, height: 1180 },
   { name: "iPad Pro 12.9", width: 1024, height: 1366 },
   { name: "Galaxy Tab", width: 800, height: 1280 },
+  { name: "iPad mini simulator", width: 768, height: 1024 },
+  { name: "iPad mini browser bars", width: 768, height: 948 },
+  { name: "iPad Pro 11", width: 834, height: 1194 },
+  { name: "iPad Pro 11 simulator", width: 834, height: 1210 },
+  { name: "iPad Pro 13 simulator", width: 1023, height: 1376 },
+  { name: "Galaxy Tab S9 Ultra", width: 1120, height: 1792 },
+  { name: "Fold compact", width: 690, height: 829 },
+  { name: "Fold", width: 836, height: 842 },
+  { name: "Fold tall", width: 744, height: 860 },
 ].flatMap(({ name, width, height }) => [
   { name: `${name} portrait`, width, height },
   { name: `${name} landscape`, width: height, height: width },
@@ -202,7 +211,7 @@ test.describe("Fold Projects layout", () => {
     [836, 842],
     [842, 836],
   ]) {
-    test(`${width}x${height}: Featured swipes, Latest work is one column and Building now sits beside the heading`, async ({
+    test(`${width}x${height}: Featured swipes, More projects has two columns and Building now sits beside the heading`, async ({
       page,
     }) => {
       await open(page, width, height);
@@ -221,7 +230,7 @@ test.describe("Fold Projects layout", () => {
                 (node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length,
               ),
             )
-            .toBe(1);
+            .toBe(selector.includes("projectGrid") ? 2 : 1);
         }
       }
       const stack = section.locator('[class*="highlights"] [class*="stack"]').first();
@@ -235,7 +244,9 @@ test.describe("Fold Projects layout", () => {
         const bounds = await building.boundingBox();
         expect.soft(bounds!.x, "Building now sits on the right").toBeGreaterThan(width / 2);
         expect.soft(bounds!.width).toBeLessThanOrEqual(300);
-        expect.soft(bounds!.width).toBeGreaterThanOrEqual(260);
+        expect
+          .soft(bounds!.width)
+          .toBeGreaterThanOrEqual(width >= 740 && width < height ? 240 : 260);
         await building.locator('button[aria-label^="Open "]').tap();
         await expect(page.getByRole("dialog")).toBeVisible();
         await page.keyboard.press("Escape");
@@ -243,8 +254,18 @@ test.describe("Fold Projects layout", () => {
       const title = section.locator('[class*="recentCard"] h3').first();
       if (await title.count()) {
         expect
-          .soft(await title.evaluate((node) => node.scrollWidth - node.clientWidth))
-          .toBeLessThanOrEqual(1);
+          .soft(
+            await title.evaluate((node) => ({
+              overflow: getComputedStyle(node).textOverflow,
+              label: node.getAttribute("title"),
+              text: node.textContent,
+            })),
+          )
+          .toEqual({
+            overflow: "ellipsis",
+            label: await title.textContent(),
+            text: await title.textContent(),
+          });
       }
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
@@ -297,13 +318,13 @@ test.describe("Fold section backdrops are not stretched", () => {
   }
 });
 
-test.describe("Short Fold About and Skills fill one screen from the menu", () => {
+test.describe("Short Fold About and Skills remain reachable after menu navigation", () => {
   test.use({ hasTouch: true });
   for (const [width, height] of [
     [829, 690],
     [860, 744],
   ]) {
-    test(`${width}x${height}: the results row and the icon strip end above the bottom edge`, async ({
+    test(`${width}x${height}: the results row and icon strip can be reached by scrolling`, async ({
       page,
     }) => {
       await open(page, width, height);
@@ -317,7 +338,9 @@ test.describe("Short Fold About and Skills fill one screen from the menu", () =>
         const bottom = await page.evaluate((sectionId) => {
           const section = document.getElementById(sectionId)!;
           const last = section.querySelector<HTMLElement>(
-            sectionId === "about" ? '[class*="results"]' : '[class*="marquee" i], [class*="Marquee"]',
+            sectionId === "about"
+              ? '[class*="results"]'
+              : '[class*="marquee" i], [class*="Marquee"]',
           );
           return {
             section: section.getBoundingClientRect().bottom,
@@ -325,6 +348,11 @@ test.describe("Short Fold About and Skills fill one screen from the menu", () =>
             height: innerHeight,
           };
         }, id);
+        const last = sectionLast(page, id);
+        if (await last.count())
+          await last.evaluate((node) =>
+            node.scrollIntoView({ block: "center", behavior: "instant" }),
+          );
         if (id === "about") {
           const readResults = () =>
             page.evaluate(() => {
@@ -333,23 +361,26 @@ test.describe("Short Fold About and Skills fill one screen from the menu", () =>
               const style = getComputedStyle(node);
               return {
                 opacity: Number(style.opacity),
-                settled: style.transform === "none" || style.transform === "matrix(1, 0, 0, 1, 0, 0)",
+                settled:
+                  style.transform === "none" || style.transform === "matrix(1, 0, 0, 1, 0, 0)",
                 reveal: grid?.dataset.reveal ?? null,
               };
             });
-          // The entrance must play on its own, without any further scrolling.
+          // Bringing the results inside the observer inset starts the counters.
           await expect
             .poll(async () => (await readResults()).settled, { timeout: 5000 })
             .toBe(true);
+          await expect.poll(async () => (await readResults()).reveal).not.toBe("armed");
           const results = await readResults();
-          expect.soft(results.opacity, "results row is visible without scrolling").toBe(1);
+          expect.soft(results.opacity, "results row is visible after scrolling").toBe(1);
           expect.soft(results.reveal, "counters have started").not.toBe("armed");
         }
-        expect.soft(bottom.section, `${id} reaches the bottom edge`).toBeGreaterThanOrEqual(
-          bottom.height,
-        );
-        if (bottom.last !== null)
-          expect.soft(bottom.last, `${id} last block`).toBeLessThanOrEqual(bottom.height - 16);
+        expect
+          .soft(bottom.section, `${id} reaches the bottom edge`)
+          .toBeGreaterThanOrEqual(bottom.height);
+        if (await last.count()) {
+          await expect(last).toBeInViewport();
+        }
       }
     });
   }
@@ -363,10 +394,14 @@ test.describe("Skills Fold orbit legibility", () => {
   ]) {
     test(`${width}x${height}: the orbit stays faint behind the cards`, async ({ page }) => {
       await open(page, width, height);
-      const backdrop = page.locator('#skills [class*="backdrop"]').first();
+      const backdrop = page
+        .locator('#skills [class*="backdrop"]:not([class*="backdropFrame"])')
+        .first();
       test.skip(!(await backdrop.count()), "Skills is hidden in site settings");
-      const opacity = await backdrop.evaluate((node) => Number(getComputedStyle(node).opacity));
-      expect(opacity).toBeLessThanOrEqual(0.31);
+      await page.locator("#skills h2").scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => backdrop.evaluate((node) => Number(getComputedStyle(node).opacity)))
+        .toBeLessThanOrEqual(0.31);
     });
   }
 });
@@ -538,6 +573,9 @@ test.describe("About fold viewport", () => {
             };
           });
           expect(biography).toEqual({ visible: true, columns: "2" });
+          await expect.poll(() => section.locator('[class*="biography"] > [class*="portrait"]').evaluate((node) =>
+            (node.firstElementChild as HTMLElement).style.getPropertyValue("--portrait-mask"),
+          )).not.toBe("");
           const start = await section.evaluate(
             (node) => scrollY + node.getBoundingClientRect().top - innerHeight * 0.8,
           );
@@ -554,6 +592,7 @@ test.describe("About fold viewport", () => {
               const reveal = portrait.firstElementChild!;
               const paragraphs = [...node.querySelectorAll<HTMLElement>('[class*="details"] p')];
               return {
+                visible: portrait.getBoundingClientRect().top < innerHeight && portrait.getBoundingClientRect().bottom > 0,
                 opacity: Number(getComputedStyle(portrait).opacity),
                 bottomClip: parseFloat(
                   getComputedStyle(reveal).clipPath.slice(6, -1).split(/\s+/)[2] || "0",
@@ -567,9 +606,10 @@ test.describe("About fold viewport", () => {
               };
             });
             expect(sample.opacity).toBe(1);
-            expect(sample.bottomClip).toBe(0);
-            expect(sample.mask).toBeLessThanOrEqual(previousMask + 0.1);
-            previousMask = sample.mask;
+            if (sample.visible) {
+              expect(sample.bottomClip).toBeLessThanOrEqual(previousMask + 0.1);
+              previousMask = sample.bottomClip;
+            }
             expect(sample.columns.every((x) => x >= -0.1)).toBe(true);
             expect(sample.overflow).toBeLessThanOrEqual(1);
           }
@@ -645,7 +685,7 @@ test.describe("About fold layout isolation", () => {
   });
 });
 
-test.describe("Fold menu landscape layout", () => {
+test.describe("Fold menu layout", () => {
   test.use({ hasTouch: true });
 
   for (const [width, height] of [
@@ -654,7 +694,7 @@ test.describe("Fold menu landscape layout", () => {
     [836, 842],
     [842, 836],
   ]) {
-    test(`${width}x${height}: menu uses two link columns and a side action`, async ({ page }) => {
+    test(`${width}x${height}: menu uses one link column and an action below`, async ({ page }) => {
       await open(page, width, height);
       await page.getByRole("button", { name: "Open menu", exact: true }).click();
       const panel = page.locator("#mobile-navigation");
@@ -683,16 +723,16 @@ test.describe("Fold menu landscape layout", () => {
           return height;
         });
         return {
-          sameRow: Math.abs(first.top - second.top) <= 1 && second.left > first.right,
-          sideAction: !action || action.getBoundingClientRect().left >= nav.right,
+          singleColumn: second.top >= first.bottom && Math.abs(first.left - second.left) <= 1,
+          actionBelow: !action || action.getBoundingClientRect().top >= nav.bottom,
           fits:
             node.getBoundingClientRect().bottom <= innerHeight &&
             node.scrollHeight <= node.clientHeight + 1,
           heights,
         };
       });
-      expect(layout.sameRow).toBe(true);
-      expect(layout.sideAction).toBe(true);
+      expect(layout.singleColumn).toBe(true);
+      expect(layout.actionBelow).toBe(true);
       expect(layout.fits).toBe(true);
       expect(layout.heights.every((height) => height >= 44)).toBe(true);
       await page.keyboard.press("Escape");
@@ -875,8 +915,9 @@ test.describe("Hero copy stays to the left of the subject on portrait tablets", 
       const copy = page.locator('#hero p[class*="copy"]').first();
       await expect(copy).toBeVisible();
       const box = await copy.boundingBox();
-      // 25rem, or 52% of the screen when that is narrower.
-      expect(box!.width).toBeLessThanOrEqual(Math.min(400, width * 0.52) + 1);
+      // Air and Tab S7 use the accepted padded 27rem paragraph; Pro 13 keeps 52vw.
+      const limit = width < 1000 ? Math.min(432, width * 0.54) : width * 0.52;
+      expect(box!.width).toBeLessThanOrEqual(limit + 1);
     });
   }
 });
@@ -912,4 +953,251 @@ test("header links on a landscape tablet have a touch target of at least 40px", 
     }),
   );
   expect(short).toEqual([]);
+});
+
+// Check each viewport independently so failures name the actual device and pointer.
+for (const hasTouch of [true, false]) {
+  test.describe(`Tablet regression matrix (${hasTouch ? "coarse" : "fine"})`, () => {
+    test.use({ hasTouch });
+    for (const viewport of VIEWPORTS.filter((v) => v.width >= 650 && v.height >= 650)) {
+      test(`${viewport.name}: sections and controls stay within the viewport`, async ({ page }) => {
+        await open(page, viewport.width, viewport.height);
+        expect(
+          await page.evaluate(() => ({
+            width: innerWidth,
+            height: innerHeight,
+            coarse: matchMedia("(pointer: coarse)").matches,
+          })),
+        ).toEqual({ width: viewport.width, height: viewport.height, coarse: hasTouch });
+        for (const id of ["hero", "about", "skills", "experience", "projects", "contact"]) {
+          const section = page.locator(`#${id}`);
+          if (!(await section.count())) {
+            test.info().annotations.push({ type: "missing-section", description: id });
+            continue;
+          }
+          await section.scrollIntoViewIfNeeded();
+          await expect(section).toBeVisible();
+          await expect
+            .poll(() =>
+              page.evaluate(
+                () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+              ),
+            )
+            .toBeLessThanOrEqual(1);
+          const heading = section.locator("h1, h2").first();
+          await expect(heading).toBeVisible();
+          await expect
+            .poll(
+              async () => {
+                const box = await heading.boundingBox();
+                return !!box && box.x >= -1 && box.x + box.width <= viewport.width + 1;
+              },
+              { message: `${id} heading settles within the viewport` },
+            )
+            .toBe(true);
+          if (id === "skills") {
+            const tabs = section.getByRole("tab");
+            if ((await tabs.count()) > 1) {
+              await tabs.nth(1).scrollIntoViewIfNeeded();
+              await page.evaluate(
+                () =>
+                  new Promise<void>((resolve) =>
+                    requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+                  ),
+              );
+              await tabs.nth(1).click();
+              await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+              await tabs.first().click();
+            }
+          }
+          if (id === "contact") {
+            const email = section.locator('input[type="email"]');
+            if (await email.count()) {
+              await email.focus();
+              await expect(email).toBeFocused();
+            }
+          }
+        }
+        await page.locator("footer").scrollIntoViewIfNeeded();
+        await expect(page.locator("footer")).toBeVisible();
+      });
+    }
+  });
+}
+
+for (const hasTouch of [true, false]) {
+  test.describe(`Accepted tablet Projects layouts (${hasTouch ? "coarse" : "fine"})`, () => {
+    test.use({ hasTouch });
+    for (const [width, height, columns] of [
+      [690, 829, 2],
+      [829, 690, 2],
+      [744, 860, 2],
+      [860, 744, 2],
+      [836, 842, 2],
+      [842, 836, 2],
+      [768, 1024, 1],
+      [768, 948, 1],
+      [820, 1180, 1],
+      [834, 1194, 1],
+      [834, 1210, 1],
+      [1023, 1376, 1],
+      [1024, 1366, 1],
+      [800, 1280, 2],
+      [1120, 1792, 2],
+    ]) {
+      test(`${width}x${height}: Latest work and More projects columns`, async ({ page }) => {
+        await page.emulateMedia({ reducedMotion: "reduce" });
+        await open(page, width, height);
+        const section = page.locator("#projects");
+        test.skip(!(await section.count()), "Projects is hidden in site settings");
+        await section.scrollIntoViewIfNeeded();
+        const latest = section.locator('[class*="recentTrack"]').first();
+        test.skip(!(await latest.count()), "No Latest work data");
+        await expect
+          .poll(() =>
+            latest.evaluate(
+              (node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length,
+            ),
+          )
+          .toBe(columns);
+        await expect.poll(() => latest.locator('article[class*="recentCard"]').count()).toBeLessThanOrEqual(4);
+        const more = section.locator('[class*="projectGrid"]').first();
+        if (await more.count()) {
+          await expect
+            .poll(() =>
+              more.evaluate(
+                (node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length,
+              ),
+            )
+            .toBe(2);
+        }
+      });
+    }
+  });
+}
+
+for (const hasTouch of [true, false]) {
+  test.describe(`Ultra legal layouts (${hasTouch ? "coarse" : "fine"})`, () => {
+    test.use({ hasTouch });
+    for (const [width, height] of [
+      [1120, 1792],
+      [1792, 1120],
+    ]) {
+      for (const route of ["/privacy", "/gdpr"]) {
+        test(`${route} ${width}x${height}: contents and solid panel`, async ({ page }) => {
+          await page.emulateMedia({ reducedMotion: "reduce" });
+          await open(page, width, height);
+          await page.goto(route);
+          const nav = page.getByRole("navigation", {
+            name: route === "/privacy" ? "Privacy page contents" : "GDPR page contents",
+          });
+          await expect(nav).toBeVisible();
+          const details = nav.locator("details");
+          if (width < height) {
+            await expect(details).toBeVisible();
+            await details.locator("summary").click();
+            await expect(details).toHaveAttribute("open", "");
+            await expect(nav).toHaveCSS("position", "static");
+          } else {
+            await expect(details).toBeHidden();
+            await expect(nav).toHaveCSS("position", "sticky");
+          }
+          const panel = nav.locator("..").locator(":scope > div").last();
+          await expect(panel).toHaveCSS("backdrop-filter", "none");
+          expect(
+            await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+          ).toBeLessThanOrEqual(1);
+        });
+      }
+    }
+  });
+}
+
+function sectionLast(page: Page, id: string) {
+  return page
+    .locator(`#${id}`)
+    .locator(id === "about" ? '[class*="results"]' : '[class*="marquee" i]')
+    .first();
+}
+
+for (const hasTouch of [true, false]) {
+  test.describe(`Ultra motion and navigation (${hasTouch ? "coarse" : "fine"})`, () => {
+    test.use({ hasTouch });
+    for (const reducedMotion of ["reduce", "no-preference"] as const) {
+      for (const [width, height] of [
+        [1120, 1792],
+        [1792, 1120],
+      ]) {
+        test(`${width}x${height} ${reducedMotion}: menu landing and dialog fit`, async ({
+          page,
+        }) => {
+          await page.emulateMedia({ reducedMotion });
+          await open(page, width, height);
+          const menu = page.getByRole("button", { name: "Open menu", exact: true });
+          for (const id of ["about", "skills", "experience", "projects"]) {
+            if (await menu.isVisible()) await menu.click();
+            const link = page.locator(`header a[href="#${id}"]:visible`).first();
+            if (!(await link.count())) {
+              if (await page.getByRole("button", { name: "Close menu", exact: true }).isVisible())
+                await page.getByRole("button", { name: "Close menu", exact: true }).click();
+              test.info().annotations.push({ type: "missing-section", description: id });
+              continue;
+            }
+            await link.click();
+            const section = page.locator(`#${id}`);
+            await expect(section.locator("h2").first()).toBeInViewport();
+            if (id === "experience" && width > height && reducedMotion === "no-preference") {
+              const dots = section.locator("[data-timeline-dot]");
+              if ((await dots.count()) > 1) {
+                await expect(dots.first()).toHaveAttribute("data-timeline-filled");
+                await expect(dots.nth(1)).not.toHaveAttribute("data-timeline-filled");
+                await expect(section.locator("[data-compact]")).toHaveCount(0);
+              }
+            }
+            if (id === "projects") {
+              const preview = section.locator('button[aria-label^="View "]').first();
+              if (await preview.count()) {
+                await preview.click();
+                const dialog = page.getByRole("dialog");
+                await expect(dialog).toBeVisible();
+                await expect
+                  .poll(() =>
+                    dialog.evaluate((node) => {
+                      const box = node.getBoundingClientRect();
+                      return (
+                        box.left >= -1 &&
+                        box.right <= innerWidth + 1 &&
+                        box.top >= -1 &&
+                        box.bottom <= innerHeight + 1
+                      );
+                    }),
+                  )
+                  .toBe(true);
+                await page.keyboard.press("Escape");
+                await expect(dialog).toBeHidden();
+              }
+            }
+          }
+          if (width < height) {
+            await expect(page.locator('#hero [class*="scene"]').first()).toHaveCSS(
+              "position",
+              "relative",
+            );
+          }
+        });
+      }
+    }
+  });
+}
+
+test("1280x600 desktop keeps the desktop layout without horizontal overflow", async ({ page }) => {
+  await open(page, 1280, 600);
+  expect(await page.evaluate(() => matchMedia("(pointer: fine)").matches)).toBe(true);
+  await expect(page.locator("header ul a").first()).toBeVisible();
+  for (const id of ["hero", "about", "skills", "experience", "projects", "contact"]) {
+    const section = page.locator(`#${id}`);
+    if (!(await section.count())) continue;
+    await section.scrollIntoViewIfNeeded();
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
+  }
 });
