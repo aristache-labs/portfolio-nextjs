@@ -8,6 +8,8 @@ import { renderToString } from "react-dom/server";
 import styles from "./experience-layout.module.css";
 import * as sectionScroll from "@/lib/scroll-to-section";
 
+const timelineObserver = globalThis.IntersectionObserver;
+
 const scrollHook = vi.hoisted(() => vi.fn());
 const scrollProgress = vi.hoisted(() => ({
   current: null as import("framer-motion").MotionValue<number> | null,
@@ -51,20 +53,29 @@ const mockExperiences: ExperienceRow[] = [
 ];
 
 describe("Experience", () => {
-  it.each([true, false])(
-    "starts the iPad landscape rail at the menu landing (fine pointer: %s)",
-    (fine) => {
+  it.each([
+    { fine: true, ultra: false },
+    { fine: false, ultra: false },
+    { fine: true, ultra: true },
+    { fine: false, ultra: true },
+  ])(
+    "starts the landscape rail at the menu landing ($fine fine, $ultra Ultra)",
+    ({ fine, ultra }) => {
+      vi.stubGlobal("IntersectionObserver", timelineObserver);
       installMatchMedia({
         [EXPRESSIVE_MOTION_QUERY]: fine,
         "(min-width: 1024px)": true,
         "(orientation: landscape) and (pointer: coarse) and (min-width: 1024px)": !fine,
-        "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)": true,
+        "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)":
+          !ultra,
+        "(min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape)":
+          ultra,
       });
       const landing = vi.spyOn(sectionScroll, "sectionScrollPosition").mockReturnValue(1000);
       vi.stubGlobal("scrollY", 1000);
       const trackHeight = vi
         .spyOn(HTMLElement.prototype, "offsetHeight", "get")
-        .mockReturnValue(1000);
+        .mockReturnValue(ultra ? 800 : 1000);
       const trackTop = vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockReturnValue(0);
       const bounds = vi
         .spyOn(HTMLElement.prototype, "getBoundingClientRect")
@@ -87,19 +98,40 @@ describe("Experience", () => {
         act(() => scrollProgress.current!.set(0.5));
         expect(dots[0]).toHaveAttribute("data-timeline-filled");
         expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
-        vi.stubGlobal("scrollY", 1420);
+        if (ultra) {
+          const intro = container.querySelector("[data-compact]");
+          expect(intro).toBeNull();
+          vi.stubGlobal("scrollY", 1004);
+          fireEvent.scroll(window);
+          expect(container.querySelector("[data-compact]")).toBeNull();
+          vi.stubGlobal("scrollY", 1005);
+          fireEvent.scroll(window);
+          expect(container.querySelector("[data-compact]")).not.toBeNull();
+        }
+        vi.stubGlobal("scrollY", 1499);
         act(() => scrollProgress.current!.set(0.65));
         expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
-        expect(container.querySelector('[data-experience-id="2"]')).toHaveAttribute(
+        expect(container.querySelector('[data-experience-id="2"]')).not.toHaveAttribute(
           "data-timeline-active",
           "true",
         );
         vi.stubGlobal("scrollY", 1500);
         act(() => scrollProgress.current!.set(0.7));
         expect(dots[1]).toHaveAttribute("data-timeline-filled");
+        expect(container.querySelector('[data-experience-id="2"]')).toHaveAttribute(
+          "data-timeline-active",
+          "true",
+        );
+        vi.stubGlobal("scrollY", 1501);
+        act(() => scrollProgress.current!.set(0.71));
+        expect(dots[1]).toHaveAttribute("data-timeline-filled");
         vi.stubGlobal("scrollY", 1000);
         act(() => scrollProgress.current!.set(0.1));
         expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
+        expect(container.querySelector('[data-experience-id="1"]')).toHaveAttribute(
+          "data-timeline-active",
+          "true",
+        );
       } finally {
         unmount();
         landing.mockRestore();
