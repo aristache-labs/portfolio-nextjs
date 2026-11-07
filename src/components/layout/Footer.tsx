@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type MouseEvent } from "react";
-import { ArrowRight, ChevronRight, Sparkle } from "lucide-react";
+import { ArrowRight, ChevronRight, Sparkle, Workflow } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { SectionLink } from "@/components/common/SectionLink";
@@ -396,7 +396,12 @@ export function Footer({
               </span>
             </m.div>
             <m.div initial={false} variants={itemVariants} className={layout.expertise}>
-              WEB <span aria-hidden>·</span> MOBILE <span aria-hidden>·</span> INFRASTRUCTURE
+              <Workflow aria-hidden className={layout.expertiseIcon} />
+              <span>WEB</span>
+              <span aria-hidden>·</span>
+              <span className={layout.expertiseAccent}>MOBILE</span>
+              <span aria-hidden>·</span>
+              <span>INFRASTRUCTURE</span>
             </m.div>
             <m.p
               initial={false}

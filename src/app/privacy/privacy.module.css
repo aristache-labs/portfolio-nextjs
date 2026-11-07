@@ -222,7 +222,7 @@
 /* Ultra landscape keeps a readable contents rail beside the larger legal panel. */
 @media (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) {
   .backdropSection > :global(.site-container) {
-    zoom: 1.25;
+    zoom: 1.5;
   }
 
   .article .content {
