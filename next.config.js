@@ -75,10 +75,13 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: [
-          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          // COEP stays off: require-corp would block GitHub avatars, Shields and Blob images.
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
           ...(isDev ? [] : [{ key: "X-Frame-Options", value: "DENY" }]),
           { key: "Content-Security-Policy", value: contentSecurityPolicy },
         ],
