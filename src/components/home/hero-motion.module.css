@@ -1395,3 +1395,104 @@
     font-size: max(0.75rem, 10px);
   }
 }
+
+/* Fold viewports keep landscape content alignment in either orientation. */
+@media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .scene {
+    min-height: min(100svh, 56rem);
+    justify-content: center;
+  }
+
+  .content {
+    padding-top: 9rem;
+    padding-bottom: 7rem;
+  }
+
+  .hero .availability {
+    display: inline-flex;
+    margin-inline: 0;
+  }
+
+  .specialization {
+    margin-inline: 0;
+    margin-bottom: 1.25rem;
+    text-align: left;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+  }
+
+  .name {
+    font-size: clamp(3.5rem, 5.4vw, 5.25rem);
+    font-weight: 600;
+  }
+
+  .headline {
+    margin-top: 1.5rem;
+    font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  }
+
+  .hero .copy {
+    max-width: min(25rem, 52vw);
+    line-height: 1.75;
+  }
+
+  .tagline {
+    text-align: left;
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.75rem;
+  }
+
+  .actions a {
+    font-size: 1rem;
+  }
+
+  .actions .primaryAction {
+    padding-inline: 2rem;
+  }
+
+  .actions .contactAction {
+    padding-inline: 1.75rem;
+  }
+
+  .secondaryLinks {
+    justify-content: flex-start;
+    gap: 0.5rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .textLink {
+    gap: 0.425rem;
+    font-size: 1.0625rem;
+  }
+
+  .poster {
+    inset: 0;
+    height: auto;
+    mask-image: none;
+  }
+
+  .scrim {
+    background-image: linear-gradient(
+      90deg,
+      rgb(8 12 13 / 0.93),
+      rgb(8 12 13 / 0.62) 34%,
+      rgb(8 12 13 / 0.08) 68%
+    );
+  }
+
+  .scrollCue {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    margin-bottom: 0;
+    translate: -50% 0;
+  }
+}

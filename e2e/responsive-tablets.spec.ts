@@ -17,6 +17,62 @@ const VIEWPORTS = [
 test.use({ colorScheme: "dark" });
 test.setTimeout(120_000);
 
+test.describe("Hero fold content layout", () => {
+  test.use({ hasTouch: true });
+
+  for (const reducedMotion of ["no-preference", "reduce"] as const) {
+    test(`744x860 uses landscape content alignment (${reducedMotion})`, async ({ page }) => {
+      await page.emulateMedia({ reducedMotion });
+      for (const [width, height] of [
+        [744, 860],
+        [860, 744],
+      ]) {
+        await open(page, width, height);
+        await page.waitForTimeout(3500);
+        const layout = await page.locator("#hero").evaluate((hero) => {
+          const style = (name: string) =>
+            getComputedStyle(hero.querySelector(`[class*="${name}"]`)!);
+          const scene = hero.querySelector('[class*="scene"]')!.getBoundingClientRect();
+          const links = hero.querySelector('[class*="secondaryLinks"]')!.getBoundingClientRect();
+          const cue = hero.querySelector('[class*="scrollCue"]')!.getBoundingClientRect();
+          return {
+            roles: style("specialization").textAlign,
+            tagline: getComputedStyle(hero.querySelector('[class*="taglineRow"] > span')!)
+              .textAlign,
+            actions: style("actions").display,
+            links: style("secondaryLinks").justifyContent,
+            cuePosition: style("scrollCue").position,
+            cueFits: cue.bottom <= scene.bottom + 1 && cue.top >= links.bottom - 1,
+            copyWidth: hero.querySelector('[class*="copy"]')!.getBoundingClientRect().width,
+            overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          };
+        });
+        expect(layout.roles).toBe("left");
+        expect(layout.tagline).toBe("left");
+        expect(layout.actions).toBe("flex");
+        expect(layout.links).toBe("flex-start");
+        expect(layout.cuePosition).toBe("absolute");
+        expect(layout.cueFits).toBe(true);
+        expect(layout.copyWidth).toBeLessThanOrEqual(Math.min(400, width * 0.52) + 1);
+        expect(layout.overflow).toBeLessThanOrEqual(1);
+      }
+    });
+  }
+
+  test("ordinary portrait phone retains its centered supporting content", async ({ page }) => {
+    await open(page, 390, 844);
+    await expect(page.locator('#hero [class*="specialization"]').first()).toHaveCSS(
+      "text-align",
+      "center",
+    );
+    await expect(page.locator('#hero [class*="secondaryLinks"]')).toHaveCSS(
+      "justify-content",
+      "center",
+    );
+    await expect(page.locator('#hero [class*="actions"]').first()).toHaveCSS("display", "grid");
+  });
+});
+
 test.describe("About fold viewport", () => {
   for (const hasTouch of [false, true]) {
     test.describe(hasTouch ? "touch" : "desktop emulation", () => {
