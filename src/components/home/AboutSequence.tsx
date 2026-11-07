@@ -151,7 +151,9 @@ function ScrollLanding({ target }: { target: RefObject<HTMLDivElement | null> })
     if (!track || !stage) return;
     const measure = () => {
       const distance = Math.max(0, track.offsetHeight - stage.getBoundingClientRect().height);
-      track.setAttribute("data-scroll-landing", String(80 - distance));
+      // Fold viewports land the content 40px lower, clear of the bar.
+      const offset = window.matchMedia(FOLD_VIEWPORT_QUERY).matches ? 120 : 80;
+      track.setAttribute("data-scroll-landing", String(offset - distance));
     };
     measure();
     const observer = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : null;

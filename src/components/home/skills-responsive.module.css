@@ -379,13 +379,14 @@
   }
 }
 
-
-
 /* Tall portrait tablets put the orbit behind the right-hand cards too. Keep it faint. */
 @media (min-width: 680px) and (max-width: 1023px) and (orientation: portrait) {
   .backdrop {
     opacity: 0.3;
   }
+
+  /* Reaches the bottom edge so the Experience label does not peek in under the cards. */
+  .content {
+    padding-bottom: 18svh;
+  }
 }
-
-

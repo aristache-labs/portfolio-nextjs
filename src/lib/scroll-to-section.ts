@@ -71,6 +71,9 @@ function navigationGap(target: HTMLElement) {
   ) {
     return SECTION_NAV_GAP - 8;
   }
+  if (target.id === "skills" && window.matchMedia(FOLD_VIEWPORT_QUERY).matches) {
+    return SECTION_NAV_GAP + 40;
+  }
   return window.innerHeight <= 500 && window.innerWidth > window.innerHeight
     ? SHORT_LANDSCAPE_NAV_GAP
     : SECTION_NAV_GAP;
