@@ -121,6 +121,13 @@
   }
 }
 
+/* iPad Pro 11 landscape gives Latest work a little more room beside Featured. */
+@media (orientation: landscape) and (min-width: 1181px) and (max-width: 1249px) and (min-height: 700px) and (max-height: 850px) {
+  .highlights {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+}
+
 /* Galaxy Tab S7 held sideways (and the same-sized simulator): a narrower Featured column
    leaves more room for the two columns of Latest work. */
 @media (orientation: landscape) and (min-width: 1250px) and (max-width: 1300px) and (max-height: 840px) {
@@ -359,7 +366,8 @@
 
 /* Let the reader scroll past the iPad menu landing before Latest work begins receding.
    Keep the same travel span so the later start does not make the shrink feel abrupt. */
-@media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
+  (min-width: 1181px) and (max-width: 1249px) and (min-height: 700px) and (max-height: 850px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .recentRow:nth-child(-n + 2) .recentCard,
   .recentRow:nth-child(-n + 2) .recentCard::after {
     animation-range: entry 80% entry 125%;
