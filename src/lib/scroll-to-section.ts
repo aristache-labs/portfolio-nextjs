@@ -65,6 +65,14 @@ const SHORT_LANDSCAPE_NAV_GAP = 14;
 function navigationGap(target: HTMLElement) {
   if (
     target.id === "about" &&
+    window.matchMedia(
+      "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)",
+    ).matches
+  ) {
+    return SECTION_NAV_GAP + 60;
+  }
+  if (
+    target.id === "about" &&
     window.innerWidth <= 767 &&
     window.innerHeight > window.innerWidth &&
     !window.matchMedia(FOLD_VIEWPORT_QUERY).matches
@@ -143,7 +151,8 @@ export function sectionScrollPosition(target: HTMLElement): number {
   const landing = target.querySelector<HTMLElement>("[data-scroll-landing]");
   if (landing) {
     const offset = Number(landing.dataset.scrollLanding) || 0;
-    return landing.getBoundingClientRect().top + window.scrollY - offset;
+    const extraGap = target.id === "about" ? navigationGap(target) - SECTION_NAV_GAP : 0;
+    return landing.getBoundingClientRect().top + window.scrollY - offset - extraGap;
   }
   const anchor = target.querySelector<HTMLElement>("[data-scroll-anchor]");
   if (anchor) {

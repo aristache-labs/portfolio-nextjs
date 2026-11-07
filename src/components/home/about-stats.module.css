@@ -905,6 +905,65 @@
   }
 }
 
+/* iPad Pro 13 landscape matches the Hero's modest content increase. */
+@media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) {
+  .biography,
+  .copy {
+    max-width: 70.4rem;
+  }
+
+  .biography {
+    grid-template-columns: minmax(0, 1fr) minmax(242px, 286px);
+    row-gap: 22px;
+  }
+
+  .biography[data-portrait="false"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .biography .heading h2 {
+    font-size: 2.2rem;
+  }
+
+  .introduction p {
+    font-size: clamp(1.2375rem, 1.65vw, 1.5125rem);
+  }
+
+  .biography .portrait {
+    width: 275px;
+  }
+
+  .copy > div:first-child {
+    column-gap: 44px;
+  }
+
+  .copy > div:first-child > p {
+    font-size: 1.03125rem;
+  }
+
+  .numberValue {
+    font-size: 1.65rem;
+  }
+
+  .label {
+    font-size: 0.825rem;
+  }
+
+  .metricGroup {
+    gap: 11px;
+  }
+
+  .metricGroup > span:first-child > span {
+    width: 48.4px;
+    height: 48.4px;
+  }
+
+  .metricGroup > span:first-child svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
 /* iPad Pro 13 portrait keeps the Fold composition at the shared 1.376 root scale. */
 @media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .section {
