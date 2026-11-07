@@ -1,4 +1,14 @@
 /* One visual style for section headings; each section owns its entrance and scroll motion. */
+@media (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) {
+  .title.title.title {
+    font-size: calc(54px / var(--section-heading-scale, 1));
+  }
+
+  .label.label.label {
+    font-size: calc(20px / var(--section-heading-scale, 1));
+  }
+}
+
 .title.title {
   margin-top: 0;
   color: var(--foreground);

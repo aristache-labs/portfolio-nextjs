@@ -30,7 +30,7 @@ export type SkillRow = {
 
 const MOST_USED = "Most Used";
 const IPAD_PRO_LANDSCAPE_QUERY =
-  "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)";
+  "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape), (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape)";
 /** Homepage filter order. Tabs still appear only when a skill uses that category. */
 const CATEGORY_ORDER = ["Development", "Infrastructure", "Automation", "Data & Cloud"];
 /** Desktop has three rows; touch keeps the compact eight-skill selection. */
