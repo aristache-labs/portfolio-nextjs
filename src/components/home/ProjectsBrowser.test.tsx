@@ -5,7 +5,7 @@ import { installMatchMedia } from "@/test/matchMedia";
 import { ProjectsBrowser } from "./ProjectsBrowser";
 import { Projects } from "./Projects";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
-import { PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
+import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY } from "@/hooks/useMediaQuery";
 import type { MergedProject } from "@/lib/projects";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 
@@ -302,19 +302,22 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
   });
-  it("shows three recent and four lower cards in landscape and omits empty categories", () => {
-    installMatchMedia({ "(max-width: 1023px)": true, "(orientation: landscape)": true });
-    render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(9);
-    const recentHeading = screen.getByText("Latest work");
-    const recentColumn = recentHeading.parentElement!.parentElement!;
-    expect(within(recentColumn).getAllByRole("article")).toHaveLength(3);
-    expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("More projects").tagName).toBe("P");
-    expect(screen.getByText("Latest work").tagName).toBe("P");
-    expect(screen.getByText("Featured", { exact: true, selector: "p" }).tagName).toBe("P");
-  });
+  it.each(["(orientation: landscape)", FOLD_VIEWPORT_QUERY])(
+    "shows landscape card limits for %s and omits empty categories",
+    (query) => {
+      installMatchMedia({ "(max-width: 1023px)": true, [query]: true });
+      render(<ProjectsBrowser projects={list} />);
+      expect(screen.getAllByRole("article")).toHaveLength(9);
+      const recentHeading = screen.getByText("Latest work");
+      const recentColumn = recentHeading.parentElement!.parentElement!;
+      expect(within(recentColumn).getAllByRole("article")).toHaveLength(3);
+      expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByText("More projects").tagName).toBe("P");
+      expect(screen.getByText("Latest work").tagName).toBe("P");
+      expect(screen.getByText("Featured", { exact: true, selector: "p" }).tagName).toBe("P");
+    },
+  );
 
   it("resets an emptied category and pagination when data changes", () => {
     const { rerender } = render(<ProjectsBrowser projects={list} />);

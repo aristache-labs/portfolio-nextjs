@@ -1,7 +1,7 @@
 /**
  * Every media query the motion layer branches on, in one place. Hooks, GSAP `matchMedia`
- * conditions and the Tailwind custom variants in `globals.css` all mean the same thing by
- * these names, so a breakpoint is changed here and nowhere else.
+ * conditions share these definitions. CSS modules mirror the Fold geometry to keep
+ * layout and motion in agreement without changing ordinary portrait phones.
  */
 
 /** Section background videos are reserved for desktop pointers. */
@@ -11,15 +11,18 @@ export const BACKGROUND_VIDEO_QUERY = "(min-width: 1024px) and (hover: hover) an
 export const PINNED_SCENE_QUERY =
   "(min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover)";
 
-/** Phones held upright. Sections switch to their CSS-only mobile motion here. */
-export const PORTRAIT_PHONE_QUERY = "(max-width: 767px) and (orientation: portrait)";
-
 /** Touch phones and tablets held sideways. */
 export const TOUCH_LANDSCAPE_QUERY = "(orientation: landscape) and (pointer: coarse)";
 
 /** Fold-sized viewports share their layout in either orientation. */
 export const FOLD_VIEWPORT_QUERY =
   "(min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4)";
+
+/** Upright phones use mobile motion; Fold viewports retain their landscape scene. */
+export const PORTRAIT_PHONE_QUERY = `(max-width: 767px) and (orientation: portrait) and (not (${FOLD_VIEWPORT_QUERY}))`;
+
+/** Landscape layout and motion also apply to Fold viewports held upright. */
+export const LANDSCAPE_LAYOUT_QUERY = `${TOUCH_LANDSCAPE_QUERY}, ${FOLD_VIEWPORT_QUERY}`;
 
 /** The hero also animates on touch devices held in landscape. */
 export const HERO_VIDEO_QUERY = `${BACKGROUND_VIDEO_QUERY}, ${TOUCH_LANDSCAPE_QUERY}`;

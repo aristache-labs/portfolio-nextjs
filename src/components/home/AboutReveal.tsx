@@ -5,7 +5,7 @@ import { sectionNavigationPending } from "@/lib/section-navigation";
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 
 const DEFAULT_ROOT_MARGIN = "0px 0px -10% 0px";
 
@@ -29,8 +29,9 @@ export function AboutReveal({
   const desktopPinned = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
   // Tall touch landscape only. Short phones keep the default trigger and their compact layout.
   const tallTouch =
-    useMediaQuery("(orientation: landscape) and (pointer: coarse) and (min-height: 501px)") &&
-    mode !== "static";
+    useMediaQuery(
+      `(orientation: landscape) and (pointer: coarse) and (min-height: 501px), ${FOLD_VIEWPORT_QUERY}`,
+    ) && mode !== "static";
   const rootMargin = ((desktopPinned || tallTouch) && pinnedRootMargin) || DEFAULT_ROOT_MARGIN;
 
   const navigation = useSectionNavigation(ref, () => !played.current);

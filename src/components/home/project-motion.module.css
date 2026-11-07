@@ -1,5 +1,5 @@
 /* Keep touch interactions static; hover enhancement follows the shared desktop policy. */
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .section {
     --projects-backdrop-travel: 40px;

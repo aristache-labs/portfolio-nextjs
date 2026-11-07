@@ -12,6 +12,7 @@ import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
 import type { MergedProject } from "@/lib/projects";
 import spacing from "./experience-projects-spacing.module.css";
+import layoutCss from "./projects-layout.module.css";
 
 const GITHUB_PROFILE = "https://github.com/aristache-labs";
 
@@ -26,14 +27,12 @@ export function Projects({
 }) {
   // The heading lives inside the browser so the Building now card can sit beside it.
   const header = (
-    <ProjectsArrival
-      kind="heading"
-      effect="slide"
-      className="portrait-phone:mb-10 portrait-phone:flex portrait-phone:flex-col"
-    >
-      <div className="portrait-phone:contents mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <ProjectsArrival kind="heading" effect="slide" className={layoutCss.sectionHeading}>
+      <div
+        className={`${layoutCss.headingRow} mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between`}
+      >
         {/* Same scale and weight as the About, Skills and Experience headings. */}
-        <div className="portrait-phone:mb-4">
+        <div className={layoutCss.headingText}>
           <p className={`${labelCss.label} ${headingCss.label}`}>
             <span className={labelCss.number}>{number}</span>
             <span>Projects</span>
@@ -45,7 +44,7 @@ export function Projects({
         </div>
       </div>
       <p
-        className={`${subtitleCss.subtitle} portrait-phone:order-1 portrait-phone:mb-0 mb-10 max-w-2xl text-pretty`}
+        className={`${layoutCss.headingDescription} ${subtitleCss.subtitle} mb-10 max-w-2xl text-pretty`}
       >
         Web and mobile applications, infrastructure projects and automation tools.
       </p>

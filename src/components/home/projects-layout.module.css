@@ -18,7 +18,8 @@
   gap: 16px;
 }
 
-@media (orientation: landscape) and (min-width: 640px) {
+@media (orientation: landscape) and (min-width: 640px),
+  ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4)) and (min-width: 640px) {
   .highlights {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -167,7 +168,7 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .groupTitle {
     width: 100%;
     justify-content: center;
@@ -359,5 +360,45 @@
   /* Same bottom margin as the subtitle (mb-10), so the card lines up with its last line. */
   .head > :nth-child(2) {
     margin-bottom: 2.5rem;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+  .sectionHeading {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40px;
+  }
+  .headingRow {
+    display: contents;
+  }
+  .headingText {
+    margin-bottom: 16px;
+  }
+  .headingDescription {
+    order: 1;
+    margin-bottom: 0;
+  }
+}
+@media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .headingRow {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .stack {
+    flex-direction: column;
+    scroll-snap-type: none;
+    overflow-x: visible;
+    overscroll-behavior-x: auto;
+    padding-bottom: 0;
+  }
+  .stack > * {
+    width: 100%;
+    flex-shrink: 1;
+    scroll-snap-align: none;
+  }
+  .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

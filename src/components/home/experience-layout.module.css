@@ -2,7 +2,7 @@
   --timeline-axis: 0.375rem;
 }
 
-@media (max-width: 767px) and (orientation: portrait) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .section {
     padding-top: 0;
   }
@@ -21,7 +21,7 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .section {
     --experience-entry-x: 0px;
@@ -192,7 +192,7 @@
   }
 }
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference),
-  (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+  (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .card {
     transition:
@@ -495,5 +495,12 @@
 @media (min-width: 1024px) and (pointer: fine) {
   .entry:not(:last-child) {
     min-height: 42svh;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .section {
+    padding-top: 112px;
+    scroll-margin-top: 4px;
   }
 }

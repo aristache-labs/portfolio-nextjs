@@ -3,7 +3,7 @@
   padding-bottom: 16px;
 }
 
-@media (orientation: portrait) and (max-width: 767px) {
+@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .details {
     padding-top: 20px;
     padding-bottom: 8px;

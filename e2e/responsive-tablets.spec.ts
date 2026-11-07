@@ -17,6 +17,181 @@ const VIEWPORTS = [
 test.use({ colorScheme: "dark" });
 test.setTimeout(120_000);
 
+test.describe("Fold whole-page landscape behavior", () => {
+  test.use({ hasTouch: true });
+  test.setTimeout(180_000);
+
+  for (const reducedMotion of ["no-preference", "reduce"] as const) {
+    for (const [width, height] of [
+      [744, 860],
+      [836, 842],
+    ]) {
+      test(`${width}x${height}: sections, motion and dialogs match tall landscape (${reducedMotion})`, async ({
+        page,
+      }) => {
+        await page.emulateMedia({ reducedMotion });
+        await open(page, width, height);
+        await page.waitForTimeout(2000);
+        const hasAbout = (await page.locator("#about").count()) > 0;
+        expect
+          .soft(await page.locator("#hero").getAttribute("data-touch-scene"))
+          .toBe(reducedMotion === "reduce" || !hasAbout ? null : "true");
+        for (const id of ["about", "skills", "experience", "projects", "services", "contact"]) {
+          await page.getByRole("button", { name: "Open menu", exact: true }).click();
+          const link = page.locator(`header a[href="#${id}"]:visible`).first();
+          if (!(await link.count())) {
+            await page.getByRole("button", { name: "Close menu", exact: true }).click();
+            continue;
+          }
+          await link.tap();
+          await page.waitForTimeout(1400);
+          const section = page.locator(`#${id}`);
+          // Sections clip poster overscan and offscreen entrance positions.
+          const overflow = await page.evaluate(
+            () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          );
+          expect.soft(overflow, `${id} overflows horizontally`).toBeLessThanOrEqual(1);
+          if (id === "skills") {
+            await expect
+              .soft(section.locator('[class*="mobileDescription"]'))
+              .toHaveCSS("display", "none");
+            await expect.soft(section.locator("[data-kind]")).toHaveCount(0);
+            const tabs = section.getByRole("tab");
+            if ((await tabs.count()) > 1) {
+              await tabs.nth(1).tap();
+              await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+              await tabs.first().tap();
+            }
+          }
+          if (id === "experience") {
+            await expect.soft(section.locator('[class*="mobileReveal"]')).toHaveCount(0);
+            const details = section.locator("details").first();
+            if (await details.count()) {
+              await details.locator("summary").tap();
+              await expect(details).toHaveAttribute("open", "");
+              await details.locator("summary").tap();
+            }
+          }
+          if (id === "projects") {
+            await expect.soft(section.locator("[data-project-reveal]")).toHaveCount(0);
+            const highlights = section.locator('[class*="highlights"]').first();
+            if (await highlights.count()) {
+              expect
+                .soft(
+                  await highlights.evaluate(
+                    (node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length,
+                  ),
+                )
+                .toBe(2);
+              const stack = highlights.locator('[class*="stack"]').first();
+              if (await stack.count())
+                await expect.soft(stack).toHaveCSS("flex-direction", "column");
+            }
+            const preview = section.locator('button[aria-label^="View "]').first();
+            if (await preview.count()) {
+              await preview.tap();
+              const dialog = page.getByRole("dialog");
+              await expect(dialog).toBeVisible();
+              await page.waitForTimeout(1400);
+              expect
+                .soft(
+                  await dialog.evaluate((node) => {
+                    const box = node.getBoundingClientRect();
+                    return (
+                      box.left >= 0 &&
+                      box.right <= innerWidth &&
+                      box.top >= 0 &&
+                      box.bottom <= innerHeight &&
+                      [...node.querySelectorAll("button, a")].every((control) => {
+                        const bounds = control.getBoundingClientRect();
+                        return bounds.left >= 0 && bounds.right <= innerWidth;
+                      })
+                    );
+                  }),
+                )
+                .toBe(true);
+              expect
+                .soft(
+                  await dialog
+                    .locator('[class*="shortLabel"]')
+                    .evaluateAll((nodes) =>
+                      nodes.every((node) => getComputedStyle(node).display === "none"),
+                    ),
+                )
+                .toBe(true);
+              await page.keyboard.press("Escape");
+              await expect(dialog).toBeHidden();
+            }
+          }
+          if (id === "services") {
+            if (!(await section.locator('[class*="grid"]').count())) continue;
+            expect
+              .soft(
+                await section
+                  .locator('[class*="grid"]')
+                  .first()
+                  .evaluate(
+                    (node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length,
+                  ),
+              )
+              .toBe(2);
+          }
+          if (id === "contact") {
+            await expect.soft(section.locator("[data-contact-kind]")).toHaveCount(0);
+            await expect
+              .poll(() =>
+                section.locator("h2").evaluate((heading) => {
+                  let node: Element | null = heading;
+                  while (node && node.id !== "contact") {
+                    if (Number(getComputedStyle(node).opacity) < 0.99) return false;
+                    node = node.parentElement;
+                  }
+                  return true;
+                }),
+              )
+              .toBe(true);
+            const input = section.locator('input[type="email"]');
+            if (await input.count()) {
+              await input.focus();
+              await expect(input).toBeFocused();
+            }
+          }
+        }
+        await page.evaluate(() =>
+          window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }),
+        );
+        await page.waitForTimeout(1400);
+        const footer = page.locator("footer");
+        expect
+          .soft(
+            await footer
+              .locator('[class*="columns"]')
+              .evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length),
+          )
+          .toBe(3);
+        expect
+          .soft(
+            await footer
+              .locator('[class*="legal"]')
+              .filter({ has: page.locator("p") })
+              .last()
+              .evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(/\s+/).length),
+          )
+          .toBe(2);
+        await page.getByRole("button", { name: "Open menu", exact: true }).click();
+        await page.locator('header a[href="#hero"]:visible').first().tap();
+        await page.waitForTimeout(1400);
+        await expect(page.locator("#hero h1")).toBeVisible();
+        expect(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          ),
+        ).toBeLessThanOrEqual(1);
+      });
+    }
+  }
+});
+
 test.describe("Hero Fold portrait background video", () => {
   test.use({ hasTouch: true });
 

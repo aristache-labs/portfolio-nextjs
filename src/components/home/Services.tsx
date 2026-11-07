@@ -7,6 +7,7 @@ import { ServiceCard } from "./ServiceCard";
 import { SectionBackdrop } from "./SectionBackdrop";
 import labelCss from "@/components/ui/section-label.module.css";
 import headingCss from "./section-heading.module.css";
+import layoutCss from "./services-layout.module.css";
 import type { Service } from "@/db/schema";
 
 export type ServiceRow = Service;
@@ -17,7 +18,7 @@ export function Services({ services, number = "05" }: { services: ServiceRow[]; 
   return (
     <Section
       id="services"
-      className="scroll-mt-[80px] pt-6 pb-4 md:pt-12 md:pb-6"
+      className={`${layoutCss.section} scroll-mt-[80px] pt-6 pb-4 md:pt-12 md:pb-6`}
       backdrop={
         <>
           <SectionBackdrop
@@ -38,7 +39,7 @@ export function Services({ services, number = "05" }: { services: ServiceRow[]; 
           />
           <div
             aria-hidden
-            className="bg-background/70 md:bg-background/80 pointer-events-none absolute inset-0 z-[1]"
+            className={`${layoutCss.scrim} bg-background/70 md:bg-background/80 pointer-events-none absolute inset-0 z-[1]`}
           />
         </>
       }
@@ -64,7 +65,9 @@ export function Services({ services, number = "05" }: { services: ServiceRow[]; 
           </Card>
         </ProgressiveReveal>
       ) : (
-        <div className="grid items-stretch gap-3 md:grid-cols-2 2xl:grid-cols-4">
+        <div
+          className={`${layoutCss.grid} grid items-stretch gap-3 md:grid-cols-2 2xl:grid-cols-4`}
+        >
           {sorted.map((s, i) => (
             <ProgressiveReveal
               key={s.id}

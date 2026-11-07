@@ -124,7 +124,7 @@
   margin-inline: auto;
 }
 
-@media (orientation: portrait) and (max-width: 767px) {
+@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .section {
     padding-bottom: 104px;
   }
@@ -250,7 +250,8 @@
   position: relative;
 }
 
-@media (orientation: landscape) and (pointer: coarse) {
+@media (orientation: landscape) and (pointer: coarse),
+  ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4)) {
   .panel {
     background-color: var(--surface);
   }
@@ -564,7 +565,7 @@
    Layers move at different speeds (backdrop, portrait, copy), and every element enters from
    below and leaves through the top. Entry fills both ways; exits fill forwards only, so an
    exit never applies before its range and simply overrides the settled entry once it starts. */
-@media (max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 4/5) and (prefers-reduced-motion: no-preference),
+@media (max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 4/5) and (prefers-reduced-motion: no-preference) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     /* The backdrop clips its overflow, which would freeze a nested view(), so it follows the
@@ -632,7 +633,7 @@
 }
 
 /* Portrait keeps the frame intact while the image moves inside it. */
-@media (max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 4/5) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 4/5) and (prefers-reduced-motion: no-preference) and (not ((min-width: 700px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   @supports (animation-timeline: view()) {
     .introduction p span {
       animation: about-word linear both;
