@@ -291,6 +291,10 @@
   .legal > p > span {
     display: inline;
   }
+  /* The tagline strip has no room beside the two texts, in portrait as well as landscape. */
+  .legal > div:nth-child(2) {
+    display: none;
+  }
   .legal .github {
     display: none;
   }
