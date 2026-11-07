@@ -83,6 +83,22 @@ describe("SectionBackdrop", () => {
     expect(container.querySelector("video")).toBeNull();
   });
 
+  it.each([false, true])(
+    "respects reduced motion (%s) for a section tablet video query",
+    (reduce) => {
+      const query = "(min-width: 1340px) and (orientation: landscape)";
+      installMatchMedia({
+        [BACKGROUND_VIDEO_QUERY]: false,
+        [query]: true,
+        "(prefers-reduced-motion: reduce)": reduce,
+      });
+      const { container } = render(
+        <SectionBackdrop video="/a.mp4" tabletVideo tabletVideoQuery={query} />,
+      );
+      expect(Boolean(container.querySelector("video"))).toBe(!reduce);
+    },
+  );
+
   it("omits a deferred poster from server HTML", () => {
     const html = renderToString(
       <SectionBackdrop poster="/media/about.webp" deferUntilHeroLoaded />,

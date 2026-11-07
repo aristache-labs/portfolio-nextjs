@@ -8,7 +8,7 @@ import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Quote } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
-import { SkillEntrance } from "./SkillEntrance";
+import { SkillEntrance, SolidSkillEntrance } from "./SkillEntrance";
 import { SkillsMarquee } from "./SkillsMarquee";
 import { SkillSlot, SkillsScene } from "./SkillsSequence";
 import { SkillsGridReveal, SkillsReveal } from "./SkillsReveal";
@@ -29,6 +29,8 @@ export type SkillRow = {
 };
 
 const MOST_USED = "Most Used";
+const IPAD_PRO_LANDSCAPE_QUERY =
+  "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)";
 /** Homepage filter order. Tabs still appear only when a skill uses that category. */
 const CATEGORY_ORDER = ["Development", "Infrastructure", "Automation", "Data & Cloud"];
 /** Desktop has three rows; touch keeps the compact eight-skill selection. */
@@ -126,7 +128,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   };
   const fold = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const desktop = useMediaQuery("(min-width: 1024px) and (pointer: fine)") && !fold;
-  const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
+  const ipadProLandscape = useMediaQuery(IPAD_PRO_LANDSCAPE_QUERY);
+  const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY) || ipadProLandscape;
   const visible =
     active === MOST_USED
       ? mostUsedSkills(
@@ -134,7 +137,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           desktop || tabletLandscape ? DESKTOP_MOST_USED_LIMIT : MOST_USED_LIMIT,
         )
       : ordered.filter((s) => s.category === active);
-  const scene = useMediaQuery(PINNED_SCENE_QUERY) && !fold && mode === "expressive";
+  const scene =
+    useMediaQuery(PINNED_SCENE_QUERY) && !fold && !ipadProLandscape && mode === "expressive";
   const mobilePortrait = useMediaQuery(SKILLS_MOBILE_PORTRAIT);
   const mobileLandscape = useMediaQuery(SKILLS_MOBILE_LANDSCAPE);
   const mobile = mobilePortrait || mobileLandscape;
@@ -165,11 +169,12 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
     };
   }, [mobilePortrait, active]);
 
-  // Cards leaving a filter fade out in place while the rest move into their new positions.
+  const Entrance = ipadProLandscape ? SolidSkillEntrance : SkillEntrance;
+  // Stable keys let shared cards move while leaving cards finish outside the grid flow.
   const cards = (
     <AnimatePresence key={resetEpoch} mode="popLayout" initial={false}>
       {visible.map((skill, index) => (
-        <SkillEntrance
+        <Entrance
           key={`${skill.category}-${skill.name}`}
           filtered={hasFiltered}
           skipEntrance={mobile && resetEpoch > 0 && !hasFiltered}
@@ -185,7 +190,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
               loadIcon={iconsNear}
             />
           </SkillSlot>
-        </SkillEntrance>
+        </Entrance>
       ))}
     </AnimatePresence>
   );
@@ -204,6 +209,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
               frame="screen"
               focus="left"
               tabletVideo
+              tabletVideoQuery={`${TABLET_LANDSCAPE_QUERY}, ${IPAD_PRO_LANDSCAPE_QUERY}`}
               video="/media/skills-v2.mp4"
               poster="/media/skills.webp"
               fetchPriority="low"
@@ -366,7 +372,11 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   role={ordered.length > 0 ? "tabpanel" : undefined}
                   aria-labelledby={ordered.length > 0 ? tabId(active) : undefined}
                 >
-                  <SkillsGridReveal enabled={!scene && !mobile} gridRef={gridRef} className={GRID}>
+                  <SkillsGridReveal
+                    enabled={!scene && !mobile && !ipadProLandscape}
+                    gridRef={gridRef}
+                    className={GRID}
+                  >
                     {cards}
                   </SkillsGridReveal>
                 </div>

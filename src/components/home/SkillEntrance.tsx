@@ -17,6 +17,118 @@ import {
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { createRevealSequence, RevealSequence } from "@/components/motion/RevealSequence";
 
+/** Solid tablet cards reveal by clipping and moving, without fading their surface. */
+export function SolidSkillEntrance({
+  filtered,
+  order = 0,
+  ref,
+  children,
+}: {
+  filtered: boolean;
+  order?: number;
+  ref?: Ref<HTMLDivElement>;
+  children: ReactNode;
+}) {
+  const node = useRef<HTMLDivElement>(null);
+  useImperativeHandle(ref, () => node.current!, []);
+  const controls = useAnimationControls();
+  const { mode, ready } = useAnimationPolicy();
+  const entered = useRef(false);
+  const [entersOnMount] = useState(filtered);
+  const sequence = useMemo(() => createRevealSequence(), []);
+  const navigation = useSectionNavigation(node, () => !entered.current);
+
+  useEffect(() => {
+    if (!ready || !node.current || navigation.pending) return;
+    let active = true;
+    let started = false;
+    const settled = {
+      transform: "translateY(0px) scale(1)",
+      clipPath: "inset(0% 0% 0% 0% round 16px)",
+    };
+    if (mode === "static" || entered.current) {
+      controls.set(settled);
+      sequence.publish("static");
+      return;
+    }
+    controls.set({
+      transform: `translateY(${entersOnMount ? 18 : 32}px) scale(0.97)`,
+      clipPath: "inset(0% 0% 100% 0% round 16px)",
+    });
+    sequence.publish("prepared");
+    const start = () => {
+      if (started) return;
+      started = true;
+      void controls
+        .start({
+          ...settled,
+          transition: {
+            duration: entersOnMount ? 0.28 : 0.45,
+            delay: entersOnMount ? Math.min(order, 3) * 0.035 : Math.min(order, 11) * 0.045,
+            ease: [0.22, 1, 0.36, 1],
+          },
+        })
+        .then(() => {
+          if (!active) return;
+          entered.current = true;
+          sequence.publish("complete");
+        });
+    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting && !sectionNavigationPending(node.current)) start();
+      },
+      { threshold: 0.1 },
+    );
+    if (entersOnMount) start();
+    else observer.observe(node.current);
+    const focus = () => {
+      controls.set(settled);
+      entered.current = true;
+      sequence.publish("static");
+    };
+    const element = node.current;
+    element.addEventListener("focusin", focus);
+    return () => {
+      active = false;
+      observer.disconnect();
+      controls.stop();
+      element.removeEventListener("focusin", focus);
+    };
+  }, [
+    ready,
+    mode,
+    controls,
+    sequence,
+    entersOnMount,
+    order,
+    navigation.pending,
+    navigation.replay,
+  ]);
+
+  return (
+    <m.div
+      ref={node}
+      className="min-w-0"
+      layout={mode === "static" ? false : "position"}
+      initial={false}
+      transition={{ layout: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } }}
+      exit={
+        mode === "static"
+          ? undefined
+          : {
+              clipPath: "inset(0% 0% 100% 0% round 16px)",
+              transition: { duration: 0.16, ease: [0.22, 1, 0.36, 1] },
+            }
+      }
+    >
+      <m.div className="h-full" initial={false} animate={controls}>
+        <RevealSequence.Provider value={sequence}>{children}</RevealSequence.Provider>
+      </m.div>
+    </m.div>
+  );
+}
+
 /** Each card starts its progress as soon as its own entrance finishes. */
 export function SkillEntrance({
   filtered,

@@ -71,6 +71,7 @@ export function SectionBackdrop({
   scrim,
   focus = "center",
   tabletVideo = false,
+  tabletVideoQuery = TABLET_LANDSCAPE_QUERY,
 }: {
   video?: string;
   poster?: string;
@@ -95,10 +96,12 @@ export function SectionBackdrop({
   focus?: "center" | "left";
   /** Also play the loop on touch tablets held in landscape, where the desktop layout applies. */
   tabletVideo?: boolean;
+  /** Section-specific tablet sizes that can also play the loop. */
+  tabletVideoQuery?: string;
 }) {
   const reduce = useReducedMotion();
   const desktopVideo = useMediaQuery(BACKGROUND_VIDEO_QUERY);
-  const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
+  const tabletLandscape = useMediaQuery(tabletVideoQuery);
   const canPlayVideo = desktopVideo || (tabletVideo && tabletLandscape);
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
