@@ -426,7 +426,7 @@
 }
 
 /* iPad Air landscape: the desktop four-column grid (twelve Most Used skills, three rows). */
-@media (min-width: 1100px) and (max-width: 1200px) and (orientation: landscape) and (pointer: coarse) {
+@media (min-width: 1100px) and (max-width: 1300px) and (orientation: landscape) and (pointer: coarse) {
   .grid {
     width: 100%;
     max-width: 700px;

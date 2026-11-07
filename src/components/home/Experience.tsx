@@ -25,6 +25,8 @@ import { EXPERIENCE_LANDSCAPE_QUERY, EXPERIENCE_PORTRAIT_QUERY } from "./Experie
  */
 export const RAIL_LINE = "40%";
 export const RAIL_LINE_DESKTOP = "25%";
+/** Galaxy Tab S7 landscape: just below the first role on a menu jump, so the rail starts empty. */
+const RAIL_LINE_WIDE_TOUCH = "28%";
 
 /** Keep frame-based content measurements local to the visible timeline. */
 function NearbyTimelineRail({
@@ -33,9 +35,11 @@ function NearbyTimelineRail({
   trackCurrent,
   onActive,
   tallScreen,
+  wideTouch,
 }: {
   /** Desktop (lg+) layout, which uses its own rail line. */
   tallScreen: boolean;
+  wideTouch: boolean;
   listRef: RefObject<HTMLDivElement | null>;
   highlightEntries: boolean;
   trackCurrent: boolean;
@@ -68,6 +72,7 @@ function NearbyTimelineRail({
       trackCurrent={trackCurrent}
       onActive={onActive}
       tallScreen={tallScreen}
+      wideTouch={wideTouch}
     />
   ) : null;
 }
@@ -79,9 +84,11 @@ function ScrollTimelineRail({
   trackCurrent,
   onActive,
   tallScreen,
+  wideTouch,
 }: {
   /** Desktop (lg+) layout, which uses its own rail line. */
   tallScreen: boolean;
+  wideTouch: boolean;
   listRef: RefObject<HTMLDivElement | null>;
   highlightEntries: boolean;
   trackCurrent: boolean;
@@ -92,7 +99,7 @@ function ScrollTimelineRail({
   // Its leading edge stays on one screen line from the first role to the last, so every bullet,
   // and the role indicator with it, lights as it crosses that line. Desktop and touch screens
   // tune that line separately (RAIL_LINE_DESKTOP, RAIL_LINE).
-  const line = tallScreen ? RAIL_LINE_DESKTOP : RAIL_LINE;
+  const line = wideTouch ? RAIL_LINE_WIDE_TOUCH : tallScreen ? RAIL_LINE_DESKTOP : RAIL_LINE;
   const { scrollYProgress: fill } = useScroll({
     target: listRef,
     offset: [`start ${line}`, `end ${line}`],
@@ -173,6 +180,9 @@ function ScrollTimelineRail({
 
 const TABLET_LANDSCAPE_QUERY =
   "(orientation: landscape) and (pointer: coarse) and (min-width: 1024px)";
+/** Galaxy Tab S7-sized touch landscape: roles switch earlier, and the subtitle stays after a jump. */
+const WIDE_TOUCH_LANDSCAPE_QUERY =
+  "(orientation: landscape) and (pointer: coarse) and (min-width: 1250px) and (max-width: 1300px)";
 
 /** Sticky offset of the intro column (lg:top-24). */
 export const INTRO_TOP = 96;
@@ -433,6 +443,7 @@ export function Experience({
   // A touch tablet held wide has the desktop layout but not the mouse, so it needs the same
   // sticky current-role panel that short landscape phones get.
   const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
+  const wideTouchLandscape = useMediaQuery(WIDE_TOUCH_LANDSCAPE_QUERY);
   const layout = { portrait, landscape, desktop, desktopDisclosure };
   const listRef = useRef<HTMLDivElement>(null);
   const stickStart = useRef<HTMLSpanElement>(null);
@@ -446,7 +457,7 @@ export function Experience({
   const introTop = landscape ? 80 : INTRO_TOP;
   // The subtitle stays readable for a stretch after the intro sticks, including right after a
   // menu jump lands here; only further reading folds it.
-  const foldAfter = landscape ? FOLD_AFTER_LANDSCAPE : FOLD_AFTER;
+  const foldAfter = landscape ? FOLD_AFTER_LANDSCAPE : wideTouchLandscape ? 90 : FOLD_AFTER;
 
   useEffect(() => {
     const marker = stickStart.current;
@@ -591,6 +602,7 @@ export function Experience({
                   trackCurrent={folds || portrait || landscape}
                   onActive={setActiveRole}
                   tallScreen={desktop}
+                  wideTouch={wideTouchLandscape}
                 />
               )}
             </>
