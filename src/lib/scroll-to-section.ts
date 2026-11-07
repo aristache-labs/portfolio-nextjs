@@ -71,7 +71,12 @@ function navigationGap(target: HTMLElement) {
   ) {
     return SECTION_NAV_GAP - 8;
   }
-  if (target.id === "skills" && window.matchMedia(FOLD_VIEWPORT_QUERY).matches) {
+  if (
+    target.id === "skills" &&
+    (window.matchMedia(FOLD_VIEWPORT_QUERY).matches ||
+      window.matchMedia("(min-width: 740px) and (max-width: 1023px) and (orientation: portrait)")
+        .matches)
+  ) {
     return SECTION_NAV_GAP + 40;
   }
   // Touch landscape tablets: land Skills higher so the last card row stays on screen.
@@ -81,7 +86,8 @@ function navigationGap(target: HTMLElement) {
     window.innerHeight > 500 &&
     window.innerHeight <= 800
   ) {
-    return SECTION_NAV_GAP - 28;
+    // The single-column layout below 1100px needs the room; wider tablets use the desktop split.
+    return window.innerWidth < 1100 ? SECTION_NAV_GAP - 28 : SECTION_NAV_GAP + 24;
   }
   return window.innerHeight <= 500 && window.innerWidth > window.innerHeight
     ? SHORT_LANDSCAPE_NAV_GAP

@@ -195,7 +195,8 @@
    previous. Sticky only, so the section gains no scroll length. The previous card recedes with a
    transform-only shrink and a scrim, driven by the next one's travel where the browser supports
    it. Desktop pins below the 72px bar; short landscape pins below its 44px bar. */
-@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
+  (min-width: 1181px) and (max-width: 1210px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) {
   .stack > *,
   .recentRow {
     position: sticky;
@@ -223,7 +224,7 @@
 /* iPad-sized touch landscape (1024-1180px wide, up to 800px tall) shares this stacking with short
    landscape phones: Featured on the left, Latest work as one column on the right. */
 @media (orientation: landscape) and (max-height: 500px),
-  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) {
+  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) {
   .recentRow {
     display: contents;
   }
@@ -260,8 +261,9 @@
 }
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
+  (min-width: 1181px) and (max-width: 1210px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse),
   (orientation: landscape) and (max-height: 500px),
-  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) {
+  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) {
   .featuredCard::after,
   .recentCard::after {
     content: "";
@@ -276,8 +278,9 @@
 
 @supports (animation-timeline: view()) {
   @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
+    (min-width: 1181px) and (max-width: 1210px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
     (orientation: landscape) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
-    (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) and (prefers-reduced-motion: no-preference) {
+    (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) and (prefers-reduced-motion: no-preference) {
     .stack {
       timeline-scope: --featured-next;
     }
@@ -299,7 +302,8 @@
   }
 
   /* Latest work (desktop rows): each row recedes as the next one arrives. */
-  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
+    (min-width: 1181px) and (max-width: 1210px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
     .recentTrack {
       timeline-scope: --recent-2, --recent-3;
     }

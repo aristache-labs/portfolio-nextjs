@@ -118,6 +118,9 @@ function ColumnLabel({ children }: { children: string }) {
  * Interactive half of the Projects section - client-side because the highlights, filter and grid
  * share the quick-view state. Filters the already-loaded list rather than refetching.
  */
+const PRO_LANDSCAPE_QUERY =
+  "(min-width: 1181px) and (max-width: 1210px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse)";
+
 export function ProjectsBrowser({
   projects,
   header,
@@ -143,9 +146,11 @@ export function ProjectsBrowser({
   const [category, setCategory] = useState(ALL);
   const [extra, setExtra] = useState(0);
   // iPad-sized touch landscape behaves like the phone layouts here: fewer cards, one column.
-  const mobileViewport = useMediaQuery(
-    "(max-width: 1023px), (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px)",
+  const narrowViewport = useMediaQuery("(max-width: 1023px)");
+  const tabletTouchLandscape = useMediaQuery(
+    "(orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px)",
   );
+  const mobileViewport = narrowViewport || tabletTouchLandscape;
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const landscape = useMediaQuery("(orientation: landscape)") || foldViewport;
   const recentLimit = mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
@@ -222,7 +227,10 @@ export function ProjectsBrowser({
     { length: Math.ceil(Math.min(recent.length, recentLimit) / RECENT_ROW) },
     (_, row) => recent.slice(0, recentLimit).slice(row * RECENT_ROW, (row + 1) * RECENT_ROW),
   );
-  const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
+  // iPad Pro 11 held sideways has the desktop room but a touch pointer, so it never reaches
+  // "expressive". Give it the same scroll scene unless motion is off.
+  const proLandscape = useMediaQuery(PRO_LANDSCAPE_QUERY) && mode !== "static";
+  const scene = (useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive") || proLandscape;
   const portraitMotion = useMediaQuery(PROJECTS_PORTRAIT_QUERY);
   const landscapeMotion = useMediaQuery(PROJECTS_LANDSCAPE_QUERY);
   const mobileMotion = portraitMotion || landscapeMotion;

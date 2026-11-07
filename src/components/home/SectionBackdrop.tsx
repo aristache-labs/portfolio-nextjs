@@ -47,6 +47,10 @@ const LOAD_MARGIN = "200px 0px";
 const PLAY_MARGIN = "0px";
 const POSTER_MARGIN = "600px 0px";
 
+/** iPad Air-sized touch landscape: wide enough for the desktop layout, but no fine pointer. */
+export const TABLET_LANDSCAPE_QUERY =
+  "(min-width: 1100px) and (max-width: 1200px) and (orientation: landscape) and (pointer: coarse)";
+
 /**
  * Full-bleed section video. Desktop plays the loop only while the section is visible.
  * Mobile and reduced motion show the poster and never
@@ -66,6 +70,7 @@ export function SectionBackdrop({
   frame = "fill",
   scrim,
   focus = "center",
+  tabletVideo = false,
 }: {
   video?: string;
   poster?: string;
@@ -88,9 +93,13 @@ export function SectionBackdrop({
    * plate inside a portrait phone, then returns to center from the lg layout up.
    */
   focus?: "center" | "left";
+  /** Also play the loop on touch tablets held in landscape, where the desktop layout applies. */
+  tabletVideo?: boolean;
 }) {
   const reduce = useReducedMotion();
-  const canPlayVideo = useMediaQuery(BACKGROUND_VIDEO_QUERY);
+  const desktopVideo = useMediaQuery(BACKGROUND_VIDEO_QUERY);
+  const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
+  const canPlayVideo = desktopVideo || (tabletVideo && tabletLandscape);
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoOk, setVideoOk] = useState(Boolean(video));
