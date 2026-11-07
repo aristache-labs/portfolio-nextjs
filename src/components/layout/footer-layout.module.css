@@ -275,19 +275,38 @@
   .legal {
     grid-template-columns: minmax(0, 1fr) auto;
   }
-  .legal > p {
+  /* Copyright on the left, the credit on the right, both small enough to share one row. */
+  .legal > div:first-child {
     order: 0;
     text-align: left;
-    font-size: 13.5px;
+    font-size: 12.5px;
+  }
+  .legal > p {
+    order: 0;
+    text-align: right;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    white-space: nowrap;
   }
   .legal > p > span {
     display: inline;
   }
-  .legal > div {
-    order: 0;
-    text-align: right;
-  }
   .legal .github {
     display: none;
+  }
+}
+
+/* Short Fold: trim the columns so the footer is not a zoomed-in screen. */
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .identity img {
+    height: 140px;
+  }
+  .links,
+  .resources ul {
+    row-gap: 10px;
+  }
+  .legal {
+    margin-top: 12px;
+    padding-block: 10px;
   }
 }
