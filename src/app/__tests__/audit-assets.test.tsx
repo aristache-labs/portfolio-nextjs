@@ -46,6 +46,10 @@ describe("audit assets and server HTML", () => {
     expect(html).not.toContain('rel="preload"');
   });
 
+  it("gives the installed app a stable identity and language", () => {
+    expect(manifest()).toMatchObject({ id: "/", scope: "/", lang: "en", dir: "ltr" });
+  });
+
   it("declares real PNG icons at their encoded dimensions", () => {
     const icons = manifest().icons as { src: string; sizes: string; purpose: string }[];
     expect(icons.map(({ sizes, purpose }) => [sizes, purpose])).toEqual([

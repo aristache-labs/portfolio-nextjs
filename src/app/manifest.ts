@@ -7,7 +7,12 @@ export default function manifest(): MetadataRoute.Manifest {
     name: SITE.name,
     short_name: "Adrian",
     description: SITE.description,
+    // Stable identity so a future start_url change is not treated as a new app.
+    id: "/",
     start_url: "/",
+    scope: "/",
+    lang: "en",
+    dir: "ltr",
     display: "standalone",
     // Was hardcoded #07070c, which had drifted from the dark ground in globals.css.
     background_color: GROUND.dark,
