@@ -138,6 +138,12 @@ const COMPACT_NAV_HEIGHTS = {
 function compactNavHeight() {
   if (
     window.matchMedia(
+      "(min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape)",
+    ).matches
+  )
+    return 80;
+  if (
+    window.matchMedia(
       "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
     ).matches
   )
