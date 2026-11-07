@@ -1677,6 +1677,12 @@
    about 7:8 box, so nudge the picture right by the difference and keep the Fold's own scale; the
    person's head then lands at the same place on the screen as on the Fold. */
 @media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  /* Simulators can report a fine pointer. Keep the Fold crop without desktop depth. */
+  .hero {
+    --hero-depth-scale: 1;
+    --hero-pointer-travel: 0px;
+  }
+
   /* At 1024px Tailwind's lg: rules add a second column and 2rem of left padding. The Fold has
      neither, so match it: one full-width column that starts at the container edge. */
   .content {
@@ -1685,6 +1691,7 @@
 
   .intro {
     padding-left: 0;
+    transform: none;
   }
 
   .poster img {
