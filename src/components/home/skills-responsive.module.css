@@ -384,4 +384,10 @@
     padding-top: 32px;
     padding-bottom: 40px;
   }
+
+  /* The orbit sits behind the right-hand cards here, so keep it faint enough that icons and
+     labels never compete with the card titles. */
+  .backdrop {
+    opacity: 0.3;
+  }
 }

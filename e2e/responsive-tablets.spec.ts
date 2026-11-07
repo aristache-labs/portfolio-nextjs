@@ -253,6 +253,22 @@ test.describe("Fold Projects layout", () => {
   }
 });
 
+test.describe("Skills Fold orbit legibility", () => {
+  test.use({ hasTouch: true });
+  for (const [width, height] of [
+    [829, 690],
+    [690, 829],
+  ]) {
+    test(`${width}x${height}: the orbit stays faint behind the cards`, async ({ page }) => {
+      await open(page, width, height);
+      const backdrop = page.locator('#skills [class*="backdrop"]').first();
+      test.skip(!(await backdrop.count()), "Skills is hidden in site settings");
+      const opacity = await backdrop.evaluate((node) => Number(getComputedStyle(node).opacity));
+      expect(opacity).toBeLessThanOrEqual(0.31);
+    });
+  }
+});
+
 test.describe("Hero Fold portrait background video", () => {
   test.use({ hasTouch: true });
 
@@ -332,6 +348,38 @@ test.describe("Hero fold content layout", () => {
         expect(layout.copyWidth).toBeLessThanOrEqual(Math.min(400, width * 0.52) + 1);
         expect(layout.overflow).toBeLessThanOrEqual(1);
       }
+    });
+  }
+
+  for (const [width, height] of [
+    [829, 690],
+    [690, 829],
+    [860, 744],
+    [832, 750],
+  ]) {
+    test(`${width}x${height}: scene fits one screen with the cue on screen and links clear of the edge`, async ({
+      page,
+    }) => {
+      await open(page, width, height);
+      await page.waitForTimeout(3500);
+      const layout = await page.locator("#hero").evaluate((hero) => {
+        const box = (name: string) =>
+          hero.querySelector(`[class*="${name}"]`)!.getBoundingClientRect();
+        const scene = box("scene");
+        const links = box("secondaryLinks");
+        const cue = box("scrollCue");
+        const cueStyle = getComputedStyle(hero.querySelector('[class*="scrollCue"]')!);
+        return {
+          sceneHeight: scene.height,
+          linksGap: scene.bottom - links.bottom,
+          cueVisible: cue.top >= 0 && cue.bottom <= innerHeight && cueStyle.display !== "none",
+          cueClearsLinks: cue.top >= links.bottom - 1,
+        };
+      });
+      expect(layout.sceneHeight).toBeLessThanOrEqual(height + 1);
+      expect(layout.linksGap).toBeGreaterThanOrEqual(64);
+      expect(layout.cueVisible).toBe(true);
+      expect(layout.cueClearsLinks).toBe(true);
     });
   }
 
