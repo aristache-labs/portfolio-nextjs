@@ -137,6 +137,66 @@
   }
 }
 
+/* Fold portrait shares the landscape reading layout; iPad Pro 13 uses its scaled root. */
+@media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4),
+  (min-width: 740px) and (max-width: 850px) and (min-height: 830px) and (max-height: 870px) and (orientation: portrait) {
+  .backLink {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .article {
+    padding-top: 1rem;
+  }
+
+  .content {
+    margin-top: 1.5rem;
+    grid-template-columns: 11.875rem minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+
+  .content > .contentsNav {
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    max-height: calc(100dvh - 6rem);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  .contentsNav .contentsDesktop {
+    display: block;
+  }
+
+  .contentsNav .contentsMobile {
+    display: none;
+  }
+
+  .content section {
+    padding-block: 1rem;
+    scroll-margin-top: 5rem;
+  }
+
+  .content section:first-child {
+    padding-top: 0;
+  }
+
+  .content section h2 {
+    font-size: 1.0625rem;
+  }
+
+  .content section > div,
+  .content section > p,
+  .contentsDesktop > p {
+    font-size: 0.9375rem;
+  }
+
+  .mobileHeader {
+    --legal-entry-x: -36px;
+    --legal-entry-y: 0px;
+  }
+}
+
 @keyframes legal-mobile-arrive {
   from {
     opacity: 0;

@@ -14,7 +14,7 @@ import { Merienda } from "next/font/google";
 import { AnimatePresence, m, type Variants } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
-import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArrowRight, ArrowUpRight, Loader2, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
@@ -88,10 +88,10 @@ function cardsFor(socials: SocialRow[], email: string): Card[] {
 }
 
 const QUOTE_GLASS = `${GLASS_CARD} rounded-3xl border p-5 sm:p-6`;
-const FORM_COLUMN =
-  "min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9 landscape-short:w-[52%] landscape-short:pt-0";
+const FORM_COLUMN = `${motionCss.formColumn} min-w-0 lg:w-[49%] lg:max-w-[725px] lg:pt-9 landscape-short:w-[52%] landscape-short:pt-0`;
 /** Same glass as the other cards, set apart by a fine brand border and a soft glow. */
 const FORM_GLASS = cn(
+  motionCss.formSurface,
   GLASS_CARD,
   "mx-auto max-w-[535px] rounded-3xl border border-(--brand-mid)/25 shadow-[0_0_48px_-24px_rgb(var(--brand-mid-rgb)/0.45)] lg:ml-auto",
 );
@@ -172,7 +172,8 @@ export function Contact({
     return () => observer.disconnect();
   }, []);
 
-  const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
+  const fold = useMediaQuery(FOLD_VIEWPORT_QUERY);
+  const scene = useMediaQuery(PINNED_SCENE_QUERY) && !fold && mode === "expressive";
   const portrait = useMediaQuery(CONTACT_PORTRAIT_QUERY);
   const landscape = useMediaQuery(CONTACT_LANDSCAPE_QUERY);
   const mobile = portrait || landscape;
@@ -360,9 +361,11 @@ export function Contact({
       </noscript>
       <div
         ref={contentRef}
-        className="landscape-short:flex-row landscape-short:items-start landscape-short:justify-between landscape-short:gap-x-8 landscape-short:gap-y-0 flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10"
+        className={`${motionCss.layout} landscape-short:flex-row landscape-short:items-start landscape-short:justify-between landscape-short:gap-x-8 landscape-short:gap-y-0 flex flex-col gap-y-12 lg:flex-row lg:items-start lg:justify-between lg:gap-x-10`}
       >
-        <div className="landscape-short:w-[42%] min-w-0 lg:w-[42%] lg:max-w-[640px]">
+        <div
+          className={`${motionCss.copy} landscape-short:w-[42%] min-w-0 lg:w-[42%] lg:max-w-[640px]`}
+        >
           {leftArrival(
             "slide",
             0,
@@ -391,7 +394,9 @@ export function Contact({
 
           {cards.length > 0 && (
             <CardList scene={scene || mobile}>
-              <ul className="landscape-short:grid-cols-1 landscape-short:gap-3 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2">
+              <ul
+                className={`${motionCss.contactCards} landscape-short:grid-cols-1 landscape-short:gap-3 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-1 lg:gap-5 xl:grid-cols-2`}
+              >
                 {cards.map((card, index) => {
                   const link = (
                     // The card fades itself, so its glass blur shows from the first frame.
@@ -526,7 +531,9 @@ export function Contact({
             </div>
 
             <div className="mt-6 space-y-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <div
+                className={`${formCss.nameEmail} grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2`}
+              >
                 <div className={formCss.group} data-contact-step>
                   <label htmlFor="contact-name" className={labelClass}>
                     Your Name
