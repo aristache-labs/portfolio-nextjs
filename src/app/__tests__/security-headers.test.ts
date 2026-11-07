@@ -32,6 +32,9 @@ describe("security headers", () => {
     expect(headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
     expect(headers.get("Permissions-Policy")).toBe("camera=(), microphone=(), geolocation=()");
+    expect(headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
+    expect(headers.get("Cross-Origin-Resource-Policy")).toBe("same-origin");
+    expect(headers.has("Cross-Origin-Embedder-Policy")).toBe(false);
     expect(headers.get("X-Frame-Options")).toBe("DENY");
     expect(headers.has("Content-Security-Policy-Report-Only")).toBe(false);
     expect(headers.get("Strict-Transport-Security")).toBe("max-age=63072000; includeSubDomains");

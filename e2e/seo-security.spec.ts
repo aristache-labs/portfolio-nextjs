@@ -31,6 +31,9 @@ test("security headers cover public, private, API and missing routes", async ({ 
     expect(headers["x-frame-options"], path).toBe("DENY");
     expect(headers["referrer-policy"], path).toBe("strict-origin-when-cross-origin");
     expect(headers["permissions-policy"], path).toBe("camera=(), microphone=(), geolocation=()");
+    expect(headers["cross-origin-opener-policy"], path).toBe("same-origin");
+    expect(headers["cross-origin-resource-policy"], path).toBe("same-origin");
+    expect(headers["cross-origin-embedder-policy"], path).toBeUndefined();
     expect(headers["content-security-policy-report-only"], path).toBeUndefined();
     expect(headers["content-security-policy"], path).toContain("connect-src 'self'");
     expect(headers["content-security-policy"], path).not.toContain("nonce-");
