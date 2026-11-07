@@ -435,6 +435,13 @@
   }
 }
 
+/* Fold viewports keep two compact cards per row in either orientation. */
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* Portrait tablets that are not Fold-shaped (iPad Air): title and subtitle on the left, the narrower
    Building now card on the right. The subtitle wraps when the copy column runs short. */
 @media (min-width: 740px) and (max-width: 1023px) and (orientation: portrait) {
@@ -453,6 +460,10 @@
 
 /* iPad Pro 13 portrait keeps the Fold composition at the shared 1.376 root scale. */
 @media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .head {
     gap: 1.5rem;
   }
