@@ -166,3 +166,46 @@
     display: none;
   }
 }
+
+/* Larger menu control only for iPad Pro 13 portrait, including simulator fine pointers. */
+@media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  .bar {
+    height: 88px;
+  }
+
+  .brand {
+    transform: scale(1.06);
+  }
+
+  .header[data-compact] .bar {
+    height: 64px;
+  }
+
+  .header[data-compact] .brand {
+    transform: scale(0.98);
+  }
+
+  .menuButton {
+    width: 60px;
+    height: 60px;
+  }
+
+  .menuButton svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .header[data-compact] .menuButton {
+    width: 44px;
+    height: 44px;
+  }
+
+  .header[data-compact] .menuButton svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .header[data-compact] .menuButton::after {
+    inset: 0;
+  }
+}

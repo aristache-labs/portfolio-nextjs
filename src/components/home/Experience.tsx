@@ -16,7 +16,7 @@ import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
 import spacing from "./experience-projects-spacing.module.css";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { FOLD_VIEWPORT_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { EXPERIENCE_LANDSCAPE_QUERY, EXPERIENCE_PORTRAIT_QUERY } from "./ExperienceMobileReveal";
 
 /**
@@ -440,8 +440,9 @@ export function Experience({
   const { mode } = useAnimationPolicy();
   const portrait = useMediaQuery(EXPERIENCE_PORTRAIT_QUERY);
   const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
-  const desktop = useMediaQuery("(min-width: 1024px)");
-  const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
+  const fold = useMediaQuery(FOLD_VIEWPORT_QUERY);
+  const desktop = useMediaQuery("(min-width: 1024px)") && !fold;
+  const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)") && !fold;
   // A touch tablet held wide has the desktop layout but not the mouse, so it needs the same
   // sticky current-role panel that short landscape phones get.
   const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
@@ -453,6 +454,7 @@ export function Experience({
   const [stuck, setStuck] = useState(false);
   // While the intro sticks beside the timeline, the subtitle folds and the indicator rises.
   const folds =
+    !fold &&
     (mode === "expressive" || ((landscape || tabletLandscape) && mode !== "static")) &&
     sorted.length > 1;
   const compact = folds && stuck;
@@ -499,7 +501,9 @@ export function Experience({
       {/* Two columns on lg+: sticky intro on the left, timeline on the right,
           both inside the shared page width so the block does not drift left
           on a wide monitor. Stacks to one column below lg. */}
-      <div className="landscape-short:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] landscape-short:gap-8 relative grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14">
+      <div
+        className={`${styles.layout} landscape-short:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] landscape-short:gap-8 relative grid w-full items-start gap-8 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:gap-14`}
+      >
         {/* Marks where the intro starts sticking (lg:top-24, matching INTRO_TOP). */}
         <span
           ref={stickStart}

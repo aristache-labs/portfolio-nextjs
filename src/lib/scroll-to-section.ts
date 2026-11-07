@@ -95,9 +95,15 @@ function navigationGap(target: HTMLElement) {
 }
 
 /** Compact bar heights from nav-chrome.module.css, matched to the same media queries. */
-const COMPACT_NAV_HEIGHTS = { shortLandscape: 44, default: 52 } as const;
+const COMPACT_NAV_HEIGHTS = { shortLandscape: 44, ipadProPortrait: 64, default: 52 } as const;
 
 function compactNavHeight() {
+  if (
+    window.matchMedia(
+      "(min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)",
+    ).matches
+  )
+    return COMPACT_NAV_HEIGHTS.ipadProPortrait;
   if (
     window.matchMedia("(orientation: landscape) and (max-height: 500px) and (pointer: coarse)")
       .matches

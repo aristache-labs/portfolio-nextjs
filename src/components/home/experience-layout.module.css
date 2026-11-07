@@ -2,6 +2,32 @@
   --timeline-axis: 0.375rem;
 }
 
+/* iPad Pro 13 portrait keeps the Fold timeline at the shared 1.376 root scale. */
+@media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  .section.section {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .layout .intro {
+    position: relative;
+    top: auto;
+  }
+
+  .intro .stuckPanel {
+    display: none;
+  }
+
+  .layout .entry:not(:last-child) {
+    min-height: 0;
+  }
+}
+
 @media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .section {
     padding-top: 0;

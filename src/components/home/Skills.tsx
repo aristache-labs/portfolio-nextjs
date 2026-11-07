@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import { AnimatePresence, LazyMotion, domMax, m } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
-import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { Quote } from "lucide-react";
 import { SkillCard, skillPercent } from "./SkillCard";
@@ -124,7 +124,8 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
     selectTab(tabs[next]);
     document.getElementById(tabId(tabs[next]))?.focus();
   };
-  const desktop = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
+  const fold = useMediaQuery(FOLD_VIEWPORT_QUERY);
+  const desktop = useMediaQuery("(min-width: 1024px) and (pointer: fine)") && !fold;
   const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
   const visible =
     active === MOST_USED
@@ -133,7 +134,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           desktop || tabletLandscape ? DESKTOP_MOST_USED_LIMIT : MOST_USED_LIMIT,
         )
       : ordered.filter((s) => s.category === active);
-  const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
+  const scene = useMediaQuery(PINNED_SCENE_QUERY) && !fold && mode === "expressive";
   const mobilePortrait = useMediaQuery(SKILLS_MOBILE_PORTRAIT);
   const mobileLandscape = useMediaQuery(SKILLS_MOBILE_LANDSCAPE);
   const mobile = mobilePortrait || mobileLandscape;

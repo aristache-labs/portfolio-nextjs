@@ -15,6 +15,25 @@
   will-change: transform;
 }
 
+/* Separate wrapper keeps the entrance from competing with the horizontal loop. */
+@media (prefers-reduced-motion: no-preference) {
+  .entrance {
+    transition:
+      opacity 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .marquee[data-entrance="armed"] .entrance {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  .marquee[data-entrance="visible"] .entrance {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .group {
   display: flex;
   flex-shrink: 0;
