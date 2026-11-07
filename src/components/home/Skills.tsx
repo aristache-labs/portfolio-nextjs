@@ -12,7 +12,7 @@ import { SkillEntrance } from "./SkillEntrance";
 import { SkillsMarquee } from "./SkillsMarquee";
 import { SkillSlot, SkillsScene } from "./SkillsSequence";
 import { SkillsGridReveal, SkillsReveal } from "./SkillsReveal";
-import { SectionBackdrop } from "./SectionBackdrop";
+import { SectionBackdrop, TABLET_LANDSCAPE_QUERY } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
 import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
@@ -125,9 +125,13 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
     document.getElementById(tabId(tabs[next]))?.focus();
   };
   const desktop = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
+  const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
   const visible =
     active === MOST_USED
-      ? mostUsedSkills(ordered, desktop ? DESKTOP_MOST_USED_LIMIT : MOST_USED_LIMIT)
+      ? mostUsedSkills(
+          ordered,
+          desktop || tabletLandscape ? DESKTOP_MOST_USED_LIMIT : MOST_USED_LIMIT,
+        )
       : ordered.filter((s) => s.category === active);
   const scene = useMediaQuery(PINNED_SCENE_QUERY) && mode === "expressive";
   const mobilePortrait = useMediaQuery(SKILLS_MOBILE_PORTRAIT);
@@ -198,6 +202,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
             <SectionBackdrop
               frame="screen"
               focus="left"
+              tabletVideo
               video="/media/skills-v2.mp4"
               poster="/media/skills.webp"
               fetchPriority="low"
@@ -364,7 +369,9 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     {cards}
                   </SkillsGridReveal>
                 </div>
-                <SkillsMarquee skills={ordered} loadIcons={iconsNear && !desktop} />
+                {!tabletLandscape && (
+                  <SkillsMarquee skills={ordered} loadIcons={iconsNear && !desktop} />
+                )}
               </div>
             </LazyMotion>
           </div>

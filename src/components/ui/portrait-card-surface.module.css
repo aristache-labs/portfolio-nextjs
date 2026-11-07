@@ -6,7 +6,7 @@
 }
 
 /* iPad-sized touch landscape gets the same solid ground. */
-@media (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) and (orientation: landscape) and (pointer: coarse) {
+@media (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) and (orientation: landscape) and (pointer: coarse) {
   .surface.surface {
     background-color: var(--surface);
   }
