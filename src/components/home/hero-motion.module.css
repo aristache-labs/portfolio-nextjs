@@ -1569,3 +1569,53 @@
     bottom: 20px;
   }
 }
+
+/* Large portrait tablets (iPad Air, 800-1023px wide). The 56rem scene cap leaves the hero shorter
+   than the screen, so About rides up over it and the copy reads small. Fill the screen instead
+   and scale the type up. */
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
+  .scene,
+  .hero[data-touch-scene] {
+    min-height: 100svh;
+  }
+
+  .name {
+    font-size: clamp(4.5rem, 9vw, 6.25rem);
+  }
+
+  .headline {
+    font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+  }
+
+  .hero .copy {
+    max-width: min(30rem, 60vw);
+    font-size: 1.1875rem;
+  }
+
+  .specialization {
+    font-size: 0.8125rem;
+  }
+
+  .actions a {
+    font-size: 1.125rem;
+  }
+
+  .textLink {
+    font-size: 1.1875rem;
+  }
+
+  .poster img {
+    scale: 1.14;
+    transform-origin: 70% 45%;
+  }
+}
+
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  .hero[data-touch-scene] {
+    min-height: calc(100svh + 45svh);
+  }
+
+  .hero[data-touch-scene] + :global(#about) {
+    margin-top: -45svh;
+  }
+}
