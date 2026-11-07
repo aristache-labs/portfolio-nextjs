@@ -9,6 +9,8 @@ export default defineConfig({
   workers: 2,
   retries: 0,
   reporter: "line",
+  // There are no retries, so on-first-retry would discard all failure diagnostics.
+  use: { ...base.use, trace: "retain-on-failure" },
   projects: base.projects?.filter((project) =>
     ["chromium", "responsive-webkit"].includes(project.name ?? ""),
   ),

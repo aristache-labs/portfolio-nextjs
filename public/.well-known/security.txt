@@ -1,3 +1,6 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
 # Report vulnerabilities through the first Contact. Do not open a public GitHub issue.
 Contact: https://github.com/aristache-labs/portfolio-nextjs/security/advisories/new
 Contact: mailto:contact@aristache.dev
@@ -5,3 +8,12 @@ Expires: 2027-11-07T00:00:00.000Z
 Preferred-Languages: en
 Canonical: https://www.aristache.dev/.well-known/security.txt
 Policy: https://github.com/aristache-labs/portfolio-nextjs/blob/master/SECURITY.md
+Encryption: https://www.aristache.dev/.well-known/gpg.txt
+-----BEGIN PGP SIGNATURE-----
+
+iKgEARYKAFAWIQRzML50TMSgVSdXv+XTxvs0nVgB7AUCau99FxsUgAAAAAAEAA5t
+YW51MiwyLjUrMS4xMiwyLDEWHGNvbnRhY3RAYXJpc3RhY2hlLmRldgAKCRDTxvs0
+nVgB7Cb1AQCbcl8Lvl7zohF7biYmR7MunFvkmI3itQU6uGey/QztKwD7Bwd09SB5
+myfwNpVmDvoEdQTpWY5tyMJ8TKY7za/SHws=
+=K6fZ
+-----END PGP SIGNATURE-----
