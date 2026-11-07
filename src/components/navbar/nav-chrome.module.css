@@ -143,7 +143,8 @@
 
 /* Portrait screens, including one the simulator sizes past 1280px. The desktop link row
    starts at 1280 and hides this button, which left the bar with a logo and nothing else. */
-@media (orientation: portrait) {
+@media (orientation: portrait) and (max-width: 1023px),
+  (orientation: portrait) and (min-width: 1101px) {
   .desktopLinks,
   .desktopCta {
     display: none;
@@ -158,6 +159,28 @@
     background: rgb(8 12 13 / 0.92);
     border-color: rgb(var(--brand-bright-rgb) / 0.8);
     color: var(--brand-bright);
+  }
+}
+
+/* iPad Pro 13 portrait (1024-1100px): wide enough for the real link row, so show it instead of
+   the hamburger. With the CTA hidden the row has room for larger, more widely spaced links. */
+@media (orientation: portrait) and (min-width: 1024px) and (max-width: 1100px) {
+  .desktopLinks {
+    display: flex;
+    gap: 2rem;
+  }
+
+  /* The links carry a fixed text-[15px] utility, so size them through the anchors. */
+  .desktopLinks a {
+    font-size: 19px;
+  }
+
+  .desktopCta {
+    display: none;
+  }
+
+  .menuButton {
+    display: none;
   }
 }
 
