@@ -2,6 +2,50 @@
   --timeline-axis: 0.375rem;
 }
 
+/* Ultra landscape enlarges the two-column timeline while preserving shared heading sizes. */
+@media (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) {
+  .card h3 {
+    font-size: 22px;
+  }
+
+  .card .metadata,
+  .card li.step {
+    font-size: 16px;
+  }
+
+  .currentRole {
+    font-size: 16px;
+  }
+
+  .currentRole p {
+    font-size: 16px;
+  }
+
+  .section > [data-scroll-anchor] {
+    --section-heading-scale: 1.25;
+    zoom: 1.25;
+  }
+
+  .layout.layout {
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    column-gap: 48px;
+  }
+
+  .timeline {
+    margin-right: 40px;
+  }
+
+  .section .timeline .card {
+    background-color: var(--surface);
+    opacity: 1 !important;
+    backdrop-filter: none;
+  }
+
+  .timeline .entry > div {
+    opacity: 1 !important;
+  }
+}
+
 /* Ultra portrait uses the S7's stacked heading and full-width timeline at a larger scale. */
 @media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
   .section > [data-scroll-anchor] {
