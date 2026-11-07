@@ -583,7 +583,9 @@ test.describe("About fold viewport", () => {
             )
             .not.toBe("");
           // Real reader input cancels anchor restoration before the reversible scroll check.
-          await page.mouse.wheel(0, -1);
+          await section.dispatchEvent("pointerdown", {
+            pointerType: hasTouch ? "touch" : "mouse",
+          });
           const start = await section.evaluate(
             (node) => scrollY + node.getBoundingClientRect().top - innerHeight * 0.8,
           );
