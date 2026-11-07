@@ -97,9 +97,11 @@ test.describe("Fold whole-page landscape behavior", () => {
             }
             const preview = section.locator('button[aria-label^="View "]').first();
             if (await preview.count()) {
+              const title = (await preview.getAttribute("aria-label"))!.slice(5);
               await preview.tap();
               const dialog = page.getByRole("dialog");
               await expect(dialog).toBeVisible();
+              await expect(dialog).toHaveAccessibleName(title);
               await page.waitForTimeout(1400);
               expect
                 .soft(
@@ -877,6 +879,8 @@ async function open(page: Page, width: number, height: number) {
   await page.goto("/");
   await expect(page.locator("#hero")).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
+  // The server renders /# links; # links confirm that client navigation has hydrated.
+  await expect(page.locator('header a[aria-label="Home"]')).toHaveAttribute("href", "#hero");
 }
 
 test("no horizontal overflow on phones and tablets in either orientation", async ({ page }) => {
@@ -1156,17 +1160,27 @@ for (const hasTouch of [true, false]) {
           await open(page, width, height);
           const menu = page.getByRole("button", { name: "Open menu", exact: true });
           for (const id of ["about", "skills", "experience", "projects"]) {
-            if (await menu.isVisible()) await menu.click();
-            const link = page.locator(`header a[href="#${id}"]:visible`).first();
-            if (!(await link.count())) {
-              if (await page.getByRole("button", { name: "Close menu", exact: true }).isVisible())
-                await page.getByRole("button", { name: "Close menu", exact: true }).click();
+            const section = page.locator(`#${id}`);
+            if (!(await section.count())) {
               test.info().annotations.push({ type: "missing-section", description: id });
               continue;
             }
+            if (await menu.isVisible()) await menu.click();
+            const link = page.locator(`header a[href="#${id}"]:visible`).first();
+            await expect(link).toBeVisible();
             await link.click();
-            const section = page.locator(`#${id}`);
             await expect(section.locator("h2").first()).toBeInViewport();
+            // Seeing the heading does not mean the paced section jump has finished.
+            let previousScroll: number | undefined;
+            let stationarySamples = 0;
+            await expect
+              .poll(async () => {
+                const position = await page.evaluate(() => scrollY);
+                stationarySamples = position === previousScroll ? stationarySamples + 1 : 0;
+                previousScroll = position;
+                return stationarySamples;
+              })
+              .toBeGreaterThanOrEqual(2);
             if (id === "experience" && width > height && reducedMotion === "no-preference") {
               const dots = section.locator("[data-timeline-dot]");
               if ((await dots.count()) > 1) {
@@ -1176,11 +1190,47 @@ for (const hasTouch of [true, false]) {
               }
             }
             if (id === "projects") {
-              const preview = section.locator('button[aria-label^="View "]').first();
-              if (await preview.count()) {
+              const previews = section.locator('button[aria-label^="View "]');
+              if (await previews.count()) {
+                // Stacked scenes intentionally cover older cards. Use a control a reader can hit.
+                let label = "";
+                await expect
+                  .poll(async () => {
+                    label = await previews.evaluateAll((nodes) => {
+                      const button = nodes.find((node) => {
+                        const box = node.getBoundingClientRect();
+                        const x = box.left + box.width / 2;
+                        const y = box.top + box.height / 2;
+                        if (
+                          box.width <= 0 ||
+                          box.height <= 0 ||
+                          box.left < 5 ||
+                          box.right > innerWidth - 5 ||
+                          box.top < 5 ||
+                          box.bottom > innerHeight - 5
+                        )
+                          return false;
+                        return [
+                          [x, y],
+                          [x, box.top + 5],
+                          [x, box.bottom - 5],
+                          [box.left + 5, y],
+                          [box.right - 5, y],
+                        ].every(([px, py]) => {
+                          const hit = document.elementFromPoint(px, py);
+                          return !!hit && (hit === node || node.contains(hit));
+                        });
+                      });
+                      return button?.getAttribute("aria-label") ?? "";
+                    });
+                    return label;
+                  })
+                  .not.toBe("");
+                const preview = section.getByRole("button", { name: label, exact: true });
                 await preview.click();
                 const dialog = page.getByRole("dialog");
                 await expect(dialog).toBeVisible();
+                await expect(dialog).toHaveAccessibleName(label.slice(5));
                 await expect
                   .poll(() =>
                     dialog.evaluate((node) => {
