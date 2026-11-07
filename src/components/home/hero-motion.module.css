@@ -747,7 +747,7 @@
   --hero-consent-lift: 4rem;
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
   .content {
     padding-top: calc(10rem - var(--hero-consent-lift, 0rem));
     padding-bottom: 0rem;
@@ -845,7 +845,7 @@
 }
 
 /* Portrait phones: CSS-only motion, no scroll script and no pointer effects. */
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
   .hero {
     --hero-entry-distance: 8px;
   }
@@ -1060,7 +1060,7 @@
 
 /* Touch landscape: the desktop scene, minus the mouse-only pointer depth and spotlight. */
 @media (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
-  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4)) and (prefers-reduced-motion: no-preference) {
+  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4)) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] {
     --hero-entry-distance: 18px;
     --hero-role-step: 160ms;
@@ -1238,7 +1238,7 @@
 /* Taller touch landscape has room for the 45svh pin. The 112px section padding would
    leave the heading behind the name, so only this height range pulls it forward. */
 @media (orientation: landscape) and (pointer: coarse) and (min-height: 501px) and (prefers-reduced-motion: no-preference),
-  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4)) and (min-height: 501px) and (prefers-reduced-motion: no-preference) {
+  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4)) and (min-height: 501px) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] + :global(#about) {
     padding-top: 48px;
   }
@@ -1290,7 +1290,7 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
   .hero[data-consent-visible] .content,
   :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .content {
     padding-top: 4rem;
@@ -1370,7 +1370,7 @@
     translate: -50% 0;
   }
 }
-@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
   .hero .availability {
     display: flex;
     width: fit-content;
@@ -1381,7 +1381,7 @@
 /* Portrait tablets keep the copy on the left over a 16:9 poster cropped to a tall box, so the
    monitor and mug land under the paragraph. Slide the picture right so the subject clears the
    text, and keep the paragraph to the room that is left of it. */
-@media (min-width: 768px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (min-width: 768px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
   .poster img {
     object-position: calc(50% + min(110px, 9vw)) 50%;
   }
@@ -1392,7 +1392,7 @@
 }
 
 /* Tall portrait tablets: zoom the poster in a little and lift the scroll cue off the bottom. */
-@media (min-width: 680px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+@media (min-width: 680px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
   .poster img {
     scale: 1.14;
     transform-origin: 70% 45%;
@@ -1411,7 +1411,7 @@
 }
 
 /* Fold viewports keep landscape content alignment in either orientation. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
   .videoPlate {
     display: block;
   }
@@ -1522,7 +1522,7 @@
 /* A short Fold (about 690-780px tall, such as a Galaxy Z Fold 5 held wide) cannot hold the full
    stack. Tighten the copy so the scene stays one screen tall, which keeps the poster uncropped
    by growth, the scroll cue on screen and the social links clear of the bottom edge. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
   .content {
     padding-top: 6.5rem;
     padding-bottom: 6.5rem;

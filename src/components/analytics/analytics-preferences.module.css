@@ -600,7 +600,7 @@
 /* Fold, both orientations: the preferences card stays in the bottom-right corner like every other
    size, just smaller so it covers less of the page. The compact first-visit bar keeps its own rules
    above. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
   .panel:not([data-compact]) {
     right: max(12px, env(safe-area-inset-right));
     bottom: max(12px, env(safe-area-inset-bottom));
@@ -659,7 +659,7 @@
 
 /* Fold portrait: the first-visit bar is one row, copy wrapping on the left and the three smaller
    buttons on the right. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 1/1) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 1/1) {
   .panel[data-compact] {
     display: flex;
     align-items: center;

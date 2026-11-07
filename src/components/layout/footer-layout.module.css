@@ -128,7 +128,7 @@
 
 /* Phones in landscape: the 90px gap above overflows the card, so it follows the screen width. */
 @media (orientation: landscape) and (max-width: 1024px),
-  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4)) and (max-width: 1024px) {
+  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4)) and (max-width: 1024px) {
   .links {
     column-gap: clamp(20px, 5vw, 60px);
   }
@@ -235,7 +235,7 @@
 
 @media (min-width: 1024px),
   (orientation: landscape),
-  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4)) {
+  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4)) {
   .legal {
     padding-right: 76px;
   }
@@ -247,7 +247,7 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
   .columns {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: 16px;
@@ -301,7 +301,7 @@
 }
 
 /* Short Fold: trim the columns so the footer is not a zoomed-in screen. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
   .identity img {
     height: 140px;
   }
