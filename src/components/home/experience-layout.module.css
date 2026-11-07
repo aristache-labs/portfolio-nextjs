@@ -516,6 +516,15 @@
   }
 }
 
+/* Galaxy Tab S7 landscape, including the mouse-driven simulator: a lower floor than desktop, so the
+   second role sits closer. It must stay above the tallest card: when the active card's size sets
+   the row height, the indicator flips back and forth and the left panel flickers. */
+@media (min-width: 1250px) and (max-width: 1300px) and (max-height: 840px) and (orientation: landscape) {
+  .entry:not(:last-child) {
+    min-height: 32svh;
+  }
+}
+
 @media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
   .section {
     padding-top: 112px;
