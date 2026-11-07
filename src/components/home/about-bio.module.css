@@ -2,7 +2,7 @@
   display: none;
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .buttonReveal .toggle[aria-expanded] {
     animation: none;
@@ -81,7 +81,7 @@
   }
 }
 
-@media (orientation: portrait) and (max-width: 767px),
+@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) {
   .desktop {
     display: none;
@@ -111,5 +111,15 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .desktop {
+    display: block;
+  }
+
+  .mobile {
+    display: none;
   }
 }

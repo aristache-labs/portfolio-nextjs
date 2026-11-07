@@ -33,7 +33,8 @@ const contentSecurityPolicy = [
   // Google Analytics is allowed here but only loaded after explicit consent.
   `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com${isDev ? " ws://localhost:* ws://127.0.0.1:*" : ""}`,
   "form-action 'self' https://github.com",
-  "frame-ancestors 'none'",
+  // Dev preview iframes need to embed localhost. Production still denies framing.
+  ...(isDev ? [] : ["frame-ancestors 'none'"]),
   "frame-src 'none'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -78,7 +79,7 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-          { key: "X-Frame-Options", value: "DENY" },
+          ...(isDev ? [] : [{ key: "X-Frame-Options", value: "DENY" }]),
           { key: "Content-Security-Policy", value: contentSecurityPolicy },
         ],
       },

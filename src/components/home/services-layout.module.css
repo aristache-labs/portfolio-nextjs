@@ -1,0 +1,14 @@
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .section {
+    padding-top: 48px;
+    padding-bottom: 24px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scrim {
+    background-color: color-mix(in srgb, var(--background) 80%, transparent);
+  }
+}

@@ -9,3 +9,22 @@
       scale(var(--portrait-image-scale, 1));
   }
 }
+
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) and (prefers-reduced-motion: no-preference) {
+  .foldReveal[data-reveal="armed"] {
+    clip-path: inset(100% 0 0 0);
+  }
+
+  .foldReveal[data-reveal="play"] {
+    animation: fold-portrait-in 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes fold-portrait-in {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
 import styles from "./project-quick-view.module.css";
+import { FOLD_VIEWPORT_QUERY } from "@/lib/motion-queries";
 
 type Slide = { src: string; poster: boolean };
 
@@ -26,6 +27,7 @@ const STAGE_MAX = "min(50vh, 26rem)";
 // Match the dialog's portrait width, landscape image column and desktop max-w-2xl.
 // These are CSS widths, without a manual pixel-density multiplier.
 const PREVIEW_SIZES = [
+  `${FOLD_VIEWPORT_QUERY} min(calc(100vw - 2rem), 42rem)`,
   "(orientation: portrait) and (max-width: 1023px) min(calc(100vw - 48px), 42rem)",
   "(orientation: landscape) and (max-width: 1023px) and (max-height: 600px) min(calc((100vw - 72px) * 0.42), 352.8px)",
   "min(calc(100vw - 2rem), 42rem)",

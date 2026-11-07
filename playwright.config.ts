@@ -18,6 +18,11 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "responsive-webkit",
+      testMatch: "responsive-tablets.spec.ts",
+      use: { ...devices["Desktop Safari"] },
+    },
     ...(["chromium", "webkit"] as const).map((browserName) => ({
       name: `mobile-${browserName}`,
       testMatch: "mobile-layout.spec.ts",

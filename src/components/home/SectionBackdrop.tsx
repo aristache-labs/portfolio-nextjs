@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { BACKGROUND_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { useHeroPosterReady } from "@/hooks/useHeroPosterReady";
+import foldCss from "./section-backdrop.module.css";
 
 type Listener = (visible: boolean) => void;
 const observers = new Map<
@@ -210,8 +211,8 @@ export function SectionBackdrop({
           screen
             ? "absolute top-0 left-0 h-screen max-h-full w-full overflow-hidden"
             : frame === "desktop-screen"
-              ? "absolute inset-0 overflow-hidden lg:bottom-auto lg:h-svh lg:max-h-full"
-              : "absolute inset-0"
+              ? `absolute inset-0 overflow-hidden lg:bottom-auto lg:h-svh lg:max-h-full ${foldCss.foldScreen}`
+              : `absolute inset-0 ${foldCss.foldScreen}`
         }
       >
         {showVideo && (

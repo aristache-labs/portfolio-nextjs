@@ -2,7 +2,7 @@ import { act, render, screen, cleanup, fireEvent } from "@testing-library/react"
 import { renderToString } from "react-dom/server";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
-import { HERO_VIDEO_QUERY } from "@/hooks/useMediaQuery";
+import { FOLD_VIEWPORT_QUERY, HERO_VIDEO_QUERY } from "@/hooks/useMediaQuery";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { IDENTITY } from "@/lib/identity";
 import { Hero } from "./Hero";
@@ -222,6 +222,33 @@ describe("Hero", () => {
     expect(container.querySelector("video")).toBeNull();
     expect(screen.queryByRole("button", { name: /background video/i })).not.toBeInTheDocument();
   });
+
+  it.each([false, true])(
+    "enables Fold portrait video after its poster loads unless reduced motion is set (%s)",
+    (reduced) => {
+      installMatchMedia({ [FOLD_VIEWPORT_QUERY]: true, [REDUCED_MOTION_QUERY]: reduced });
+      vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
+      vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+      const { container } = render(<Hero profile={profile} />);
+      expect(container.querySelector("video")).toBeNull();
+      const image = container.querySelector("picture img")!;
+      Object.defineProperty(image, "currentSrc", {
+        configurable: true,
+        value: "http://localhost/media/hero-1280.webp",
+      });
+      fireEvent.load(image);
+      if (reduced) {
+        expect(container.querySelector("video")).toBeNull();
+        expect(screen.queryByRole("button", { name: /background video/i })).not.toBeInTheDocument();
+      } else {
+        expect(container.querySelector("video source")).toHaveAttribute(
+          "src",
+          "/media/hero-v2.mp4",
+        );
+        expect(screen.getByRole("button", { name: "Pause background video" })).toBeInTheDocument();
+      }
+    },
+  );
 
   it("exposes responsive poster sources in server HTML without lazy loading or duplicate images", () => {
     const container = document.createElement("div");

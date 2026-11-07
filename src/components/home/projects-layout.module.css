@@ -167,7 +167,7 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .groupTitle {
     width: 100%;
     justify-content: center;
@@ -359,5 +359,57 @@
   /* Same bottom margin as the subtitle (mb-10), so the card lines up with its last line. */
   .head > :nth-child(2) {
     margin-bottom: 2.5rem;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
+  .sectionHeading {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40px;
+  }
+  .headingRow {
+    display: contents;
+  }
+  .headingText {
+    margin-bottom: 16px;
+  }
+  .headingDescription {
+    order: 1;
+    margin-bottom: 0;
+  }
+}
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px;
+  }
+  .head > :nth-child(2) {
+    margin-bottom: 40px;
+  }
+  .headingRow {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  /* Featured swipes sideways in both orientations, like the portrait phone, with the next card
+     peeking in. Latest work below stays a single full-width column. */
+  .stack {
+    flex-direction: row;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding-bottom: 8px;
+  }
+  .stack > * {
+    width: 86%;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+  }
+  .highlights,
+  .projectGrid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

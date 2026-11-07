@@ -1,4 +1,4 @@
-@media (max-width: 1023px) and (orientation: portrait) {
+@media (max-width: 1023px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .dialog {
     width: calc(100% - 48px);
     max-height: calc(100dvh - 64px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
@@ -308,7 +308,7 @@
   margin-top: 3px;
 }
 
-@media (max-width: 1023px) and (orientation: portrait) {
+@media (max-width: 1023px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .descriptionText {
     -webkit-line-clamp: 4;
   }
@@ -365,8 +365,17 @@
   }
 }
 
-@media (max-width: 1023px) and (orientation: portrait) {
+@media (max-width: 1023px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4))) {
   .footer > a[aria-label^="Code for"] .shortLabel {
     display: none;
+  }
+}
+
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .shortLabel {
+    display: none;
+  }
+  .dialog {
+    max-height: 90dvh;
   }
 }

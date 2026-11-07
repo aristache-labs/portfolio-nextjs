@@ -3,12 +3,12 @@
 import { useEffect, type RefObject } from "react";
 import { useScroll } from "framer-motion";
 import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
-import { PINNED_SCENE_QUERY, TOUCH_LANDSCAPE_QUERY } from "@/hooks/useMediaQuery";
+import { PINNED_SCENE_QUERY, LANDSCAPE_LAYOUT_QUERY } from "@/hooks/useMediaQuery";
 
 export const HERO_PIN_QUERY = PINNED_SCENE_QUERY;
 
 /** Touch phones and small tablets in landscape get a shorter version of the pinned scene. */
-export const HERO_LANDSCAPE_PIN_QUERY = TOUCH_LANDSCAPE_QUERY;
+export const HERO_LANDSCAPE_PIN_QUERY = LANDSCAPE_LAYOUT_QUERY;
 
 /** About rises from the bottom on desktop, so layers leave in the order it covers them. */
 const DESKTOP_EXIT_PHASES = [

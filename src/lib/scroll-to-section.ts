@@ -3,6 +3,7 @@
 import type Lenis from "lenis";
 import { beginSectionNavigation } from "./section-navigation";
 import { getSmoothScroll } from "./smooth-scroll";
+import { FOLD_VIEWPORT_QUERY } from "./motion-queries";
 
 // Smooth acceleration and deceleration, with no abrupt change at either end.
 const smoothStep = (progress: number) => progress * progress * (3 - 2 * progress);
@@ -62,7 +63,12 @@ const SECTION_NAV_GAP = 38;
 const SHORT_LANDSCAPE_NAV_GAP = 14;
 
 function navigationGap(target: HTMLElement) {
-  if (target.id === "about" && window.innerWidth <= 767 && window.innerHeight > window.innerWidth) {
+  if (
+    target.id === "about" &&
+    window.innerWidth <= 767 &&
+    window.innerHeight > window.innerWidth &&
+    !window.matchMedia(FOLD_VIEWPORT_QUERY).matches
+  ) {
     return SECTION_NAV_GAP - 8;
   }
   return window.innerHeight <= 500 && window.innerWidth > window.innerHeight

@@ -13,6 +13,7 @@ import { useMotionValue, useScroll, type MotionValue } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import {
   PINNED_SCENE_QUERY,
+  FOLD_VIEWPORT_QUERY,
   PORTRAIT_PHONE_QUERY,
   TOUCH_LANDSCAPE_QUERY,
   useMediaQuery,
@@ -21,8 +22,10 @@ import { phaseProgress } from "@/lib/scroll-phase";
 import styles from "./about-sequence.module.css";
 
 export const ABOUT_PIN_QUERY = PINNED_SCENE_QUERY;
+/** Fold viewports share the lateral composition in either orientation. */
+export const ABOUT_FOLD_QUERY = FOLD_VIEWPORT_QUERY;
 /** Touch devices in landscape get the same pinned scene, minus the mouse-only effects. */
-export const ABOUT_TOUCH_PIN_QUERY = TOUCH_LANDSCAPE_QUERY;
+export const ABOUT_TOUCH_PIN_QUERY = `${TOUCH_LANDSCAPE_QUERY}, ${ABOUT_FOLD_QUERY}`;
 /** Portrait phones use CSS-only motion, so no scroll script is mounted for them. */
 export const ABOUT_PORTRAIT_QUERY = PORTRAIT_PHONE_QUERY;
 /** Landscape phones flatten About into one compact grid in CSS, so nothing is pinned there. */
@@ -169,7 +172,8 @@ export function AboutSequence({ children, details }: { children: ReactNode; deta
   const { mode } = useAnimationPolicy();
   const desktopPinned = useMediaQuery(ABOUT_PIN_QUERY) && mode === "expressive";
   const touchPinned = useMediaQuery(ABOUT_TOUCH_PIN_QUERY) && mode !== "static";
-  const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
+  const foldViewport = useMediaQuery(ABOUT_FOLD_QUERY);
+  const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY) && !foldViewport;
   const compactLandscape = useMediaQuery(ABOUT_COMPACT_LANDSCAPE_QUERY);
   const compactPhone = portraitPhone || compactLandscape;
   const pinned = desktopPinned || (touchPinned && !compactPhone);

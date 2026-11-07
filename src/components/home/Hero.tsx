@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { HERO_VIDEO_QUERY, PORTRAIT_PHONE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+  FOLD_VIEWPORT_QUERY,
+  HERO_VIDEO_QUERY,
+  PORTRAIT_PHONE_QUERY,
+  useMediaQuery,
+} from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
@@ -155,6 +160,7 @@ export function Hero({
     stopAnchorScroll.current = scrollToSection(id, reduce);
   };
   const canPlayVideo = useMediaQuery(HERO_VIDEO_QUERY);
+  const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const portraitPoster = useMediaQuery(PORTRAIT_POSTER_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -175,7 +181,7 @@ export function Hero({
   // changes the picture source from the portrait crop to the full frame.
   const mountVideo =
     showVideo &&
-    canPlayVideo &&
+    (canPlayVideo || foldViewport) &&
     (posterLoaded === (portraitPoster ? "portrait" : "full") || !posterOk);
 
   const markPosterLoaded = (node: HTMLImageElement) => {
@@ -335,7 +341,7 @@ export function Hero({
             <div className="bg-background/70 absolute inset-0 md:hidden" />
             {/* Desktop plate: sized exactly like object-cover on a 16:9 picture, so anything placed
             inside it by percentage stays on the same spot of the picture at any screen size. */}
-            <div className={`${PLATE} hidden md:block landscape:block`}>
+            <div className={`${styles.videoPlate} ${PLATE} hidden md:block landscape:block`}>
               {/* The poster stays put beneath the video, preserving its framing during playback. */}
               {mountVideo && (
                 <video

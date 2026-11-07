@@ -8,9 +8,11 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   ABOUT_COMPACT_LANDSCAPE_QUERY,
   ABOUT_PORTRAIT_QUERY,
+  ABOUT_FOLD_QUERY,
   phaseProgress,
   useAboutSequence,
 } from "./AboutSequence";
+import { AboutReveal } from "./AboutReveal";
 
 function paintPortrait(node: HTMLDivElement, value: number, expressive: boolean) {
   const progress = Math.max(0, Math.min(1, value));
@@ -94,6 +96,14 @@ export function AboutPortraitMotion({
   const sequence = useAboutSequence();
   const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY);
   const landscapePhone = useMediaQuery(ABOUT_COMPACT_LANDSCAPE_QUERY);
+  const fold = useMediaQuery(ABOUT_FOLD_QUERY);
+  if (fold) {
+    return (
+      <div className={className}>
+        <AboutReveal className={styles.foldReveal}>{children}</AboutReveal>
+      </div>
+    );
+  }
   return (
     <div className={className}>
       <div ref={target} className={styles.reveal}>

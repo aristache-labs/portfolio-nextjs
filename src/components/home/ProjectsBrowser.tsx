@@ -26,7 +26,7 @@ import { FeaturedCard, RecentCard } from "./HighlightCards";
 import { CurrentlyBuilding } from "./CurrentlyBuilding";
 import type { MergedProject } from "@/lib/projects";
 import { PROJECT_CATEGORIES } from "@/lib/project-categories";
-import { PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
+import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import categoryCss from "./project-categories.module.css";
 import layoutCss from "./projects-layout.module.css";
 import {
@@ -60,8 +60,7 @@ const TRACK = "flex flex-1 flex-col gap-4";
 const FEATURED_SNAP =
   "max-lg:[@media(orientation:portrait)]:snap-x max-lg:[@media(orientation:portrait)]:snap-mandatory max-lg:[@media(orientation:portrait)]:flex-row max-lg:[@media(orientation:portrait)]:overflow-x-auto max-lg:[@media(orientation:portrait)]:overscroll-x-contain max-lg:[@media(orientation:portrait)]:pb-2";
 
-const GRID =
-  "grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2";
+const GRID = `${layoutCss.projectGrid} grid grid-cols-1 gap-6 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1023px)]:grid-cols-2`;
 
 /** Scroll-driven on expressive desktops, the timed reveal everywhere else. */
 function Arrival({
@@ -144,7 +143,8 @@ export function ProjectsBrowser({
   const [category, setCategory] = useState(ALL);
   const [extra, setExtra] = useState(0);
   const mobileViewport = useMediaQuery("(max-width: 1023px)");
-  const landscape = useMediaQuery("(orientation: landscape)");
+  const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
+  const landscape = useMediaQuery("(orientation: landscape)") || foldViewport;
   const recentLimit = mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
   const containerRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
