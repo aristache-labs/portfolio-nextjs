@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
-import { AnimatePresence, m, useScroll } from "framer-motion";
+import { AnimatePresence, m, useMotionValue, useScroll } from "framer-motion";
+import { sectionScrollPosition } from "@/lib/scroll-to-section";
 import { ArrowDownToLine, MapPin } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
@@ -27,6 +28,8 @@ export const RAIL_LINE = "20%";
 export const RAIL_LINE_DESKTOP = "20%";
 /** Galaxy Tab S7 landscape: the first role's dot when the heading sits under the bar. */
 const RAIL_LINE_WIDE_TABLET = "15%";
+const IPAD_PRO_LANDSCAPE_QUERY =
+  "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)";
 
 /** Keep frame-based content measurements local to the visible timeline. */
 function NearbyTimelineRail({
@@ -100,9 +103,13 @@ function ScrollTimelineRail({
   // and the role indicator with it, lights as it crosses that line. Desktop and touch screens
   // tune that line separately (RAIL_LINE_DESKTOP, RAIL_LINE).
   const line = wideTouch ? RAIL_LINE_WIDE_TABLET : tallScreen ? RAIL_LINE_DESKTOP : RAIL_LINE;
+  const ipadProLandscape = useMediaQuery(IPAD_PRO_LANDSCAPE_QUERY);
+  const landingFill = useMotionValue(0);
   const { scrollYProgress: fill } = useScroll({
     target: listRef,
-    offset: [`start ${line}`, `end ${line}`],
+    // Listen before the list reaches the top, so the first scroll after menu arrival updates
+    // landingFill too. Starting at 0px clamps the source value throughout that initial stretch.
+    offset: ipadProLandscape ? ["start 100%", "end 0px"] : [`start ${line}`, `end ${line}`],
     trackContentSize: true,
   });
 
@@ -116,25 +123,38 @@ function ScrollTimelineRail({
     if (highlightEntries) list.setAttribute("data-timeline-scroll", "");
     let positions: number[] = [];
     let length = 0;
+    let landing = 0;
     let lastActive: number | undefined;
     const update = (progress: number) => {
+      if (ipadProLandscape) {
+        progress = length > 0 ? Math.max(0, Math.min(1, (window.scrollY - landing) / length)) : 0;
+        landingFill.set(progress);
+      }
       let filled = -1;
       dots.forEach((dot, index) => {
-        const lit = progress > 0 && progress * length >= positions[index];
+        const lit = (ipadProLandscape || progress > 0) && progress * length >= positions[index];
         dot.toggleAttribute("data-timeline-filled", lit);
         if (lit && index < entries.length) filled = index;
       });
-      // The current role is the one whose bullet the rail lit last, so the indicator, the card
-      // outline and the bullet always change together. Before the first bullet, keep role one.
-      if (trackCurrent && filled !== lastActive) {
-        lastActive = filled;
+      // This tall tablet's sticky role anticipates the next dot slightly; the rail still
+      // follows the exact scroll distance from the menu landing.
+      const active = ipadProLandscape
+        ? positions
+            .slice(0, entries.length)
+            .reduce(
+              (current, position, index) => (progress * length + 0 >= position ? index : current),
+              0,
+            )
+        : filled;
+      if (trackCurrent && active !== lastActive) {
+        lastActive = active;
         entries.forEach((entry, index) => {
-          if (index === filled) entry.setAttribute("data-timeline-active", "true");
+          if (index === active) entry.setAttribute("data-timeline-active", "true");
           else entry.removeAttribute("data-timeline-active");
         });
-        onActive(Math.max(0, filled));
+        onActive(Math.max(0, active));
       }
-      if (!highlightEntries || progress <= 0) return;
+      if (!highlightEntries || (!ipadProLandscape && progress <= 0)) return;
       // A role enters slightly ahead of the rail, which then lights its marker. One way:
       // a role that has entered stays visible when scrolling back up.
       const lead = innerHeight * 0.3;
@@ -144,6 +164,8 @@ function ScrollTimelineRail({
     };
     const measure = () => {
       const bounds = list.getBoundingClientRect();
+      const section = list.closest<HTMLElement>("#experience");
+      if (ipadProLandscape && section) landing = sectionScrollPosition(section);
       // Layout dimensions stay accurate when landscape changes the root font size.
       length = track.offsetHeight;
       const start = track.offsetTop;
@@ -157,6 +179,8 @@ function ScrollTimelineRail({
     const unsubscribe = fill.on("change", update);
     const resize = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : undefined;
     resize?.observe(list);
+    const nav = document.querySelector('header nav[aria-label="Primary"]');
+    if (ipadProLandscape && nav) resize?.observe(nav);
     window.addEventListener("resize", measure);
     return () => {
       unsubscribe();
@@ -167,12 +191,12 @@ function ScrollTimelineRail({
       // Entered roles keep their state; without this attribute nothing is hidden anyway.
       list.removeAttribute("data-timeline-scroll");
     };
-  }, [fill, highlightEntries, trackCurrent, onActive, listRef]);
+  }, [fill, landingFill, ipadProLandscape, highlightEntries, trackCurrent, onActive, listRef]);
 
   return (
     <m.span
       aria-hidden
-      style={{ scaleY: fill }}
+      style={{ scaleY: ipadProLandscape ? landingFill : fill }}
       className={`${styles.rail} absolute top-6 bottom-6 w-px origin-top bg-(image:--gradient-brand)`}
     />
   );
@@ -587,7 +611,7 @@ export function Experience({
           )}
         </div>
 
-        <div ref={listRef} className="relative">
+        <div ref={listRef} className={`${styles.timeline} relative`}>
           {/* Connector rail: faint track + a gradient fill that grows on scroll.
               Sits under the entry dots (which are z-10). */}
           {sorted.length > 0 && (

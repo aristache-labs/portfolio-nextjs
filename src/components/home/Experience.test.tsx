@@ -6,6 +6,7 @@ import { installMatchMedia } from "@/test/matchMedia";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { renderToString } from "react-dom/server";
 import styles from "./experience-layout.module.css";
+import * as sectionScroll from "@/lib/scroll-to-section";
 
 const scrollHook = vi.hoisted(() => vi.fn());
 const scrollProgress = vi.hoisted(() => ({
@@ -50,6 +51,65 @@ const mockExperiences: ExperienceRow[] = [
 ];
 
 describe("Experience", () => {
+  it.each([true, false])(
+    "starts the iPad landscape rail at the menu landing (fine pointer: %s)",
+    (fine) => {
+      installMatchMedia({
+        [EXPRESSIVE_MOTION_QUERY]: fine,
+        "(min-width: 1024px)": true,
+        "(orientation: landscape) and (pointer: coarse) and (min-width: 1024px)": !fine,
+        "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)": true,
+      });
+      const landing = vi.spyOn(sectionScroll, "sectionScrollPosition").mockReturnValue(1000);
+      vi.stubGlobal("scrollY", 1000);
+      const trackHeight = vi
+        .spyOn(HTMLElement.prototype, "offsetHeight", "get")
+        .mockReturnValue(1000);
+      const trackTop = vi.spyOn(HTMLElement.prototype, "offsetTop", "get").mockReturnValue(0);
+      const bounds = vi
+        .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+        .mockImplementation(function (this: HTMLElement) {
+          const dot = this.hasAttribute("data-timeline-dot");
+          const second = this.closest("li")?.dataset.experienceId === "2";
+          return {
+            top: dot ? (this.hasAttribute("data-timeline-end") ? 994 : second ? 494 : -6) : 0,
+            height: dot ? 12 : 1000,
+          } as DOMRect;
+        });
+      const { container, unmount } = render(<Experience experiences={mockExperiences} />);
+      try {
+        expect(scrollHook).toHaveBeenCalledWith(
+          expect.objectContaining({
+            offset: ["start 100%", "end 0px"],
+          }),
+        );
+        const dots = container.querySelectorAll("[data-timeline-dot]");
+        act(() => scrollProgress.current!.set(0.5));
+        expect(dots[0]).toHaveAttribute("data-timeline-filled");
+        expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
+        vi.stubGlobal("scrollY", 1420);
+        act(() => scrollProgress.current!.set(0.65));
+        expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
+        expect(container.querySelector('[data-experience-id="2"]')).toHaveAttribute(
+          "data-timeline-active",
+          "true",
+        );
+        vi.stubGlobal("scrollY", 1500);
+        act(() => scrollProgress.current!.set(0.7));
+        expect(dots[1]).toHaveAttribute("data-timeline-filled");
+        vi.stubGlobal("scrollY", 1000);
+        act(() => scrollProgress.current!.set(0.1));
+        expect(dots[1]).not.toHaveAttribute("data-timeline-filled");
+      } finally {
+        unmount();
+        landing.mockRestore();
+        trackHeight.mockRestore();
+        trackTop.mockRestore();
+        bounds.mockRestore();
+        vi.unstubAllGlobals();
+      }
+    },
+  );
   it("groups the numbered section label and title in one entrance", () => {
     render(<Experience experiences={mockExperiences} />);
     const title = screen.getByRole("heading", { name: "Where I've worked" });

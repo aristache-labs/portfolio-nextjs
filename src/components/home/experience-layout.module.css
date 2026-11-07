@@ -2,6 +2,24 @@
   --timeline-axis: 0.375rem;
 }
 
+/* Leave room for the page dots, including the cards' entry from the right. */
+@media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) {
+  .timeline {
+    margin-right: 48px;
+  }
+
+  /* Entry moves the card and reveals its text while the surface stays fully opaque. */
+  .section .timeline .card {
+    background-color: var(--surface);
+    opacity: 1 !important;
+    backdrop-filter: none;
+  }
+
+  .timeline .entry > div {
+    opacity: 1 !important;
+  }
+}
+
 /* iPad Pro 13 portrait keeps the Fold timeline at the shared 1.376 root scale. */
 @media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .section.section {

@@ -64,7 +64,7 @@ const SHORT_LANDSCAPE_NAV_GAP = 14;
 
 function navigationGap(target: HTMLElement) {
   if (
-    target.id === "skills" &&
+    (target.id === "skills" || target.id === "experience") &&
     window.matchMedia(
       "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)",
     ).matches
@@ -114,7 +114,7 @@ function navigationGap(target: HTMLElement) {
 const COMPACT_NAV_HEIGHTS = {
   shortLandscape: 44,
   ipadProPortrait: 64,
-  ipadProLandscape: 60,
+  ipadProLandscape: 70,
   default: 52,
 } as const;
 
