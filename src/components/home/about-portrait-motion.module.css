@@ -10,7 +10,7 @@
   }
 }
 
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) and (prefers-reduced-motion: no-preference) {
   .foldReveal[data-reveal="armed"] {
     clip-path: inset(100% 0 0 0);
   }

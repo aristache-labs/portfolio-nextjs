@@ -16,7 +16,7 @@ export const TOUCH_LANDSCAPE_QUERY = "(orientation: landscape) and (pointer: coa
 
 /** Fold-sized viewports share their layout in either orientation. */
 export const FOLD_VIEWPORT_QUERY =
-  "(min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4)";
+  "(min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)";
 
 /** Upright phones use mobile motion; Fold viewports retain their landscape scene. */
 export const PORTRAIT_PHONE_QUERY = `(max-width: 767px) and (orientation: portrait) and (not (${FOLD_VIEWPORT_QUERY}))`;

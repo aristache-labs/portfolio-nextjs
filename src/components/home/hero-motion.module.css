@@ -747,7 +747,7 @@
   --hero-consent-lift: 4rem;
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .content {
     padding-top: calc(10rem - var(--hero-consent-lift, 0rem));
     padding-bottom: 0rem;
@@ -845,7 +845,7 @@
 }
 
 /* Portrait phones: CSS-only motion, no scroll script and no pointer effects. */
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero {
     --hero-entry-distance: 8px;
   }
@@ -1060,7 +1060,7 @@
 
 /* Touch landscape: the desktop scene, minus the mouse-only pointer depth and spotlight. */
 @media (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
-  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4)) and (prefers-reduced-motion: no-preference) {
+  ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] {
     --hero-entry-distance: 18px;
     --hero-role-step: 160ms;
@@ -1238,7 +1238,7 @@
 /* Taller touch landscape has room for the 45svh pin. The 112px section padding would
    leave the heading behind the name, so only this height range pulls it forward. */
 @media (orientation: landscape) and (pointer: coarse) and (min-height: 501px) and (prefers-reduced-motion: no-preference),
-  ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4)) and (min-height: 501px) and (prefers-reduced-motion: no-preference) {
+  ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)) and (min-height: 501px) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] + :global(#about) {
     padding-top: 48px;
   }
@@ -1290,7 +1290,7 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero[data-consent-visible] .content,
   :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .content {
     padding-top: 4rem;
@@ -1370,7 +1370,7 @@
     translate: -50% 0;
   }
 }
-@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero .availability {
     display: flex;
     width: fit-content;
@@ -1381,7 +1381,17 @@
 /* Portrait tablets keep the copy on the left over a 16:9 poster cropped to a tall box, so the
    monitor and mug land under the paragraph. Slide the picture right so the subject clears the
    text, and keep the paragraph to the room that is left of it. */
-@media (min-width: 768px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+@media (min-width: 768px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  /* At 1024px Tailwind's lg: rules add a second column and 2rem of left padding. The Fold has
+     neither, so match it: one full-width column that starts at the container edge. */
+  .content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .intro {
+    padding-left: 0;
+  }
+
   .poster img {
     object-position: calc(50% + min(110px, 9vw)) 50%;
   }
@@ -1392,7 +1402,7 @@
 }
 
 /* Tall portrait tablets: zoom the poster in a little and lift the scroll cue off the bottom. */
-@media (min-width: 680px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+@media (min-width: 680px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .poster img {
     scale: 1.14;
     transform-origin: 70% 45%;
@@ -1411,7 +1421,7 @@
 }
 
 /* Fold viewports keep landscape content alignment in either orientation. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .videoPlate {
     display: block;
   }
@@ -1522,7 +1532,7 @@
 /* A short Fold (about 690-780px tall, such as a Galaxy Z Fold 5 held wide) cannot hold the full
    stack. Tighten the copy so the scene stays one screen tall, which keeps the poster uncropped
    by growth, the scroll cue on screen and the social links clear of the bottom edge. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4),
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4),
   (orientation: landscape) and (pointer: coarse) and (min-height: 501px) and (max-height: 740px) {
   .content {
     padding-top: 6.5rem;
@@ -1570,9 +1580,10 @@
   }
 }
 
-/* Large portrait tablets. iPad Air is 800-1023px; iPad Pro 13 is 1024px, one pixel past the old
-   cap, so the 56rem scene left About in the lower third. Fill the screen and scale the type up. */
-@media (min-width: 800px) and (max-width: 1100px) and (orientation: portrait) {
+/* Large portrait tablets (iPad Air, 800-1023px wide). The 56rem scene cap leaves the hero shorter
+   than the screen, so About rides up over it and the copy reads small. Fill the screen instead
+   and scale the type up. */
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
   .scene,
   .hero[data-touch-scene] {
     min-height: 100svh;
@@ -1609,7 +1620,7 @@
   }
 }
 
-@media (min-width: 800px) and (max-width: 1100px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] {
     min-height: calc(100svh + 45svh);
   }
@@ -1620,7 +1631,7 @@
 }
 
 /* Keep the paragraph readable where it crosses the mug and monitor, and size the tagline up. */
-@media (min-width: 800px) and (max-width: 1100px) and (orientation: portrait) {
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
   .hero .copy {
     max-width: min(27rem, 54vw);
     text-shadow: 0 1px 12px rgb(8 12 13 / 0.9);
@@ -1642,7 +1653,7 @@
 }
 
 /* Second pass: a soft plate under the paragraph and a bolder, larger tagline. */
-@media (min-width: 800px) and (max-width: 1100px) and (orientation: portrait) {
+@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
   .hero .copy {
     width: fit-content;
     padding: 0.75rem 1rem;
@@ -1661,25 +1672,27 @@
   }
 }
 
-/* A simulator that reports a fine pointer also turns on the desktop pin at 1024px. Drop that
-   pin on this portrait size so About stays below the hero. */
-@media (min-width: 1024px) and (max-width: 1100px) and (orientation: portrait) {
-  .hero[data-cinematic] {
-    min-height: 100svh;
+/* iPad Pro 13 portrait (Fold layout at 1.376x). Type, spacing and buttons already scale 1:1 from
+   the Z Fold 6. The 3:4 box shows a slightly narrower slice of the 16:9 plate than the Fold's
+   about 7:8 box, so nudge the picture right by the difference and keep the Fold's own scale; the
+   person's head then lands at the same place on the screen as on the Fold. */
+@media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  /* At 1024px Tailwind's lg: rules add a second column and 2rem of left padding. The Fold has
+     neither, so match it: one full-width column that starts at the container edge. */
+  .content {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .hero[data-cinematic] .scene {
-    position: relative;
-    top: auto;
+  .intro {
+    padding-left: 0;
   }
 
-  .hero[data-cinematic] + :global(#about) {
-    z-index: auto;
-    margin-top: 0;
-    padding-top: 7rem;
+  .poster img {
+    object-position: calc(50% + 30px) 50%;
   }
 
-  .hero[data-cinematic] + :global(#about)::before {
-    content: none;
+  /* The video plate is centred on its own, so shift it by the same amount as the poster. */
+  .videoPlate {
+    left: calc(50% + 30px);
   }
 }

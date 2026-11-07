@@ -1,7 +1,7 @@
 /* A Fold viewport is near-square, so stretching a 16:9 plate over a tall section crops it to a
    few pixels of the image and reads as zoomed. Hold the plate to one viewport height at the top
    of the section, as the desktop frame does from lg upward. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .foldScreen {
     bottom: auto;
     height: 100svh;
