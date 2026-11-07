@@ -1570,10 +1570,9 @@
   }
 }
 
-/* Large portrait tablets (iPad Air, 800-1023px wide). The 56rem scene cap leaves the hero shorter
-   than the screen, so About rides up over it and the copy reads small. Fill the screen instead
-   and scale the type up. */
-@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
+/* Large portrait tablets. iPad Air is 800-1023px; iPad Pro 13 is 1024px, one pixel past the old
+   cap, so the 56rem scene left About in the lower third. Fill the screen and scale the type up. */
+@media (min-width: 800px) and (max-width: 1100px) and (orientation: portrait) {
   .scene,
   .hero[data-touch-scene] {
     min-height: 100svh;
@@ -1610,7 +1609,7 @@
   }
 }
 
-@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 800px) and (max-width: 1100px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] {
     min-height: calc(100svh + 45svh);
   }
@@ -1621,7 +1620,7 @@
 }
 
 /* Keep the paragraph readable where it crosses the mug and monitor, and size the tagline up. */
-@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
+@media (min-width: 800px) and (max-width: 1100px) and (orientation: portrait) {
   .hero .copy {
     max-width: min(27rem, 54vw);
     text-shadow: 0 1px 12px rgb(8 12 13 / 0.9);
@@ -1643,7 +1642,7 @@
 }
 
 /* Second pass: a soft plate under the paragraph and a bolder, larger tagline. */
-@media (min-width: 800px) and (max-width: 1023px) and (orientation: portrait) {
+@media (min-width: 800px) and (max-width: 1100px) and (orientation: portrait) {
   .hero .copy {
     width: fit-content;
     padding: 0.75rem 1rem;
@@ -1659,5 +1658,28 @@
     letter-spacing: 0.12em;
     color: var(--brand-bright);
     text-shadow: 0 1px 10px rgb(8 12 13 / 0.9);
+  }
+}
+
+/* A simulator that reports a fine pointer also turns on the desktop pin at 1024px. Drop that
+   pin on this portrait size so About stays below the hero. */
+@media (min-width: 1024px) and (max-width: 1100px) and (orientation: portrait) {
+  .hero[data-cinematic] {
+    min-height: 100svh;
+  }
+
+  .hero[data-cinematic] .scene {
+    position: relative;
+    top: auto;
+  }
+
+  .hero[data-cinematic] + :global(#about) {
+    z-index: auto;
+    margin-top: 0;
+    padding-top: 7rem;
+  }
+
+  .hero[data-cinematic] + :global(#about)::before {
+    content: none;
   }
 }

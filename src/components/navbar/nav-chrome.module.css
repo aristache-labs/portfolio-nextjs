@@ -141,6 +141,26 @@
   opacity: 0;
 }
 
+/* Portrait screens, including one the simulator sizes past 1280px. The desktop link row
+   starts at 1280 and hides this button, which left the bar with a logo and nothing else. */
+@media (orientation: portrait) {
+  .desktopLinks,
+  .desktopCta {
+    display: none;
+  }
+
+  .menuButton {
+    display: flex;
+    position: relative;
+    z-index: 2;
+    width: 52px;
+    height: 52px;
+    background: rgb(8 12 13 / 0.92);
+    border-color: rgb(var(--brand-bright-rgb) / 0.8);
+    color: var(--brand-bright);
+  }
+}
+
 @media (min-width: 1280px) {
   .progressWithRail {
     display: none;
