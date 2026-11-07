@@ -422,3 +422,19 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Portrait tablets that are not Fold-shaped (iPad Air): title and subtitle on the left, the narrower
+   Building now card on the right. The subtitle wraps when the copy column runs short. */
+@media (min-width: 740px) and (max-width: 1023px) and (orientation: portrait) {
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px;
+  }
+
+  .head > :nth-child(2) {
+    width: clamp(240px, 32vw, 280px);
+    margin-bottom: 2.5rem;
+  }
+}

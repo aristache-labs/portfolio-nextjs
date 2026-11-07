@@ -247,13 +247,14 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4),
+  (min-width: 740px) and (max-width: 1023px) and (orientation: portrait) {
   .columns {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: 16px;
   }
   .identity img {
-    height: 180px;
+    height: 140px;
   }
   .explore {
     display: flex;
