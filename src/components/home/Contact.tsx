@@ -208,7 +208,7 @@ export function Contact({
       effect="zoom"
       duration={0.7}
       delay={0.15}
-      className="mt-8 max-w-[575px]"
+      className={`${motionCss.quote} mt-8 max-w-[575px]`}
       surfaceClassName={QUOTE_GLASS}
     >
       {content}

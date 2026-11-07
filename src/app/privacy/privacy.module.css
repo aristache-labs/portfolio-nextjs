@@ -79,7 +79,8 @@
 }
 
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
-  (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
+  (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) and (prefers-reduced-motion: no-preference) {
   .backdropSection {
     --legal-backdrop-travel: 24px;
     view-timeline: --legal-mobile block;
@@ -174,5 +175,50 @@
   }
   .contentsMobile {
     display: block;
+  }
+}
+
+/* Fold portrait reads like a phone: collapsible contents above one panel. */
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 1/1) {
+  .contentsDesktop {
+    display: none;
+  }
+  .contentsMobile {
+    display: block;
+  }
+}
+
+/* Fold landscape reuses the phone landscape layout: a narrow contents rail beside the panel, and
+   the header arrives from the left. */
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 1/1) and (max-aspect-ratio: 5/4) {
+  .backLink {
+    margin-top: 8px;
+    font-size: 15px;
+  }
+  .article {
+    padding-top: 16px;
+  }
+  .content {
+    margin-top: 24px;
+    grid-template-columns: 190px minmax(0, 1fr);
+    gap: 28px;
+  }
+  .content > .contentsNav {
+    position: sticky;
+    top: 5rem;
+    align-self: start;
+    max-height: calc(100dvh - 6rem);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+  .content section {
+    padding-block: 16px;
+  }
+  .content section:first-child {
+    padding-top: 0;
+  }
+  .mobileHeader {
+    --legal-entry-x: -36px;
+    --legal-entry-y: 0px;
   }
 }

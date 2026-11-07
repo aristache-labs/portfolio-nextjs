@@ -171,6 +171,9 @@ function ScrollTimelineRail({
   );
 }
 
+const TABLET_LANDSCAPE_QUERY =
+  "(orientation: landscape) and (pointer: coarse) and (min-width: 1024px)";
+
 /** Sticky offset of the intro column (lg:top-24). */
 export const INTRO_TOP = 96;
 /** Extra scroll after the intro sticks before the subtitle folds into the role card. */
@@ -427,13 +430,18 @@ export function Experience({
   const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
   const desktop = useMediaQuery("(min-width: 1024px)");
   const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)");
+  // A touch tablet held wide has the desktop layout but not the mouse, so it needs the same
+  // sticky current-role panel that short landscape phones get.
+  const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
   const layout = { portrait, landscape, desktop, desktopDisclosure };
   const listRef = useRef<HTMLDivElement>(null);
   const stickStart = useRef<HTMLSpanElement>(null);
   const [activeRole, setActiveRole] = useState(0);
   const [stuck, setStuck] = useState(false);
   // While the intro sticks beside the timeline, the subtitle folds and the indicator rises.
-  const folds = (mode === "expressive" || (landscape && mode !== "static")) && sorted.length > 1;
+  const folds =
+    (mode === "expressive" || ((landscape || tabletLandscape) && mode !== "static")) &&
+    sorted.length > 1;
   const compact = folds && stuck;
   const introTop = landscape ? 80 : INTRO_TOP;
   // The subtitle stays readable for a stretch after the intro sticks, including right after a

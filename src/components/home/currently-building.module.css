@@ -99,7 +99,7 @@
 }
 
 /* Fold keeps this summary beside the heading instead of stretching across the section. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
   .slot {
     width: clamp(260px, 32vw, 300px);
   }

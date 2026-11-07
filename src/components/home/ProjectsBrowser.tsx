@@ -142,7 +142,10 @@ export function ProjectsBrowser({
   };
   const [category, setCategory] = useState(ALL);
   const [extra, setExtra] = useState(0);
-  const mobileViewport = useMediaQuery("(max-width: 1023px)");
+  // iPad-sized touch landscape behaves like the phone layouts here: fewer cards, one column.
+  const mobileViewport = useMediaQuery(
+    "(max-width: 1023px), (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px)",
+  );
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const landscape = useMediaQuery("(orientation: landscape)") || foldViewport;
   const recentLimit = mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
