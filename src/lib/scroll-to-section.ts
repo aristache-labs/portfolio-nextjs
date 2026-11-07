@@ -81,7 +81,8 @@ function navigationGap(target: HTMLElement) {
     window.innerHeight > 500 &&
     window.innerHeight <= 800
   ) {
-    return SECTION_NAV_GAP - 28;
+    // The single-column layout below 1100px needs the room; wider tablets use the desktop split.
+    return window.innerWidth < 1100 ? SECTION_NAV_GAP - 28 : SECTION_NAV_GAP + 24;
   }
   return window.innerHeight <= 500 && window.innerWidth > window.innerHeight
     ? SHORT_LANDSCAPE_NAV_GAP
