@@ -1,4 +1,4 @@
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))),
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .section {
     --contact-backdrop-travel: 40px;
@@ -145,7 +145,7 @@
   }
 }
 
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .section {
     padding-top: 24px;
     padding-bottom: 56px;

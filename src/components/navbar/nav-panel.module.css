@@ -168,7 +168,7 @@
 
 @media (orientation: landscape) and (min-width: 600px),
   (min-width: 680px) and (orientation: portrait),
-  (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+  (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .content {
     grid-template-columns: minmax(0, 1fr) minmax(210px, 0.42fr);
     align-items: center;
@@ -346,7 +346,7 @@
 
 @media (orientation: landscape) and (min-width: 600px) and (max-width: 1279px),
   (min-width: 680px) and (orientation: portrait),
-  (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+  (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .panel {
     width: calc(100% - 64px);
     max-width: 780px;
@@ -455,7 +455,7 @@
 }
 
 @media (min-width: 680px) and (orientation: portrait),
-  (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+  (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .links > li[data-section="skills"],
   .links > li[data-section="contact"] {
     margin-top: 0;
@@ -528,6 +528,44 @@
 
   .actionTitle {
     font-size: 18px;
+  }
+}
+
+/* iPad Pro 13 portrait is 1024×1366. The shared tablet menu (560px) sits in the top half
+   with a large empty field under it, so scale the panel toward this screen. */
+@media (min-width: 1024px) and (max-width: 1100px) and (orientation: portrait) and (min-height: 1200px) {
+  .panel {
+    width: calc(100% - 96px);
+    max-width: 720px;
+  }
+
+  .content {
+    gap: 28px;
+    padding: 40px 32px max(36px, env(safe-area-inset-bottom));
+  }
+
+  .links {
+    gap: 8px;
+    margin-top: 22px;
+  }
+
+  .link {
+    min-height: 68px;
+    font-size: 24px;
+  }
+
+  .icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .actionTitle {
+    font-size: 22px;
   }
 }
 

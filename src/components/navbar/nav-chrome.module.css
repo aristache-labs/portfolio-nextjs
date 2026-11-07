@@ -141,6 +141,26 @@
   opacity: 0;
 }
 
+/* Every portrait screen keeps the hamburger, including iPad Pro 13 (1024px, where the link row
+   does not fit) and a simulator that sizes past 1280px. */
+@media (orientation: portrait) {
+  .desktopLinks,
+  .desktopCta {
+    display: none;
+  }
+
+  .menuButton {
+    display: flex;
+    position: relative;
+    z-index: 2;
+    width: 52px;
+    height: 52px;
+    background: rgb(8 12 13 / 0.92);
+    border-color: rgb(var(--brand-bright-rgb) / 0.8);
+    color: var(--brand-bright);
+  }
+}
+
 @media (min-width: 1280px) {
   .progressWithRail {
     display: none;

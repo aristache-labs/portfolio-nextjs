@@ -113,9 +113,19 @@
    the full-size type fills the screen with a heading and one paragraph. Scale the root with the
    viewport height, as short landscape phones do above. Same Fold range as FOLD_VIEWPORT_QUERY in
    src/lib/motion-queries.ts plus a height cap. Only font-size and the two text floors change. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   html {
     font-size: clamp(14px, 2.1svh, 16px);
+    --text-xs: max(0.75rem, 10px);
+    --text-sm: max(0.875rem, 10.5px);
+  }
+}
+/* iPad Pro 13 held upright (1024px wide) shares the Fold layout rules above. A Fold 6 folded is
+   744px wide, so scale the root by 1024 / 744 and every rem-based size renders as the same
+   composition, only larger. Only font-size and the two text floors change. */
+@media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
+  html {
+    font-size: 137.6%;
     --text-xs: max(0.75rem, 10px);
     --text-sm: max(0.875rem, 10.5px);
   }

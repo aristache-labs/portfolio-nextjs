@@ -1,12 +1,12 @@
 /* A solid ground keeps portrait cards readable over decorative section media. */
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .surface.surface {
     background-color: var(--surface);
   }
 }
 
 /* iPad-sized touch landscape gets the same solid ground. */
-@media (min-width: 1024px) and (max-width: 1200px) and (max-height: 840px) and (orientation: landscape) and (pointer: coarse) {
+@media (min-width: 1024px) and (max-width: 1300px) and (max-height: 840px) and (orientation: landscape) and (pointer: coarse) {
   .surface.surface {
     background-color: var(--surface);
   }
@@ -14,7 +14,7 @@
 
 /* Fold viewports get the same solid ground in both orientations, so cards are never see-through
    while they enter. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .surface.surface {
     background-color: var(--surface);
   }

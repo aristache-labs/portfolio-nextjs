@@ -49,7 +49,7 @@ const POSTER_MARGIN = "600px 0px";
 
 /** iPad Air-sized touch landscape: wide enough for the desktop layout, but no fine pointer. */
 export const TABLET_LANDSCAPE_QUERY =
-  "(min-width: 1100px) and (max-width: 1200px) and (orientation: landscape) and (pointer: coarse)";
+  "(min-width: 1100px) and (max-width: 1300px) and (orientation: landscape) and (pointer: coarse)";
 
 /**
  * Full-bleed section video. Desktop plays the loop only while the section is visible.

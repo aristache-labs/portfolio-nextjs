@@ -41,7 +41,7 @@
 }
 
 /* Short Fold: four rows of two must still end above the bottom edge, so trim each card. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .card {
     padding-block: 9px;
   }
@@ -56,7 +56,7 @@
   }
 }
 /* Short Fold: four rows of two must still end above the bottom edge, so trim each card. */
-@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4) {
+@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .card {
     padding-block: 9px;
   }

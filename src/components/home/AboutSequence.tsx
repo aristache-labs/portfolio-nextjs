@@ -23,8 +23,8 @@ import styles from "./about-sequence.module.css";
 
 export const ABOUT_PIN_QUERY = PINNED_SCENE_QUERY;
 /** Fold viewports share the lateral composition in either orientation. */
-export const ABOUT_FOLD_QUERY = FOLD_VIEWPORT_QUERY;
-/** Touch devices in landscape get the same pinned scene, minus the mouse-only effects. */
+export const ABOUT_FOLD_QUERY =
+  FOLD_VIEWPORT_QUERY; /** Touch devices in landscape get the same pinned scene, minus the mouse-only effects. */
 export const ABOUT_TOUCH_PIN_QUERY = `${TOUCH_LANDSCAPE_QUERY}, ${ABOUT_FOLD_QUERY}`;
 /** Portrait phones use CSS-only motion, so no scroll script is mounted for them. */
 export const ABOUT_PORTRAIT_QUERY = PORTRAIT_PHONE_QUERY;

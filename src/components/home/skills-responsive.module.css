@@ -14,7 +14,7 @@
   pointer-events: none;
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .section {
     min-height: 0;
   }
@@ -24,7 +24,7 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))),
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .section {
     --skills-backdrop-travel: 48px;
@@ -126,7 +126,7 @@
   display: none;
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))),
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
   .desktopDescription {
     display: none;
@@ -426,7 +426,7 @@
 }
 
 /* iPad Air landscape: the desktop four-column grid (twelve Most Used skills, three rows). */
-@media (min-width: 1100px) and (max-width: 1200px) and (orientation: landscape) and (pointer: coarse) {
+@media (min-width: 1100px) and (max-width: 1300px) and (orientation: landscape) and (pointer: coarse) {
   .grid {
     width: 100%;
     max-width: 700px;

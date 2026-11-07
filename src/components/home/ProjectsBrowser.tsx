@@ -119,7 +119,7 @@ function ColumnLabel({ children }: { children: string }) {
  * share the quick-view state. Filters the already-loaded list rather than refetching.
  */
 const PRO_LANDSCAPE_QUERY =
-  "(min-width: 1181px) and (max-width: 1210px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse)";
+  "(min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse)";
 
 export function ProjectsBrowser({
   projects,
