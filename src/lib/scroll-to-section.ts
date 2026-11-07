@@ -64,6 +64,14 @@ const SHORT_LANDSCAPE_NAV_GAP = 14;
 
 function navigationGap(target: HTMLElement) {
   if (
+    target.id === "projects" &&
+    window.matchMedia(
+      "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)",
+    ).matches
+  ) {
+    return SECTION_NAV_GAP + 16;
+  }
+  if (
     (target.id === "skills" || target.id === "experience") &&
     window.matchMedia(
       "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)",

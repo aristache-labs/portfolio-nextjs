@@ -56,7 +56,7 @@ export function Projects({
       id="projects"
       // overflow-clip, not hidden: hidden makes the section a scroll container, which stops the
       // featured cards from sticking to the page.
-      className={`${spacing.projects} ${motionCss.section} scroll-mt-[80px] overflow-clip pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
+      className={`${layoutCss.section} ${spacing.projects} ${motionCss.section} scroll-mt-[80px] overflow-clip pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
       backdrop={
         <>
           <SectionBackdrop

@@ -220,6 +220,20 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     expect(wrapper(11)).toHaveAttribute("data-from", "below");
   });
 
+  it.each([false, true])(
+    "shares the iPad landscape scroll scene on touch, with reduced motion %s",
+    (reduce) => {
+      installMatchMedia({
+        [REDUCED_MOTION_QUERY]: reduce,
+        "(min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse), (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)": true,
+      });
+      const { container } = render(<ProjectsBrowser projects={list} />);
+      expect(Boolean(container.querySelector('[data-from="left"]'))).toBe(!reduce);
+      expect(Boolean(container.querySelector('[data-from="right"]'))).toBe(!reduce);
+      expect(Boolean(container.querySelector('[data-from="below"]'))).toBe(!reduce);
+    },
+  );
+
   it("keeps reduced-motion projects static and filters usable", () => {
     installMatchMedia({ [REDUCED_MOTION_QUERY]: true, [EXPRESSIVE_MOTION_QUERY]: true });
     const { container } = render(<ProjectsBrowser projects={list} />);
