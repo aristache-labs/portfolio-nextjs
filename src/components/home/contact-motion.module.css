@@ -219,6 +219,63 @@
   }
 }
 
+/* Ultra landscape enlarges both columns while keeping the shared section heading scale. */
+@media (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) {
+  .section > [data-scroll-anchor] {
+    --section-heading-scale: 1.25;
+    zoom: 1.25;
+  }
+
+  .section .layout {
+    gap: 48px;
+  }
+
+  .layout .copy {
+    width: 44%;
+    max-width: none;
+  }
+
+  .layout .formColumn {
+    width: 52%;
+    max-width: none;
+  }
+
+  .copy > div > p {
+    max-width: none;
+    font-size: 20px;
+  }
+}
+
+/* Ultra portrait keeps the enlarged copy above a full-width form. */
+@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+  .section > [data-scroll-anchor] {
+    zoom: 1.4;
+  }
+
+  .section .layout {
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .layout .copy,
+  .layout .formColumn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .layout .formColumn {
+    padding-top: 0;
+  }
+
+  .copy .contactCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .copy .quote {
+    margin-inline: auto;
+  }
+}
+
 /* Portrait tablets: the quote plate sits on the centre line, like the form below it. */
 @media (min-width: 680px) and (max-width: 1023px) and (orientation: portrait) {
   .quote {

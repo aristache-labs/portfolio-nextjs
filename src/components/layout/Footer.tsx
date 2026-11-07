@@ -383,7 +383,7 @@ export function Footer({
             delay={0.35}
             ease={[0.22, 0.85, 0.35, 1]}
             viewportInset={0}
-            className={`${layout.legal} ${GLASS_CARD} mt-8 grid items-center gap-3 rounded-2xl border px-6 py-4 text-center sm:mt-10 md:grid-cols-[1fr_auto_1fr] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
+            className={`${layout.legal} ${GLASS_CARD} mt-8 grid items-center gap-3 rounded-2xl border px-6 py-4 text-center sm:mt-10 md:grid-cols-[1fr_auto] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
           >
             <m.div
               initial={false}
@@ -395,17 +395,13 @@ export function Footer({
                 reserved.
               </span>
             </m.div>
-            <m.div
-              initial={false}
-              variants={itemVariants}
-              className="hidden items-center justify-center gap-2.5 md:flex [@media(orientation:landscape)_and_(max-width:1024px)]:hidden"
-            >
-              <Workflow className="text-brand-mid size-5.5" aria-hidden />
-              <span className="font-mono text-[11.5px] tracking-[0.28em] text-white/65">
-                WEB <span className="text-white/30">·</span>{" "}
-                <span className="text-brand-bright">MOBILE</span>{" "}
-                <span className="text-white/30">·</span> INFRASTRUCTURE
-              </span>
+            <m.div initial={false} variants={itemVariants} className={layout.expertise}>
+              <Workflow aria-hidden className={layout.expertiseIcon} />
+              <span>WEB</span>
+              <span aria-hidden>·</span>
+              <span className={layout.expertiseAccent}>MOBILE</span>
+              <span aria-hidden>·</span>
+              <span>INFRASTRUCTURE</span>
             </m.div>
             <m.p
               initial={false}

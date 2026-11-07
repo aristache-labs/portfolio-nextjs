@@ -30,6 +30,8 @@ export const RAIL_LINE_DESKTOP = "20%";
 const RAIL_LINE_WIDE_TABLET = "15%";
 const IPAD_PRO_LANDSCAPE_QUERY =
   "(min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape)";
+const ULTRA_LANDSCAPE_QUERY =
+  "(min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape)";
 
 /** Keep frame-based content measurements local to the visible timeline. */
 function NearbyTimelineRail({
@@ -103,7 +105,8 @@ function ScrollTimelineRail({
   // and the role indicator with it, lights as it crosses that line. Desktop and touch screens
   // tune that line separately (RAIL_LINE_DESKTOP, RAIL_LINE).
   const line = wideTouch ? RAIL_LINE_WIDE_TABLET : tallScreen ? RAIL_LINE_DESKTOP : RAIL_LINE;
-  const ipadProLandscape = useMediaQuery(IPAD_PRO_LANDSCAPE_QUERY);
+  const ultraLandscape = useMediaQuery(ULTRA_LANDSCAPE_QUERY);
+  const ipadProLandscape = useMediaQuery(IPAD_PRO_LANDSCAPE_QUERY) || ultraLandscape;
   const landingFill = useMotionValue(0);
   const { scrollYProgress: fill } = useScroll({
     target: listRef,
@@ -167,8 +170,10 @@ function ScrollTimelineRail({
       const section = list.closest<HTMLElement>("#experience");
       if (ipadProLandscape && section) landing = sectionScrollPosition(section);
       // Layout dimensions stay accurate when landscape changes the root font size.
-      length = track.offsetHeight;
-      const start = track.offsetTop;
+      length = ultraLandscape ? track.getBoundingClientRect().height : track.offsetHeight;
+      const start = ultraLandscape
+        ? track.getBoundingClientRect().top - bounds.top
+        : track.offsetTop;
       positions = dots.map((dot) => {
         const rect = dot.getBoundingClientRect();
         return Math.max(0, Math.min(length, rect.top + rect.height / 2 - bounds.top - start));
@@ -191,7 +196,16 @@ function ScrollTimelineRail({
       // Entered roles keep their state; without this attribute nothing is hidden anyway.
       list.removeAttribute("data-timeline-scroll");
     };
-  }, [fill, landingFill, ipadProLandscape, highlightEntries, trackCurrent, onActive, listRef]);
+  }, [
+    fill,
+    landingFill,
+    ipadProLandscape,
+    ultraLandscape,
+    highlightEntries,
+    trackCurrent,
+    onActive,
+    listRef,
+  ]);
 
   return (
     <m.span
@@ -465,12 +479,17 @@ export function Experience({
   const portrait = useMediaQuery(EXPERIENCE_PORTRAIT_QUERY);
   const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
   const fold = useMediaQuery(FOLD_VIEWPORT_QUERY);
-  const desktop = useMediaQuery("(min-width: 1024px)") && !fold;
-  const desktopDisclosure = useMediaQuery("(min-width: 1024px) and (pointer: fine)") && !fold;
+  const ultraPortrait = useMediaQuery(
+    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+  );
+  const desktop = useMediaQuery("(min-width: 1024px)") && !fold && !ultraPortrait;
+  const desktopDisclosure =
+    useMediaQuery("(min-width: 1024px) and (pointer: fine)") && !fold && !ultraPortrait;
   // A touch tablet held wide has the desktop layout but not the mouse, so it needs the same
   // sticky current-role panel that short landscape phones get.
   const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY);
   const wideTouchLandscape = useMediaQuery(WIDE_TABLET_LANDSCAPE_QUERY);
+  const ultraLandscape = useMediaQuery(ULTRA_LANDSCAPE_QUERY);
   const layout = { portrait, landscape, desktop, desktopDisclosure };
   const listRef = useRef<HTMLDivElement>(null);
   const stickStart = useRef<HTMLSpanElement>(null);
@@ -490,6 +509,18 @@ export function Experience({
   useEffect(() => {
     const marker = stickStart.current;
     if (!folds || !marker || typeof IntersectionObserver !== "function") return;
+    if (ultraLandscape) {
+      const section = marker.closest<HTMLElement>("#experience");
+      if (!section) return;
+      const update = () => setStuck(window.scrollY > sectionScrollPosition(section) + 4);
+      update();
+      window.addEventListener("scroll", update, { passive: true });
+      window.addEventListener("resize", update);
+      return () => {
+        window.removeEventListener("scroll", update);
+        window.removeEventListener("resize", update);
+      };
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry)
@@ -499,7 +530,7 @@ export function Experience({
     );
     observer.observe(marker);
     return () => observer.disconnect();
-  }, [folds, introTop, foldAfter]);
+  }, [folds, introTop, foldAfter, ultraLandscape]);
 
   return (
     <Section

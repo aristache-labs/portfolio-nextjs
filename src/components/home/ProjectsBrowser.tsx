@@ -151,6 +151,9 @@ export function ProjectsBrowser({
     "(orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px)",
   );
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
+  const ultraPortrait = useMediaQuery(
+    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+  );
   const mobileViewport = narrowViewport || tabletTouchLandscape || foldViewport;
   const landscape = useMediaQuery("(orientation: landscape)") || foldViewport;
   const pro11Portrait = useMediaQuery(
@@ -160,7 +163,13 @@ export function ProjectsBrowser({
     "(min-width: 740px) and (max-width: 1100px) and (min-height: 900px) and (max-height: 1400px) and (orientation: portrait)",
   );
   const recentLimit =
-    foldViewport || tabletPortrait ? 4 : mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
+    foldViewport || tabletPortrait || ultraPortrait
+      ? 4
+      : mobileViewport
+        ? landscape
+          ? 3
+          : 2
+        : MAX_RECENT;
   const containerRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   function openQuickView(project: ProjectPresentation, event: MouseEvent<HTMLButtonElement>) {
@@ -182,7 +191,7 @@ export function ProjectsBrowser({
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
   // a `rest` array rebuilt every render, so it never actually memoised anything.
-  const pageSize = pro11Portrait ? 4 : mobileViewport ? (landscape ? 4 : 2) : 6;
+  const pageSize = ultraPortrait ? 2 : pro11Portrait ? 4 : mobileViewport ? (landscape ? 4 : 2) : 6;
   const limit = pageSize + extra;
   const { featured, recent, rest, categories, building } = useMemo(() => {
     // projects arrives already sorted featured-first by mergeProjects.
@@ -236,9 +245,16 @@ export function ProjectsBrowser({
   );
   // iPad Pro 11 held sideways has the desktop room but a touch pointer, so it never reaches
   // "expressive". Give it the same scroll scene unless motion is off.
-  const proLandscape = useMediaQuery(PRO_LANDSCAPE_QUERY) && mode !== "static";
+  const ultraLandscape = useMediaQuery(
+    "(min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape)",
+  );
+  const proLandscape = (useMediaQuery(PRO_LANDSCAPE_QUERY) || ultraLandscape) && mode !== "static";
   const scene =
-    (useMediaQuery(PINNED_SCENE_QUERY) && !foldViewport && mode === "expressive") || proLandscape;
+    (useMediaQuery(PINNED_SCENE_QUERY) &&
+      !foldViewport &&
+      !ultraPortrait &&
+      mode === "expressive") ||
+    proLandscape;
   const portraitMotion = useMediaQuery(PROJECTS_PORTRAIT_QUERY);
   const landscapeMotion = useMediaQuery(PROJECTS_LANDSCAPE_QUERY);
   const mobileMotion = portraitMotion || landscapeMotion;

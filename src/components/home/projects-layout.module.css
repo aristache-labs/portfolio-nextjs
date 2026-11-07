@@ -1,3 +1,63 @@
+/* Ultra portrait follows the S7 composition with larger text and controls. */
+@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+  .section > [data-scroll-anchor] {
+    zoom: 1.4;
+  }
+
+  .section .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px;
+  }
+
+  .section .head > :nth-child(2) {
+    width: 260px;
+    margin-bottom: 40px;
+  }
+
+  .section .recentTrack,
+  .section .projectGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section .stack {
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+  }
+
+  .section .stack > * {
+    position: static;
+    width: 86%;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+  }
+
+  .section .recentRow {
+    position: static;
+  }
+
+  .section .featuredCard,
+  .section .recentCard {
+    animation: none;
+    scale: 1;
+  }
+
+  .section .featuredCard::after,
+  .section .recentCard::after {
+    content: none;
+  }
+}
+
+/* Ultra landscape retains desktop rows and scroll scenes at a larger reading scale. */
+@media (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) {
+  .section > [data-scroll-anchor] {
+    --section-heading-scale: 1.2;
+    zoom: 1.2;
+  }
+}
 .highlights {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -218,6 +278,7 @@
    transform-only shrink and a scrim, driven by the next one's travel where the browser supports
    it. Desktop pins below the 72px bar; short landscape pins below its 44px bar. */
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
+  (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape),
   (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape),
   (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) {
   .stack > *,
@@ -284,6 +345,7 @@
 }
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
+  (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape),
   (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape),
   (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse),
   (orientation: landscape) and (max-height: 500px),
@@ -302,6 +364,7 @@
 
 @supports (animation-timeline: view()) {
   @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
+    (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
     (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
     (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
     (orientation: landscape) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
@@ -328,6 +391,7 @@
 
   /* Latest work (desktop rows): each row recedes as the next one arrives. */
   @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
+    (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
     (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
     (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
     .recentTrack {

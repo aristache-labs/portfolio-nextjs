@@ -219,6 +219,71 @@
   }
 }
 
+/* Ultra landscape keeps a readable contents rail beside the larger legal panel. */
+@media (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) {
+  .backdropSection > :global(.site-container) {
+    zoom: 1.5;
+  }
+
+  .article .content {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .content > .contentsNav {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    max-height: calc(100dvh / 1.25 - 112px);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  .article .content > div {
+    background-color: var(--surface);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .content section {
+    scroll-margin-top: 104px;
+  }
+}
+
+/* Ultra portrait uses the phone's collapsible contents above one enlarged reading panel. */
+@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+  .backdropSection > :global(.site-container) {
+    zoom: 1.4;
+  }
+
+  .article .content {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .article .content > div,
+  .article .contentsMobile {
+    background-color: var(--surface);
+    background-image: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .content > .contentsNav {
+    position: static;
+    max-height: none;
+  }
+
+  .contentsDesktop {
+    display: none;
+  }
+
+  .contentsMobile {
+    display: block;
+  }
+}
+
 @keyframes legal-backdrop-drift {
   from {
     translate: 0 var(--legal-backdrop-travel);
