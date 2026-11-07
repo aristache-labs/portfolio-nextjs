@@ -18,7 +18,7 @@ import styles from "./project-motion.module.css";
 
 export const PROJECTS_PORTRAIT_QUERY = PORTRAIT_PHONE_QUERY;
 export const PROJECTS_LANDSCAPE_QUERY =
-  "(orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px)";
+  "(orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px), (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px)";
 
 function ProjectsScrollDriver({
   element,

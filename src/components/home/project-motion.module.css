@@ -1,6 +1,7 @@
 /* Keep touch interactions static; hover enhancement follows the shared desktop policy. */
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 3/4) and (max-aspect-ratio: 5/4))),
-  (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+  (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) and (prefers-reduced-motion: no-preference) {
   .section {
     --projects-backdrop-travel: 40px;
     --project-cover-travel: 6%;
@@ -95,7 +96,8 @@
   }
 }
 
-@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px),
+  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) {
   .section {
     --projects-backdrop-travel: 24px;
     --project-cover-travel: 4.5%;

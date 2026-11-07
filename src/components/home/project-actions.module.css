@@ -238,8 +238,10 @@
   inset: -6px 0;
 }
 
-/* Desktop actions retain their individual roles at a restrained, shared scale. */
-@media (min-width: 1024px) and (pointer: fine) and (hover: hover) {
+/* Desktop actions retain their individual roles at a restrained, shared scale. Touch screens at
+   1024px and wider (iPad held wide) get the same scale, so the buttons match a mouse browser. */
+@media (min-width: 1024px) and (pointer: fine) and (hover: hover),
+  (min-width: 1024px) and (pointer: coarse) {
   .actions > button {
     border-radius: 8px;
   }

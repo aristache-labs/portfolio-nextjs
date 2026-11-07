@@ -346,7 +346,8 @@
   margin-top: 0;
 }
 
-@media (min-width: 1024px) and (pointer: fine) and (hover: hover) {
+@media (min-width: 1024px) and (pointer: fine) and (hover: hover),
+  (min-width: 1024px) and (pointer: coarse) {
   .footer > a {
     min-height: 34px;
     min-width: 0;

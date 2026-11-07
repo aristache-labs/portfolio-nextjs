@@ -220,7 +220,14 @@
   }
 }
 
-@media (orientation: landscape) and (max-height: 500px) {
+/* iPad-sized touch landscape (1024-1180px wide, up to 800px tall) shares this stacking with short
+   landscape phones: Featured on the left, Latest work as one column on the right. */
+@media (orientation: landscape) and (max-height: 500px),
+  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) {
+  .recentRow {
+    display: contents;
+  }
+
   .stack > *,
   .stackItem {
     position: sticky;
@@ -253,7 +260,8 @@
 }
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
-  (orientation: landscape) and (max-height: 500px) {
+  (orientation: landscape) and (max-height: 500px),
+  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) {
   .featuredCard::after,
   .recentCard::after {
     content: "";
@@ -268,7 +276,8 @@
 
 @supports (animation-timeline: view()) {
   @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
-    (orientation: landscape) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+    (orientation: landscape) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
+    (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 800px) and (prefers-reduced-motion: no-preference) {
     .stack {
       timeline-scope: --featured-next;
     }
