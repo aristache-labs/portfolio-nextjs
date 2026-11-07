@@ -191,7 +191,50 @@
   }
 
   .header[data-compact] .cta {
-    transform: scale(1.0);
+    transform: scale(1);
+  }
+}
+
+/* Galaxy Tab S9 Ultra portrait pairs larger navigation with its enlarged Hero. */
+@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+  .bar {
+    height: 150px;
+  }
+
+  .brand {
+    transform: scale(1.8);
+  }
+
+  .menuButton {
+    width: 94px;
+    height: 94px;
+  }
+
+  .menuButton svg {
+    width: 52px;
+    height: 52px;
+  }
+
+  .header[data-compact] .bar {
+    height: 110px;
+  }
+
+  .header[data-compact] .brand {
+    transform: scale(1.6);
+  }
+
+  .header[data-compact] .menuButton {
+    width: 72px;
+    height: 72px;
+  }
+
+  .header[data-compact] .menuButton svg {
+    width: 46px;
+    height: 46px;
+  }
+
+  .header[data-compact] .menuButton::after {
+    inset: 0;
   }
 }
 

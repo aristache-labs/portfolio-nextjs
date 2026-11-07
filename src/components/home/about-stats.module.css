@@ -1054,3 +1054,126 @@
     line-height: 1.4;
   }
 }
+
+/* Galaxy Tab S9 Ultra portrait gives the copy and portrait room at the Hero's larger scale. */
+@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+  .section {
+    min-height: 100svh;
+    padding-bottom: 120px;
+  }
+
+  .biography {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    column-gap: 48px;
+    row-gap: 28px;
+  }
+
+  .biography[data-portrait="false"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .biography .heading {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .introduction {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: center;
+  }
+
+  .biography .heading h2 {
+    font-size: 60px;
+  }
+
+  .heading p.headingLabel {
+    font-size: 20px;
+  }
+
+  .introduction p {
+    font-size: 34px;
+  }
+
+  .biography .portrait {
+    grid-column: 2;
+    grid-row: 2;
+    width: 340px;
+  }
+
+  .portrait > div > div {
+    width: 100%;
+  }
+
+  .copy > div:first-child {
+    columns: 1;
+  }
+
+  .copy > div:first-child > p {
+    font-size: 30px;
+  }
+
+  .panel {
+    padding: 28px;
+  }
+
+  .grid {
+    position: relative;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+
+  .grid::before,
+  .grid::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .grid::before {
+    inset-block: 0;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(transparent, rgb(255 255 255 / 0.12) 20% 80%, transparent);
+  }
+
+  .grid::after {
+    inset-inline: 0;
+    top: 50%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.12) 20% 80%, transparent);
+  }
+
+  .item {
+    min-height: 112px;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    border-inline-width: 0;
+  }
+
+  .metricGroup {
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .metricGroup > span:first-child > span {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+  }
+
+  .metricGroup > span:first-child svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .numberValue {
+    font-size: 40px;
+  }
+
+  .label {
+    font-size: 20px;
+  }
+}

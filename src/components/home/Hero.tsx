@@ -144,7 +144,11 @@ export function Hero({
   const { mode } = useAnimationPolicy();
   const expressive = mode === "expressive";
   const showNetwork = useIdleAfterLoad(expressive) && expressive;
-  const desktopPinned = useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout;
+  const ultraPortrait = useMediaQuery(
+    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+  );
+  const desktopPinned =
+    useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout && !ultraPortrait;
   const touchScene =
     useMediaQuery(HERO_LANDSCAPE_PIN_QUERY) && mode !== "static" && transitionToAbout;
   // Portrait phones use CSS-only scroll motion, so no per-frame script is mounted for them.

@@ -1711,3 +1711,46 @@
     padding-left: calc(2rem / 1.1);
   }
 }
+
+/* Galaxy Tab S9 Ultra portrait fills the tall viewport with a larger introduction. */
+@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+  .scene {
+    min-height: 100svh;
+  }
+
+  .intro {
+    zoom: 1.6;
+  }
+
+  .scrollCue {
+    gap: 12px;
+  }
+
+  .scrollCue > span:first-child {
+    width: 36px;
+    height: 60px;
+    padding: 9px;
+  }
+
+  .scrollCue > span:first-child > span {
+    width: 6px;
+    height: 12px;
+  }
+
+  .scrollCue > span:last-child {
+    font-size: 20px;
+  }
+
+  .hero[data-cinematic] {
+    min-height: 100svh;
+  }
+
+  .hero[data-cinematic] .scene {
+    position: relative;
+    top: auto;
+  }
+
+  .hero[data-cinematic] + :global(#about) {
+    margin-top: 0;
+  }
+}

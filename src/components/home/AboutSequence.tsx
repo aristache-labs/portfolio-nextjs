@@ -187,7 +187,10 @@ export function AboutSequence({ children, details }: { children: ReactNode; deta
   const portraitPhone = useMediaQuery(ABOUT_PORTRAIT_QUERY) && !foldViewport;
   const compactLandscape = useMediaQuery(ABOUT_COMPACT_LANDSCAPE_QUERY);
   const compactPhone = portraitPhone || compactLandscape;
-  const pinned = desktopPinned || (touchPinned && !compactPhone);
+  const ultraPortrait = useMediaQuery(
+    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+  );
+  const pinned = !ultraPortrait && (desktopPinned || (touchPinned && !compactPhone));
   return (
     <>
       <div ref={target} className={styles.track}>
