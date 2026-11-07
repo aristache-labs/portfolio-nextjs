@@ -4,3 +4,11 @@
     background-color: var(--surface);
   }
 }
+
+/* Fold viewports get the same solid ground in both orientations, so cards are never see-through
+   while they enter. */
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  .surface.surface {
+    background-color: var(--surface);
+  }
+}

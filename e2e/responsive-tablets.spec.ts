@@ -253,6 +253,108 @@ test.describe("Fold Projects layout", () => {
   }
 });
 
+test.describe("Short Fold type scale", () => {
+  test.use({ hasTouch: true });
+  for (const [width, height, maxRoot] of [
+    [829, 690, 15],
+    [860, 744, 16],
+    [690, 829, 16],
+  ]) {
+    test(`${width}x${height}: the root size follows the height instead of filling the screen`, async ({
+      page,
+    }) => {
+      await open(page, width, height);
+      const root = await page.evaluate(() =>
+        parseFloat(getComputedStyle(document.documentElement).fontSize),
+      );
+      expect(root).toBeLessThanOrEqual(maxRoot);
+      if (height > 780) expect(root).toBe(16);
+      else expect(root).toBeGreaterThanOrEqual(14);
+    });
+  }
+});
+
+test.describe("Fold section backdrops are not stretched", () => {
+  test.use({ hasTouch: true });
+  for (const [width, height] of [
+    [829, 690],
+    [690, 829],
+    [744, 860],
+  ]) {
+    test(`${width}x${height}: backdrop plates hold one screen instead of the whole section`, async ({
+      page,
+    }) => {
+      await open(page, width, height);
+      const heights = await page.evaluate(() =>
+        ["about", "experience", "projects", "contact"].flatMap((id) => {
+          const plate = document.querySelector(`#${id} > div[aria-hidden] > div`);
+          return plate ? [{ id, height: plate.getBoundingClientRect().height }] : [];
+        }),
+      );
+      for (const { id, height: plateHeight } of heights)
+        expect.soft(plateHeight, `${id} backdrop`).toBeLessThanOrEqual(height + 1);
+    });
+  }
+});
+
+test.describe("Short Fold About and Skills fill one screen from the menu", () => {
+  test.use({ hasTouch: true });
+  for (const [width, height] of [
+    [829, 690],
+    [860, 744],
+  ]) {
+    test(`${width}x${height}: the results row and the icon strip end above the bottom edge`, async ({
+      page,
+    }) => {
+      await open(page, width, height);
+      await page.waitForTimeout(3000);
+      for (const id of ["about", "skills"]) {
+        await page.getByRole("button", { name: "Open menu", exact: true }).click();
+        const link = page.locator(`header a[href="#${id}"]:visible`).first();
+        test.skip(!(await link.count()), `${id} is hidden in site settings`);
+        await link.tap();
+        await page.waitForTimeout(2600);
+        const bottom = await page.evaluate((sectionId) => {
+          const section = document.getElementById(sectionId)!;
+          const last = section.querySelector<HTMLElement>(
+            sectionId === "about" ? '[class*="results"]' : '[class*="marquee" i], [class*="Marquee"]',
+          );
+          return {
+            section: section.getBoundingClientRect().bottom,
+            last: last ? last.getBoundingClientRect().bottom : null,
+            height: innerHeight,
+          };
+        }, id);
+        if (id === "about") {
+          const readResults = () =>
+            page.evaluate(() => {
+              const node = document.querySelector<HTMLElement>('#about [class*="results"]')!;
+              const grid = node.querySelector<HTMLElement>("[data-reveal]");
+              const style = getComputedStyle(node);
+              return {
+                opacity: Number(style.opacity),
+                settled: style.transform === "none" || style.transform === "matrix(1, 0, 0, 1, 0, 0)",
+                reveal: grid?.dataset.reveal ?? null,
+              };
+            });
+          // The entrance must play on its own, without any further scrolling.
+          await expect
+            .poll(async () => (await readResults()).settled, { timeout: 5000 })
+            .toBe(true);
+          const results = await readResults();
+          expect.soft(results.opacity, "results row is visible without scrolling").toBe(1);
+          expect.soft(results.reveal, "counters have started").not.toBe("armed");
+        }
+        expect.soft(bottom.section, `${id} reaches the bottom edge`).toBeGreaterThanOrEqual(
+          bottom.height,
+        );
+        if (bottom.last !== null)
+          expect.soft(bottom.last, `${id} last block`).toBeLessThanOrEqual(bottom.height - 16);
+      }
+    });
+  }
+});
+
 test.describe("Skills Fold orbit legibility", () => {
   test.use({ hasTouch: true });
   for (const [width, height] of [

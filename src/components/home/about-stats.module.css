@@ -844,3 +844,50 @@
     transform: translateY(0);
   }
 }
+
+/* A short Fold (about 690-780px tall) cannot hold the two-row results panel under the biography,
+   so it ended below the bottom edge after opening About from the menu. One row of four keeps the
+   whole section on one screen. */
+@media (min-width: 680px) and (max-width: 1023px) and (min-height: 650px) and (max-height: 780px) and (min-aspect-ratio: 4/5) and (max-aspect-ratio: 5/4) {
+  /* The bottom padding scales with the height so the section still reaches the bottom edge and
+     the next section's label and quote do not peek in beneath the results row. */
+  .section {
+    padding-bottom: 16svh;
+  }
+
+  /* Restore the type and portrait to the sizes the 16px root gave them. The smaller root had
+     shrunk them, and the results row now has room to sit near the bottom edge. */
+  .introduction p {
+    font-size: 1.035rem;
+  }
+
+  .copy > div:first-child > p {
+    font-size: 0.97rem;
+  }
+
+  .biography .portrait {
+    width: clamp(110px, calc(100svh - 190px), 210px);
+  }
+
+  .results {
+    margin-top: 24px;
+  }
+
+  .panel {
+    padding: 10px 12px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .grid::before,
+  .grid::after {
+    display: none;
+  }
+
+  .item + .item {
+    border-left: 1px solid rgb(255 255 255 / 0.1);
+  }
+}
