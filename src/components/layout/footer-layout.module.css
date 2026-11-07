@@ -1,3 +1,57 @@
+/* Ultra portrait scales the closing text, navigation and legal links together. */
+@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+  .footer .stage > :global(.site-container) {
+    zoom: 1.4;
+  }
+
+  .footer .columns {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+    column-gap: 24px;
+  }
+
+  .footer .identity img {
+    height: 100px;
+    width: auto;
+  }
+
+  .footer .explore,
+  .footer .resources {
+    align-self: start;
+    padding-top: 0;
+  }
+
+  .footer .explore h3,
+  .footer .resources h3 {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .footer .links {
+    max-width: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 8px;
+  }
+
+  .footer .resources ul {
+    row-gap: 8px;
+    justify-items: start;
+  }
+
+  .footer .explore nav a,
+  .footer .resources nav a {
+    min-height: 36px;
+    justify-content: flex-start;
+  }
+
+  .footer .resources nav a,
+  .footer .resources nav button {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
 /* Scroll-driven parts on expressive desktops (`useFooterEntrance` sets each `--entry`). The bar
    is the glass element itself, so it fades as a whole and its blur never pops in late. */
 @media (prefers-reduced-motion: no-preference) {
