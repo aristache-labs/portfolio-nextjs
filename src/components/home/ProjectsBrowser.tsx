@@ -153,7 +153,10 @@ export function ProjectsBrowser({
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const mobileViewport = narrowViewport || tabletTouchLandscape || foldViewport;
   const landscape = useMediaQuery("(orientation: landscape)") || foldViewport;
-  const recentLimit = mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
+  const pro11Portrait = useMediaQuery(
+    "(min-width: 830px) and (max-width: 840px) and (min-height: 1100px) and (max-height: 1250px) and (orientation: portrait)",
+  );
+  const recentLimit = pro11Portrait ? 4 : mobileViewport ? (landscape ? 3 : 2) : MAX_RECENT;
   const containerRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
   function openQuickView(project: ProjectPresentation, event: MouseEvent<HTMLButtonElement>) {
@@ -175,7 +178,7 @@ export function ProjectsBrowser({
 
   // Derived together and keyed on `projects` alone. Splitting them meant the memo depended on
   // a `rest` array rebuilt every render, so it never actually memoised anything.
-  const pageSize = mobileViewport ? (landscape ? 4 : 2) : 6;
+  const pageSize = pro11Portrait ? 4 : mobileViewport ? (landscape ? 4 : 2) : 6;
   const limit = pageSize + extra;
   const { featured, recent, rest, categories, building } = useMemo(() => {
     // projects arrives already sorted featured-first by mergeProjects.

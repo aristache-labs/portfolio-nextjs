@@ -4,6 +4,18 @@
   margin-bottom: 20px;
 }
 
+/* The entry moves the wrapper without fading the card or its background. */
+.slot,
+.slot > div {
+  opacity: 1 !important;
+}
+
+.slot .card {
+  background-color: var(--surface);
+  opacity: 1 !important;
+  backdrop-filter: none;
+}
+
 .card {
   border-color: rgb(var(--brand-mid-rgb) / 0.24);
   background-image:
