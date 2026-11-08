@@ -14,6 +14,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/Button";
+import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
 import styles from "./project-quick-view.module.css";
@@ -410,6 +411,7 @@ export function ProjectQuickView({
             <ProjectRepoBadges repo={project.repo} />
           </div>
         </DialogFooter>
+        <CardBorderGlow />
       </DialogContent>
     </Dialog>
   );
