@@ -59,21 +59,48 @@ describe("project presentation", () => {
     expect(projectInsertSchema.parse({ repo: "app", title: "App", group }).group).toBe(expected);
   });
 
-  it("picks the newest push among projects still in development", () => {
+  it("picks the newest push even when that project already has a live site", () => {
     const projects = groupProjects([
       fixture(1, { homepage: "https://live.example", pushedAt: new Date("2026-11-04") }),
       fixture(2, { pushedAt: new Date("2026-10-20") }),
       fixture(3, { pushedAt: new Date("2026-10-28") }),
     ]);
-    expect(currentlyBuilding(projects)?.id).toBe(3);
+    expect(currentlyBuilding(projects)?.id).toBe(1);
   });
-  it("falls back to the newest live project, and to nothing without push dates", () => {
+  it("picks a development project when it has the newest push", () => {
+    const projects = groupProjects([
+      fixture(1, { homepage: "https://live.example", pushedAt: new Date("2026-10-20") }),
+      fixture(2, { pushedAt: new Date("2026-11-04") }),
+    ]);
+    expect(currentlyBuilding(projects)?.id).toBe(2);
+  });
+  it("breaks equal push dates by ascending id", () => {
+    const projects = groupProjects([
+      fixture(2, { featured: true, pushedAt: new Date("2026-11-04") }),
+      fixture(1, { pushedAt: new Date("2026-11-04") }),
+    ]);
+    expect(currentlyBuilding(projects)?.id).toBe(1);
+  });
+  it("uses the newest visible group member and ignores hidden projects", () => {
+    const projects = groupProjects([
+      fixture(1, { group: "app", homepage: "https://live.example" }),
+      fixture(2, { group: "app", pushedAt: new Date("2026-11-04") }),
+      fixture(3, { pushedAt: new Date("2026-10-28") }),
+      fixture(4, { group: "app", hidden: true, pushedAt: new Date("2026-11-07") }),
+      fixture(5, { hidden: true, pushedAt: new Date("2026-11-08") }),
+    ]);
+    expect(currentlyBuilding(projects)?.id).toBe(1);
+    expect(currentlyBuilding(projects)?.pushedAt).toEqual(new Date("2026-11-04"));
+  });
+  it("ignores missing push dates and returns nothing when none are available", () => {
     const live = groupProjects([
       fixture(1, { homepage: "https://a.example", pushedAt: new Date("2026-09-01") }),
       fixture(2, { homepage: "https://b.example", pushedAt: new Date("2026-10-01") }),
+      fixture(3, { featured: true, pushedAt: null }),
     ]);
     expect(currentlyBuilding(live)?.id).toBe(2);
     expect(currentlyBuilding(groupProjects([fixture(1, { pushedAt: null })]))).toBeNull();
+    expect(currentlyBuilding([])).toBeNull();
   });
   it("prints the push date in UTC so server and browser agree", () => {
     expect(pushedLabel(new Date("2026-11-04T23:30:00Z"))).toBe("Nov 4");

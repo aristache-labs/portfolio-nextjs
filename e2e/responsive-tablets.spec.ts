@@ -885,13 +885,23 @@ async function open(page: Page, width: number, height: number) {
 
 test("no horizontal overflow on phones and tablets in either orientation", async ({ page }) => {
   const overflowing: string[] = [];
+  await open(page, VIEWPORTS[0].width, VIEWPORTS[0].height);
   for (const viewport of VIEWPORTS) {
-    await open(page, viewport.width, viewport.height);
-    const extra = await page.evaluate(
-      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    );
-    if (extra > 1)
-      overflowing.push(`${viewport.name} (${viewport.width}x${viewport.height}): +${extra}px`);
+    await test.step(`${viewport.name} (${viewport.width}x${viewport.height})`, async () => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      // Exercise live rotation without repeating the document load and hydration 32 times.
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+          ),
+      );
+      const extra = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      if (extra > 1)
+        overflowing.push(`${viewport.name} (${viewport.width}x${viewport.height}): +${extra}px`);
+    });
   }
   expect(overflowing).toEqual([]);
 });

@@ -48,17 +48,13 @@ export function groupProjects(projects: MergedProject[]): ProjectPresentation[] 
 }
 
 /**
- * The project worked on most recently, for the "Building now" strip. Projects still in
- * development come first: a shipped site that got a typo fix is not what is being built. With
- * only live projects the newest push wins. Returns null when no project has a push date.
+ * The project with the newest GitHub push, for the "Building now" strip, regardless of
+ * whether it has a live site. Returns null when no project has a push date.
  */
 export function currentlyBuilding(projects: ProjectPresentation[]): ProjectPresentation | null {
   const dated = projects.filter((project) => project.pushedAt);
-  const pool = dated.some((project) => !project.hasLive)
-    ? dated.filter((project) => !project.hasLive)
-    : dated;
   return (
-    [...pool].sort((a, b) => b.pushedAt!.getTime() - a.pushedAt!.getTime() || a.id - b.id)[0] ??
+    [...dated].sort((a, b) => b.pushedAt!.getTime() - a.pushedAt!.getTime() || a.id - b.id)[0] ??
     null
   );
 }
