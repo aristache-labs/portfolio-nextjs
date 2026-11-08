@@ -5,6 +5,7 @@ import { Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { pushedLabel, type ProjectPresentation } from "@/lib/project-presentation";
 import { ProjectsArrival } from "./ProjectsArrival";
+import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 import { COMPACT_PROJECT_ACTION, GLASS_CARD, PRIMARY_TAG } from "./project-styles";
 import motionStyles from "./project-motion.module.css";
 import styles from "./currently-building.module.css";
@@ -32,7 +33,10 @@ export function CurrentlyBuilding({
       className={styles.slot}
     >
       {/* Keep the shared card styling while the solid surface slides into place. */}
-      <div className={`${GLASS_CARD} ${motionStyles.card} ${styles.card} rounded-2xl border`}>
+      <div
+        className={`${GLASS_CARD} ${motionStyles.card} ${styles.card} relative rounded-2xl border`}
+      >
+        <CardBorderGlow />
         <p className={styles.label}>
           <span aria-hidden className={styles.dot} />
           Building now

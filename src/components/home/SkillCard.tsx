@@ -3,6 +3,7 @@
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 
 import Image from "next/image";
+import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import { animate, m } from "framer-motion";
 import { useContext, useEffect, useRef } from "react";
@@ -171,6 +172,7 @@ export function SkillCard({
       whileHover={mode === "expressive" ? { y: -3 } : undefined}
       className={`${portraitCss.surface} ${styles.card} group hover:border-brand-mid/40 relative flex h-full min-w-0 flex-col rounded-2xl border border-white/6 bg-[linear-gradient(180deg,rgb(255_255_255/0.045),rgb(255_255_255/0.01))] px-3 py-3 backdrop-blur-[18px] transition-colors duration-300 hover:shadow-[0_16px_50px_rgb(var(--brand-mid-rgb)/0.22)] sm:px-4 sm:py-3.5`}
     >
+      <CardBorderGlow variant="subtle" rotate={false} />
       <span className="flex min-w-0 items-center gap-2.5">
         <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/4 transition-colors duration-300 group-hover:bg-white/7">
           {loadIcon ? icon : <noscript>{icon}</noscript>}

@@ -1,0 +1,107 @@
+@property --project-border-angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+.border {
+  --border-ring-opacity: 0.7;
+  --border-glow-low: 0.22;
+  --border-glow-high: 0.4;
+  --project-border-hot: color-mix(in oklch, var(--brand-mid), var(--beam-cyan) 45%);
+  --project-border-gradient: conic-gradient(
+    from var(--project-border-angle),
+    var(--brand-mid),
+    var(--project-border-hot) 22%,
+    var(--brand-mid) 45%,
+    rgb(var(--brand-mid-rgb) / 0.15) 50%,
+    var(--brand-mid) 55%,
+    var(--project-border-hot) 72%,
+    var(--brand-mid) 95%
+  );
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: project-border-turn 6s linear infinite paused;
+}
+
+.border[data-variant="subtle"] {
+  --border-ring-opacity: 0.3;
+  --border-glow-low: 0.07;
+  --border-glow-high: 0.14;
+}
+
+.border[data-rotate="false"] {
+  animation: none;
+}
+
+.glow,
+.ring,
+.glow::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.glow {
+  filter: blur(4px);
+  animation: project-border-breathe 3s cubic-bezier(0.45, 0, 0.55, 1) infinite paused;
+}
+
+.glow::before {
+  content: "";
+  padding: 2px;
+}
+
+.ring,
+.glow::before {
+  background: var(--project-border-gradient);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.ring {
+  padding: 0.5px;
+  opacity: var(--border-ring-opacity);
+}
+
+.border[data-active="true"],
+.border[data-active="true"] .glow {
+  animation-play-state: running;
+}
+
+@keyframes project-border-turn {
+  to {
+    --project-border-angle: 360deg;
+  }
+}
+
+@keyframes project-border-breathe {
+  0%,
+  100% {
+    opacity: var(--border-glow-high);
+  }
+  50% {
+    opacity: var(--border-glow-low);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .border,
+  .glow {
+    animation: none;
+  }
+
+  .glow {
+    opacity: var(--border-glow-low);
+  }
+}
