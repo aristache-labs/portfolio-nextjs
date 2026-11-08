@@ -8,6 +8,7 @@ const BEAM_CSS = `
   [data-beam="{id}"] {
     position: absolute;
     inset: 0;
+    border-radius: inherit;
     pointer-events: none;
   }
 
@@ -16,6 +17,7 @@ const BEAM_CSS = `
   [data-beam="{id}"][data-active]::before,
   [data-beam="{id}"][data-fading]::before {
     border-radius: inherit;
+    clip-path: none;
     background: conic-gradient(
       from var(--beam-angle-{id}),
       var(--brand-mid) 0%,
@@ -38,7 +40,7 @@ const BEAM_CSS = `
   [data-beam="{id}"][data-active]::after,
   [data-beam="{id}"][data-fading]::after {
     padding: 1px;
-    opacity: 0.95;
+    opacity: 0.7;
     filter: none;
   }
 
@@ -46,16 +48,16 @@ const BEAM_CSS = `
   [data-beam="{id}"][data-fading]::before {
     padding: 0;
     -webkit-mask:
-      linear-gradient(#fff, transparent 12px, transparent calc(100% - 12px), #fff),
-      linear-gradient(90deg, #fff, transparent 12px, transparent calc(100% - 12px), #fff);
+      linear-gradient(#fff, transparent 6px, transparent calc(100% - 6px), #fff),
+      linear-gradient(90deg, #fff, transparent 6px, transparent calc(100% - 6px), #fff);
     -webkit-mask-composite: source-over;
     mask:
-      linear-gradient(#fff, transparent 12px, transparent calc(100% - 12px), #fff),
-      linear-gradient(90deg, #fff, transparent 12px, transparent calc(100% - 12px), #fff);
+      linear-gradient(#fff, transparent 6px, transparent calc(100% - 6px), #fff),
+      linear-gradient(90deg, #fff, transparent 6px, transparent calc(100% - 6px), #fff);
     mask-composite: add;
     box-shadow: none;
-    opacity: 0.32;
-    filter: blur(6px);
+    opacity: 0.12;
+    filter: blur(3px);
   }
 
   [data-beam="{id}"][data-beam] [data-beam-bloom] {
