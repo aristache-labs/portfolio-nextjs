@@ -20,16 +20,13 @@ const BEAM_CSS = `
     clip-path: none;
     background: conic-gradient(
       from var(--beam-angle-{id}),
-      var(--brand-mid) 0%,
-      var(--beam-cyan) 16%,
-      transparent 27%,
-      var(--beam-blue) 38%,
-      var(--beam-mint) 53%,
-      transparent 64%,
-      var(--brand-mid) 74%,
-      var(--beam-cyan) 85%,
-      var(--beam-blue) 94%,
-      var(--brand-mid) 100%
+      transparent 0% 12%,
+      var(--brand-mid) 20%,
+      var(--beam-cyan) 28%,
+      transparent 39% 52%,
+      var(--beam-blue) 62%,
+      var(--beam-mint) 72%,
+      transparent 83% 100%
     );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -39,8 +36,8 @@ const BEAM_CSS = `
 
   [data-beam="{id}"][data-active]::after,
   [data-beam="{id}"][data-fading]::after {
-    padding: 1px;
-    opacity: 0.7;
+    padding: 0.5px;
+    opacity: 0.5;
     filter: none;
   }
 
@@ -48,16 +45,16 @@ const BEAM_CSS = `
   [data-beam="{id}"][data-fading]::before {
     padding: 0;
     -webkit-mask:
-      linear-gradient(#fff, transparent 6px, transparent calc(100% - 6px), #fff),
-      linear-gradient(90deg, #fff, transparent 6px, transparent calc(100% - 6px), #fff);
+      linear-gradient(#fff, transparent 14px, transparent calc(100% - 14px), #fff),
+      linear-gradient(90deg, #fff, transparent 14px, transparent calc(100% - 14px), #fff);
     -webkit-mask-composite: source-over;
     mask:
-      linear-gradient(#fff, transparent 6px, transparent calc(100% - 6px), #fff),
-      linear-gradient(90deg, #fff, transparent 6px, transparent calc(100% - 6px), #fff);
+      linear-gradient(#fff, transparent 14px, transparent calc(100% - 14px), #fff),
+      linear-gradient(90deg, #fff, transparent 14px, transparent calc(100% - 14px), #fff);
     mask-composite: add;
     box-shadow: none;
-    opacity: 0.12;
-    filter: blur(3px);
+    opacity: 0.24;
+    filter: blur(4px);
   }
 
   [data-beam="{id}"][data-beam] [data-beam-bloom] {
@@ -82,7 +79,7 @@ export function AboutStatsBeam() {
       theme="dark"
       colorVariant="ice"
       staticColors
-      duration={8}
+      duration={2}
       borderRadius={16}
       css={BEAM_CSS}
     >
