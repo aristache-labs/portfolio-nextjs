@@ -18,6 +18,7 @@ import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/
 import { ArrowRight, ArrowUpRight, Loader2, Mail, RadioTower, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
+import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { SectionBackdrop } from "./SectionBackdrop";
@@ -412,6 +413,7 @@ export function Contact({
                       {...(card.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       className={`${GLASS_CARD} group hover:border-brand-mid/45 relative flex h-full items-center gap-2.5 rounded-2xl border p-3 transition-colors duration-300 sm:gap-2.5 sm:p-3`}
                     >
+                      <CardBorderGlow variant="subtle" />
                       {card.key === "email" ? (
                         <IconTile size="sm">
                           <SocialGlyph
@@ -504,8 +506,9 @@ export function Contact({
             onAnimationEnd={(event) => {
               if (event.target === event.currentTarget) setShaking(false);
             }}
-            className={`${formCss.form} rr-block relative w-full p-6 sm:p-8`}
+            className={`${formCss.form} rr-block relative w-full rounded-[inherit] p-6 sm:p-8`}
           >
+            <CardBorderGlow variant="subtle" />
             <ProgressiveReveal
               effect="line"
               className="pointer-events-none absolute inset-x-8 top-0 h-px origin-left"

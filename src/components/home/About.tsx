@@ -3,7 +3,7 @@ import { CalendarDays, MapPin, TrendingDown, Users, type LucideIcon } from "luci
 import { IconTile, ICON_PROPS } from "@/components/ui/IconTile";
 import { SpringCount } from "@/components/motion/SpringCount";
 import { AboutResults } from "./AboutResults";
-import { AboutStatsBeam } from "./AboutStatsBeam";
+import { AboutStatsGlow } from "./AboutStatsGlow";
 import { AvatarPortrait } from "./AvatarPortrait";
 import { AboutPortraitMotion } from "./AboutPortraitMotion";
 import { AboutIntroduction } from "./AboutIntroduction";
@@ -48,7 +48,7 @@ function StatBar({ stats }: { stats: AboutStat[] }) {
       <div
         className={`${statsCss.panel} ${portraitCss.surface} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
       >
-        <AboutStatsBeam />
+        <AboutStatsGlow />
         <AboutReveal
           className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10`}
         >

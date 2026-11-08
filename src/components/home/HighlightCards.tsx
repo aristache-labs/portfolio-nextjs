@@ -2,6 +2,7 @@
 
 import { cardDescription } from "@/lib/project-presentation";
 import { ProjectComponents } from "./ProjectComponents";
+import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 
 import type { MouseEventHandler } from "react";
 
@@ -205,6 +206,7 @@ export function FeaturedCard({
 }) {
   return (
     <article className={`${motionStyles.card} ${layoutStyles.featuredCard} ${SHELL} flex flex-col`}>
+      <CardBorderGlow />
       <ScrollDepth
         enabled={depth}
         className={`${layoutStyles.featuredImage} relative aspect-video w-full shrink-0 overflow-hidden border-b border-white/8`}
@@ -268,6 +270,7 @@ export function RecentCard({
     <article
       className={`${motionStyles.card} ${layoutStyles.recentCard} ${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
     >
+      <CardBorderGlow />
       <ScrollDepth
         enabled={depth}
         className={`${layoutStyles.recentImage} ${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}

@@ -2,6 +2,7 @@
 
 import { cardDescription } from "@/lib/project-presentation";
 import { ProjectComponents } from "./ProjectComponents";
+import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 
 import type { MouseEventHandler } from "react";
 
@@ -32,6 +33,7 @@ export function ProjectCard({
       as="article"
       className={`${motionStyles.card} ${GLASS_CARD} group relative flex h-full flex-col overflow-hidden p-5 transition-colors duration-300 hover:border-(--brand-mid)/45`}
     >
+      <CardBorderGlow />
       <div className="relative z-10 flex flex-1 flex-col">
         {/* Featured badge: more projects are flagged featured than the showcase above
             can hold, so the ones that land in the grid still say so. */}
