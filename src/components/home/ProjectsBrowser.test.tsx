@@ -70,24 +70,25 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     ),
   ];
 
-  it("shows the project in development with the newest push as Building now", () => {
+  it("shows the newest GitHub push as Building now even for a live project", () => {
     render(
       <ProjectsBrowser
         projects={[
           project(1, {
-            title: "Shipped Site",
+            title: "portofolio-nextjs",
+            repo: "portofolio-nextjs",
             homepage: "https://x.example",
             pushedAt: new Date("2026-11-04"),
           }),
           project(2, { title: "Old Draft", pushedAt: new Date("2026-09-10") }),
-          project(3, { title: "Fresh Build", pushedAt: new Date("2026-10-28") }),
+          project(3, { title: "Laneroy", pushedAt: new Date("2026-10-28") }),
         ]}
       />,
     );
     expect(screen.getByText("Building now")).toBeInTheDocument();
     const strip = screen.getByText("Building now").closest("div") as HTMLElement;
-    expect(within(strip).getByText("Fresh Build")).toBeInTheDocument();
-    expect(within(strip).getByText("Oct 28")).toBeInTheDocument();
+    expect(within(strip).getByText("portofolio-nextjs")).toBeInTheDocument();
+    expect(within(strip).getByText("Nov 4")).toBeInTheDocument();
   });
 
   it("omits Building now when no project has a push date", () => {
