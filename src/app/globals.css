@@ -58,6 +58,10 @@
   --brand-deep-rgb: 15 110 104;
   --brand-mid-rgb: 88 229 208;
   --brand-bright-rgb: 118 245 225;
+  /* Complementary beam accents, blended with the brand ramp for decorative borders. */
+  --beam-cyan: color-mix(in oklab, var(--brand-mid) 35%, #5bdcff);
+  --beam-blue: color-mix(in oklab, var(--brand-bright) 20%, #7f9cff);
+  --beam-mint: color-mix(in oklab, var(--brand-bright) 35%, #b5f4a1);
   /* Dialog and alert-dialog glass ground */
   --overlay-bg: rgba(8, 12, 13, 0.92);
   /* Experience period label: the bright ramp end reads fine on the deep ground */

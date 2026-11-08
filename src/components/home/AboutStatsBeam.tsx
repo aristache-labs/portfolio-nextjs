@@ -2,8 +2,8 @@
 
 import { BorderBeam } from "@/components/ui/border-beam";
 
-// The package scopes {id} to this instance. Keep the effect on the perimeter and use
-// the site's brand tokens so the beam follows future palette changes.
+// The package scopes {id} to this instance. The stroke and soft inner edge share
+// a rotating spectrum built from the brand and complementary tokens in globals.css.
 const BEAM_CSS = `
   [data-beam="{id}"] {
     position: absolute;
@@ -12,27 +12,52 @@ const BEAM_CSS = `
   }
 
   [data-beam="{id}"][data-active]::after,
-  [data-beam="{id}"][data-fading]::after {
-    padding: 1px;
+  [data-beam="{id}"][data-fading]::after,
+  [data-beam="{id}"][data-active]::before,
+  [data-beam="{id}"][data-fading]::before {
     border-radius: inherit;
     background: conic-gradient(
       from var(--beam-angle-{id}),
-      transparent 0% 55%,
-      rgb(var(--brand-deep-rgb) / 0.5) 65%,
-      var(--brand-mid) 76%,
-      var(--brand-bright) 82%,
-      rgb(var(--brand-mid-rgb) / 0.3) 88%,
-      transparent 95% 100%
+      var(--brand-mid) 0%,
+      var(--beam-cyan) 16%,
+      transparent 27%,
+      var(--beam-blue) 38%,
+      var(--beam-mint) 53%,
+      transparent 64%,
+      var(--brand-mid) 74%,
+      var(--beam-cyan) 85%,
+      var(--beam-blue) 94%,
+      var(--brand-mid) 100%
     );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
-    opacity: 0.85;
+  }
+
+  [data-beam="{id}"][data-active]::after,
+  [data-beam="{id}"][data-fading]::after {
+    padding: 1px;
+    opacity: 0.95;
     filter: none;
   }
 
-  [data-beam="{id}"][data-beam]::before,
+  [data-beam="{id}"][data-active]::before,
+  [data-beam="{id}"][data-fading]::before {
+    padding: 0;
+    -webkit-mask:
+      linear-gradient(#fff, transparent 12px, transparent calc(100% - 12px), #fff),
+      linear-gradient(90deg, #fff, transparent 12px, transparent calc(100% - 12px), #fff);
+    -webkit-mask-composite: source-over;
+    mask:
+      linear-gradient(#fff, transparent 12px, transparent calc(100% - 12px), #fff),
+      linear-gradient(90deg, #fff, transparent 12px, transparent calc(100% - 12px), #fff);
+    mask-composite: add;
+    box-shadow: none;
+    opacity: 0.32;
+    filter: blur(6px);
+  }
+
   [data-beam="{id}"][data-beam] [data-beam-bloom] {
     display: none;
   }
