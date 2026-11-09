@@ -61,7 +61,7 @@ describe("RotateHint overlay", () => {
   });
 
   it.each(["pointerdown", "touchstart", "wheel", "keydown", "scroll"])(
-    "disappears at once on %s and stops catching pointer events",
+    "fades on %s and unmounts when the fade finishes",
     (type) => {
       vi.useFakeTimers();
       render(<RotateHint everyVisit={false} />);
@@ -75,6 +75,27 @@ describe("RotateHint overlay", () => {
       expect(screen.queryByText(HINT)).not.toBeInTheDocument();
     },
   );
+
+  it("blocks controls until the dismissal fade finishes", () => {
+    vi.useFakeTimers();
+    const activate = vi.fn();
+    render(
+      <>
+        <button onClick={activate}>Underlying action</button>
+        <RotateHint />
+      </>,
+    );
+    const button = screen.getByRole("button", { name: "Underlying action" });
+    fireEvent.pointerDown(button);
+    expect(screen.getByRole("status")).toHaveAttribute("data-phase", "leaving");
+    fireEvent.click(button);
+    act(() => vi.advanceTimersByTime(200));
+    fireEvent.click(button);
+    expect(activate).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(40));
+    fireEvent.click(button);
+    expect(activate).toHaveBeenCalledOnce();
+  });
 
   it("keeps the phone and the picture as decoration, hidden from assistive tech", () => {
     const { container } = render(<RotateHint everyVisit={false} />);

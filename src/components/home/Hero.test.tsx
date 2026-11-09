@@ -22,7 +22,7 @@ const profile = {
 };
 
 describe("Hero", () => {
-  it("reserves the measured consent height and clears it when the panel closes", () => {
+  it("keeps its layout independent of the floating consent panel", () => {
     const previousChoice = localStorage.getItem(CONSENT_KEY);
     localStorage.removeItem(CONSENT_KEY);
     const { container } = render(<Hero profile={profile} />);
@@ -30,16 +30,16 @@ describe("Hero", () => {
     expect(hero).not.toHaveAttribute("data-consent-visible");
     expect(hero).not.toHaveAttribute("data-consent-resolved");
     act(() => setConsentInset(125));
-    expect(hero).toHaveAttribute("data-consent-visible", "true");
-    expect(hero.style.getPropertyValue("--hero-consent-inset")).toBe("125px");
+    expect(hero).not.toHaveAttribute("data-consent-visible");
+    expect(hero.style.getPropertyValue("--hero-consent-inset")).toBe("");
     act(() => setConsentInset(62));
-    expect(hero.style.getPropertyValue("--hero-consent-inset")).toBe("62px");
+    expect(hero.style.getPropertyValue("--hero-consent-inset")).toBe("");
     act(() => {
       saveAnalyticsConsent("rejected");
       setConsentInset(0);
     });
     expect(hero).not.toHaveAttribute("data-consent-visible");
-    expect(hero).toHaveAttribute("data-consent-resolved", "true");
+    expect(hero).not.toHaveAttribute("data-consent-resolved");
     expect(hero.style.getPropertyValue("--hero-consent-inset")).toBe("");
     if (previousChoice === null) localStorage.removeItem(CONSENT_KEY);
     else localStorage.setItem(CONSENT_KEY, previousChoice);

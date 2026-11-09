@@ -44,8 +44,7 @@ type Phase = "showing" | "leaving" | "gone";
  * Portrait phones, first homepage visit of the session: a full-screen blurred overlay above the
  * hero suggests turning the phone sideways, with a small phone that tips over and shows the
  * same picture wider. It lasts about six seconds and vanishes the instant the visitor touches,
- * scrolls or presses anything. While it fades out it no longer takes pointer events, so the tap
- * that dismissed it can never activate a button underneath.
+ * scrolls or presses anything. Input stays blocked until the overlay has completely disappeared.
  */
 export default function RotateHint({ everyVisit = SHOW_EVERY_VISIT }: { everyVisit?: boolean }) {
   const onHomepage = useHydratedPathname() === "/";
@@ -58,12 +57,34 @@ export default function RotateHint({ everyVisit = SHOW_EVERY_VISIT }: { everyVis
     if (!active) return;
     if (!everyVisit) rememberSeen();
     const leave = () => setPhase((current) => (current === "showing" ? "leaving" : current));
+    const blockActivation = (event: Event) => {
+      if (event.cancelable) event.preventDefault();
+      event.stopImmediatePropagation();
+      leave();
+    };
+    const blockedEvents = [
+      "pointerdown",
+      "pointerup",
+      "touchstart",
+      "touchend",
+      "mousedown",
+      "mouseup",
+      "click",
+      "keydown",
+      "keyup",
+    ] as const;
+    blockedEvents.forEach((type) =>
+      window.addEventListener(type, blockActivation, { capture: true, passive: false }),
+    );
     const timer = window.setTimeout(leave, LIFETIME_MS);
     DISMISS_EVENTS.forEach((type) =>
       window.addEventListener(type, leave, { passive: true, capture: true }),
     );
     return () => {
       window.clearTimeout(timer);
+      blockedEvents.forEach((type) =>
+        window.removeEventListener(type, blockActivation, { capture: true }),
+      );
       DISMISS_EVENTS.forEach((type) => window.removeEventListener(type, leave, { capture: true }));
     };
   }, [active, everyVisit]);

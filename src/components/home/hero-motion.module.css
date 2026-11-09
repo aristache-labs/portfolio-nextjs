@@ -741,15 +741,9 @@
   }
 }
 
-/* While the consent bar is due, the copy starts higher so the bar never covers the actions. The
-   flag is set before first paint (layout.tsx), so this never moves content after it is drawn. */
-:global(html[data-consent-pending]) .content {
-  --hero-consent-lift: 4rem;
-}
-
 @media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .content {
-    padding-top: calc(10rem - var(--hero-consent-lift, 0rem));
+    padding-top: 10rem;
     padding-bottom: 0rem;
   }
 
@@ -1278,82 +1272,6 @@
   }
   to {
     background-position: 0 0;
-  }
-}
-
-/* Keep the cue above the measured consent panel, including its safe-area offset.
-   The pre-paint flag reserves space before the panel publishes its actual height. */
-@media (min-width: 768px) {
-  .hero[data-consent-visible] .scrollCue,
-  :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .scrollCue {
-    bottom: calc(var(--hero-consent-inset, 74px) + 24px);
-  }
-}
-
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
-  .hero[data-consent-visible] .content,
-  :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .content {
-    padding-top: 4rem;
-    padding-bottom: 0;
-  }
-
-  .hero[data-consent-visible] .scrollCue,
-  :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .scrollCue {
-    flex-direction: row;
-    min-height: 44px;
-    margin-bottom: calc(var(--hero-consent-inset, 136px) + 12px);
-  }
-
-  .hero[data-consent-visible] .scrollCue > span:first-child,
-  :global(html[data-consent-pending])
-    .hero:not([data-consent-resolved])
-    .scrollCue
-    > span:first-child {
-    width: 18px;
-    height: 28px;
-  }
-}
-
-/* Short landscape has spare room beside the copy, rather than beneath its CTA.
-   Keep the social links there and leave the video control its own right-hand space. */
-@media (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) {
-  .hero[data-consent-visible] .scene,
-  :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .scene {
-    justify-content: flex-start;
-  }
-
-  .hero[data-consent-visible] .content,
-  :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .content {
-    padding-top: 4.5rem;
-  }
-
-  .hero[data-consent-visible] .secondaryLinks,
-  :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .secondaryLinks {
-    position: absolute;
-    right: 24px;
-    bottom: calc(var(--hero-consent-inset, 62px) + 56px);
-    width: max-content;
-    max-width: 45%;
-    justify-content: flex-end;
-    margin-top: 0;
-    padding: 4px 8px;
-    border-radius: 12px;
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
-  }
-
-  .hero[data-consent-visible] .scrollCue,
-  :global(html[data-consent-pending]) .hero:not([data-consent-resolved]) .scrollCue {
-    position: absolute;
-    right: 80px;
-    bottom: calc(var(--hero-consent-inset, 62px) + 12px);
-    left: auto;
-    min-height: 44px;
-    margin-bottom: 0;
-    translate: none;
-    padding-inline: 10px;
-    border-radius: 12px;
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
-    color: var(--fg);
   }
 }
 

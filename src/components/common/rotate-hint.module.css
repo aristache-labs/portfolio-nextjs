@@ -18,9 +18,9 @@
   cursor: default;
 }
 
-/* Once dismissed it must not catch the end of the same touch. */
+/* Keep intercepting input until the fade finishes. */
 .leaving {
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .stage {

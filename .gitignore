@@ -10,6 +10,8 @@
 /coverage
 /screenshots
 /tests
+/brag-output/
+/brag-output-*/
 
 # next.js
 /.next/
@@ -19,6 +21,9 @@
 /build
 /source-example
 /.cursor/
+/.codex/
+/.claude/
+
 # misc
 .DS_Store
 *.pem
