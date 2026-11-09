@@ -12,12 +12,6 @@ import { LateMonoFont } from "@/components/util/LateMonoFont";
 import { AmbientBackgroundGate } from "@/components/background/AmbientBackgroundGate";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE } from "@/lib/seo/site";
-import { CONSENT_KEY } from "@/lib/consent-key";
-
-// Marks <html> before first paint when the consent bar is going to appear, so layouts that make
-// room for it (the portrait hero) are final from the first frame instead of jumping on mount.
-const CONSENT_PENDING_SCRIPT = `try{var p=location.pathname;if(p.indexOf("/admin")!==0&&p.indexOf("/login")!==0&&!/^(accepted|rejected)$/.test(localStorage.getItem(${JSON.stringify(CONSENT_KEY)})||""))document.documentElement.setAttribute("data-consent-pending","")}catch(e){}`;
-
 // Read at module initialization, including on dynamic routes. next.config.js includes this
 // runtime asset in server traces. Portrait homepage chunks wait for the hero poster via this gate.
 const POSTER_SCRIPT_GATE = readFileSync(
@@ -85,9 +79,6 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
       className={`dark ${GeistSans.variable}`}
     >
       <head>
-        {process.env.NEXT_PUBLIC_GTAG_ID && (
-          <script dangerouslySetInnerHTML={{ __html: CONSENT_PENDING_SCRIPT }} />
-        )}
         <script id="poster-script-gate" dangerouslySetInnerHTML={{ __html: POSTER_SCRIPT_GATE }} />
       </head>
       <body className={GeistSans.className}>

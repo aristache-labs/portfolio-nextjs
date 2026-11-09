@@ -1,3 +1,8 @@
+.bar {
+  position: relative;
+  z-index: 1;
+}
+
 /* The bar stays on screen and slims down once the page scrolls: the round mark folds away and
    the ARISTACHE wordmark carries the brand alone. Compact heights are mirrored in
    COMPACT_NAV_HEIGHTS (src/lib/scroll-to-section.ts) so section links land below them. */

@@ -18,8 +18,6 @@ import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
 import { HeroDepth } from "./HeroDepth";
-import { useConsentInset } from "@/lib/consent-inset";
-import { useAnalyticsConsent } from "@/lib/analytics-consent";
 
 // Desktop-only WebGL field; its chunk loads after the page is idle, never on touch screens.
 const HeroNetwork = dynamic(() => import("./HeroNetwork"), { ssr: false });
@@ -139,8 +137,6 @@ export function Hero({
 }) {
   preloadPoster();
   const reduce = useReducedMotion();
-  const consentInset = useConsentInset();
-  const consent = useAnalyticsConsent();
   const { mode } = useAnimationPolicy();
   const expressive = mode === "expressive";
   const showNetwork = useIdleAfterLoad(expressive) && expressive;
@@ -300,13 +296,6 @@ export function Hero({
       ref={sectionRef}
       data-cinematic={transitionToAbout || undefined}
       data-touch-scene={touchScene || undefined}
-      data-consent-visible={consentInset > 0 || undefined}
-      data-consent-resolved={consent !== null || undefined}
-      style={
-        consentInset > 0
-          ? ({ "--hero-consent-inset": `${consentInset}px` } as CSSProperties)
-          : undefined
-      }
       className={`${styles.hero} relative scroll-mt-24`}
     >
       {mode !== "static" && !portraitPhone && (
