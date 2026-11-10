@@ -1,33 +1,14 @@
-import styles from "./intro-curtain.module.css";
+import { TerminalIntro } from "./TerminalIntro";
 
-const SEEN_KEY = "aristache:intro";
+// Runs before the first paint. A hard deadline also dismisses the curtain if hydration fails.
+const SESSION_SCRIPT = `(function(){var d=document.documentElement;try{if(location.hash||window.matchMedia("(prefers-reduced-motion: reduce)").matches||sessionStorage.getItem("aristache:intro")){d.setAttribute("data-intro-seen","");return}sessionStorage.setItem("aristache:intro","1");d.setAttribute("data-intro-active","");d.setAttribute("data-intro-start",String(performance.now()));setTimeout(function(){d.removeAttribute("data-intro-active");d.removeAttribute("data-intro-start");d.removeAttribute("data-intro-revealing");d.setAttribute("data-intro-seen","")},6500)}catch(e){d.removeAttribute("data-intro-active");d.setAttribute("data-intro-seen","")}})()`;
 
-/*
- * Runs while the parser reaches the curtain, before first paint. A repeat visit in the same tab
- * session hides the curtain at once. A first visit marks itself seen just after the curtain has
- * lifted, so returning to the homepage through client navigation does not replay it.
- */
-const SESSION_SCRIPT = `(function(){var d=document.documentElement;try{if(sessionStorage.getItem("${SEEN_KEY}")){d.setAttribute("data-intro-seen","");return}sessionStorage.setItem("${SEEN_KEY}","1")}catch(e){d.setAttribute("data-intro-seen","");return}setTimeout(function(){d.setAttribute("data-intro-seen","")},900)})()`;
-
-/**
- * First-visit intro: the monogram resolves inside a drawn ring, then the curtain lifts off the
- * already-rendered page. Pure CSS, so it never waits on hydration and never delays content
- * underneath. Skipped for reduced motion and on repeat visits within the session.
- */
+/** One decorative introduction per tab session, over the already-rendered homepage. */
 export function IntroCurtain() {
   return (
     <>
-      <div aria-hidden className={styles.curtain}>
-        <div className={styles.mark}>
-          <svg className={styles.ring} viewBox="0 0 100 100" focusable="false">
-            <circle cx="50" cy="50" r="47" pathLength="1" />
-          </svg>
-          {/* Tiny eager asset; the curtain is decorative, so plain img avoids the optimiser. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-no-text.webp" alt="" width={128} height={128} decoding="async" />
-        </div>
-      </div>
       <script dangerouslySetInnerHTML={{ __html: SESSION_SCRIPT }} />
+      <TerminalIntro />
     </>
   );
 }
