@@ -32,9 +32,12 @@ it("assigns cover sources only after Projects enters the one-viewport margin", (
   vi.stubGlobal(
     "IntersectionObserver",
     class {
-      constructor(callback: IntersectionObserverCallback, options: IntersectionObserverInit) {
-        intersect = callback;
-        margin = options.rootMargin ?? "";
+      constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+        // The decorative card border owns a separate observer with default options.
+        if (options?.rootMargin) {
+          intersect = callback;
+          margin = options.rootMargin;
+        }
       }
       observe() {}
       disconnect = disconnect;
