@@ -11,7 +11,6 @@ const AnalyticsPreferences = dynamic(
   { ssr: false },
 );
 const ScrollToTop = dynamic(() => import("./ScrollToTop"), { ssr: false });
-const RotateHint = dynamic(() => import("./RotateHint"), { ssr: false });
 const SmoothScroll = dynamic(() => import("@/components/motion/SmoothScroll"), { ssr: false });
 
 export function DeferredControls() {
@@ -19,7 +18,6 @@ export function DeferredControls() {
     <>
       <SmoothScroll />
       <ScrollToTop />
-      <RotateHint />
       <AnalyticsPreferences />
     </>
   );

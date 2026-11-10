@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import {
   profile,
@@ -42,7 +42,7 @@ async function requireAdmin() {
 // ---------- Profile (singleton row) ----------
 export async function updateProfile(input: ProfileInput): Promise<void> {
   await requireAdmin();
-  const data = profileInsertSchema.parse(input);
+  const { sectionVisibility, ...data } = profileInsertSchema.parse(input);
   // Profile is a singleton, but its serial id drifts after a reseed — so target
   // the existing row by its actual id (or insert if the table is empty) rather
   // than assuming id=1.
@@ -53,7 +53,7 @@ export async function updateProfile(input: ProfileInput): Promise<void> {
       .set({ ...data, updatedAt: new Date() })
       .where(eq(profile.id, existing.id));
   } else {
-    await db.insert(profile).values(data);
+    await db.insert(profile).values({ ...data, sectionVisibility });
   }
   revalidatePortfolio();
 }
@@ -80,20 +80,18 @@ export async function setProfileAvatar(url: string | null): Promise<void> {
   revalidatePortfolio();
 }
 
-// Save the homepage section-visibility map (dashboard Save button). Merges the
-// submitted keys into the existing map so any section not in the form keeps its
-// state.
+// Save section and effect visibility without overwriting unrelated settings.
 export async function setSectionVisibility(map: Record<string, boolean>): Promise<void> {
   await requireAdmin();
-  const [existing] = await db
-    .select({ id: profile.id, sectionVisibility: profile.sectionVisibility })
-    .from(profile)
-    .limit(1);
-  if (!existing) return;
-  const next = { ...(existing.sectionVisibility ?? {}), ...map };
+  const [existing] = await db.select({ id: profile.id }).from(profile).limit(1);
+  if (!existing) throw new Error("No profile row. Seed the profile first.");
   await db
     .update(profile)
-    .set({ sectionVisibility: next, updatedAt: new Date() })
+    .set({
+      // Merge in Postgres so simultaneous section/effect toggles cannot overwrite each other.
+      sectionVisibility: sql`coalesce(${profile.sectionVisibility}, '{}'::jsonb) || ${JSON.stringify(map)}::jsonb`,
+      updatedAt: new Date(),
+    })
     .where(eq(profile.id, existing.id));
   revalidatePortfolio();
 }

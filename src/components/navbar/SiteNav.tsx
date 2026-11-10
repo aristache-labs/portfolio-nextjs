@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type MouseEvent } from "react";
 import { setMobileMenuOpen } from "@/lib/mobile-menu-state";
 import { preload } from "react-dom";
 import { SectionLink } from "@/components/common/SectionLink";
@@ -99,6 +99,12 @@ export function SiteNav({
   const sectionHref = (id: string) => `${onHomepage ? "" : "/"}#${id}`;
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
+  const [clickedSection, setClickedSection] = useState<string | null>(null);
+  const indicatorId = useId();
+  const highlightedSection = clickedSection ?? active;
+  if (clickedSection !== null && active === clickedSection) {
+    setClickedSection(null);
+  }
   const [scrolled, setScrolled] = useState(false);
   const numbers = useMemo(
     () => sectionNumbers(Object.fromEntries(hidden.map((id) => [id, false]))),
@@ -226,9 +232,7 @@ export function SiteNav({
       </AnimatePresence>
       <m.header
         ref={headerRef}
-        initial={reduce ? false : { y: -70, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.2, ease: [0.52, 1, 0.26, 1] }}
+        initial={false}
         data-shrinks=""
         data-compact={scrolled && !open ? "" : undefined}
         className={cn(
@@ -290,8 +294,21 @@ export function SiteNav({
                     crossPage={!onHomepage}
                     scroll={onHomepage}
                     href={sectionHref(section.id)}
-                    onClick={(event) => goToSection(event, section.id)}
+                    onClick={(event) => {
+                      if (
+                        event.button === 0 &&
+                        !event.metaKey &&
+                        !event.ctrlKey &&
+                        !event.shiftKey &&
+                        !event.altKey
+                      ) {
+                        setClickedSection(section.id);
+                      }
+                      goToSection(event, section.id);
+                    }}
+                    aria-current={isActive ? "location" : undefined}
                     className={cn(
+                      chromeStyles.desktopLink,
                       // The invisible ::before lifts the touch target from the 19px text line to
                       // about 43px (iPads in landscape show this row), inside the 32px gap.
                       "group relative text-[15px] transition-colors before:absolute before:-inset-x-2 before:-inset-y-3",
@@ -301,14 +318,29 @@ export function SiteNav({
                     )}
                   >
                     {section.label}
-                    <span
-                      className={cn(
-                        "absolute -bottom-2 left-0 h-[2px] rounded-full bg-linear-to-r from-(--brand-mid) to-(--brand-bright) transition-all duration-300",
-                        isActive
-                          ? "w-full shadow-[0_0_12px_rgb(var(--brand-mid-rgb)/0.9)]"
-                          : "w-0 group-hover:w-full",
-                      )}
-                    />
+                    {section.id === highlightedSection && (
+                      <m.span
+                        aria-hidden
+                        layoutId={indicatorId}
+                        initial={false}
+                        transition={
+                          reduce || !clickedSection
+                            ? { duration: 0 }
+                            : { type: "spring", stiffness: 420, damping: 32, mass: 0.65 }
+                        }
+                        className={chromeStyles.electricIndicator}
+                      >
+                        <m.span
+                          key={section.id}
+                          initial={
+                            reduce || !clickedSection ? false : { scaleX: 1.65, opacity: 0.65 }
+                          }
+                          animate={{ scaleX: 1, opacity: 1 }}
+                          transition={{ duration: reduce ? 0 : 0.32, ease: "easeOut" }}
+                          className={chromeStyles.electricCore}
+                        />
+                      </m.span>
+                    )}
                   </SectionLink>
                 </li>
               );

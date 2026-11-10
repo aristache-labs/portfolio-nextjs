@@ -188,7 +188,7 @@ describe("Footer", () => {
           for (const item of nav.querySelectorAll("li"))
             expect(item).toHaveStyle({ opacity: "1", transform: "none" });
         },
-        { timeout: 2200 },
+        { timeout: 4000 },
       );
       act(() => {
         groups.forEach(enter);

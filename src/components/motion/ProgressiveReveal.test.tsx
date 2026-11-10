@@ -39,7 +39,7 @@ vi.mock("framer-motion", () => ({
   },
 }));
 
-let deliver: IntersectionObserverCallback;
+let deliveries: Map<Element, IntersectionObserverCallback>;
 let matches: Record<string, boolean>;
 let listeners: Set<() => void>;
 const disconnect = vi.fn();
@@ -54,7 +54,7 @@ function change(query: string, value: boolean) {
 
 function intersect(node: Element, top = 100, isIntersecting = true) {
   act(() =>
-    deliver(
+    deliveries.get(node)!(
       [
         {
           target: node,
@@ -70,6 +70,7 @@ function intersect(node: Element, top = 100, isIntersecting = true) {
 beforeEach(() => {
   vi.clearAllMocks();
   count.entries = [];
+  deliveries = new Map();
   controls.start.mockResolvedValue(undefined);
   count.animate.mockReturnValue({ stop: count.stop });
   matches = {};
@@ -82,11 +83,16 @@ beforeEach(() => {
   vi.stubGlobal(
     "IntersectionObserver",
     class {
-      constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
-        deliver = callback;
+      constructor(
+        private callback: IntersectionObserverCallback,
+        options?: IntersectionObserverInit,
+      ) {
         observerOptions(options);
       }
-      observe = observe;
+      observe(target: Element) {
+        deliveries.set(target, this.callback);
+        observe(target);
+      }
       disconnect = disconnect;
     },
   );

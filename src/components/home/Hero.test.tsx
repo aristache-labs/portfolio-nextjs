@@ -120,8 +120,8 @@ describe("Hero", () => {
     expect(h1).toHaveAccessibleName("Adrian Cristache Infrastructure meets innovation.");
     expect(screen.getByText("Adrian", { selector: "span" })).toBeVisible();
     expect(h1.querySelector(".sr-only")).toBeNull();
-    expect(h1.textContent).toBe("Adrian Cristache Infrastructure meets innovation.");
-    expect(h1.querySelector("svg text")).toBeNull();
+    expect(h1.querySelectorAll('svg[aria-hidden="true"] text')).toHaveLength(2);
+    expect(h1.querySelector("svg text")).toHaveTextContent("Adrian");
     expect(h1).toHaveTextContent("Adrian");
     expect(h1.lastElementChild).not.toBeEmptyDOMElement();
     expect(
@@ -149,8 +149,8 @@ describe("Hero", () => {
       );
     } else {
       expect(h1.querySelector(".sr-only")).toBeNull();
-      expect(h1.textContent).toBe(`${first} Infrastructure meets innovation.`);
-      expect(h1.querySelector("svg text")).toBeNull();
+      expect(h1).toHaveAccessibleName(`${first} Infrastructure meets innovation.`);
+      expect(h1.querySelectorAll('svg[aria-hidden="true"] text')).toHaveLength(1);
     }
   });
 

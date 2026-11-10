@@ -31,7 +31,7 @@ export default async function ProfileEditor() {
       // The About cards live in stats beside the GitHub counters; only their keys are rewritten.
       stats: mergeAboutStats(row?.stats ?? {}, (name) => String(formData.get(name) ?? "")),
       roles,
-      // Visibility is managed on the dashboard; preserve it unchanged on save.
+      // Settings owns visibility; updateProfile ignores this snapshot for existing profiles.
       sectionVisibility: row?.sectionVisibility ?? {},
       resumeUrl: (formData.get("resumeUrl") as string) || null,
       heroTagline: (formData.get("heroTagline") as string) || null,
