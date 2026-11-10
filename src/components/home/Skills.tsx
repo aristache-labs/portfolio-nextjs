@@ -17,7 +17,7 @@ import responsiveCss from "./skills-responsive.module.css";
 import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
-import portraitCss from "@/components/ui/portrait-card-surface.module.css";
+import quoteCss from "./skills-quote.module.css";
 import { SKILLS_MOBILE_LANDSCAPE, SKILLS_MOBILE_PORTRAIT } from "./SkillsMobileReveal";
 
 export type SkillRow = {
@@ -261,7 +261,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   duration={1.3}
                   delay={0.4}
                 >
-                  <blockquote className={`${responsiveCss.quote} ${portraitCss.surface}`}>
+                  <blockquote className={`${responsiveCss.quote} ${quoteCss.glass}`}>
                     <Quote aria-hidden className={responsiveCss.quoteIcon} />
                     <p>
                       Tools evolve.

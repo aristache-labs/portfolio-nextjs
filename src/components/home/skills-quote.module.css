@@ -1,0 +1,14 @@
+/* Clear glass samples only the existing Skills backdrop. */
+.glass.glass {
+  border-color: rgb(var(--brand-bright-rgb) / 0.22);
+  background: transparent;
+  -webkit-backdrop-filter: blur(5px) saturate(1.15);
+  backdrop-filter: blur(5px) saturate(1.15);
+  box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.3);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass.glass {
+    background: color-mix(in srgb, var(--background) 30%, transparent);
+  }
+}

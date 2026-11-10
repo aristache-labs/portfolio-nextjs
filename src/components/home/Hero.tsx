@@ -109,11 +109,18 @@ function staggerStyle(index: number) {
   return { "--i": index } as CSSProperties;
 }
 
-/** The mask stays aligned with the text; only the reflected light moves. */
+/** Live text reserves the responsive layout; SVG draws the same glyphs over it. */
 function HeroNameText({ text, surname = false }: { text: string; surname?: boolean }) {
   return (
     <span className={`${styles.nameLine}${surname ? ` ${styles.surname}` : ""}`}>
-      <span className={`${styles.nameInk} ${styles.nameSingle}`}>{text}</span>
+      <span className={styles.nameDraw}>
+        <span className={styles.nameMeasure}>{text}</span>
+        <svg className={styles.nameOutline} aria-hidden="true" focusable="false">
+          <text x="0" y="0.82em">
+            {text}
+          </text>
+        </svg>
+      </span>
     </span>
   );
 }
@@ -462,10 +469,22 @@ export function Hero({
                   size="lg"
                   href="#projects"
                   onClick={(event) => navigateToSection(event, "projects")}
-                  className={`${styles.primaryAction} rounded-xl px-8 py-4 text-base max-sm:w-full [@media(max-height:500px)]:py-2.5`}
+                  className={`${styles.primaryAction} rounded-2xl px-6 py-3 text-sm max-sm:w-full [@media(max-height:500px)]:py-2.5`}
                 >
-                  Explore Projects
-                  <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  <span aria-hidden="true" className={styles.buttonShadow} />
+                  <span aria-hidden="true" className={styles.buttonFoundation} />
+                  <span aria-hidden="true" className={styles.buttonSurface} />
+                  <span aria-hidden="true" className={styles.buttonLid} />
+                  <span aria-hidden="true" className={styles.buttonGuides} />
+                  <span className={styles.buttonLabel}>
+                    Explore Projects
+                    <ArrowRight aria-hidden="true" className="size-4" />
+                  </span>
+                  <span aria-hidden="true" className={styles.buttonAnnotations}>
+                    {["Ideas", "Projects", "Code"].map((label) => (
+                      <span key={label}>{label}</span>
+                    ))}
+                  </span>
                 </Button>
               </Magnetic>
               <div className="flex gap-3 sm:contents">
