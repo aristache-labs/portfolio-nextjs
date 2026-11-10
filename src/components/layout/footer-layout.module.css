@@ -111,6 +111,11 @@
 /* Scroll-driven parts on expressive desktops (`useFooterEntrance` sets each `--entry`). The bar
    is the glass element itself, so it fades as a whole and its blur never pops in late. */
 @media (prefers-reduced-motion: no-preference) {
+  /* Legal routes have no homepage ground behind the transparent desktop lead-in. */
+  .footer[data-scene] {
+    background: var(--background);
+  }
+
   /* A short lead-in brings the closing content forward without a screen of empty stage. */
   .footer[data-scene]::before {
     content: "";
