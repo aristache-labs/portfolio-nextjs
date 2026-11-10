@@ -316,3 +316,37 @@
     inset: 0;
   }
 }
+
+/* One shared light travels on activation; scrolling updates its position without motion. */
+.desktopLink:focus-visible {
+  outline: 2px solid var(--brand-mid);
+  outline-offset: 8px;
+  border-radius: 2px;
+}
+
+.electricIndicator {
+  position: absolute;
+  bottom: -9px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  pointer-events: none;
+}
+
+.electricCore {
+  position: absolute;
+  inset: 0;
+  border-radius: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--brand-mid) 18%,
+    var(--foreground) 50%,
+    var(--brand-bright) 82%,
+    transparent
+  );
+  box-shadow:
+    0 0 5px rgb(var(--brand-bright-rgb) / 0.9),
+    0 0 14px rgb(var(--brand-mid-rgb) / 0.7),
+    0 0 26px rgb(var(--brand-mid-rgb) / 0.35);
+}
