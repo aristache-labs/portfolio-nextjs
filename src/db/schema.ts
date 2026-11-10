@@ -31,7 +31,7 @@ export const profile = pgTable("profile", {
   heroSummary: text("hero_summary"),
   // Availability badge in the hero, e.g. "Available for new projects". Empty hides it.
   availability: text("availability"),
-  // Per-section show/hide, keyed by section id. Missing key = visible.
+  // Visibility keyed by section id, plus intro and rotateHint effects. Missing key = enabled.
   sectionVisibility: jsonb("section_visibility")
     .$type<Record<string, boolean>>()
     .notNull()

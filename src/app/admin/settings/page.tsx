@@ -29,6 +29,17 @@ export default async function SettingsPage() {
         </div>
         <SectionVisibilityToggles visibility={sectionVisibility} />
       </section>
+
+      <section className="border-border bg-surface rounded-2xl border p-5 sm:p-6">
+        <div className="mb-4">
+          <h2 className="text-foreground font-semibold">Homepage effects</h2>
+          <p className="text-muted mt-0.5 text-sm">
+            Turn the terminal intro and phone orientation hint on or off. Changes save instantly and
+            apply on the next homepage visit. Enabled effects keep their once-per-session behavior.
+          </p>
+        </div>
+        <SectionVisibilityToggles visibility={sectionVisibility} kind="effects" />
+      </section>
     </div>
   );
 }

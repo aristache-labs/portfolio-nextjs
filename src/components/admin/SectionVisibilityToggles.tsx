@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import {
   User,
   Wrench,
@@ -9,6 +9,8 @@ import {
   Sparkles,
   HandCoins,
   Mail,
+  Terminal,
+  Smartphone,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
@@ -26,79 +28,114 @@ const SECTIONS: { id: string; label: string; description: string; icon: LucideIc
   { id: "contact", label: "Contact", description: "How people reach you", icon: Mail },
 ];
 
+const EFFECTS: typeof SECTIONS = [
+  {
+    id: "intro",
+    label: "Terminal intro",
+    description: "Show the terminal introduction on the first homepage visit of a session",
+    icon: Terminal,
+  },
+  {
+    id: "rotateHint",
+    label: "Shift your perspective",
+    description: "Suggest landscape orientation on portrait phones",
+    icon: Smartphone,
+  },
+];
+
 // Normalize the stored map to an explicit on/off per section (missing = visible).
-function toState(visibility: Record<string, boolean>): Record<string, boolean> {
-  return Object.fromEntries(SECTIONS.map((s) => [s.id, visibility[s.id] !== false]));
+function toState(
+  visibility: Record<string, boolean>,
+  items: typeof SECTIONS,
+): Record<string, boolean> {
+  return Object.fromEntries(items.map((s) => [s.id, visibility[s.id] !== false]));
 }
 
 /**
  * Saves optimistically on flip, rolling back if it fails. A hidden section is not rendered,
  * code-split or data-fetched on the site at all.
  */
-export function SectionVisibilityToggles({ visibility }: { visibility: Record<string, boolean> }) {
-  const [state, setState] = useState(() => toState(visibility));
+export function SectionVisibilityToggles({
+  visibility,
+  kind = "sections",
+}: {
+  visibility: Record<string, boolean>;
+  kind?: "sections" | "effects";
+}) {
+  const items = kind === "effects" ? EFFECTS : SECTIONS;
+  const [state, setState] = useState(() => toState(visibility, items));
+  const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
 
-  const toggle = (id: string) => {
+  const toggle = async (id: string) => {
+    if (pendingId) return;
+    setError(null);
     const next = !state[id];
     const prev = state[id];
     setState((s) => ({ ...s, [id]: next })); // optimistic
     setPendingId(id);
-    startTransition(async () => {
-      try {
-        await setSectionVisibility({ [id]: next });
-      } catch {
-        setState((s) => ({ ...s, [id]: prev })); // rollback on failure
-      } finally {
-        setPendingId(null);
-      }
-    });
+    try {
+      await setSectionVisibility({ [id]: next });
+    } catch {
+      setError("Could not save this setting. Please try again.");
+      setState((s) => ({ ...s, [id]: prev })); // rollback on failure
+    } finally {
+      setPendingId(null);
+    }
   };
 
   return (
-    <ul className="divide-border divide-y">
-      {SECTIONS.map((s) => {
-        const on = state[s.id];
-        const Icon = s.icon;
-        return (
-          <li key={s.id} className="flex items-center gap-4 py-3.5 first:pt-0 last:pb-0">
-            <span
-              className={cn(
-                "grid size-9 shrink-0 place-items-center rounded-lg transition-colors",
-                on ? "bg-(image:--gradient-brand) text-white" : "bg-foreground/10 text-muted",
-              )}
-            >
-              <Icon className="size-4.5" aria-hidden />
-            </span>
-
-            <div className="min-w-0 flex-1">
-              <div className="text-foreground text-sm font-medium">{s.label}</div>
-              <div className="text-muted truncate text-xs">{s.description}</div>
-            </div>
-
-            <button
-              type="button"
-              role="switch"
-              aria-checked={on}
-              aria-label={`${s.label} section, ${on ? "visible" : "hidden"}`}
-              onClick={() => toggle(s.id)}
-              disabled={pendingId === s.id}
-              className={cn(
-                "focus-visible:ring-ring relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60",
-                on ? "bg-(image:--gradient-brand)" : "bg-foreground/20",
-              )}
-            >
+    <>
+      <ul className="divide-border divide-y">
+        {items.map((s) => {
+          const on = state[s.id];
+          const Icon = s.icon;
+          return (
+            <li key={s.id} className="flex items-center gap-4 py-3.5 first:pt-0 last:pb-0">
               <span
                 className={cn(
-                  "inline-block size-5 rounded-full bg-white shadow-sm transition-transform",
-                  on ? "translate-x-[22px]" : "translate-x-0.5",
+                  "grid size-9 shrink-0 place-items-center rounded-lg transition-colors",
+                  on ? "bg-(image:--gradient-brand) text-white" : "bg-foreground/10 text-muted",
                 )}
-              />
-            </button>
-          </li>
-        );
-      })}
-    </ul>
+              >
+                <Icon className="size-4.5" aria-hidden />
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <div className="text-foreground text-sm font-medium">{s.label}</div>
+                <div className="text-muted text-xs">{s.description}</div>
+              </div>
+
+              <button
+                type="button"
+                role="switch"
+                aria-checked={on}
+                aria-label={
+                  kind === "effects" ? s.label : `${s.label} section, ${on ? "visible" : "hidden"}`
+                }
+                onClick={() => toggle(s.id)}
+                disabled={pendingId !== null}
+                className={cn(
+                  "focus-visible:ring-ring relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none disabled:opacity-60",
+                  on ? "bg-(image:--gradient-brand)" : "bg-foreground/20",
+                )}
+              >
+                <span
+                  className={cn(
+                    "inline-block size-5 rounded-full bg-white shadow-sm transition-transform",
+                    on ? "translate-x-[22px]" : "translate-x-0.5",
+                  )}
+                />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      {error && (
+        <p role="alert" className="mt-3 text-sm text-red-400">
+          {error}
+        </p>
+      )}
+    </>
   );
 }

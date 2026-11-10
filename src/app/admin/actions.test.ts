@@ -6,6 +6,9 @@ const { mockAuth } = vi.hoisted(() => ({ mockAuth: vi.fn() }));
 // Mock DB so no DATABASE_URL is needed
 vi.mock("@/db/client", () => ({
   db: {
+    select: vi.fn().mockReturnValue({
+      from: vi.fn().mockReturnValue({ limit: vi.fn().mockResolvedValue([{ id: 1 }]) }),
+    }),
     insert: vi.fn().mockReturnValue({ values: vi.fn().mockResolvedValue(undefined) }),
     update: vi.fn().mockReturnValue({
       set: vi.fn().mockReturnValue({ where: vi.fn().mockResolvedValue(undefined) }),
@@ -26,6 +29,7 @@ import {
   deleteProject,
   reorderProjects,
   updateProfile,
+  setSectionVisibility,
 } from "./actions";
 
 function authedSession() {
@@ -151,4 +155,35 @@ describe("zod validation", () => {
       }),
     ).resolves.toBeUndefined();
   });
+});
+
+describe("effect settings", () => {
+  it("requires authentication before changing effect visibility", async () => {
+    mockAuth.mockResolvedValue(null);
+    await expect(setSectionVisibility({ intro: false })).rejects.toThrow("Unauthorized");
+  });
+
+  it("saves effect flags and invalidates the homepage", async () => {
+    mockAuth.mockResolvedValue(authedSession());
+    await expect(
+      setSectionVisibility({ intro: false, rotateHint: false }),
+    ).resolves.toBeUndefined();
+    const { revalidatePath } = await import("next/cache");
+    expect(revalidatePath).toHaveBeenCalledWith("/");
+  });
+});
+
+it("does not overwrite saved effects from a stale profile form", async () => {
+  mockAuth.mockResolvedValue(authedSession());
+  await updateProfile({
+    name: "Admin",
+    email: null,
+    bio: "Bio",
+    stats: {},
+    roles: [],
+    sectionVisibility: { intro: true, rotateHint: true },
+  });
+  const { db } = await import("@/db/client");
+  const saved = vi.mocked(db.update).mock.results.at(-1)!.value.set.mock.calls.at(-1)[0];
+  expect(saved).not.toHaveProperty("sectionVisibility");
 });

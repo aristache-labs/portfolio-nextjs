@@ -12,7 +12,7 @@ import {
 import { Hero } from "@/components/home/Hero";
 import { SkipLink } from "@/components/navbar/SkipLink";
 import { SiteNav } from "@/components/navbar/SiteNav";
-import { IntroCurtain } from "@/components/brand/IntroCurtain";
+import { HomepageEffects } from "@/components/brand/HomepageEffects";
 import { Footer } from "@/components/layout/Footer";
 import { Skills, Experience, Services, Contact } from "@/components/home/HomeSections";
 import { sectionNumbers } from "@/lib/section-numbers";
@@ -67,7 +67,7 @@ export default async function Home() {
       className={`${sora.variable} dark bg-background text-foreground relative min-h-screen`}
     >
       <HomeJsonLd projects={projects} skills={skills} />
-      <IntroCurtain />
+      <HomepageEffects visibility={vis} />
       <SkipLink />
       <SiteNav
         availability={profile.availability}
