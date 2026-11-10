@@ -7,7 +7,6 @@ function dismissIntro() {
   const root = document.documentElement;
   root.removeAttribute("data-intro-active");
   root.removeAttribute("data-intro-start");
-  root.removeAttribute("data-intro-revealing");
   root.setAttribute("data-intro-seen", "");
 }
 
@@ -31,7 +30,6 @@ export function TerminalIntro() {
       if (!root.hasAttribute("data-intro-active")) return;
       const elapsed = (now - start) / 1000;
       const state = introFrame(elapsed);
-      if (elapsed >= 3.5) root.setAttribute("data-intro-revealing", "");
       if (state.finished) {
         dismissIntro();
         return;

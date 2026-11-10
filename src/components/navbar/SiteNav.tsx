@@ -232,9 +232,7 @@ export function SiteNav({
       </AnimatePresence>
       <m.header
         ref={headerRef}
-        initial={reduce ? false : { y: -70, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.2, ease: [0.52, 1, 0.26, 1] }}
+        initial={false}
         data-shrinks=""
         data-compact={scrolled && !open ? "" : undefined}
         className={cn(

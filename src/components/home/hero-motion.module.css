@@ -1940,7 +1940,10 @@
   }
 }
 
-/* Resume the name drawing when the first-visit terminal is dismissed. */
-:global(html[data-intro-active]:not([data-intro-revealing])) .nameOutline text {
+/* Hold the complete Hero entrance, including stagger delays, until the intro is dismissed. */
+:global(html[data-intro-active]) .hero,
+:global(html[data-intro-active]) .hero *,
+:global(html[data-intro-active]) .hero *::before,
+:global(html[data-intro-active]) .hero *::after {
   animation-play-state: paused;
 }

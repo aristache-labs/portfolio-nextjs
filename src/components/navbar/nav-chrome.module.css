@@ -350,3 +350,25 @@
     0 0 14px rgb(var(--brand-mid-rgb) / 0.7),
     0 0 26px rgb(var(--brand-mid-rgb) / 0.35);
 }
+
+/* CSS owns the entrance so the first-visit terminal can pause it before hydration. */
+@media (prefers-reduced-motion: no-preference) {
+  .header {
+    animation: navigation-enter 200ms cubic-bezier(0.52, 1, 0.26, 1) backwards;
+  }
+
+  :global(html[data-intro-active]) .header {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes navigation-enter {
+  from {
+    transform: translateY(-70px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

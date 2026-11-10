@@ -9,7 +9,6 @@ afterEach(() => {
   cleanup();
   document.documentElement.removeAttribute("data-intro-active");
   document.documentElement.removeAttribute("data-intro-start");
-  document.documentElement.removeAttribute("data-intro-revealing");
   document.documentElement.removeAttribute("data-intro-seen");
   sessionStorage.clear();
   vi.useRealTimers();
