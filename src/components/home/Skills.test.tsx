@@ -300,7 +300,9 @@ describe("Skills", () => {
     expect(screen.getByText("Tools I")).toBeInTheDocument();
     expect(screen.getByText("trust")).toBeInTheDocument();
     expect(screen.getByText(/Infrastructure on one side/)).toBeInTheDocument();
-    expect(screen.getByText(/Tools evolve\./)).toHaveTextContent("Problem-solving endures.");
+    expect(screen.getByText(/Tools evolve\./).closest("blockquote")).toHaveTextContent(
+      "Problem-solving endures.",
+    );
   });
 
   it("shows the level as a percent", () => {

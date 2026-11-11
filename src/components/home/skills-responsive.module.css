@@ -139,7 +139,7 @@
 
 .quoteAnchor {
   position: absolute;
-  top: 0;
+  top: -30px;
   right: 0;
   width: var(--skills-quote-width);
   min-width: 0;
@@ -622,3 +622,5 @@
     opacity: 0.3;
   }
 }
+
+
