@@ -1,5 +1,6 @@
 "use client";
 
+import { HeroSwingText } from "./HeroSwingText";
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { preload } from "react-dom";
 import dynamic from "next/dynamic";
@@ -383,7 +384,7 @@ export function Hero({
         <div
           className={`${styles.content} ${styles.scrollCopy} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
         >
-          <div className={`${styles.intro} min-w-0 lg:pl-8`}>
+          <div className={`${styles.intro} min-w-0 lg:col-start-1 lg:row-start-1 lg:pl-8`}>
             {profile.availability && (
               <p className={`${styles.enter} ${styles.availability}`} style={entranceStyle(0)}>
                 <span aria-hidden className={styles.availabilityDot} />
@@ -536,6 +537,7 @@ export function Hero({
               ))}
             </div>
           </div>
+          <HeroSwingText />
         </div>
 
         <a

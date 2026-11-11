@@ -1,0 +1,117 @@
+/* Letters hang from a rail and swing out of phase. Desktop only: phones have no room under the logo. */
+.anchor {
+  display: none;
+}
+
+@media (min-width: 1024px) and (min-height: 501px) {
+  .anchor {
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    justify-self: start;
+    /* Pulled up into the hero's top padding so it hangs just under the logo, in line with the
+       copy's left edge (the intro has a 2rem left padding). */
+    margin-top: -8.1rem;
+    margin-left: 3.85rem;
+    /* Swing In Top: hinged on its top edge, so it swings down from the logo and settles. It is
+       fully opaque almost at once, so it reads as a swing and not a fade. `backwards`, not
+       `both`, so the scroll transition below can still move it afterwards. The Hero's global
+       rule pauses this until the intro is dismissed. */
+    transform-origin: 50% 0;
+    animation: hero-welcome-swing-in 1s 0.6s backwards;
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  /* Fade Out + slide up once the page scrolls; it slides back down at the top. */
+  .anchor[data-away] {
+    opacity: 0;
+    transform: translateY(-12px);
+    pointer-events: none;
+  }
+}
+
+@keyframes hero-welcome-swing-in {
+  0% {
+    opacity: 0;
+    transform: perspective(400px) rotateX(-90deg);
+    animation-timing-function: ease-in;
+  }
+  15% {
+    opacity: 1;
+  }
+  55% {
+    transform: perspective(400px) rotateX(14deg);
+    animation-timing-function: ease-in-out;
+  }
+  78% {
+    transform: perspective(400px) rotateX(-7deg);
+    animation-timing-function: ease-in-out;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.swing {
+  --c: var(--brand-mid);
+  color: var(--c);
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+
+.rail {
+  display: inline-block;
+  padding: 0.55em 0.2em 0;
+  border-top: 0.06em solid color-mix(in srgb, var(--c) 55%, transparent);
+  border-radius: 0.03em;
+}
+
+.letter {
+  position: relative;
+  display: inline-block;
+  margin: 0 0.05em;
+  /* The pivot sits on the rail, 0.55em above the letter. */
+  transform-origin: 50% -0.55em;
+  animation: hero-swing-letter calc(1.3s + var(--i) * 0.07s) ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -0.2s);
+}
+
+.letter::before {
+  content: "";
+  position: absolute;
+  top: -0.55em;
+  left: 50%;
+  width: 1px;
+  height: 0.85em;
+  background: color-mix(in srgb, var(--c) 55%, transparent);
+}
+
+@keyframes hero-swing-letter {
+  from {
+    transform: rotate(10deg);
+  }
+  to {
+    transform: rotate(-10deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter {
+    animation: none;
+  }
+
+  .anchor,
+  .anchor[data-away] {
+    animation: none;
+    transform: none;
+    filter: none;
+    transition: opacity 0.01ms;
+  }
+}

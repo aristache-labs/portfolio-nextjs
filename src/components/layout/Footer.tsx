@@ -18,6 +18,7 @@ import { PREFERENCES_EVENT } from "@/lib/analytics-consent";
 import { SITE } from "@/lib/seo/site";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import layout from "./footer-layout.module.css";
+import wordsCss from "./footer-words.module.css";
 import { useFooterEntrance } from "./useFooterEntrance";
 import { FOOTER_MOBILE_QUERY, useFooterMobileEntrance } from "./useFooterMobileEntrance";
 import mobileCss from "./footer-mobile-motion.module.css";
@@ -408,7 +409,14 @@ export function Footer({
               variants={itemVariants}
               className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right [@media(orientation:landscape)_and_(max-width:1024px)]:order-none [@media(orientation:landscape)_and_(max-width:1024px)]:text-right [@media(orientation:landscape)_and_(max-width:740px)]:hidden"
             >
-              DESIGNED &amp; BUILT WITH <span className="text-brand-bright">CARE</span>
+              DESIGNED &amp; BUILT WITH{" "}
+              <span className="sr-only">CARE</span>
+              <span aria-hidden className={wordsCss.words}>
+                <span>CARE</span>
+                <span>LOVE</span>
+                <span>PRECISION</span>
+                <span>CARE</span>
+              </span>
             </m.p>
           </FooterPart>
         </div>

@@ -1,0 +1,40 @@
+/* Rotating closing word in the footer signature: care, love, precision. The last span repeats
+   the first so the loop wraps without a jump. */
+.words {
+  display: inline-block;
+  height: 1.4em;
+  overflow: hidden;
+  vertical-align: bottom;
+  text-align: left;
+  line-height: 1.4;
+  color: var(--brand-bright);
+}
+
+.words span {
+  display: block;
+  animation: footer-word-cycle 6s cubic-bezier(0.8, 0, 0.2, 1) infinite;
+}
+
+@keyframes footer-word-cycle {
+  0%,
+  25% {
+    transform: translateY(0);
+  }
+  33%,
+  58% {
+    transform: translateY(-1.4em);
+  }
+  66%,
+  91% {
+    transform: translateY(-2.8em);
+  }
+  100% {
+    transform: translateY(-4.2em);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .words span {
+    animation: none;
+  }
+}

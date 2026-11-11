@@ -7,6 +7,7 @@ import labelCss from "@/components/ui/section-label.module.css";
 import { Button } from "@/components/ui/Button";
 import { ProjectCoverGate } from "./ProjectCoverGate";
 import { ProjectsBrowser } from "./ProjectsBrowser";
+import { ScrubWord } from "./ScrubWord";
 import { SectionBackdrop } from "./SectionBackdrop";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
@@ -39,7 +40,10 @@ export function Projects({
             <span aria-hidden className={labelCss.rule} />
           </p>
           <h2 className={headingCss.title}>
-            Selected <span className={headingCss.accent}>Projects</span>
+            Selected{" "}
+            <span className={headingCss.accent}>
+              <ScrubWord>Projects</ScrubWord>
+            </span>
           </h2>
         </div>
       </div>
