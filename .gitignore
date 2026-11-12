@@ -23,6 +23,9 @@
 /.cursor/
 /.codex/
 /.claude/
+/.agents/
+/skills-lock.json
+/SKILL.md
 
 # misc
 .DS_Store
