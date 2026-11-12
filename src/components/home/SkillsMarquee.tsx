@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { MOBILE_REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
-import { createTravelGate } from "@/lib/section-navigation";
+import { createTravelGate, subscribeSectionNavigationComplete } from "@/lib/section-navigation";
 import styles from "./skills-marquee.module.css";
 
 type MarqueeSkill = { name: string; iconPath: string };
@@ -49,7 +49,19 @@ export function SkillsMarquee({
       { rootMargin: `0px 0px -${inset}px 0px` },
     );
     observer.observe(node);
+    // The strip can come to rest on screen yet inside the wait band at the bottom, which the
+    // observer does not count as in view: a menu jump to Skills or a slow scroll that stops there
+    // would leave it empty until the next nudge. Whenever the page stops, if any of it shows, play.
+    const showIfOnScreen = () => {
+      if (gate.passing()) return;
+      const rect = node.getBoundingClientRect();
+      if (rect.height > 0 && rect.top < window.innerHeight && rect.bottom > 0) show();
+    };
+    const stopLanding = subscribeSectionNavigationComplete(showIfOnScreen);
+    window.addEventListener("scrollend", showIfOnScreen);
     return () => {
+      stopLanding();
+      window.removeEventListener("scrollend", showIfOnScreen);
       gate.dispose();
       observer.disconnect();
       // A cancelled observer must never leave the strip hidden.

@@ -10,7 +10,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function setup() {
+function setup({ inSection = false } = {}) {
   installMatchMedia();
   const observer = {
     notify: undefined as unknown as IntersectionObserverCallback,
@@ -28,10 +28,12 @@ function setup() {
       disconnect = observer.disconnect;
     },
   );
-  const view = render(
-    <SkillsMarquee skills={[{ name: "React", iconPath: "/skills/react.svg" }]} loadIcons />,
+  const marquee = (
+    <SkillsMarquee skills={[{ name: "React", iconPath: "/skills/react.svg" }]} loadIcons />
   );
-  const strip = view.container.firstElementChild as HTMLElement;
+  const view = render(inSection ? <section>{marquee}</section> : marquee);
+  const section = view.container.firstElementChild as HTMLElement;
+  const strip = (inSection ? section.firstElementChild : section) as HTMLElement;
   const emit = (isIntersecting: boolean) =>
     act(() =>
       observer.notify(
@@ -39,7 +41,7 @@ function setup() {
         {} as IntersectionObserver,
       ),
     );
-  return { ...view, observer, strip, emit };
+  return { ...view, observer, strip, section, emit };
 }
 
 describe("SkillsMarquee entrance", () => {
@@ -56,6 +58,36 @@ describe("SkillsMarquee entrance", () => {
     expect(observer.disconnect).toHaveBeenCalledOnce();
     unmount();
     expect(strip.dataset.entrance).toBe("visible");
+  });
+
+  it("plays when a jump lands with it on screen but inside the wait band", () => {
+    vi.stubGlobal("innerHeight", 600);
+    const { strip, section } = setup({ inSection: true });
+    vi.spyOn(strip, "getBoundingClientRect").mockReturnValue({
+      top: 530,
+      bottom: 570,
+      height: 40,
+    } as DOMRect);
+    // 530px is below the observed area (it stops at 600 minus the inset), so the observer is quiet.
+    expect(strip.dataset.entrance).toBe("armed");
+    const finish = beginSectionNavigation(section);
+    expect(strip.dataset.entrance).toBe("armed");
+    act(() => finish(true));
+    expect(strip.dataset.entrance).toBe("visible");
+  });
+
+  it("stays hidden when the page stops with it below the screen", () => {
+    vi.stubGlobal("innerHeight", 600);
+    const { strip } = setup();
+    vi.spyOn(strip, "getBoundingClientRect").mockReturnValue({
+      top: 640,
+      bottom: 680,
+      height: 40,
+    } as DOMRect);
+    act(() => {
+      window.dispatchEvent(new Event("scrollend"));
+    });
+    expect(strip.dataset.entrance).toBe("armed");
   });
 
   it("does not spend its entrance on a section jump that only passes through", () => {

@@ -12,11 +12,13 @@ import { sectionTravelSkips, subscribeSectionNavigationComplete } from "@/lib/se
 const PARTS: Record<string, [number, number]> = {
   title: [0.08, 0.32],
   subtitle: [0.12, 0.36],
-  line: [0.16, 0.42],
-  sparkle: [0.18, 0.42],
-  logo: [0.18, 0.52],
-  explore: [0.24, 0.6],
-  legal: [0.28, 0.64],
+  // The parts below start a little later than they once did, so each one arrives after the
+  // headline has had a moment to land.
+  line: [0.21, 0.47],
+  sparkle: [0.23, 0.47],
+  logo: [0.23, 0.57],
+  explore: [0.29, 0.65],
+  legal: [0.33, 0.69],
   bar: [0.42, 0.82],
 };
 

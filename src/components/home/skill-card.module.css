@@ -86,3 +86,35 @@
     margin-top: 8px;
   }
 }
+
+/* Short phones: trim each card so the rows, and the icon strip under them, stay on screen. The same
+   trims as the short Fold above, a little firmer on a sideways phone where height is scarcest. */
+@media (max-width: 767px) and (orientation: portrait) and (max-height: 780px) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  .card {
+    padding-block: 8px;
+  }
+
+  .card > span:first-child > span:first-child {
+    width: 30px;
+    height: 30px;
+  }
+
+  .card > span:nth-child(2) {
+    margin-top: 6px;
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+  .card {
+    padding-block: 6px;
+  }
+
+  .card > span:first-child > span:first-child {
+    width: 24px;
+    height: 24px;
+  }
+
+  .card > span:nth-child(2) {
+    margin-top: 3px;
+  }
+}
