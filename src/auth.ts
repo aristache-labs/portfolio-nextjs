@@ -29,6 +29,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const login = (profile as { login?: string } | undefined)?.login;
       return isAllowedLogin(login, process.env.ADMIN_GITHUB_LOGIN);
     },
+    // Keep the GitHub login on the token and the session, so server code can check it against the
+    // admin login again instead of trusting that any session is the admin's.
+    async jwt({ token, profile }) {
+      const login = (profile as { login?: string } | undefined)?.login;
+      if (login) token.login = login;
+      return token;
+    },
+    async session({ session, token }) {
+      session.user.login = token.login;
+      return session;
+    },
   },
   pages: { signIn: "/login" },
 });

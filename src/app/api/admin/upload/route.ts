@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { isAdminSession } from "@/lib/auth-callbacks";
 import {
   BLOB_FOLDERS,
   MAX_BYTES,
@@ -25,7 +26,7 @@ const ALLOWED_FOLDERS = new Set<BlobFolder>([
  */
 export async function POST(req: NextRequest) {
   const session = await auth();
-  if (!session?.user) {
+  if (!isAdminSession(session, process.env.ADMIN_GITHUB_LOGIN)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
