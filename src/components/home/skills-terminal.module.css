@@ -175,8 +175,7 @@
 }
 
 /* Phones, portrait and landscape: a tighter card so it takes less height. */
-@media (max-width: 639px),
-  (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+@media (max-width: 639px), (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
   .screen {
     line-height: 1.55;
   }

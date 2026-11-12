@@ -409,8 +409,7 @@ export function Footer({
               variants={itemVariants}
               className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right [@media(orientation:landscape)_and_(max-width:1024px)]:order-none [@media(orientation:landscape)_and_(max-width:1024px)]:text-right [@media(orientation:landscape)_and_(max-width:740px)]:hidden"
             >
-              DESIGNED &amp; BUILT WITH{" "}
-              <span className="sr-only">CARE</span>
+              DESIGNED &amp; BUILT WITH <span className="sr-only">CARE</span>
               <span aria-hidden className={wordsCss.words}>
                 <span>CARE</span>
                 <span>LOVE</span>
