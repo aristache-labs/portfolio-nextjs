@@ -105,6 +105,7 @@ export default async function Home() {
         />
       )}
 
+      {show("projects") && <Projects projects={projects} number={numbers.projects} />}
       {show("skills") && <Skills skills={skills} number={numbers.skills} />}
 
       {show("experience") && (
@@ -114,8 +115,6 @@ export default async function Home() {
           resumeUrl={profile.resumeUrl || null}
         />
       )}
-
-      {show("projects") && <Projects projects={projects} number={numbers.projects} />}
 
       {show("services") && <Services services={services} number={numbers.services} />}
 

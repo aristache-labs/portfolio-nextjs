@@ -23,9 +23,9 @@ const SNAP_MIN_DISTANCE = 2;
 /** Sections in page order. The hero (top of the page) and the footer never pull. */
 export const SNAP_SECTION_IDS = [
   "about",
+  "projects",
   "skills",
   "experience",
-  "projects",
   "services",
   "contact",
 ] as const;

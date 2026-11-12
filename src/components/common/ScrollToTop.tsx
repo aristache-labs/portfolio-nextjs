@@ -14,7 +14,7 @@ import styles from "./scroll-to-top.module.css";
 const MIN_THRESHOLD = 400;
 /** Length of the Puff Out keyframes in scroll-to-top.module.css. */
 const PUFF_OUT_MS = 600;
-const CONTENT_SECTIONS = ["about", "skills", "experience", "projects", "contact"];
+const CONTENT_SECTIONS = ["about", "projects", "skills", "experience", "services", "contact"];
 
 /**
  * On the homepage the button appears at About, or the first visible section after Hero.
