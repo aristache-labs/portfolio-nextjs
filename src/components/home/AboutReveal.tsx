@@ -9,7 +9,7 @@ import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 
 /** Same wait as the other phone reveals: the block starts once it is properly on screen. */
-const DEFAULT_ROOT_MARGIN = `0px 0px -${MOBILE_REVEAL_DEPTH * 100}% 0px`;
+const DEFAULT_ROOT_MARGIN = `0px 0px -${Math.round(MOBILE_REVEAL_DEPTH * 100)}% 0px`;
 
 /**
  * Marks its box `data-reveal="armed"` until it scrolls into view, then `"play"`, so CSS can
