@@ -34,8 +34,10 @@ export function SkillsMarquee({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry) return;
-        node.dataset.entrance =
-          entry.isIntersecting && entry.intersectionRatio >= 0.5 ? "visible" : "armed";
+        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
+        node.dataset.entrance = visible ? "visible" : "armed";
+        // Its entrance plays once, on the first visit. Scrolling past again must not replay it.
+        if (visible) observer.disconnect();
       },
       { threshold: [0, 0.5] },
     );

@@ -6,6 +6,7 @@ import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { RevealSequence } from "./RevealSequence";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { createTravelGate } from "@/lib/section-navigation";
+import { REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
 
 /** Preserve the supplied grouping, precision, prefix and suffix. */
 export function countFormat(value: string) {
@@ -114,7 +115,7 @@ export function SpringCount({ value }: { value: string }) {
           }
           start(0.3);
         },
-        { rootMargin: `0px 0px -${Math.min(120, Math.round(window.innerHeight * 0.15))}px 0px` },
+        { rootMargin: `0px 0px -${revealInset(REVEAL_DEPTH)}px 0px` },
       );
       observer.observe(node);
       window.addEventListener("scrollend", onScrollEnd);

@@ -177,7 +177,7 @@ describe("ProgressiveReveal", () => {
     [1440, 900, true],
     [390, 844, false],
     [844, 390, false],
-  ])("keeps counting after an anchor jump at %sx%s", (width, height, desktop) => {
+  ])("keeps counting after an anchor jump at %sx%s", async (width, height, desktop) => {
     vi.stubGlobal("innerWidth", width);
     vi.stubGlobal("innerHeight", height);
     matches[EXPRESSIVE_MOTION_QUERY] = desktop;
@@ -190,11 +190,28 @@ describe("ProgressiveReveal", () => {
       top: height - 80,
       bottom: height + 40,
     } as DOMRect);
-    act(() => window.dispatchEvent(new Event("scrollend")));
+    // Resting in the wait band, the panel plays its entrance and the count follows its end.
+    await act(async () => {
+      window.dispatchEvent(new Event("scrollend"));
+    });
     expect(count.animate).toHaveBeenCalledTimes(1);
     expect(count.animate).toHaveBeenCalledWith(0, 60, expect.objectContaining({ type: "spring" }));
     act(() => window.dispatchEvent(new Event("scrollend")));
     expect(count.animate).toHaveBeenCalledTimes(1);
+  });
+
+  it("plays an element resting inside the wait band instead of popping it in", () => {
+    const { container } = render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
+    // 100px into a 768px screen: past the bottom edge but short of the 215px the entrance waits for.
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+      top: window.innerHeight - 100,
+      bottom: window.innerHeight + 100,
+    } as DOMRect);
+    controls.set.mockClear();
+    act(() => window.dispatchEvent(new Event("scrollend")));
+    expect(controls.start).toHaveBeenCalledTimes(1);
+    expect(controls.set).not.toHaveBeenCalledWith({ opacity: 1, x: 0, y: 0 });
+    expect(container.firstElementChild).not.toBeNull();
   });
 
   it("counts an already visible panel on mount when enabled", () => {
@@ -427,8 +444,9 @@ describe("ProgressiveReveal", () => {
 
   it("waits beyond the screen edge before starting the entrance", () => {
     const { container } = render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
+    // The entrance waits until the element is well into the screen (28% of its height).
     expect(observerOptions).toHaveBeenCalledWith({
-      rootMargin: `0px 0px -${Math.min(120, Math.round(window.innerHeight * 0.15))}px 0px`,
+      rootMargin: `0px 0px -${Math.round(window.innerHeight * 0.28)}px 0px`,
     });
     intersect(container.firstElementChild!, window.innerHeight - 10, false);
     expect(controls.start).not.toHaveBeenCalled();

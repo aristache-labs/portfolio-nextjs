@@ -2,6 +2,7 @@
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { createTravelGate, sectionNavigationPending } from "@/lib/section-navigation";
+import { MOBILE_REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
 import { settleWhenDone } from "@/lib/settle-animations";
 
 import { useLayoutEffect, useRef, type CSSProperties, type RefObject } from "react";
@@ -99,7 +100,8 @@ export function ProjectsArrival({
       node.dataset.projectReveal = "static";
       observer.disconnect();
     };
-    const gate = createTravelGate(node, reveal, 24);
+    const inset = revealInset(MOBILE_REVEAL_DEPTH);
+    const gate = createTravelGate(node, reveal, inset);
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (sectionNavigationPending(node) || gate.passing()) return;
@@ -109,7 +111,7 @@ export function ProjectsArrival({
         )
           reveal();
       },
-      { rootMargin: "0px 0px -24px 0px", threshold: 0.08 },
+      { rootMargin: `0px 0px -${inset}px 0px`, threshold: 0.08 },
     );
     observer.observe(node);
     node.addEventListener("focusin", focus);
