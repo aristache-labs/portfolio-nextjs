@@ -1,0 +1,68 @@
+"use client";
+
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { Quote } from "lucide-react";
+import responsiveCss from "./skills-responsive.module.css";
+import quoteCss from "./skills-quote.module.css";
+import terminalCss from "./skills-terminal.module.css";
+
+const printAt = (seconds: number) => ({ "--t": `${seconds}s` }) as CSSProperties;
+
+/** Terminal prompt card. The typing starts once, when the card first scrolls into view. */
+export function SkillsTerminalQuote() {
+  const ref = useRef<HTMLQuoteElement>(null);
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setLive(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setLive(true);
+        observer.disconnect();
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <blockquote
+      ref={ref}
+      data-live={live ? "" : undefined}
+      className={`${responsiveCss.quote} ${quoteCss.glass} ${terminalCss.terminal}`}
+    >
+      <div className={terminalCss.frame}>
+        <div className={terminalCss.screen}>
+          <div aria-hidden className={terminalCss.bar}>
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className={terminalCss.body}>
+            <span className={`${terminalCss.line} ${terminalCss.command}`}>
+              <span className={terminalCss.typed}>npm create quote</span>
+              <span aria-hidden className={terminalCss.caret} />
+            </span>
+            <span className={`${terminalCss.line} ${terminalCss.out}`} style={printAt(2.3)}>
+              Tools evolve.
+            </span>
+            <span className={`${terminalCss.line} ${terminalCss.out}`} style={printAt(2.8)}>
+              Problem-solving endures.
+            </span>
+            <span aria-hidden className={`${terminalCss.line} ${terminalCss.prompt}`}>
+              <span className={terminalCss.caret} />
+            </span>
+          </div>
+        </div>
+      </div>
+      <Quote aria-hidden className={terminalCss.icon} />
+    </blockquote>
+  );
+}

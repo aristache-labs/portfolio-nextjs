@@ -1,0 +1,195 @@
+/* Terminal-style quote card. The container query keeps the longest line inside the card at every
+   width the responsive sheet gives the quote anchor, so no breakpoint overrides are needed for
+   the type size. The blockquote itself is only a positioning shell: the visible card is .frame,
+   so the quote icon can sit on its border without being clipped. */
+.terminal.terminal.terminal {
+  position: relative;
+  container-type: inline-size;
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.frame {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--brand-mid) 38%, #30363d);
+  border-radius: 12px;
+  background: #0d1117;
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-mid-rgb) / 0.08),
+    0 12px 32px -12px rgb(0 0 0 / 0.5);
+}
+
+.screen {
+  --term-teal: var(--brand-mid);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: clamp(7px, 5.8cqw, 13px);
+  font-weight: 500;
+  line-height: 1.6;
+  text-align: left;
+  color: #e6edf3;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.6em 1.5em;
+  background: #161b22;
+}
+
+.bar i {
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+
+.bar i:nth-child(2) {
+  background: #febc2e;
+}
+
+.bar i:nth-child(3) {
+  background: #28c840;
+}
+
+/* Straddles the top border, near the top-left corner. */
+.icon {
+  position: absolute;
+  top: 1px;
+  left: clamp(1px, 6cqw, 2px);
+  box-sizing: content-box;
+  width: clamp(12px, 7cqw, 18px);
+  height: clamp(12px, 7cqw, 18px);
+  padding: 0 2px;
+  transform: translateY(-50%);
+  color: var(--brand-mid);
+  fill: var(--brand-mid);
+}
+
+.body {
+  padding: 0.7em 0.8em 0.85em;
+}
+
+.line {
+  display: block;
+  min-height: 1.6em;
+  white-space: nowrap;
+}
+
+.command::before,
+.prompt::before {
+  content: "$ ";
+  color: var(--term-teal);
+}
+
+.typed {
+  display: inline-block;
+  vertical-align: top;
+  overflow: hidden;
+  width: 0;
+  font-weight: 700;
+  animation: term-type 1.4s steps(16) 0.7s forwards;
+}
+
+.out {
+  opacity: 0;
+  color: #8b949e;
+  animation: term-show 0s var(--t) forwards;
+}
+
+.prompt {
+  opacity: 0;
+  animation: term-show 0s 3.4s forwards;
+}
+
+.caret {
+  display: inline-block;
+  vertical-align: top;
+  width: 1ch;
+  height: 1.25em;
+  margin-top: 0.18em;
+  background: var(--term-teal);
+}
+
+/* Blinks while typing, then hands over to the final prompt. */
+.command .caret {
+  animation:
+    term-blink 1s step-end infinite,
+    term-show-reverse 0s 2.1s forwards;
+}
+
+.prompt .caret {
+  animation: term-blink 1s step-end infinite;
+}
+
+/* Nothing starts until the card scrolls into view. */
+.terminal:not([data-live]) :is(.typed, .out, .prompt, .caret) {
+  animation-play-state: paused;
+}
+
+/* 99.9% as well as 100%: a stepped animation squeezed to near-zero length can stop one step short. */
+@keyframes term-type {
+  99.9%,
+  to {
+    width: 16ch;
+  }
+}
+
+@keyframes term-show {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes term-show-reverse {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes term-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typed,
+  .out,
+  .prompt,
+  .caret {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .command .caret {
+    opacity: 0;
+  }
+}
+
+/* Phones, portrait and landscape: a tighter card so it takes less height. */
+@media (max-width: 639px),
+  (orientation: landscape) and (pointer: coarse) and (max-height: 500px) {
+  .screen {
+    line-height: 1.55;
+  }
+
+  .bar {
+    padding-block: 0.4em;
+  }
+
+  .body {
+    padding-block: 0.45em 0.55em;
+  }
+
+  .line {
+    min-height: 1.35em;
+  }
+}

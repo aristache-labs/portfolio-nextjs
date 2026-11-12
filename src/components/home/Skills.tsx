@@ -6,7 +6,7 @@ import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
-import { Quote } from "lucide-react";
+import { SkillsTerminalQuote } from "./SkillsTerminalQuote";
 import { SkillCard, skillPercent } from "./SkillCard";
 import { SkillEntrance, SolidSkillEntrance } from "./SkillEntrance";
 import { SkillsMarquee } from "./SkillsMarquee";
@@ -17,7 +17,6 @@ import responsiveCss from "./skills-responsive.module.css";
 import labelCss from "@/components/ui/section-label.module.css";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
-import quoteCss from "./skills-quote.module.css";
 import { SKILLS_MOBILE_LANDSCAPE, SKILLS_MOBILE_PORTRAIT } from "./SkillsMobileReveal";
 
 export type SkillRow = {
@@ -261,15 +260,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   duration={1.3}
                   delay={0.4}
                 >
-                  <blockquote className={`${responsiveCss.quote} ${quoteCss.glass}`}>
-                    <Quote aria-hidden className={responsiveCss.quoteIcon} />
-                    <p>
-                      Tools evolve.
-                      <br />
-                      Problem-solving endures.
-                    </p>
-                    <span aria-hidden className={responsiveCss.quoteAccent} />
-                  </blockquote>
+                  <SkillsTerminalQuote />
                 </SkillsReveal>
               </aside>
               <SkillsReveal

@@ -329,3 +329,31 @@ body {
     animation: none;
   }
 }
+
+/* Landscape touch: sections off screen are not rendered, so a fast scroll through the whole page
+   cannot pile up layers. SectionRenderBudget sets each section's placeholder height first. */
+html[data-render-budget] main section[id],
+html[data-render-budget] footer {
+  content-visibility: auto;
+}
+html[data-render-budget] #hero {
+  contain-intrinsic-size: auto var(--render-budget-hero, 100svh);
+}
+html[data-render-budget] #about {
+  contain-intrinsic-size: auto var(--render-budget-about, 100svh);
+}
+html[data-render-budget] #skills {
+  contain-intrinsic-size: auto var(--render-budget-skills, 100svh);
+}
+html[data-render-budget] #experience {
+  contain-intrinsic-size: auto var(--render-budget-experience, 100svh);
+}
+html[data-render-budget] #projects {
+  contain-intrinsic-size: auto var(--render-budget-projects, 100svh);
+}
+html[data-render-budget] #contact {
+  contain-intrinsic-size: auto var(--render-budget-contact, 100svh);
+}
+html[data-render-budget] footer {
+  contain-intrinsic-size: auto var(--render-budget-footer, 100svh);
+}

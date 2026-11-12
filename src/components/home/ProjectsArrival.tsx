@@ -2,6 +2,7 @@
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { sectionNavigationPending } from "@/lib/section-navigation";
+import { settleWhenDone } from "@/lib/settle-animations";
 
 import { useLayoutEffect, useRef, type CSSProperties, type RefObject } from "react";
 import { m } from "framer-motion";
@@ -85,9 +86,14 @@ export function ProjectsArrival({
     )
       return;
     node.dataset.projectReveal = "armed";
+    let stopSettling = () => {};
     const reveal = () => {
       node.dataset.projectReveal = "play";
       observer.disconnect();
+      // Hand the finished card back to plain styles so it stops holding a compositor layer.
+      stopSettling = settleWhenDone(node, () => {
+        if (node.dataset.projectReveal === "play") node.dataset.projectReveal = "static";
+      });
     };
     const focus = () => {
       node.dataset.projectReveal = "static";
@@ -103,6 +109,7 @@ export function ProjectsArrival({
     observer.observe(node);
     node.addEventListener("focusin", focus);
     return () => {
+      stopSettling();
       observer.disconnect();
       node.removeEventListener("focusin", focus);
       delete node.dataset.projectReveal;

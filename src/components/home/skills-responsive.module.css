@@ -139,7 +139,7 @@
 
 .quoteAnchor {
   position: absolute;
-  top: 0;
+  top: 0px;
   right: 0;
   width: var(--skills-quote-width);
   min-width: 0;
@@ -303,7 +303,8 @@
   .quoteAnchor {
     position: absolute;
     right: 0;
-    width: 184px;
+    width: 174px; 
+    top: 0px;
   }
 
   .sectionLabel {
@@ -328,6 +329,7 @@
 
   .quoteAnchor {
     width: 156px;
+    top: -10px;
   }
 
   .sectionLabel {
