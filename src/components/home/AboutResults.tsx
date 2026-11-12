@@ -23,7 +23,7 @@ export function AboutResults({ children, className }: { children: ReactNode; cla
   const shortFold = useMediaQuery(SHORT_FOLD_QUERY);
   return (
     <ProgressiveReveal
-      effect="zoom"
+      effect="scale-up-bottom"
       fade={!opaque}
       className={className}
       countOnJump

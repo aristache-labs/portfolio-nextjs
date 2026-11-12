@@ -33,6 +33,10 @@
         for (var j = 0; j < nodes.length; j++) scan(nodes[j]);
       }
     }).observe(document.documentElement, { childList: true, subtree: true });
+    // The observer only sees what is added after this point. Next renders its chunk scripts, and
+    // their preload links, in <head> ahead of this gate, so they are already in the document and
+    // would never get a source: nothing would load and the page would not hydrate.
+    scan(document.documentElement);
     if (!portrait) return;
     function finished(entry) {
       return entry.name.indexOf("/media/hero-portrait.webp") !== -1 && entry.responseEnd > 0;
