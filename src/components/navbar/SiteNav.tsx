@@ -28,6 +28,7 @@ import { NavChapterRail } from "./NavChapterRail";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
 import { scrollToSection } from "@/lib/scroll-to-section";
+import { PORTRAIT_PHONE_QUERY } from "@/lib/motion-queries";
 import navStyles from "./nav-landscape.module.css";
 import panelStyles from "./nav-panel.module.css";
 import chromeStyles from "./nav-chrome.module.css";
@@ -125,6 +126,7 @@ export function SiteNav({
   // Framer Motion measures the height auto -> 0 exit with window.scrollTo(0, 0), which cancels
   // any scroll already in flight, so a scroll started on click never gets anywhere on a phone.
   const pendingId = useRef<string | null>(null);
+  const [fadeMenuExit, setFadeMenuExit] = useState(false);
   const goToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
       return;
@@ -136,8 +138,13 @@ export function SiteNav({
     if (target) {
       event.preventDefault();
       stopAnchorScroll.current?.();
-      if (open) pendingId.current = id;
-      else stopAnchorScroll.current = scrollToSection(id, reduce);
+      if (open) {
+        pendingId.current = id;
+        const pair =
+          (active === "about" && id === "projects") || (active === "projects" && id === "about");
+        // On portrait phones, measuring the height exit can pin the scroll at the source.
+        setFadeMenuExit(pair && window.matchMedia(PORTRAIT_PHONE_QUERY).matches);
+      } else stopAnchorScroll.current = scrollToSection(id, reduce);
     }
     setOpen(false);
   };
@@ -362,7 +369,10 @@ export function SiteNav({
           <button
             ref={menuButtonRef}
             type="button"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => {
+              setFadeMenuExit(false);
+              setOpen((v) => !v);
+            }}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-navigation"
@@ -372,13 +382,17 @@ export function SiteNav({
           </button>
         </nav>
 
-        <AnimatePresence onExitComplete={scrollToPending}>
+        <AnimatePresence custom={fadeMenuExit} onExitComplete={scrollToPending}>
           {open && (
             <m.div
               id="mobile-navigation"
               initial={reduce ? false : { height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
-              exit={reduce ? undefined : { height: 0, opacity: 0 }}
+              variants={{
+                close: (fadeOnly: boolean) =>
+                  fadeOnly ? { opacity: 0 } : { height: 0, opacity: 0 },
+              }}
+              exit={reduce ? undefined : "close"}
               transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
               className={`${navStyles.panel} ${panelStyles.panel} border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden`}
             >

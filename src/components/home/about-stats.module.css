@@ -516,11 +516,11 @@
   }
 
   .copy button {
-    margin-top: 6px;
-    min-height: 44px;
-    padding: 3px 10px;
-    font-size: 12px;
-    gap: 4px;
+    margin-top: 0px;
+    min-height: 34px;
+    padding: 3px 12px;
+    font-size: 10px;
+    gap: 2px;
   }
 
   .copy button svg {
@@ -544,7 +544,7 @@
   .results {
     grid-column: 1 / -1;
     grid-row: 4;
-    margin-top: 8px;
+    margin-top: 15px;
   }
 }
 

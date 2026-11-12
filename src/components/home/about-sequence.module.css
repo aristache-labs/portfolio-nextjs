@@ -127,7 +127,7 @@
   .details {
     grid-column: 1;
     grid-row: 3;
-    padding-top: 10px;
+    padding-top: 4px;
     padding-bottom: 0;
     border-top: 0;
   }

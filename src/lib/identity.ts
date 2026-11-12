@@ -4,9 +4,9 @@ const deploymentLocations = "1,600+";
 
 /** Hero copy used until the admin saves their own in Profile. */
 export const HERO_DEFAULTS = {
-  headline: "Infrastructure meets innovation.",
+  headline: "Enterprise IT, PowerShell automation, and app development.",
   summary:
-    "My experience spans enterprise IT, PowerShell automation and script security. In my spare time, I build web and mobile applications.",
+    "I deploy and maintain enterprise systems, automate repetitive tasks with PowerShell, and help secure the scripts teams rely on. I also build web and mobile applications.",
 } as const;
 
 export const IDENTITY = {
@@ -23,5 +23,6 @@ export const IDENTITY = {
   teamSize: "5",
   experienceYears: "8+",
   headline: "IT expertise. Web & mobile development.",
-  summary: HERO_DEFAULTS.summary,
+  summary:
+    "My experience spans enterprise IT, PowerShell automation and script security. In my spare time, I build web and mobile applications.",
 } as const;
