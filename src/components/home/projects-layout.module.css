@@ -52,6 +52,14 @@
 }
 
 /* Ultra landscape retains desktop rows and scroll scenes at a larger reading scale. */
+/* Desktop: a slightly wider, shorter cover, so the whole first featured card fits under the
+   heading without squeezing the heading's spacing. Later, more specific rules still win. */
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
+  .featuredImage {
+    aspect-ratio: 2 / 1;
+  }
+}
+
 @media (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) {
   .section > [data-scroll-anchor] {
     --section-heading-scale: 1.2;
@@ -471,7 +479,15 @@
 
   /* Same bottom margin as the subtitle (mb-10), so the card lines up with its last line. */
   .head > :nth-child(2) {
-    margin-bottom: 2.5rem;
+    margin-bottom: 0rem;
+  }
+}
+
+/* Desktop: a tighter top, so the first featured card fits on screen. The card keeps lining up
+   with the subtitle's smaller bottom margin (lg:mb-6). */
+@media (min-width: 1024px) {
+  .head > :nth-child(2) {
+    margin-bottom: 0rem;
   }
 }
 
@@ -658,5 +674,24 @@
 
   .headingDescription.headingDescription {
     font-size: 1.0625rem;
+  }
+}
+
+/* Phones held sideways: the heading block, the Building now card and the group headings took more
+   than half of the screen, so the first card was barely in view. The text stays the same size
+   and the taps stay as large; only the space between the blocks is tightened. */
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+  .headingRow {
+    margin-bottom: 4px;
+  }
+
+  .headingDescription {
+    max-width: none;
+    margin-bottom: 12px;
+  }
+
+  .groupTitle {
+    margin-bottom: 8px;
+    padding-block: 0;
   }
 }

@@ -48,7 +48,7 @@ export function Projects({
         </div>
       </div>
       <p
-        className={`${layoutCss.headingDescription} ${subtitleCss.subtitle} mb-10 max-w-2xl text-pretty`}
+        className={`${layoutCss.headingDescription} ${subtitleCss.subtitle} mb-10 max-w-2xl text-pretty lg:mb-6`}
       >
         Web and mobile applications, infrastructure projects and automation tools.
       </p>
@@ -60,7 +60,7 @@ export function Projects({
       id="projects"
       // overflow-clip, not hidden: hidden makes the section a scroll container, which stops the
       // featured cards from sticking to the page.
-      className={`${layoutCss.section} ${spacing.projects} ${motionCss.section} scroll-mt-[80px] overflow-clip pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12`}
+      className={`${layoutCss.section} ${spacing.projects} ${motionCss.section} scroll-mt-[80px] overflow-clip pt-2 pb-6 md:scroll-mt-4 md:pt-28 md:pb-12 lg:pt-16`}
       backdrop={
         <>
           <SectionBackdrop

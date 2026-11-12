@@ -220,3 +220,11 @@
     font-size: 11px;
   }
 }
+
+/* Phones held sideways: a slimmer card, so it does not stand taller than the heading beside it. */
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+  .card {
+    gap: 4px 10px;
+    padding: 8px 12px;
+  }
+}
