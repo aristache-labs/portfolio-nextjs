@@ -49,6 +49,11 @@ const nextConfig = {
   reactStrictMode: true,
   devIndicators: false,
   // LAN device hitting the dev server (HMR /_next/webpack-hmr). Dev-only.
+  // Vercel builds run their own adapter inside `next build`; wrap it so the home page HTML still
+  // gets its portrait script deferral (see scripts/portrait-adapter.mjs). Local builds skip this.
+  adapterPath: process.env.NEXT_ADAPTER_PATH
+    ? require.resolve("./scripts/portrait-adapter.mjs")
+    : undefined,
   allowedDevOrigins: ["192.168.1.103"],
   // sharp is a native addon used server-side (avatar and project image
   // optimization in src/lib/blob.ts). Mark it external so Next loads it via a
