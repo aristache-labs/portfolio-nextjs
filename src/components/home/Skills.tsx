@@ -14,7 +14,7 @@ import { SkillSlot, SkillsScene } from "./SkillsSequence";
 import { SkillsGridReveal, SkillsReveal } from "./SkillsReveal";
 import { SectionBackdrop, TABLET_LANDSCAPE_QUERY } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
-import labelCss from "@/components/ui/section-label.module.css";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
 import { SKILLS_MOBILE_LANDSCAPE, SKILLS_MOBILE_PORTRAIT } from "./SkillsMobileReveal";
@@ -239,14 +239,13 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                 delay={0.4}
                 className={responsiveCss.title}
               >
-                <div
-                  className={`${labelCss.label} ${responsiveCss.sectionLabel} ${headingCss.label}`}
+                <SectionLabel
+                  as="div"
+                  number={number}
+                  name="Skills"
+                  className={`${responsiveCss.sectionLabel} ${headingCss.label}`}
                   data-scroll-anchor
-                >
-                  <span className={labelCss.number}>{number}</span>
-                  <span>Skills</span>
-                  <span aria-hidden className={labelCss.rule} />
-                </div>
+                />
 
                 <h2 className={headingCss.title}>
                   Tools I <span className={headingCss.accent}>trust</span>

@@ -9,7 +9,7 @@ import { AboutPortraitMotion } from "./AboutPortraitMotion";
 import { AboutIntroduction } from "./AboutIntroduction";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
-import labelCss from "@/components/ui/section-label.module.css";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import statsCss from "./about-stats.module.css";
 import { AboutBio } from "./AboutBio";
 import { SITE } from "@/lib/seo/site";
@@ -126,11 +126,11 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
         <div className={statsCss.biography} data-portrait={Boolean(profile.avatarUrl)}>
           <AboutReveal className={statsCss.heading} pinnedRootMargin="0px">
             <div>
-              <p className={`${labelCss.label} ${statsCss.headingLabel} ${headingCss.label}`}>
-                <span className={labelCss.number}>{number}</span>
-                <span>About</span>
-                <span aria-hidden className={`${labelCss.rule} ${statsCss.rule}`} />
-              </p>
+              <SectionLabel
+                number={number}
+                name="About"
+                className={`${statsCss.headingLabel} ${headingCss.label}`}
+              />
               <h2 className={headingCss.title}>
                 <span className={statsCss.word} style={{ "--i": 0 } as CSSProperties}>
                   Behind

@@ -1,8 +1,11 @@
 /* Terminal-style quote card. The container query keeps the longest line inside the card at every
    width the responsive sheet gives the quote anchor, so no breakpoint overrides are needed for
    the type size. The blockquote itself is only a positioning shell: the visible card is .frame,
-   so the quote icon can sit on its border without being clipped. */
+   so the quote icons can sit on its border without being clipped. */
 .terminal.terminal.terminal {
+  --quote-icon-size: clamp(12px, 7cqw, 18px);
+  --quote-icon-inset: clamp(1px, 6cqw, 2px);
+  --quote-icon-padding: 2px;
   position: relative;
   container-type: inline-size;
   overflow: visible;
@@ -40,6 +43,9 @@
   align-items: center;
   gap: 0.45em;
   padding: 0.6em 1.5em;
+  padding-left: calc(
+    var(--quote-icon-inset) + var(--quote-icon-size) + 2 * var(--quote-icon-padding) + 0.65em
+  );
   background: #161b22;
 }
 
@@ -58,18 +64,27 @@
   background: #28c840;
 }
 
-/* Straddles the top border, near the top-left corner. */
 .icon {
   position: absolute;
-  top: 1px;
-  left: clamp(1px, 6cqw, 2px);
   box-sizing: content-box;
-  width: clamp(12px, 7cqw, 18px);
-  height: clamp(12px, 7cqw, 18px);
-  padding: 0 2px;
-  transform: translateY(-50%);
+  width: var(--quote-icon-size);
+  height: var(--quote-icon-size);
+  padding: 0 var(--quote-icon-padding);
+  pointer-events: none;
   color: var(--brand-mid);
   fill: var(--brand-mid);
+}
+
+.openingIcon {
+  top: 1px;
+  left: var(--quote-icon-inset);
+  transform: translateY(-50%);
+}
+
+.closingIcon {
+  right: var(--quote-icon-inset);
+  bottom: 1px;
+  transform: translateY(50%) rotate(180deg);
 }
 
 .body {

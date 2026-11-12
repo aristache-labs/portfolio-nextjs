@@ -3,7 +3,7 @@ import { ProjectsArrival } from "./ProjectsArrival";
 import motionCss from "./project-motion.module.css";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Section } from "@/components/ui/Section";
-import labelCss from "@/components/ui/section-label.module.css";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
 import { ProjectCoverGate } from "./ProjectCoverGate";
 import { ProjectsBrowser } from "./ProjectsBrowser";
@@ -34,11 +34,7 @@ export function Projects({
       >
         {/* Same scale and weight as the About, Skills and Experience headings. */}
         <div className={layoutCss.headingText}>
-          <p className={`${labelCss.label} ${headingCss.label}`}>
-            <span className={labelCss.number}>{number}</span>
-            <span>Projects</span>
-            <span aria-hidden className={labelCss.rule} />
-          </p>
+          <SectionLabel number={number} name="Projects" className={headingCss.label} />
           <h2 className={headingCss.title}>
             Selected{" "}
             <span className={headingCss.accent}>

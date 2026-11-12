@@ -68,7 +68,8 @@ export function SkillsTerminalQuote() {
           </div>
         </div>
       </div>
-      <Quote aria-hidden className={terminalCss.icon} />
+      <Quote aria-hidden className={`${terminalCss.icon} ${terminalCss.openingIcon}`} />
+      <Quote aria-hidden className={`${terminalCss.icon} ${terminalCss.closingIcon}`} />
     </blockquote>
   );
 }

@@ -1,13 +1,16 @@
 .label.label {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-  color: var(--muted);
+  margin-bottom: 24px;
+  --beam-duration: 1100ms;
+  /* A light teal-tinted white: the word stands out from the muted rule without competing with the number. */
+  color: color-mix(in srgb, var(--brand-bright) 45%, var(--foreground));
   font-family: var(--font-geist-mono), monospace;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 16px;
+  line-height: 18px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
 }
@@ -17,9 +20,114 @@
   font-weight: 600;
 }
 
+/* The separator runs under the label, from its first letter to the end of the column, in the gap
+   above the title. The entrance beam draws it, and it stays as the separator. */
 .rule {
-  flex: 1;
-  min-width: 0;
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  left: 0;
   height: 1px;
   background: var(--border-color);
+}
+
+.beam {
+  display: none;
+}
+
+@media (max-width: 767px), (pointer: coarse) and (max-height: 500px) {
+  .label.label {
+    --beam-duration: 850ms;
+  }
+}
+
+/* One entrance for every section label, played once by SectionLabel (data-beam: armed, play,
+   done). A laser runs under the label from its first letter to the end of the separator. The
+   letters it passes light up (a bright copy revealed from the left), the line it leaves behind is
+   the separator, and the glow cools down once it reaches the end. All of it spans the same width
+   and runs linearly for the same time, so it stays in step. */
+@media (prefers-reduced-motion: no-preference) {
+  .label[data-beam="armed"] > :nth-child(-n + 2) {
+    opacity: 0.25;
+  }
+
+  .label[data-beam="armed"] .rule {
+    transform: scaleX(0);
+  }
+
+  .label[data-beam="play"] .beam {
+    position: absolute;
+    inset: 0 0 -12px;
+    display: flex;
+    /* The box reaches below the label for the line; top alignment keeps the copy on the text. */
+    align-items: flex-start;
+    gap: inherit;
+    pointer-events: none;
+    mask-image: linear-gradient(90deg, black calc(100% - 28px), transparent);
+    mask-repeat: no-repeat;
+    animation:
+      label-light var(--beam-duration) linear both,
+      label-cool 700ms ease-out var(--beam-duration) forwards;
+  }
+
+  .label[data-beam="play"] > :nth-child(-n + 2) {
+    animation: label-settle 500ms ease-out var(--beam-duration) both;
+  }
+
+  .label[data-beam="play"] .rule {
+    transform-origin: left;
+    animation: label-rule-draw var(--beam-duration) linear both;
+  }
+
+  .label:is([data-beam="play"], [data-beam="done"]) .rule {
+    transition: background-color 400ms ease-out var(--beam-duration);
+    background-color: rgb(var(--brand-mid-rgb) / 0.23);
+  }
+
+  .beam [data-beam-text] {
+    color: var(--brand-bright);
+    text-shadow: 0 0 10px rgb(var(--brand-mid-rgb) / 0.55);
+  }
+
+  .beam [data-beam-text]::before {
+    content: attr(data-beam-text);
+  }
+
+  .beamHead {
+    position: absolute;
+    right: 0;
+    bottom: 6px;
+    left: 0;
+    height: 1px;
+    background: var(--brand-bright);
+    box-shadow: 0 0 6px 1px rgb(var(--brand-mid-rgb) / 0.7);
+  }
+}
+
+@keyframes label-light {
+  from {
+    mask-size: 0% 100%;
+  }
+
+  to {
+    mask-size: 100% 100%;
+  }
+}
+
+@keyframes label-cool {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes label-settle {
+  from {
+    opacity: 0.25;
+  }
+}
+
+@keyframes label-rule-draw {
+  from {
+    transform: scaleX(0);
+  }
 }

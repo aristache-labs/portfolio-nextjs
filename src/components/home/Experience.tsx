@@ -11,7 +11,7 @@ import { ExperienceReveal } from "./ExperienceReveal";
 import { useTimelineEntrance } from "./useTimelineEntrance";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
-import labelCss from "@/components/ui/section-label.module.css";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import { cn } from "@/utils/cn";
 import type { ExperienceRow } from "@/lib/queries";
 import styles from "./experience-layout.module.css";
@@ -584,11 +584,7 @@ export function Experience({
             effect="fade"
             className="mb-5"
           >
-            <p className={`${labelCss.label} ${headingCss.label}`}>
-              <span className={labelCss.number}>{number}</span>
-              <span>Experience</span>
-              <span aria-hidden className={labelCss.rule} />
-            </p>
+            <SectionLabel number={number} name="Experience" className={headingCss.label} />
             {/* Same scale and weight as the About and Skills headings. */}
             <h2 className={headingCss.title}>
               Where I&apos;ve <span className={headingCss.accent}>worked</span>

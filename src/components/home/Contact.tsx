@@ -22,7 +22,7 @@ import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 import { ICON_PROPS, IconTile } from "@/components/ui/IconTile";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { SectionBackdrop } from "./SectionBackdrop";
-import labelCss from "@/components/ui/section-label.module.css";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
 import quoteCss from "./contact-quote.module.css";
@@ -376,11 +376,7 @@ export function Contact({
             "slide",
             0,
             <div>
-              <p className={`${labelCss.label} ${headingCss.label}`}>
-                <span className={labelCss.number}>{number}</span>
-                <span>Contact</span>
-                <span aria-hidden className={labelCss.rule} />
-              </p>
+              <SectionLabel number={number} name="Contact" className={headingCss.label} />
 
               {/* Same scale and weight as the other section headings. */}
               <h2 className={headingCss.title}>

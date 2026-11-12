@@ -4,9 +4,9 @@ import { beginSectionNavigation, sectionNavigationInProgress } from "./section-n
 /** How long the page has to stay still before it settles on a section. */
 export const SNAP_IDLE_MS = 100;
 /** How near (share of the viewport height) a section start has to be for the page to settle. */
-export const SNAP_THRESHOLD_RATIO = 0.12;
+export const SNAP_THRESHOLD_RATIO = 0.2;
 /** The pull never reaches further than this many pixels, however tall the screen is. */
-export const SNAP_MAX_DISTANCE = 120;
+export const SNAP_MAX_DISTANCE = 200;
 /** A glide this short reads as a settle, not as a jump. */
 export const SNAP_DURATION_MS = 520;
 /**
@@ -14,8 +14,8 @@ export const SNAP_DURATION_MS = 520;
  * waits longer, and the glide is quicker. Phones also have less height to spare.
  */
 export const SNAP_TOUCH_IDLE_MS = 140;
-export const SNAP_TOUCH_THRESHOLD_RATIO = 0.1;
-export const SNAP_TOUCH_MAX_DISTANCE = 90;
+export const SNAP_TOUCH_THRESHOLD_RATIO = 0.16;
+export const SNAP_TOUCH_MAX_DISTANCE = 150;
 export const SNAP_TOUCH_DURATION_MS = 420;
 /** Closer than this the page is already where it should be. */
 const SNAP_MIN_DISTANCE = 2;
