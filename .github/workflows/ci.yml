@@ -5,6 +5,15 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  # The full e2e suite takes about 50 minutes, so it also runs every night on master.
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+# A newer run on the same branch replaces an older one that is still going.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -85,7 +94,10 @@ jobs:
         env:
           BASE_URL: http://localhost:3000
 
+  # Pull requests get the build job (lint, format, spell, types, unit tests, build, routes and
+  # budgets) in a few minutes. The full e2e suite runs after a merge, nightly and on demand.
   e2e:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     needs: build
     services:
