@@ -83,7 +83,7 @@ describe("Contact", () => {
 
   it("animates the numbered label together with the contact title", () => {
     render(<Contact socials={mockSocials} email={email} number="05" />);
-    const heading = screen.getByRole("heading", { name: "Discuss a project." });
+    const heading = screen.getByRole("heading", { name: "Let’s talk." });
     expect(heading.parentElement?.querySelector("p")).toHaveTextContent("05Contact");
     expect(heading.parentElement?.querySelector("h2")).toBe(heading);
   });
@@ -145,7 +145,7 @@ describe("Contact", () => {
     fireEvent.change(screen.getByLabelText("Your Email"), {
       target: { value: "sender@example.com" },
     });
-    chooseSubject("General Question");
+    chooseSubject("General question");
     fireEvent.change(screen.getByLabelText("Message"), {
       target: { value: "A project question for testing." },
     });
@@ -196,7 +196,7 @@ describe("Contact", () => {
         body: JSON.stringify({
           name: "Test User",
           email: "sender@example.com",
-          subject: "General Question",
+          subject: "General question",
           message: "A project question for testing.",
           website: "",
         }),
@@ -212,7 +212,7 @@ describe("Contact", () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [PINNED_SCENE_QUERY]: true });
     const { container } = render(<Contact socials={mockSocials} email={email} />);
     const from = (element: Element) => element.closest("[data-from]")?.getAttribute("data-from");
-    expect(from(screen.getByRole("heading", { name: "Discuss a project." }))).toBe("left");
+    expect(from(screen.getByRole("heading", { name: "Let’s talk." }))).toBe("left");
     for (const card of container.querySelectorAll("ul a")) {
       expect(from(card)).toBe("left");
       // The glass card is the element that fades, directly inside the moving wrapper.
@@ -366,10 +366,10 @@ describe("Contact", () => {
     const trigger = screen.getByRole("combobox", { name: "Subject" });
     expect(screen.getByLabelText("Your Name")).toHaveFocus();
     expect(trigger).toHaveAttribute("aria-describedby", "contact-subject-error");
-    chooseSubject("Freelance Work");
-    expect(trigger).toHaveTextContent("Freelance Work");
+    chooseSubject("Job opportunity");
+    expect(trigger).toHaveTextContent("Job opportunity");
     expect(container.querySelector<HTMLSelectElement>('select[name="subject"]')).toHaveValue(
-      "Freelance Work",
+      "Job opportunity",
     );
   });
 
@@ -519,7 +519,7 @@ describe("Contact", () => {
 
   it("renders the heading", () => {
     render(<Contact socials={mockSocials} email={email} />);
-    expect(screen.getByRole("heading", { level: 2, name: /discuss a project/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 2, name: /let.s talk/i })).toBeTruthy();
   });
 
   it("omits the linkedin card when that profile is not configured", () => {

@@ -246,7 +246,7 @@ test("contact and upload requests reach their same-origin endpoints", async ({ p
       body: JSON.stringify({
         name: "CSP Test",
         email: "csp@example.com",
-        subject: "General Question",
+        subject: "General question",
         message: "Controlled CSP validation.",
         website: "",
       }),
