@@ -289,7 +289,12 @@ export function Contact({
       setStatus("idle");
       setShaking(true);
       const first = Object.keys(errors)[0];
-      document.getElementById(`contact-${first}`)?.focus();
+      const field = document.getElementById(`contact-${first}`);
+      // Focus alone leaves a field that is only partly on screen where it is, which can be under
+      // the fixed header on a short screen. Scrolling it into view honours the scroll margin the
+      // form fields already carry (room for the header above, a little below).
+      field?.focus({ preventScroll: true });
+      field?.scrollIntoView?.({ block: "nearest" });
       return;
     }
     setFieldErrors({});

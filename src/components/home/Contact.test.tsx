@@ -341,6 +341,10 @@ describe("Contact", () => {
 
   it("blocks invalid submissions and focuses the first invalid field", () => {
     const fetchMock = vi.spyOn(globalThis, "fetch");
+    // jsdom has no layout and no scrollIntoView; the form asks for the field to be brought into
+    // view, under the fixed header on short screens.
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
     const { container } = render(<Contact socials={mockSocials} email={email} />);
     fillForm();
     fireEvent.change(screen.getByLabelText("Your Email"), { target: { value: "invalid" } });
@@ -348,6 +352,7 @@ describe("Contact", () => {
     fireEvent.submit(container.querySelector("form")!);
     expect(fetchMock).not.toHaveBeenCalled();
     expect(screen.getByLabelText("Your Email")).toHaveFocus();
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "nearest" });
     expect(screen.getByLabelText("Your Email")).toHaveAccessibleDescription("Add a valid email.");
     expect(screen.getByLabelText("Message")).toHaveAttribute("aria-invalid", "true");
   });
