@@ -201,6 +201,13 @@
   box-shadow: 0 8px 28px rgb(var(--brand-deep-rgb) / 0.22);
 }
 
+/* The box-shadow above replaces the Button's focus ring (also a box-shadow), so keyboard users
+   get an outline of their own, like the contact action below. */
+.primaryAction:focus-visible {
+  outline: 2px solid var(--brand-mid);
+  outline-offset: 4px;
+}
+
 .contactAction {
   border-color: transparent;
   background: transparent;

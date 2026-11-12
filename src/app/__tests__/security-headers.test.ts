@@ -31,7 +31,9 @@ describe("security headers", () => {
     const headers = await security(loadConfig("production"));
     expect(headers.get("X-Content-Type-Options")).toBe("nosniff");
     expect(headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
-    expect(headers.get("Permissions-Policy")).toBe("camera=(), microphone=(), geolocation=()");
+    expect(headers.get("Permissions-Policy")).toBe(
+      "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+    );
     expect(headers.get("Cross-Origin-Opener-Policy")).toBe("same-origin");
     expect(headers.get("Cross-Origin-Resource-Policy")).toBe("same-origin");
     expect(headers.has("Cross-Origin-Embedder-Policy")).toBe(false);

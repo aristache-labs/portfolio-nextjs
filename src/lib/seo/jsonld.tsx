@@ -35,9 +35,11 @@ export function WebSiteJsonLd() {
       data={{
         "@context": "https://schema.org",
         "@type": "WebSite",
+        "@id": new URL("/#website", SITE.url).toString(),
         name: SITE.name,
         alternateName: SITE.siteAlternateNames,
         url: new URL("/", SITE.url).toString(),
+        publisher: { "@id": PERSON_ID },
       }}
     />
   );

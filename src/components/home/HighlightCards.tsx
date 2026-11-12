@@ -64,7 +64,7 @@ function Cover({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={project.coverImage}
-            alt=""
+            alt={`${project.title} preview`}
             loading="lazy"
             className={`absolute inset-0 size-full ${fit}`}
           />
@@ -74,7 +74,7 @@ function Cover({
   return project.coverImage ? (
     <Image
       src={project.coverImage}
-      alt=""
+      alt={`${project.title} preview`}
       fill
       sizes={priority || loading === "eager" ? sizes : `auto, ${sizes}`}
       loading={priority ? undefined : loading}
