@@ -10,7 +10,7 @@ export default defineConfig({
     "section-navigation.spec.ts",
   ],
   fullyParallel: true,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   reporter: "html",
   use: {
     baseURL: "http://localhost:4000",

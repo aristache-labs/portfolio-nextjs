@@ -15,7 +15,7 @@ export default defineConfig({
     "mobile-section-reset.spec.ts",
   ],
   fullyParallel: true,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   workers: 2,
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report-production" }]],
   use: {
