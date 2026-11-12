@@ -1,6 +1,6 @@
 # AI Agent Guidelines
 
-Last updated: 2026-10-24
+Last updated: 2026-11-12
 
 The working-discipline and multi-agent-safety rules that used to live here were a verbatim copy of `~/.claude/CLAUDE.md`, which is already loaded into every session. They were deleted rather than maintained in two places. This file now carries only what is true of **this repo** and cannot be derived from reading it quickly.
 
@@ -116,6 +116,26 @@ bun run check:vitals    # per-route JS payload and TTFB budgets
 ## Versioning and release
 
 Every PR must bump `version` in `package.json`. `version-check.yml` enforces it as the required check **`package.json version bumped`**. On merge to `master`, `release.yml` reads that version and creates tag `v<version>` plus a GitHub Release, skipping idempotently if the tag already exists. There is no manual tagging step.
+
+## Agent skills
+
+Agent skills are installed with `npx skills add <owner/repo@skill> -y` and live in `.agents/skills/`. That folder and `skills-lock.json` are gitignored, so each clone installs its own copy. Install globally with `-g` to make a skill available outside this repo.
+
+Installed for this project, and when to reach for them:
+
+| Skill                             | Use it for                                                              |
+| --------------------------------- | ----------------------------------------------------------------------- |
+| `next-best-practices`             | RSC boundaries, data patterns, metadata, route handlers, images, fonts |
+| `next-cache-components-optimizer` | cache components and `revalidate` decisions (see item 2 above)          |
+| `vercel-react-best-practices`     | React and Next.js rendering and bundle performance                      |
+| `vercel-optimize`                 | Vercel cost and performance on deployed routes                          |
+| `nextjs-performance`              | Core Web Vitals, `next/image` and `next/font`, Suspense streaming       |
+| `performance`                     | general page-speed audits                                               |
+| `animation-performance`           | animations that drop frames (GSAP, Framer Motion, CSS)                  |
+| `web-design-guidelines`           | UI review for accessibility and interface guidelines                    |
+| `frontend-design`, `design-taste-frontend` | distinctive visual design; check against the Obsidian dark theme (items 4-5) before applying |
+
+These are guidance, not rules. The rules that bite in this repo are the numbered list above. When a skill's advice conflicts with them (for example, switching to Turbopack for the build, or adding a light theme), the numbered list wins.
 
 ## Content model
 
