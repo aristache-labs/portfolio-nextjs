@@ -9,6 +9,7 @@ import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { HashScrollFix } from "@/components/util/HashScrollFix";
 import { LateMonoFont } from "@/components/util/LateMonoFont";
+import { SectionRenderBudget } from "@/components/common/SectionRenderBudget";
 import { AmbientBackgroundGate } from "@/components/background/AmbientBackgroundGate";
 import { PersonJsonLd, WebSiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE } from "@/lib/seo/site";
@@ -85,6 +86,7 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
         <PersonJsonLd />
         <WebSiteJsonLd />
         <MotionProvider>
+          <SectionRenderBudget />
           <AmbientBackgroundGate />
           <main>{children}</main>
           <DeferredControls />

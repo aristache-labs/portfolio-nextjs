@@ -5,8 +5,9 @@ import { beginSectionNavigation } from "./section-navigation";
 import { getSmoothScroll } from "./smooth-scroll";
 import { FOLD_VIEWPORT_QUERY, TOUCH_LANDSCAPE_QUERY } from "./motion-queries";
 
-// Smooth acceleration and deceleration, with no abrupt change at either end.
-const smoothStep = (progress: number) => progress * progress * (3 - 2 * progress);
+// A sine ease has the lowest top speed of the ease-in-out curves (about 1.6x the average), so the
+// middle of a long jump does not rush. It still starts and stops softly.
+const smoothStep = (progress: number) => (1 - Math.cos(Math.PI * progress)) / 2;
 const NAVIGATION_KEYS = [
   "Escape",
   "ArrowDown",
@@ -220,13 +221,16 @@ export function scrollToSection(id: string, reducedMotion: boolean): () => void 
   const target = document.getElementById(id);
   if (!target) return () => {};
 
-  const destination = Math.max(
-    0,
-    Math.min(
-      sectionScrollPosition(target),
-      document.documentElement.scrollHeight - window.innerHeight,
-    ),
-  );
+  // Read again while scrolling: sections that render or load content on the way (landscape
+  // phones skip off-screen sections) can move the target after the first measurement.
+  const destination = () =>
+    Math.max(
+      0,
+      Math.min(
+        sectionScrollPosition(target),
+        document.documentElement.scrollHeight - window.innerHeight,
+      ),
+    );
   const url = new URL(window.location.href);
   url.hash = id;
   // Let Next copy its internal history state and synchronize the router URL.
@@ -238,10 +242,13 @@ export function scrollToSection(id: string, reducedMotion: boolean): () => void 
 
 /** Paced scroll to a document offset, cancelled by any manual input. */
 export function scrollToPosition(
-  destination: number,
+  destinationOrGetter: number | (() => number),
   reducedMotion: boolean,
   onFinish?: (arrived: boolean) => void,
 ): () => void {
+  const resolve =
+    typeof destinationOrGetter === "function" ? destinationOrGetter : () => destinationOrGetter;
+  const destination = resolve();
   const start = window.scrollY;
   if (reducedMotion || Math.abs(destination - start) < 2) {
     window.scrollTo({ top: destination, behavior: "instant" });
@@ -249,7 +256,8 @@ export function scrollToPosition(
     return () => {};
   }
 
-  const duration = Math.min(1400, Math.max(300, (Math.abs(destination - start) / 1600) * 1000));
+  // Roughly 1.1s per 1000px, so nearby sections still glide and far jumps are not rushed.
+  const duration = Math.min(3200, Math.max(900, Math.abs(destination - start) * 1.1));
   const lenis = getSmoothScroll();
   if (lenis) return scrollWithLenis(lenis, destination, duration, onFinish);
   let frame = 0;
@@ -273,9 +281,24 @@ export function scrollToPosition(
     startedAt ??= now;
     const progress = Math.min(1, (now - startedAt) / duration);
     const eased = smoothStep(progress);
-    window.scrollTo({ top: start + (destination - start) * eased, behavior: "instant" });
+    const goal = resolve();
+    window.scrollTo({ top: start + (goal - start) * eased, behavior: "instant" });
     if (progress < 1) frame = requestAnimationFrame(tick);
-    else stop(true);
+    else settle();
+  };
+  // After arriving, follow the target until it stops moving (a section that finishes rendering
+  // as it comes into view can still shift it), for at most about 40 frames.
+  let stableFrames = 0;
+  let settleFrames = 0;
+  const settle = () => {
+    const goal = resolve();
+    if (Math.abs(goal - window.scrollY) > 1.5) {
+      window.scrollTo({ top: goal, behavior: "instant" });
+      stableFrames = 0;
+    } else stableFrames += 1;
+    settleFrames += 1;
+    if (stableFrames >= 8 || settleFrames >= 40) stop(true);
+    else frame = requestAnimationFrame(settle);
   };
 
   window.addEventListener("wheel", cancel, { passive: true });

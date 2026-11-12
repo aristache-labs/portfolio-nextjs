@@ -31,7 +31,8 @@ export function SmoothScroll() {
     void import("lenis").then(({ default: Lenis }) => {
       if (cancelled) return;
       const lenis = new Lenis({
-        duration: 1.1,
+        duration: 1.4,
+        wheelMultiplier: 0.85,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
         syncTouch: false,

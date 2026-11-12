@@ -2,6 +2,7 @@
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { sectionNavigationPending } from "@/lib/section-navigation";
+import { settleWhenDone } from "@/lib/settle-animations";
 
 import { useLayoutEffect, useRef, type CSSProperties, type RefObject } from "react";
 import { m } from "framer-motion";
@@ -92,19 +93,31 @@ export function ContactArrival({
     targets.forEach((target) => {
       target.dataset.contactReveal = "armed";
     });
+    const stopSettling: Array<() => void> = [];
+    // Set by focus or a press on the form, not by an arrival settling: steps still below the fold
+    // must keep playing after the card itself has finished.
+    let userSettled = false;
     const observer = new IntersectionObserver(
       (entries) => {
         if (sectionNavigationPending(node)) return;
-        if (node.dataset.contactReveal === "static") return;
+        if (userSettled) return;
         for (const entry of entries) {
           if (!entry.isIntersecting && entry.boundingClientRect.bottom > 0) continue;
-          (entry.target as HTMLElement).dataset.contactReveal = "play";
-          observer.unobserve(entry.target);
+          const target = entry.target as HTMLElement;
+          target.dataset.contactReveal = "play";
+          observer.unobserve(target);
+          // Hand the finished element back to plain styles so it stops holding a compositor layer.
+          stopSettling.push(
+            settleWhenDone(target, () => {
+              if (target.dataset.contactReveal === "play") target.dataset.contactReveal = "static";
+            }),
+          );
         }
       },
       { rootMargin: "0px 0px -24px 0px", threshold: 0.08 },
     );
     const settle = () => {
+      userSettled = true;
       targets.forEach((target) => {
         target.dataset.contactReveal = "static";
       });
@@ -114,6 +127,7 @@ export function ContactArrival({
     node.addEventListener("focusin", settle);
     if (kind === "form") node.addEventListener("pointerdown", settle);
     return () => {
+      stopSettling.forEach((stop) => stop());
       observer.disconnect();
       node.removeEventListener("focusin", settle);
       node.removeEventListener("pointerdown", settle);
