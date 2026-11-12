@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Hoist mockAuth so it can be referenced inside the vi.mock factory (which is hoisted)
 const { mockAuth } = vi.hoisted(() => ({ mockAuth: vi.fn() }));
@@ -32,15 +32,36 @@ import {
   setSectionVisibility,
 } from "./actions";
 
-function authedSession() {
-  return { user: { name: "Admin", email: "admin@example.com" } };
+function authedSession(login = "admin-login") {
+  return { user: { name: "Admin", email: "admin@example.com", login } };
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubEnv("ADMIN_GITHUB_LOGIN", "admin-login");
 });
 
+afterEach(() => vi.unstubAllEnvs());
+
 describe("requireAdmin guard", () => {
+  const newProject = {
+    repo: "test-repo",
+    title: "Test",
+    tags: [],
+    featured: false,
+    order: 0,
+    hidden: false,
+    screenshots: [],
+  };
+
+  it.each([
+    ["a session made before the login was stored", { user: { name: "Admin" } }],
+    ["another GitHub login", authedSession("someone-else")],
+  ])("throws Unauthorized for %s", async (_name, session) => {
+    mockAuth.mockResolvedValue(session);
+    await expect(createProject(newProject)).rejects.toThrow("Unauthorized");
+  });
+
   it("throws Unauthorized when there is no session", async () => {
     mockAuth.mockResolvedValue(null);
     await expect(

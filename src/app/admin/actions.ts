@@ -30,13 +30,14 @@ import {
   type ReorderInput,
 } from "@/lib/schemas";
 import { auth } from "@/auth";
+import { isAdminSession } from "@/lib/auth-callbacks";
 import { refreshCachedRepo } from "@/lib/github-cache";
 import { revalidatePortfolio } from "@/lib/revalidate";
 import { isAllowedImageHost } from "@/lib/image-hosts";
 
 async function requireAdmin() {
   const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
+  if (!isAdminSession(session, process.env.ADMIN_GITHUB_LOGIN)) throw new Error("Unauthorized");
 }
 
 // ---------- Profile (singleton row) ----------

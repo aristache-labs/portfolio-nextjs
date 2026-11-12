@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { NextRequest } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const auth = vi.hoisted(() => vi.fn());
 const uploadIcon = vi.hoisted(() => vi.fn());
@@ -26,15 +26,24 @@ function upload(
   return new NextRequest("http://localhost/api/admin/upload", { method: "POST", body });
 }
 
+afterEach(() => vi.unstubAllEnvs());
+
 describe("admin upload", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    auth.mockResolvedValue({ user: { name: "admin" } });
+    vi.stubEnv("ADMIN_GITHUB_LOGIN", "admin-login");
+    auth.mockResolvedValue({ user: { name: "admin", login: "admin-login" } });
     uploadIcon.mockResolvedValue("https://cdn.example/skills/a.webp");
   });
 
   it("refuses a request without a session", async () => {
     auth.mockResolvedValue(null);
+    expect((await POST(upload("skills"))).status).toBe(401);
+    expect(uploadIcon).not.toHaveBeenCalled();
+  });
+
+  it("refuses a signed-in user who is not the admin", async () => {
+    auth.mockResolvedValue({ user: { name: "other", login: "someone-else" } });
     expect((await POST(upload("skills"))).status).toBe(401);
     expect(uploadIcon).not.toHaveBeenCalled();
   });
