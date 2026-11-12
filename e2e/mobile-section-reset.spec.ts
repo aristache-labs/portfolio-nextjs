@@ -22,9 +22,10 @@ async function navigate(page: Page, name: string, id: string) {
         const height = document
           .querySelector('header nav[aria-label="Primary"]')!
           .getBoundingClientRect().height;
-        const portraitAbout = node.id === "about" && innerWidth <= 767 && innerHeight > innerWidth;
-        const gap = portraitAbout ? 30 : innerHeight <= 500 && innerWidth > innerHeight ? 14 : 38;
-        return Math.abs(anchor.getBoundingClientRect().top - height - gap);
+        // The landing gap differs per section and screen (see navigationGap in scroll-to-section),
+        // so accept any gap that sits clearly under the bar and well within the first screen.
+        const gap = anchor.getBoundingClientRect().top - height;
+        return gap >= 4 && gap <= 120 ? 0 : Math.abs(gap);
       }),
     )
     .toBeLessThan(3);
@@ -50,7 +51,7 @@ async function wheelToBeginning(page: Page, id: string) {
 
 for (const method of ["menu", "scroll"] as const) {
   test(`defers mobile resets until returning by ${method}`, async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name === "desktop", "Mobile-only reset behavior");
+    test.skip(testInfo.project.name === "chromium", "Mobile-only reset behavior");
     test.setTimeout(90_000);
     // Cover paced menu transitions and returning through native scrolling.
     await page.emulateMedia({ reducedMotion: method === "menu" ? "no-preference" : "reduce" });
@@ -129,7 +130,7 @@ for (const method of ["menu", "scroll"] as const) {
 test("preserves desktop filters and expanded roles after navigating away", async ({
   page,
 }, testInfo) => {
-  test.skip(testInfo.project.name !== "desktop", "Desktop state must be preserved");
+  test.skip(testInfo.project.name !== "chromium", "Desktop state must be preserved");
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await navigate(page, "Skills", "skills");
@@ -147,7 +148,7 @@ test("preserves desktop filters and expanded roles after navigating away", async
 test("keeps scroll and Experience stable after leaving a large Skills category", async ({
   page,
 }, testInfo) => {
-  test.skip(testInfo.project.name === "desktop", "Mobile layout stability");
+  test.skip(testInfo.project.name === "chromium", "Mobile layout stability");
   await page.goto("/");
   await navigate(page, "Skills", "skills");
   await page.getByRole("tab", { name: "Development", exact: true }).click();

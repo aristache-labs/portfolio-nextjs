@@ -2,7 +2,7 @@ import { expect, test } from "./fixtures";
 
 test("keeps invalid Contact fields below the fixed header", async ({ page }, testInfo) => {
   // This short desktop viewport covers reflow geometry; real 200% zoom is checked separately.
-  if (testInfo.project.name === "desktop") await page.setViewportSize({ width: 768, height: 385 });
+  if (testInfo.project.name === "chromium") await page.setViewportSize({ width: 768, height: 385 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   let submissions = 0;
   await page.route("**/api/contact", async (route) => {
@@ -14,6 +14,9 @@ test("keeps invalid Contact fields below the fixed header", async ({ page }, tes
   const email = page.getByRole("textbox", { name: "Your Email", exact: true });
   const message = page.getByRole("textbox", { name: "Message", exact: true });
   const send = page.getByRole("button", { name: "Send Message", exact: true });
+  // The subject is required too, and it comes before the message in the form: pick one so each
+  // round below has exactly the one invalid field it names.
+  await page.locator("select[name=subject]").selectOption({ index: 1 });
   for (const invalid of [name, email, message]) {
     await name.fill(invalid === name ? "" : "Local audit");
     await email.fill(invalid === email ? "invalid-email" : "audit@example.com");
