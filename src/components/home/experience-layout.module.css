@@ -315,6 +315,39 @@
       background-color 150ms ease,
       box-shadow 150ms ease;
   }
+
+  /* The timeline's spine, the rail lines and the dots, vanishes in once when it first comes into
+     view (useTimelineEntrance sets data-spine). Only the start is keyed, so each piece ends on its
+     own values: the faint line stays at its low opacity and the fill keeps its scroll scale. */
+  .timeline[data-spine="armed"] :is(.rail, .marker) {
+    opacity: 0;
+  }
+
+  .timeline[data-spine="play"] .rail {
+    animation: spine-vanish-line 1s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .timeline[data-spine="play"] .marker {
+    animation: spine-vanish-dot 1s 0.15s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+}
+
+/* Vanish In: out of a haze, scaled up and blurred, into focus. A one pixel line is widened
+   instead of enlarged, so it never grows past its own length. */
+@keyframes spine-vanish-dot {
+  from {
+    opacity: 0;
+    transform: scale(2);
+    filter: blur(90px);
+  }
+}
+
+@keyframes spine-vanish-line {
+  from {
+    opacity: 0;
+    transform: scaleX(6);
+    filter: blur(60px);
+  }
 }
 
 @media (orientation: landscape) and (max-width: 1023px) and (max-height: 500px) {

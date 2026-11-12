@@ -452,8 +452,8 @@ describe("ProgressiveReveal", () => {
     // The observed box is the stationary outer one: the scaled bar collapses to a line at its
     // bottom edge, which would only be noticed once that edge, not the bar, was on screen.
     const observed = container.firstElementChild!;
-    expect(observed).not.toHaveStyle({ transformOrigin: "50% 100%" });
-    expect(observed.firstElementChild).toHaveStyle({ transformOrigin: "50% 100%" });
+    expect(observed.firstElementChild).toHaveTextContent("Stats");
+    expect(observed.children).toHaveLength(1);
     intersect(container.firstElementChild!, window.innerHeight - 300);
     expect(controls.start).toHaveBeenCalledWith(
       expect.objectContaining({
