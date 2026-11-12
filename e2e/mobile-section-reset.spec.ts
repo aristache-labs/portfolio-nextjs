@@ -100,7 +100,8 @@ for (const method of ["menu", "scroll"] as const) {
     await details.nth(0).locator("summary").click();
     await details.nth(1).locator("summary").click();
     await expect(page.locator("#experience details[open]")).toHaveCount(2);
-    await leave("Projects", "projects");
+    // Contact comes after Experience, so Experience stays above the reader and keeps its state.
+    await leave("Contact", "contact");
     await expect(page.locator("#experience details[open]")).toHaveCount(2);
     await returnTo("Experience", "experience");
     await expect(page.locator("#experience details[open]")).toHaveCount(0);

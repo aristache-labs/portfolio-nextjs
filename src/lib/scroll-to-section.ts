@@ -68,6 +68,11 @@ function scrollWithLenis(
   return cancel;
 }
 
+/** Longest stretch of a glide one frame may cover, however late the frame is. */
+const MAX_FRAME_MS = 100;
+/** Share of a change of target that the glide follows each frame. */
+const GOAL_FOLLOW = 0.25;
+
 const SECTION_NAV_GAP = 38;
 /** Landscape phones have too little height to spare the full gap. */
 const SHORT_LANDSCAPE_NAV_GAP = 14;
@@ -284,7 +289,11 @@ export function scrollToPosition(
   const lenis = getSmoothScroll();
   if (lenis) return scrollWithLenis(lenis, destination, resolve, duration, onFinish);
   let frame = 0;
-  let startedAt: number | undefined;
+  let elapsed = 0;
+  let lastNow: number | undefined;
+  // The target as the glide sees it: it follows `resolve()` gradually, so a section that loads
+  // while the page moves shifts the glide a little each frame instead of jumping it.
+  let shownGoal = destination;
   let stopped = false;
   const stop = (arrived = false) => {
     if (stopped) return;
@@ -301,11 +310,14 @@ export function scrollToPosition(
     if (NAVIGATION_KEYS.includes(event.key)) stop();
   };
   const tick = (now: number) => {
-    startedAt ??= now;
-    const progress = Math.min(1, (now - startedAt) / duration);
+    // A frame that comes late (the page was busy) counts for at most MAX_FRAME_MS of the glide, so
+    // a long block slows the glide down instead of leaping across the distance.
+    if (lastNow !== undefined) elapsed += Math.min(now - lastNow, MAX_FRAME_MS);
+    lastNow = now;
+    const progress = Math.min(1, elapsed / duration);
     const eased = easeInOutSine(progress);
-    const goal = resolve();
-    window.scrollTo({ top: start + (goal - start) * eased, behavior: "instant" });
+    shownGoal += (resolve() - shownGoal) * GOAL_FOLLOW;
+    window.scrollTo({ top: start + (shownGoal - start) * eased, behavior: "instant" });
     if (progress < 1) frame = requestAnimationFrame(tick);
     else settle();
   };
@@ -315,8 +327,12 @@ export function scrollToPosition(
   let settleFrames = 0;
   const settle = () => {
     const goal = resolve();
-    if (Math.abs(goal - window.scrollY) > 1.5) {
-      window.scrollTo({ top: goal, behavior: "instant" });
+    const gap = goal - window.scrollY;
+    if (Math.abs(gap) > 1.5) {
+      // A large correction (a section loaded late) closes in over a few frames; the last frames
+      // still land exactly.
+      const near = Math.abs(gap) <= 60 || settleFrames >= 30;
+      window.scrollTo({ top: near ? goal : window.scrollY + gap * 0.35, behavior: "instant" });
       stableFrames = 0;
     } else stableFrames += 1;
     settleFrames += 1;
