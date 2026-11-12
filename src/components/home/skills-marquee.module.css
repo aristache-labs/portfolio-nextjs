@@ -145,6 +145,6 @@
 @media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
   .marquee {
     height: 38px;
-    margin-top: 6px;
+    margin-top: 4px;
   }
 }

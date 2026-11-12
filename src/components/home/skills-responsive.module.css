@@ -620,19 +620,24 @@
 
 @media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
   .sectionLabel.sectionLabel {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .description p {
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
   .tools {
-    margin-top: 12px;
+    margin-top: 8px;
+  }
+
+  /* The quote card ended level with the category buttons; it sits higher so it clears them. */
+  .quoteAnchor {
+    top: -16px;
   }
 
   .grid {
-    margin-top: 8px;
-    gap: 8px;
+    margin-top: 6px;
+    gap: 6px;
   }
 }

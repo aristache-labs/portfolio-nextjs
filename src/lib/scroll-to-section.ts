@@ -140,7 +140,7 @@ function navigationGap(target: HTMLElement) {
     window.innerHeight > window.innerWidth &&
     !window.matchMedia(FOLD_VIEWPORT_QUERY).matches
   ) {
-    return SECTION_NAV_GAP - 20;
+    return SECTION_NAV_GAP - 6;
   }
   // Touch landscape tablets: land Skills higher so the last card row stays on screen.
   if (
@@ -152,9 +152,11 @@ function navigationGap(target: HTMLElement) {
     // The single-column layout below 1100px needs the room; wider tablets use the desktop split.
     return window.innerWidth < 1100 ? SECTION_NAV_GAP - 28 : SECTION_NAV_GAP + 24;
   }
-  return window.innerHeight <= 500 && window.innerWidth > window.innerHeight
-    ? SHORT_LANDSCAPE_NAV_GAP
-    : SECTION_NAV_GAP;
+  if (window.innerHeight <= 500 && window.innerWidth > window.innerHeight) {
+    // Skills sat too close under the bar on a landscape phone; its heading gets a little air.
+    return target.id === "skills" ? SHORT_LANDSCAPE_NAV_GAP + 16 : SHORT_LANDSCAPE_NAV_GAP;
+  }
+  return SECTION_NAV_GAP;
 }
 
 /** Compact bar heights from nav-chrome.module.css, matched to the same media queries. */
