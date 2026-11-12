@@ -28,7 +28,6 @@ import { NavChapterRail } from "./NavChapterRail";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
 import { scrollToSection } from "@/lib/scroll-to-section";
-import { PORTRAIT_PHONE_QUERY } from "@/lib/motion-queries";
 import navStyles from "./nav-landscape.module.css";
 import panelStyles from "./nav-panel.module.css";
 import chromeStyles from "./nav-chrome.module.css";
@@ -122,11 +121,10 @@ export function SiteNav({
   const showContact = visibleSections.some((s) => s.id === "contact");
   const navCta = showContact ? { href: sectionHref("contact"), label: "Let's Talk" } : null;
 
-  // Mobile menu links scroll explicitly, and only after the panel has finished collapsing.
-  // Framer Motion measures the height auto -> 0 exit with window.scrollTo(0, 0), which cancels
-  // any scroll already in flight, so a scroll started on click never gets anywhere on a phone.
-  const pendingId = useRef<string | null>(null);
-  const [fadeMenuExit, setFadeMenuExit] = useState(false);
+  // Mobile menu links scroll straight away; the panel fades out while the page moves. The panel used
+  // to collapse its height first, and Framer Motion measures that exit with window.scrollTo, which
+  // cancelled any scroll already in flight, so the scroll had to wait for the exit to end (a
+  // delay of 0.4 s, and over 2 s on a slow phone). A fade has nothing to measure.
   const goToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
       return;
@@ -139,22 +137,13 @@ export function SiteNav({
       event.preventDefault();
       stopAnchorScroll.current?.();
       if (open) {
-        pendingId.current = id;
-        const pair =
-          (active === "about" && id === "projects") || (active === "projects" && id === "about");
-        // On portrait phones, measuring the height exit can pin the scroll at the source.
-        setFadeMenuExit(pair && window.matchMedia(PORTRAIT_PHONE_QUERY).matches);
+        // One frame later, once the menu has released the page lock (it hides body overflow).
+        requestAnimationFrame(() => {
+          stopAnchorScroll.current = scrollToSection(id, reduce);
+        });
       } else stopAnchorScroll.current = scrollToSection(id, reduce);
     }
     setOpen(false);
-  };
-  const scrollToPending = () => {
-    const id = pendingId.current;
-    pendingId.current = null;
-    const target = document.getElementById(id ?? "");
-    if (!id || !target) return;
-    stopAnchorScroll.current?.();
-    stopAnchorScroll.current = scrollToSection(id, reduce);
   };
   const progressRef = useRef<HTMLSpanElement>(null);
   // One shared per-frame pass: the compact glass state and the progress line. Progress
@@ -369,10 +358,7 @@ export function SiteNav({
           <button
             ref={menuButtonRef}
             type="button"
-            onClick={() => {
-              setFadeMenuExit(false);
-              setOpen((v) => !v);
-            }}
+            onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             aria-controls="mobile-navigation"
@@ -382,17 +368,13 @@ export function SiteNav({
           </button>
         </nav>
 
-        <AnimatePresence custom={fadeMenuExit} onExitComplete={scrollToPending}>
+        <AnimatePresence>
           {open && (
             <m.div
               id="mobile-navigation"
               initial={reduce ? false : { height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
-              variants={{
-                close: (fadeOnly: boolean) =>
-                  fadeOnly ? { opacity: 0 } : { height: 0, opacity: 0 },
-              }}
-              exit={reduce ? undefined : "close"}
+              exit={reduce ? undefined : { opacity: 0 }}
               transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
               className={`${navStyles.panel} ${panelStyles.panel} border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden`}
             >
