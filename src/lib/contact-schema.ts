@@ -3,6 +3,10 @@ import { CONTACT_SUBJECTS } from "./contact-subjects";
 
 export { CONTACT_SUBJECTS };
 
+// The production CSP has no `unsafe-eval`. Zod's JIT probes `new Function` first, which the
+// browser reports as a blocked script in the console; skip the probe and parse without JIT.
+z.config({ jitless: true });
+
 export const contactSchema = z.object({
   name: z.string().trim().min(2, "Add your name.").max(80, "Add your name."),
   email: z
