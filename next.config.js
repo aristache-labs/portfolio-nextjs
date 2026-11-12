@@ -56,11 +56,15 @@ const nextConfig = {
   // rewrite it into a hashed external module it cannot dlopen on Vercel
   // (see vercel/next.js#86866).
   serverExternalPackages: ["sharp"],
+  // Next 16.4 writes its own rules block into AGENTS.md on every `next dev`; this repo keeps that
+  // file by hand.
+  agentRules: false,
   experimental: {
     // One stylesheet per entry instead of the default merged chunks: the homepage blocks on two
     // CSS files instead of five, and stops downloading Privacy's styles. Measured on a throttled
     // phone profile: LCP 2.31s -> 2.19s. "strict" made six files and was slower.
-    cssChunking: false,
+    // Webpack builds only: Next 16.4 rejects the option under Turbopack, which runs the dev server.
+    ...(isDev ? {} : { cssChunking: false }),
     // Production app router only. Imported CSS ships inside <style> in the HTML, so the first
     // paint does not wait on separate stylesheet requests. Dev (Turbopack) ignores this.
     // Tested off on 2026-11-05 and kept ON: the HTML shrank from 680KB to 312KB, but the CSS came
