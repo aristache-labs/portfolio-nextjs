@@ -213,14 +213,14 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
               tabletVideo
               tabletVideoQuery={`${TABLET_LANDSCAPE_QUERY}, ${IPAD_PRO_LANDSCAPE_QUERY}`}
               video="/media/skills-v2.mp4"
-              poster="/media/skills.webp"
+              poster="/media/skills-frame.webp"
               fetchPriority="low"
               deferUntilHeroLoaded
               deferUntilNearViewport
               responsivePoster={{
                 srcSet:
-                  "/media/skills-640.webp 640w, /media/skills-960.webp 960w, /media/skills-1280.webp 1280w, /media/skills-1536.webp 1536w",
-                aspectRatio: 3 / 2,
+                  "/media/skills-frame-640.webp 640w, /media/skills-frame-960.webp 960w, /media/skills-frame-1280.webp 1280w, /media/skills-frame-1536.webp 1536w",
+                aspectRatio: 16 / 9,
               }}
             />
           </div>
