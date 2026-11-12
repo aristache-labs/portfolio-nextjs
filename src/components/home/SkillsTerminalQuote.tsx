@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { Quote } from "lucide-react";
 import responsiveCss from "./skills-responsive.module.css";
 import quoteCss from "./skills-quote.module.css";
@@ -11,19 +11,18 @@ const printAt = (seconds: number) => ({ "--t": `${seconds}s` }) as CSSProperties
 /** Terminal prompt card. The typing starts once, when the card first scrolls into view. */
 export function SkillsTerminalQuote() {
   const ref = useRef<HTMLQuoteElement>(null);
-  const [live, setLive] = useState(false);
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
     if (typeof IntersectionObserver === "undefined") {
-      setLive(true);
+      node.dataset.live = "";
       return;
     }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry?.isIntersecting) return;
-        setLive(true);
+        node.dataset.live = "";
         observer.disconnect();
       },
       { threshold: 0.6 },
@@ -35,7 +34,6 @@ export function SkillsTerminalQuote() {
   return (
     <blockquote
       ref={ref}
-      data-live={live ? "" : undefined}
       className={`${responsiveCss.quote} ${quoteCss.glass} ${terminalCss.terminal}`}
     >
       <div className={terminalCss.frame}>
