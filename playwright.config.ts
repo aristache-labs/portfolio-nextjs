@@ -25,7 +25,7 @@ export default defineConfig({
     },
     ...(["chromium", "webkit"] as const).map((browserName) => ({
       name: `mobile-${browserName}`,
-      testMatch: "mobile-layout.spec.ts",
+      testMatch: ["mobile-layout.spec.ts", "mobile-section-reset.spec.ts"],
       use: { ...devices["iPhone 15 Pro Max"], browserName },
     })),
   ],

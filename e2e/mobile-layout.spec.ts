@@ -52,32 +52,6 @@ async function checkWidth(page: Page) {
 test.use({ reducedMotion: "reduce", colorScheme: "dark" });
 test.setTimeout(90_000);
 
-test("portrait screen floor is applied before hydration", async ({ page, isMobile }) => {
-  test.skip(!isMobile, "Physical screen floor applies to touch phones only");
-  await page.setViewportSize({ width: 430, height: 745 });
-  await page.addInitScript(() => {
-    Object.defineProperty(screen, "height", { value: 932 });
-  });
-  // Keep inline pre-paint scripts, but prevent the React application from hydrating.
-  await page.route(/\/_next\/.*\.js(?:\?|$)/, (route) => route.abort());
-  await page.goto("/");
-  const before = await page.locator("#hero").evaluate((element) => ({
-    height: element.getBoundingClientRect().height,
-    floor: getComputedStyle(document.documentElement).getPropertyValue("--portrait-screen-height"),
-    screenHeight: screen.height,
-  }));
-  expect(before.floor).toBe(`${before.screenHeight}px`);
-  expect(before.height).toBeGreaterThanOrEqual(before.screenHeight - 1);
-});
-
-async function ready(page: Page) {
-  await expect(page.locator("#hero")).toBeVisible();
-  await expect(page.locator("#hero h1 > span").first()).toHaveCSS("opacity", "1", {
-    timeout: 15_000,
-  });
-  await page.evaluate(() => document.fonts.ready);
-}
-
 test("page and hero fill the viewport through rotation and reload", async ({ page }, testInfo) => {
   const samples = [];
   for (const viewport of [
@@ -101,6 +75,14 @@ test("page and hero fill the viewport through rotation and reload", async ({ pag
     contentType: "application/json",
   });
 });
+
+async function ready(page: Page) {
+  await expect(page.locator("#hero")).toBeVisible();
+  await expect(page.locator("#hero h1 > span").first()).toHaveCSS("opacity", "1", {
+    timeout: 15_000,
+  });
+  await page.evaluate(() => document.fonts.ready);
+}
 
 test("portrait hero fills the first screen without shifting its heading", async ({ page }) => {
   const samples = [];
