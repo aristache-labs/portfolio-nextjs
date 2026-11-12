@@ -4,9 +4,10 @@
   margin-bottom: 20px;
 }
 
-/* The entry moves the wrapper without fading the card or its background. */
+/* The card is solid and never fades on its own. Phones reveal it through data-project-reveal and
+   have their own rules below, so the wrapper is only held opaque where nothing else drives it. */
 .slot,
-.slot > div {
+.slot > div:not([data-project-reveal]) {
   opacity: 1 !important;
 }
 
@@ -120,6 +121,39 @@
 @media (prefers-reduced-motion: no-preference) {
   .dot {
     animation: building-pulse 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+}
+
+/* Phones, small touch landscape and touch tablets (the same screens as the project cards). The
+   shared rules keep this card visible while it waits, because it ignores the fade: in a fast scroll
+   it then stood alone in an empty section and, when its turn came, jumped aside and entered from
+   the right. It now stays hidden until its turn and slides in from the right once, with a fade. */
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))),
+  (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
+  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) and (prefers-reduced-motion: no-preference) {
+  .slot {
+    /* Portrait enters from the right too; landscape already takes 40px from the shared rules. */
+    --project-card-x: 56px;
+    --project-card-y: 0px;
+  }
+
+  .slot > div[data-project-reveal="armed"] {
+    visibility: hidden;
+  }
+
+  .slot > div[data-project-reveal="play"][data-project-kind] {
+    animation: building-arrive 800ms var(--project-delay, 0ms) cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes building-arrive {
+  from {
+    opacity: 0;
+    transform: translate(var(--project-x), var(--project-y));
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
   }
 }
 

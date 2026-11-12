@@ -14,6 +14,16 @@ import {
 
 const VISIBLE = { opacity: 1, x: 0, y: 0 };
 
+/** Scale Up Bottom: grows from nothing, overshoots, then settles in three small bounces. */
+const SCALE_UP_BOTTOM_KEYFRAMES = [0, 1.12, 0.95, 1.02, 1];
+const SCALE_UP_BOTTOM_TIMES = [0, 0.5, 0.72, 0.88, 1];
+const SCALE_UP_BOTTOM_EASE: [number, number, number, number][] = [
+  [0.33, 1, 0.68, 1],
+  [0.37, 0, 0.63, 1],
+  [0.37, 0, 0.63, 1],
+  [0.37, 0, 0.63, 1],
+];
+
 export type ProgressiveRevealProps = {
   children: ReactNode;
   className?: string;
@@ -39,6 +49,8 @@ export type ProgressiveRevealProps = {
     | "fade-from-right"
     | "focus"
     | "zoom"
+    /** Grows up from its bottom edge with a small settling bounce; counters follow its end. */
+    | "scale-up-bottom"
     | "cascade"
     | "line";
   /** Glass surfaces can keep their background visible while their entrance moves or scales. */
@@ -70,7 +82,7 @@ export function useProgressiveReveal({
   useLayoutEffect(() => {
     if (!enabled) {
       finished.current = false;
-      controls.set({ ...VISIBLE, scale: 1, scaleX: 1 });
+      controls.set({ ...VISIBLE, scale: 1, scaleX: 1, scaleY: 1 });
       return;
     }
     if (!ready || !element.current) return;
@@ -117,9 +129,11 @@ export function useProgressiveReveal({
           ? "visible"
           : effect === "focus" || effect === "zoom"
             ? { ...VISIBLE, scale: 1 }
-            : effect === "line"
-              ? { ...VISIBLE, scaleX: 1 }
-              : VISIBLE,
+            : effect === "scale-up-bottom"
+              ? { ...VISIBLE, scaleY: 1 }
+              : effect === "line"
+                ? { ...VISIBLE, scaleX: 1 }
+                : VISIBLE,
       );
       sequence.publish(countVisible ? "complete" : "static");
     };
@@ -164,22 +178,31 @@ export function useProgressiveReveal({
           });
           return;
         }
+        const scaleUp = effect === "scale-up-bottom";
         const entrance = controls.start({
-          opacity: effect === "slide-from-right" || !fade ? 1 : [0, 1],
+          opacity: effect === "slide-from-right" || scaleUp || !fade ? 1 : [0, 1],
           ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
           ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
           ...(effect === "fade-from-left" ? { x: [-48, 0] } : {}),
           ...(fromRight ? { x: [rightStart, 0] } : {}),
           ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
           ...(effect === "zoom" ? { scale: [0.9, 1] } : {}),
+          ...(scaleUp ? { scaleY: SCALE_UP_BOTTOM_KEYFRAMES } : {}),
           ...(effect === "line" ? { scaleX: [0, 1] } : {}),
-          transition: {
-            duration,
-            delay: delay ?? (expressive ? desktopDelay : 0.3),
-            ease: ease ?? (effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1]),
-          },
+          transition: scaleUp
+            ? {
+                duration: 0.8,
+                delay: delay ?? (expressive ? desktopDelay : 0.3),
+                times: SCALE_UP_BOTTOM_TIMES,
+                ease: SCALE_UP_BOTTOM_EASE,
+              }
+            : {
+                duration,
+                delay: delay ?? (expressive ? desktopDelay : 0.3),
+                ease: ease ?? (effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1]),
+              },
         });
-        if (effect === "zoom") {
+        if (effect === "zoom" || scaleUp) {
           void entrance.then(() => {
             if (active && !settled) sequence.publish("complete");
           });
@@ -231,6 +254,8 @@ export function useProgressiveReveal({
                 x: 0,
                 y: 0,
                 ...(effect === "zoom" && !fade ? { scale: 0.9 } : {}),
+                // Collapsed on its bottom edge, so it is invisible without fading.
+                ...(effect === "scale-up-bottom" ? { opacity: 1, scaleY: 0 } : {}),
               },
         );
       }
@@ -311,16 +336,24 @@ export function ProgressiveReveal({
     countOnJump,
   });
 
-  // Observe the stationary layout box: an offscreen translated target cannot intersect.
-  if (fromRight) {
+  // Observe the stationary layout box: an offscreen translated target cannot intersect, and one
+  // collapsed to nothing on its bottom edge (scale-up-bottom) would only be seen once that edge,
+  // not the bar itself, had come far enough up the screen.
+  const scaleUp = effect === "scale-up-bottom";
+  if (fromRight || scaleUp) {
     return (
       <div ref={element} className={className}>
         <m.div
           className={innerClassName ? `w-full min-w-0 ${innerClassName}` : "w-full min-w-0"}
           initial={false}
           animate={controls}
+          style={scaleUp ? { transformOrigin: "50% 100%" } : undefined}
         >
-          {children}
+          {scaleUp ? (
+            <RevealSequence.Provider value={sequence}>{children}</RevealSequence.Provider>
+          ) : (
+            children
+          )}
         </m.div>
       </div>
     );

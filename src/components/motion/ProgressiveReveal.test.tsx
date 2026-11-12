@@ -443,6 +443,27 @@ describe("ProgressiveReveal", () => {
     expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0 });
   });
 
+  it("grows scale-up-bottom from its bottom edge without a fade", () => {
+    const { container } = render(
+      <ProgressiveReveal effect="scale-up-bottom">Stats</ProgressiveReveal>,
+    );
+    // Collapsed on its bottom edge while waiting, still fully opaque.
+    expect(controls.set).toHaveBeenLastCalledWith({ opacity: 1, x: 0, y: 0, scaleY: 0 });
+    // The observed box is the stationary outer one: the scaled bar collapses to a line at its
+    // bottom edge, which would only be noticed once that edge, not the bar, was on screen.
+    const observed = container.firstElementChild!;
+    expect(observed.firstElementChild).toHaveTextContent("Stats");
+    expect(observed.children).toHaveLength(1);
+    intersect(container.firstElementChild!, window.innerHeight - 300);
+    expect(controls.start).toHaveBeenCalledWith(
+      expect.objectContaining({
+        opacity: 1,
+        scaleY: [0, 1.12, 0.95, 1.02, 1],
+        transition: expect.objectContaining({ duration: 0.8, times: [0, 0.5, 0.72, 0.88, 1] }),
+      }),
+    );
+  });
+
   it("waits beyond the screen edge before starting the entrance", () => {
     const { container } = render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
     // The entrance waits until the element is well into the screen (REVEAL_DEPTH of its height).

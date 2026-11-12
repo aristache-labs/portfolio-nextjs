@@ -20,10 +20,23 @@ export function FooterPart({
   duration = 1,
   delay,
   staggerChildren,
+  entrance = false,
+  entrancePart,
   ...options
-}: ProgressiveRevealProps & { scene: boolean; mobile: boolean; part: string }) {
+}: ProgressiveRevealProps & {
+  scene: boolean;
+  mobile: boolean;
+  part: string;
+  /**
+   * Opt out of all three drivers (timed, scroll scene, mobile): the footer plays one shared CSS
+   * entrance for this part instead (footer-entrance.module.css, started by useEntranceOnce).
+   */
+  entrance?: boolean;
+  /** Which entrance animation the wrapper itself takes, when it is the animated element. */
+  entrancePart?: string;
+}) {
   const element = useRef<HTMLDivElement>(null);
-  const timed = !scene && !mobile;
+  const timed = !scene && !mobile && !entrance;
   const { controls, sequence, mode } = useProgressiveReveal({
     ...options,
     element,
@@ -41,9 +54,10 @@ export function FooterPart({
   return (
     <m.div
       ref={element}
-      data-part={scene && !mobile ? part : undefined}
-      data-footer-part={mobile ? part : undefined}
-      className={`${className ?? ""}${mobile ? ` ${mobileCss.part}` : ""}`}
+      data-part={scene && !mobile && !entrance ? part : undefined}
+      data-footer-part={mobile && !entrance ? part : undefined}
+      data-entrance-part={entrancePart}
+      className={`${className ?? ""}${mobile && !entrance ? ` ${mobileCss.part}` : ""}`}
       initial={false}
       animate={controls}
       transformTemplate={timed ? undefined : () => ""}

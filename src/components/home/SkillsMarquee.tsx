@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { MOBILE_REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
+import { createTravelGate } from "@/lib/section-navigation";
 import styles from "./skills-marquee.module.css";
 
 type MarqueeSkill = { name: string; iconPath: string };
@@ -31,18 +33,24 @@ export function SkillsMarquee({
       return;
 
     node.dataset.entrance = "armed";
+    // Slides up once, on the first visit, when it is properly on screen and not merely touching the
+    // bottom edge. A section jump that only passes through must not spend it unseen.
+    const inset = revealInset(MOBILE_REVEAL_DEPTH);
+    const show = () => {
+      node.dataset.entrance = "visible";
+      observer.disconnect();
+    };
+    const gate = createTravelGate(node, show, inset);
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry) return;
-        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.5;
-        node.dataset.entrance = visible ? "visible" : "armed";
-        // Its entrance plays once, on the first visit. Scrolling past again must not replay it.
-        if (visible) observer.disconnect();
+        if (!entry || gate.passing()) return;
+        if (entry.isIntersecting) show();
       },
-      { threshold: [0, 0.5] },
+      { rootMargin: `0px 0px -${inset}px 0px` },
     );
     observer.observe(node);
     return () => {
+      gate.dispose();
       observer.disconnect();
       // A cancelled observer must never leave the strip hidden.
       if (node.dataset.entrance === "armed") delete node.dataset.entrance;

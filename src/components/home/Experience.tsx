@@ -8,6 +8,7 @@ import { ArrowDownToLine, MapPin } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ExperienceReveal } from "./ExperienceReveal";
+import { useTimelineEntrance } from "./useTimelineEntrance";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
 import labelCss from "@/components/ui/section-label.module.css";
@@ -498,6 +499,7 @@ export function Experience({
   const ultraLandscape = useMediaQuery(ULTRA_LANDSCAPE_QUERY);
   const layout = { portrait, landscape, desktop, desktopDisclosure };
   const listRef = useRef<HTMLDivElement>(null);
+  useTimelineEntrance(listRef, sorted.length > 0);
   const stickStart = useRef<HTMLSpanElement>(null);
   const [activeRole, setActiveRole] = useState(0);
   const [stuck, setStuck] = useState(false);

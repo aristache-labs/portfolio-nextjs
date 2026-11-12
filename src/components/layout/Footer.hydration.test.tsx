@@ -102,7 +102,8 @@ describe("Footer content identity", () => {
       sameNodes(before);
       if (profile === "timed") continue;
       const parts = container.querySelectorAll<HTMLElement>("[data-footer-part], [data-part]");
-      expect(parts).toHaveLength(9);
+      // The headline, subtitle and bottom bar play the shared CSS entrance instead of these drivers.
+      expect(parts).toHaveLength(6);
       for (const part of parts) {
         expect(part.style.opacity).toBe("");
         expect(part.style.transform).toBe("");

@@ -19,6 +19,8 @@ import { SITE } from "@/lib/seo/site";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import layout from "./footer-layout.module.css";
 import wordsCss from "./footer-words.module.css";
+import { useEntranceOnce } from "@/hooks/useEntranceOnce";
+import entranceCss from "./footer-entrance.module.css";
 import { useFooterEntrance } from "./useFooterEntrance";
 import { FOOTER_MOBILE_QUERY, useFooterMobileEntrance } from "./useFooterMobileEntrance";
 import mobileCss from "./footer-mobile-motion.module.css";
@@ -94,12 +96,14 @@ export function Footer({
   const mobile = useMediaQuery(FOOTER_MOBILE_QUERY);
   useFooterEntrance(footer, scene);
   useFooterMobileEntrance(footer, mobile && mode !== "static");
+  // The headline, subtitle, call to action and bottom bar share one timed entrance on every screen.
+  useEntranceOnce(footer, true, "entrance");
 
   return (
     <footer
       ref={footer}
       data-scene={scene || undefined}
-      className={`${layout.footer} ${mobileCss.footer} relative`}
+      className={`${layout.footer} ${mobileCss.footer} ${entranceCss.footer} relative`}
     >
       <div className={`${layout.stage} relative overflow-hidden`}>
         <div aria-hidden className={`${layout.depth} pointer-events-none absolute inset-0`}>
@@ -129,32 +133,22 @@ export function Footer({
 
         <div className="site-container relative z-10 pt-6 pb-24 sm:pb-8 lg:pt-8">
           <div className={`${layout.intro} flex flex-col items-center text-center`}>
-            <FooterPart
-              scene={scene}
-              mobile={mobile}
-              part="title"
-              effect="focus"
-              duration={0.7}
-              delay={0.1}
-            >
-              <p className={headingCss.title}>
+            <FooterPart scene={scene} mobile={mobile} part="title" entrance>
+              <p data-entrance-part="title" className={headingCss.title}>
                 Thanks for <span className={headingCss.accent}>visiting</span>.
               </p>
             </FooterPart>
 
-            <FooterPart
-              scene={scene}
-              mobile={mobile}
-              part="subtitle"
-              effect="fade"
-              duration={0.65}
-              delay={0.15}
-            >
-              <p className={`${subtitleCss.subtitle} mx-auto mt-2 max-w-[580px]`}>
+            <FooterPart scene={scene} mobile={mobile} part="subtitle" entrance>
+              <p
+                data-entrance-part="subtitle"
+                className={`${subtitleCss.subtitle} mx-auto mt-2 max-w-[580px]`}
+              >
                 IT infrastructure, deployment automation, web and mobile development.
               </p>
               {sectionVisibility.contact !== false && (
                 <SectionLink
+                  data-entrance-part="cta"
                   crossPage={!!homeHrefPrefix}
                   scroll={!homeHrefPrefix}
                   href={`${homeHrefPrefix}#contact`}
@@ -379,11 +373,8 @@ export function Footer({
             scene={scene}
             mobile={mobile}
             part="bar"
-            effect="rise"
-            duration={1.8}
-            delay={0.35}
-            ease={[0.22, 0.85, 0.35, 1]}
-            viewportInset={0}
+            entrance
+            entrancePart="bar"
             className={`${layout.legal} ${GLASS_CARD} mt-8 grid items-center gap-3 rounded-2xl border px-6 py-4 text-center sm:mt-10 md:grid-cols-[1fr_auto] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
           >
             <m.div

@@ -156,7 +156,7 @@ describe("Footer", () => {
       </MotionProvider>,
     );
     try {
-      const groups = [layout.identity, layout.legal].map(
+      const groups = [layout.identity].map(
         (className) => container.getElementsByClassName(className)[0] as HTMLElement,
       );
       const nav = screen.getByRole("navigation", { name: "Explore" });
@@ -201,6 +201,26 @@ describe("Footer", () => {
       vi.restoreAllMocks();
       vi.unstubAllGlobals();
     }
+  });
+
+  it("gives the headline, subtitle, button and bottom bar one shared CSS entrance", () => {
+    const { container } = render(<Footer socials={mockSocials} />);
+    const parts = [...container.querySelectorAll<HTMLElement>("[data-entrance-part]")];
+    expect(parts.map((part) => part.dataset.entrancePart).sort()).toEqual([
+      "bar",
+      "cta",
+      "subtitle",
+      "title",
+    ]);
+    // None of them is held by the scroll scene, the phone reveals or an inline style.
+    for (const part of parts) {
+      expect(part.closest("[data-part], [data-footer-part]")).toBeNull();
+      expect(part.style.opacity).toBe("");
+    }
+    expect(container.getElementsByClassName(layout.legal)[0]).toHaveAttribute(
+      "data-entrance-part",
+      "bar",
+    );
   });
 
   it("preserves layout rules for legal navigation and the copyright row", () => {
