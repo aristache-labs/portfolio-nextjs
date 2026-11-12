@@ -12,11 +12,13 @@ const AnalyticsPreferences = dynamic(
 );
 const ScrollToTop = dynamic(() => import("./ScrollToTop"), { ssr: false });
 const SmoothScroll = dynamic(() => import("@/components/motion/SmoothScroll"), { ssr: false });
+const SectionSnap = dynamic(() => import("@/components/motion/SectionSnap"), { ssr: false });
 
 export function DeferredControls() {
   return (
     <>
       <SmoothScroll />
+      <SectionSnap />
       <ScrollToTop />
       <AnalyticsPreferences />
     </>

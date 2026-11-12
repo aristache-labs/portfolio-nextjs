@@ -266,6 +266,7 @@ export function scrollToPosition(
   destinationOrGetter: number | (() => number),
   reducedMotion: boolean,
   onFinish?: (arrived: boolean) => void,
+  options: { duration?: number } = {},
 ): () => void {
   const resolve =
     typeof destinationOrGetter === "function" ? destinationOrGetter : () => destinationOrGetter;
@@ -278,7 +279,8 @@ export function scrollToPosition(
   }
 
   // Roughly 1.1s per 1000px, so nearby sections still glide and far jumps are not rushed.
-  const duration = Math.min(3200, Math.max(900, Math.abs(destination - start) * 1.1));
+  const duration =
+    options.duration ?? Math.min(3200, Math.max(900, Math.abs(destination - start) * 1.1));
   const lenis = getSmoothScroll();
   if (lenis) return scrollWithLenis(lenis, destination, resolve, duration, onFinish);
   let frame = 0;
