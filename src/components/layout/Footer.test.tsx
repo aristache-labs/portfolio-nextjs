@@ -392,9 +392,9 @@ describe("Footer", () => {
     expect(items.slice(0, -1).map((item) => item.textContent)).toEqual([
       "Home",
       "About",
+      "Projects",
       "Skills",
       "Experience",
-      "Projects",
       "Contact",
     ]);
     expect(list).toHaveStyle({ gridTemplateRows: "repeat(3, auto)" });

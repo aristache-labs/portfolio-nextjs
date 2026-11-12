@@ -2,29 +2,29 @@ import { describe, expect, it } from "vitest";
 import { sectionNumbers } from "./section-numbers";
 
 describe("sectionNumbers", () => {
-  it("keeps the original order when all sections are enabled", () => {
+  it("keeps the homepage order when all sections are enabled", () => {
     expect(sectionNumbers({})).toEqual({
       about: "01",
-      skills: "02",
-      experience: "03",
-      projects: "04",
+      projects: "02",
+      skills: "03",
+      experience: "04",
       services: "05",
       contact: "06",
     });
   });
 
-  it("numbers Contact immediately after Projects when Services is disabled", () => {
+  it("numbers Contact immediately after Experience when Services is disabled", () => {
     expect(sectionNumbers({ services: false })).toEqual({
       about: "01",
-      skills: "02",
-      experience: "03",
-      projects: "04",
+      projects: "02",
+      skills: "03",
+      experience: "04",
       contact: "05",
     });
   });
 
   it("has no gaps for every combination of section toggles", () => {
-    const ids = ["about", "skills", "experience", "projects", "services", "contact"];
+    const ids = ["about", "projects", "skills", "experience", "services", "contact"];
     for (let mask = 0; mask < 64; mask++) {
       const visibility = Object.fromEntries(
         ids.map((id, index) => [id, Boolean(mask & (1 << index))]),

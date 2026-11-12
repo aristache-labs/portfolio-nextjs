@@ -1,4 +1,4 @@
-const SECTION_ORDER = ["about", "skills", "experience", "projects", "services", "contact"] as const;
+const SECTION_ORDER = ["about", "projects", "skills", "experience", "services", "contact"] as const;
 
 /** Missing visibility settings mean enabled, matching the homepage query gates. */
 export function sectionNumbers(visibility: Record<string, boolean>) {

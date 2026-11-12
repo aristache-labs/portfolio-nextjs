@@ -8,9 +8,9 @@ test.describe("section navigation", () => {
     const footer = page.getByRole("navigation", { name: "Explore", exact: true });
     for (const [name, id] of [
       ["About", "about"],
+      ["Projects", "projects"],
       ["Skills", "skills"],
       ["Experience", "experience"],
-      ["Projects", "projects"],
       ["Contact", "contact"],
       ["Home", "hero"],
     ]) {
@@ -57,6 +57,8 @@ test.describe("section navigation", () => {
   test("clears the contact anchor at the top and returns from Privacy to Skills", async ({
     page,
   }) => {
+    // The consent banner hides Scroll to top until a choice has been made.
+    await page.addInitScript(() => localStorage.setItem("analytics-consent-v2", "rejected"));
     await page.goto("/");
     const contact = page.getByRole("link", { name: "Get in Touch", exact: true });
     const navigation = page.getByRole("navigation", { name: "Primary", exact: true });

@@ -84,7 +84,11 @@ async function ready(page: Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-test("portrait hero fills the first screen without shifting its heading", async ({ page }) => {
+// The portrait hero is at least min(screen, 44rem) tall (Hero.tsx, since 2026-11-06), so on a tall
+// phone the next section may peek in under it. It must still not shift its heading with the screen.
+const PORTRAIT_HERO_FLOOR = 44 * 16;
+
+test("portrait hero keeps its height floor without shifting its heading", async ({ page }) => {
   const samples = [];
   for (const height of [932, 740]) {
     await page.setViewportSize({ width: 430, height });
@@ -100,7 +104,6 @@ test("portrait hero fills the first screen without shifting its heading", async 
         const roles = document.querySelector("#hero .site-container")!.getBoundingClientRect();
         return {
           viewportHeight: window.innerHeight,
-          screenFloor: matchMedia("(pointer: coarse)").matches ? screen.height : 0,
           heroBottom: hero.bottom,
           headingTop: heading.top - hero.top,
           heroHeight: hero.height,
@@ -113,9 +116,9 @@ test("portrait hero fills the first screen without shifting its heading", async 
   }
   expect(Math.abs(samples[0].headingTop - samples[1].headingTop)).toBeLessThanOrEqual(1);
   for (const sample of samples) {
-    expect(sample.heroHeight).toBeGreaterThanOrEqual(sample.viewportHeight - 1);
-    expect(sample.heroHeight).toBeGreaterThanOrEqual(sample.screenFloor - 1);
-    expect(sample.heroBottom).toBeGreaterThanOrEqual(sample.viewportHeight - 1);
+    const floor = Math.min(sample.viewportHeight, PORTRAIT_HERO_FLOOR);
+    expect(sample.heroHeight).toBeGreaterThanOrEqual(floor - 1);
+    expect(sample.heroBottom).toBeGreaterThanOrEqual(floor - 1);
     expect(sample.cueTop).toBeGreaterThanOrEqual(sample.contentBottom);
     expect(sample.cueBottom).toBeLessThan(sample.heroHeight);
   }
