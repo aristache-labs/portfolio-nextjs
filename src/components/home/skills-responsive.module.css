@@ -91,8 +91,8 @@
   }
 
   .section [role="tab"] {
-    min-height: 34px;
-    padding: 10px 14px;
+    min-height: 30px;
+    padding: 8px 14px;
     font-size: 12px;
     line-height: 0.9;
   }
@@ -593,5 +593,46 @@
 @media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .backdrop {
     opacity: 0.3;
+  }
+}
+
+/* Short phones. Browser toolbars take height, so on a short screen the cards and the icon strip
+   under them ended just below the bottom edge after a jump to Skills. The spacing and cards are
+   trimmed a little here, on short screens only; taller screens keep the original rhythm. */
+@media (max-width: 767px) and (orientation: portrait) and (max-height: 780px) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  .sectionLabel.sectionLabel {
+    margin-bottom: 10px;
+  }
+
+  .description p {
+    margin-top: 10px;
+  }
+
+  .tools {
+    margin-top: 14px;
+  }
+
+  .grid {
+    margin-top: 10px;
+    gap: 8px;
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+  .sectionLabel.sectionLabel {
+    margin-bottom: 8px;
+  }
+
+  .description p {
+    margin-top: 8px;
+  }
+
+  .tools {
+    margin-top: 12px;
+  }
+
+  .grid {
+    margin-top: 8px;
+    gap: 8px;
   }
 }

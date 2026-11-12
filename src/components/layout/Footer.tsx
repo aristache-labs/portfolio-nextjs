@@ -21,6 +21,9 @@ import layout from "./footer-layout.module.css";
 import wordsCss from "./footer-words.module.css";
 import { useEntranceOnce } from "@/hooks/useEntranceOnce";
 import entranceCss from "./footer-entrance.module.css";
+
+/** Longest entrance in footer-entrance.module.css (delay plus duration), with a little to spare. */
+const FOOTER_ENTRANCE_MS = 2000;
 import { useFooterEntrance } from "./useFooterEntrance";
 import { FOOTER_MOBILE_QUERY, useFooterMobileEntrance } from "./useFooterMobileEntrance";
 import mobileCss from "./footer-mobile-motion.module.css";
@@ -97,7 +100,8 @@ export function Footer({
   useFooterEntrance(footer, scene);
   useFooterMobileEntrance(footer, mobile && mode !== "static");
   // The headline, subtitle, call to action and bottom bar share one timed entrance on every screen.
-  useEntranceOnce(footer, true, "entrance");
+  // The state outlasts the slowest part: the bottom bar starts at 850ms and runs for 800ms.
+  useEntranceOnce(footer, true, "entrance", FOOTER_ENTRANCE_MS);
 
   return (
     <footer
@@ -166,6 +170,7 @@ export function Footer({
                 mobile={mobile}
                 part="line"
                 effect="line"
+                delay={0.4}
                 className="flex-1 origin-right"
               >
                 <span
@@ -179,7 +184,7 @@ export function Footer({
                 part="sparkle"
                 effect="zoom"
                 duration={0.6}
-                delay={0.1}
+                delay={0.3}
                 className="shrink-0"
               >
                 <Sparkle
@@ -192,6 +197,7 @@ export function Footer({
                 mobile={mobile}
                 part="line"
                 effect="line"
+                delay={0.4}
                 className="flex-1 origin-left"
               >
                 <span
@@ -211,7 +217,7 @@ export function Footer({
               part="logo"
               effect="zoom"
               duration={0.7}
-              delay={0.1}
+              delay={0.3}
               className={`${layout.identity} flex min-w-0 flex-col items-center justify-center`}
             >
               <div className="flex flex-col items-center text-center">
@@ -248,7 +254,7 @@ export function Footer({
               part="explore"
               effect="cascade"
               duration={0}
-              delay={0.1}
+              delay={0.3}
               staggerChildren={0.08}
               className={`${layout.explore} ${NAV_DIVIDER} max-sm:flex max-sm:flex-col max-sm:items-center lg:flex lg:flex-col lg:items-center [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
             >
@@ -309,7 +315,7 @@ export function Footer({
               part="legal"
               effect="cascade"
               duration={0}
-              delay={0.1}
+              delay={0.3}
               staggerChildren={0.08}
               className={`${layout.resources} ${DIVIDER} sm:col-span-2 lg:col-span-1 lg:self-start [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:self-start`}
             >

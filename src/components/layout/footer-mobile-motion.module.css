@@ -9,7 +9,7 @@
     --footer-x: 0px;
     --footer-y: 28px;
     --footer-scale: 1;
-    --footer-delay: 0ms;
+    --footer-delay: 200ms;
   }
 
   .part[data-footer-part="logo"] {
@@ -18,7 +18,7 @@
   }
 
   .part[data-footer-part="legal"] {
-    --footer-delay: 80ms;
+    --footer-delay: 280ms;
   }
 
   .part[data-footer-part="bar"] {
@@ -38,8 +38,8 @@
   }
 
   .part[data-footer-reveal="play"] :is(nav h3, nav li) {
-    animation: footer-link-arrive 650ms var(--footer-item-delay, 0ms) cubic-bezier(0.22, 1, 0.36, 1)
-      both;
+    animation: footer-link-arrive 650ms calc(var(--footer-item-delay, 0ms) + 200ms)
+      cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .part[data-footer-part="line"][data-footer-reveal="play"] {

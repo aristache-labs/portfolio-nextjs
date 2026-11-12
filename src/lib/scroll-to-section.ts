@@ -132,6 +132,16 @@ function navigationGap(target: HTMLElement) {
   ) {
     return SECTION_NAV_GAP + 40;
   }
+  // Portrait phones: Skills lands with its heading a little nearer the bar. Browser toolbars take
+  // height, and the cards with the icon strip under them have to stay on screen.
+  if (
+    target.id === "skills" &&
+    window.innerWidth <= 767 &&
+    window.innerHeight > window.innerWidth &&
+    !window.matchMedia(FOLD_VIEWPORT_QUERY).matches
+  ) {
+    return SECTION_NAV_GAP - 20;
+  }
   // Touch landscape tablets: land Skills higher so the last card row stays on screen.
   if (
     target.id === "skills" &&

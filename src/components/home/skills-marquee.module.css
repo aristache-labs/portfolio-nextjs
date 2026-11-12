@@ -134,3 +134,17 @@
     display: none;
   }
 }
+
+/* Short phones: the strip sits closer to the cards, so it is on screen after a jump to Skills. */
+@media (max-width: 767px) and (orientation: portrait) and (max-height: 780px) {
+  .marquee {
+    margin-top: 10px;
+  }
+}
+
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (max-height: 500px) {
+  .marquee {
+    height: 38px;
+    margin-top: 6px;
+  }
+}
