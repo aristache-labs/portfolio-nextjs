@@ -1,6 +1,6 @@
 {
   "name": "portfolio-nextjs",
-  "version": "2.4.67",
+  "version": "2.4.68",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -H 192.168.1.103 -p 4000",
