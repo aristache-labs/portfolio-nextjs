@@ -331,13 +331,13 @@ export function Contact({
           <SectionBackdrop
             frame="desktop-screen"
             video="/media/contact-v3.mp4"
-            poster="/media/experience.webp"
+            poster="/media/contact-frame.webp"
             fetchPriority="low"
             deferUntilHeroLoaded
             deferUntilNearViewport
             responsivePoster={{
               srcSet:
-                "/media/experience-640.webp 640w, /media/experience-960.webp 960w, /media/experience-1600.webp 1600w",
+                "/media/contact-frame-640.webp 640w, /media/contact-frame-960.webp 960w, /media/contact-frame-1600.webp 1600w",
               aspectRatio: 16 / 9,
             }}
             scrim="bg-background/90 absolute inset-0 md:bg-background/90"

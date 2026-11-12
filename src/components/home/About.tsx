@@ -93,16 +93,16 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
         <>
           <SectionBackdrop
             video="/media/about-v3.mp4"
-            poster="/media/about.webp"
+            poster="/media/about-frame.webp"
             fetchPriority="low"
             deferUntilHeroLoaded
             deferUntilNearViewport
             responsivePoster={{
               srcSet:
-                "/media/about-640.webp 640w, /media/about-960.webp 960w, /media/about.webp 1600w",
+                "/media/about-frame-640.webp 640w, /media/about-frame-960.webp 960w, /media/about-frame.webp 1600w",
               aspectRatio: 16 / 9,
               portrait: {
-                srcSet: "/media/about-640.webp 640w, /media/about-960.webp 960w",
+                srcSet: "/media/about-frame-640.webp 640w, /media/about-frame-960.webp 960w",
                 maxWidth: 960,
               },
             }}

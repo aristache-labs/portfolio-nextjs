@@ -83,7 +83,8 @@ Edit `src/lib/brand.ts`, then its hand-written mirrors in `globals.css`: the `@t
 ## Commands
 
 ```bash
-bun run dev          # Turbopack dev server on port 4000
+bun run dev          # Turbopack dev server on port 4000, bound to the developer's LAN address
+bun run dev:ci       # same on localhost, for Playwright and CI (the LAN address does not exist there)
 bun run db:seed      # seed the database
 bun run db:studio    # inspect it
 ```

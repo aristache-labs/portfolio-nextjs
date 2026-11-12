@@ -3,6 +3,7 @@ import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
 import { BACKGROUND_VIDEO_QUERY } from "@/hooks/useMediaQuery";
+import { beginSectionNavigation } from "@/lib/section-navigation";
 import { SectionBackdrop } from "./SectionBackdrop";
 
 class FakeIO {
@@ -49,6 +50,7 @@ describe("SectionBackdrop", () => {
   }
 
   beforeEach(() => {
+    vi.useFakeTimers();
     vi.stubGlobal("IntersectionObserver", FakeIO);
     vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue();
     vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
@@ -60,6 +62,7 @@ describe("SectionBackdrop", () => {
     hero = undefined;
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    vi.useRealTimers();
   });
 
   it("never mounts a video on mobile, only the lazy poster", () => {
@@ -172,10 +175,73 @@ describe("SectionBackdrop", () => {
     expect(video).toHaveAttribute("src", "/a.mp4");
     expect(video.play).not.toHaveBeenCalled();
     act(() => FakeIO.emit(root, "0px", true));
+    // Decoding waits for scrolling to settle, so a fast scroll never starts it.
+    expect(video.play).not.toHaveBeenCalled();
+    act(() => {
+      vi.advanceTimersByTime(250);
+    });
     expect(video.play).toHaveBeenCalledOnce();
     Object.defineProperty(video, "paused", { configurable: true, value: false });
     act(() => FakeIO.emit(root, "0px", false));
     expect(video.pause).toHaveBeenCalledOnce();
+  });
+
+  describe("while a section jump travels", () => {
+    let destination: HTMLElement;
+
+    beforeEach(() => {
+      destination = document.createElement("section");
+      document.body.append(destination);
+    });
+
+    afterEach(() => destination.remove());
+
+    it("does not attach or play a section the jump only passes through", () => {
+      installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true });
+      const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
+      const video = container.querySelector("video")!;
+      const root = video.parentElement!;
+      const finish = beginSectionNavigation(destination);
+      act(() => FakeIO.emit(root, "200px 0px", true));
+      act(() => FakeIO.emit(root, "0px", true));
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(video).not.toHaveAttribute("src");
+      expect(video.play).not.toHaveBeenCalled();
+      act(() => finish(true));
+    });
+
+    it("starts it when the jump lands with the section on screen", () => {
+      installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true });
+      const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
+      const video = container.querySelector("video")!;
+      const root = video.parentElement!;
+      vi.spyOn(root, "getBoundingClientRect").mockReturnValue({ top: 100, bottom: 700 } as DOMRect);
+      const finish = beginSectionNavigation(destination);
+      act(() => FakeIO.emit(root, "200px 0px", true));
+      act(() => FakeIO.emit(root, "0px", true));
+      expect(video).not.toHaveAttribute("src");
+      act(() => finish(true));
+      expect(video).toHaveAttribute("src", "/a.mp4");
+      act(() => {
+        vi.advanceTimersByTime(250);
+      });
+      expect(video.play).toHaveBeenCalledOnce();
+    });
+
+    it("loads it on a later visit once the jump is over", () => {
+      installMatchMedia({ [BACKGROUND_VIDEO_QUERY]: true });
+      const { container } = render(<SectionBackdrop video="/a.mp4" poster="/a.webp" />);
+      const video = container.querySelector("video")!;
+      const root = video.parentElement!;
+      const finish = beginSectionNavigation(destination);
+      act(() => FakeIO.emit(root, "200px 0px", true));
+      act(() => finish(true));
+      expect(video).not.toHaveAttribute("src");
+      act(() => FakeIO.emit(root, "200px 0px", true));
+      expect(video).toHaveAttribute("src", "/a.mp4");
+    });
   });
 
   it.each(["hero first", "viewport first"])(

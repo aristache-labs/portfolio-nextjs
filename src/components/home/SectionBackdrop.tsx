@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { BACKGROUND_VIDEO_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { useHeroPosterReady } from "@/hooks/useHeroPosterReady";
+import { subscribeScroll } from "@/lib/scroll-state";
+import { createTravelGate } from "@/lib/section-navigation";
 import foldCss from "./section-backdrop.module.css";
 
 type Listener = (visible: boolean) => void;
@@ -42,7 +44,10 @@ function observe(el: Element, rootMargin: string, listener: Listener) {
 }
 
 /** Attach the video source nearby; preload="none" defers data until playback. */
-const LOAD_MARGIN = "200px 0px";
+const LOAD_DISTANCE = 200;
+const LOAD_MARGIN = `${LOAD_DISTANCE}px 0px`;
+/** Quiet time after the last scroll before a section's loop starts playing. */
+const PLAY_SETTLE_DELAY = 250;
 /** Only visible sections should decode and play video frames. */
 const PLAY_MARGIN = "0px";
 const POSTER_MARGIN = "600px 0px";
@@ -164,11 +169,27 @@ export function SectionBackdrop({
   useEffect(() => {
     const root = rootRef.current;
     if (!showVideo || !root) return;
-    const stopLoad = observe(root, LOAD_MARGIN, (visible) => {
-      if (visible) setNear(true);
+    // A section jump that only passes through must not attach or play this video on its way:
+    // every passed section would start fetching and decoding at once. If the jump lands with this
+    // backdrop already near, the observers will not report it again, so start it here.
+    const gate = createTravelGate(
+      root,
+      () => {
+        const rect = root.getBoundingClientRect();
+        setNear(true);
+        setVisible(rect.top < window.innerHeight && rect.bottom > 0);
+      },
+      -LOAD_DISTANCE,
+    );
+    const stopLoad = observe(root, LOAD_MARGIN, (nearby) => {
+      if (nearby && !gate.passing()) setNear(true);
     });
-    const stopPlay = observe(root, PLAY_MARGIN, setVisible);
+    const stopPlay = observe(root, PLAY_MARGIN, (inView) => {
+      if (inView && gate.passing()) return;
+      setVisible(inView);
+    });
     return () => {
+      gate.dispose();
       stopLoad();
       stopPlay();
     };
@@ -177,8 +198,26 @@ export function SectionBackdrop({
   useEffect(() => {
     const node = videoRef.current;
     if (!node || !showVideo || !near) return;
-    if (visible) node.play().catch(() => {});
-    else if (!node.paused) node.pause();
+    if (!visible) {
+      if (!node.paused) node.pause();
+      return;
+    }
+    // Playing rebuilds the decoder, so wait for scrolling to settle first. A long jump or a fast
+    // scroll then costs nothing for the sections it crosses, and only the one it stops on plays.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const schedule = () => {
+      clearTimeout(timer);
+      if (!node.paused) return;
+      timer = setTimeout(() => {
+        node.play().catch(() => {});
+      }, PLAY_SETTLE_DELAY);
+    };
+    schedule();
+    const unsubscribe = subscribeScroll(schedule);
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, [showVideo, near, visible]);
 
   const screen = frame === "screen";

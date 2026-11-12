@@ -30,7 +30,8 @@ export default defineConfig({
     })),
   ],
   webServer: {
-    command: "bun run dev",
+    // Not `bun run dev`: that script binds the developer's LAN address, which CI does not have.
+    command: "bun run dev:ci",
     url: "http://localhost:4000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
