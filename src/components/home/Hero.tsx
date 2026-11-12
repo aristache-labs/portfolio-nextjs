@@ -1,6 +1,5 @@
 "use client";
 
-import { HeroSwingText } from "./HeroSwingText";
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { preload } from "react-dom";
 import dynamic from "next/dynamic";
@@ -17,6 +16,7 @@ import {
 } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
+import { HeroSwingText } from "./HeroSwingText";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
 import { HeroDepth } from "./HeroDepth";
 

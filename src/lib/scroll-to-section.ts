@@ -7,7 +7,7 @@ import { FOLD_VIEWPORT_QUERY, TOUCH_LANDSCAPE_QUERY } from "./motion-queries";
 
 // A sine ease has the lowest top speed of the ease-in-out curves (about 1.6x the average), so the
 // middle of a long jump does not rush. It still starts and stops softly.
-const smoothStep = (progress: number) => (1 - Math.cos(Math.PI * progress)) / 2;
+const easeInOutSine = (progress: number) => (1 - Math.cos(Math.PI * progress)) / 2;
 const NAVIGATION_KEYS = [
   "Escape",
   "ArrowDown",
@@ -53,7 +53,7 @@ function scrollWithLenis(
   window.addEventListener("wheel", release, { passive: true });
   lenis.scrollTo(destination, {
     duration: duration / 1000,
-    easing: smoothStep,
+    easing: easeInOutSine,
     onComplete: () => stop(true),
   });
   return cancel;
@@ -280,7 +280,7 @@ export function scrollToPosition(
   const tick = (now: number) => {
     startedAt ??= now;
     const progress = Math.min(1, (now - startedAt) / duration);
-    const eased = smoothStep(progress);
+    const eased = easeInOutSine(progress);
     const goal = resolve();
     window.scrollTo({ top: start + (goal - start) * eased, behavior: "instant" });
     if (progress < 1) frame = requestAnimationFrame(tick);

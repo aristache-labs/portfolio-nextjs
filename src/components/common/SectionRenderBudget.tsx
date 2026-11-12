@@ -47,14 +47,23 @@ export function SectionRenderBudget() {
       timer = setTimeout(apply, RESIZE_SETTLE_MS);
     };
 
+    // Browser chrome (the address bar) resizes the viewport while scrolling. Measuring again
+    // would render every skipped section at once, so only a change of width does.
+    let measuredWidth = window.innerWidth;
+    const onResize = () => {
+      if (window.innerWidth === measuredWidth) return;
+      measuredWidth = window.innerWidth;
+      schedule();
+    };
+
     if (document.readyState === "complete") schedule();
     else window.addEventListener("load", schedule, { once: true });
-    window.addEventListener("resize", schedule);
+    window.addEventListener("resize", onResize);
     touchLandscape.addEventListener("change", schedule);
     return () => {
       clearTimeout(timer);
       window.removeEventListener("load", schedule);
-      window.removeEventListener("resize", schedule);
+      window.removeEventListener("resize", onResize);
       touchLandscape.removeEventListener("change", schedule);
       clear();
     };

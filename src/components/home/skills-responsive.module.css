@@ -171,25 +171,6 @@
   line-height: 1.65;
 }
 
-.quoteIcon {
-  position: absolute;
-  top: -8px;
-  left: 16px;
-  width: 16px;
-  height: 16px;
-  color: var(--brand-mid);
-  fill: var(--brand-mid);
-}
-
-.quoteAccent {
-  display: block;
-  width: 32px;
-  height: 2px;
-  margin: 10px auto 0;
-  background: var(--brand-mid);
-  box-shadow: 0 0 12px rgb(var(--brand-mid-rgb) / 0.45);
-}
-
 @keyframes quote-float {
   0%,
   100% {
@@ -286,12 +267,6 @@
     font-size: 10px;
     line-height: 1.5;
   }
-  .quoteIcon {
-    width: 14px;
-    height: 14px;
-    top: -6px;
-    left: 10px;
-  }
 }
 
 @media (max-width: 1023px) {
@@ -303,7 +278,7 @@
   .quoteAnchor {
     position: absolute;
     right: 0;
-    width: 174px; 
+    width: 174px;
     top: 0px;
   }
 
@@ -338,10 +313,6 @@
 
   .quote {
     padding: 10px 10px 8px;
-  }
-
-  .quoteAccent {
-    margin-top: 8px;
   }
 }
 
