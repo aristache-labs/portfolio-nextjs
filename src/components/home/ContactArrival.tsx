@@ -1,7 +1,7 @@
 "use client";
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
-import { sectionNavigationPending } from "@/lib/section-navigation";
+import { createTravelGate, sectionNavigationPending } from "@/lib/section-navigation";
 import { settleWhenDone } from "@/lib/settle-animations";
 
 import { useLayoutEffect, useRef, type CSSProperties, type RefObject } from "react";
@@ -97,21 +97,37 @@ export function ContactArrival({
     // Set by focus or a press on the form, not by an arrival settling: steps still below the fold
     // must keep playing after the card itself has finished.
     let userSettled = false;
+    const play = (target: HTMLElement) => {
+      target.dataset.contactReveal = "play";
+      observer.unobserve(target);
+      // Hand the finished element back to plain styles so it stops holding a compositor layer.
+      stopSettling.push(
+        settleWhenDone(target, () => {
+          if (target.dataset.contactReveal === "play") target.dataset.contactReveal = "static";
+        }),
+      );
+    };
+    // The jump landed with steps already on screen: the observer will not report them again.
+    const gate = createTravelGate(
+      node,
+      () => {
+        if (userSettled) return;
+        for (const target of targets) {
+          const rect = target.getBoundingClientRect();
+          const armed = target.dataset.contactReveal === "armed";
+          if (armed && rect.top < window.innerHeight - 24 && rect.bottom > 0) play(target);
+        }
+      },
+      24,
+    );
     const observer = new IntersectionObserver(
       (entries) => {
-        if (sectionNavigationPending(node)) return;
+        if (sectionNavigationPending(node) || gate.passing()) return;
         if (userSettled) return;
         for (const entry of entries) {
-          if (!entry.isIntersecting && entry.boundingClientRect.bottom > 0) continue;
-          const target = entry.target as HTMLElement;
-          target.dataset.contactReveal = "play";
-          observer.unobserve(target);
-          // Hand the finished element back to plain styles so it stops holding a compositor layer.
-          stopSettling.push(
-            settleWhenDone(target, () => {
-              if (target.dataset.contactReveal === "play") target.dataset.contactReveal = "static";
-            }),
-          );
+          if (!entry.isIntersecting && (entry.boundingClientRect.bottom > 0 || gate.isSkipped()))
+            continue;
+          play(entry.target as HTMLElement);
         }
       },
       { rootMargin: "0px 0px -24px 0px", threshold: 0.08 },
@@ -127,6 +143,7 @@ export function ContactArrival({
     node.addEventListener("focusin", settle);
     if (kind === "form") node.addEventListener("pointerdown", settle);
     return () => {
+      gate.dispose();
       stopSettling.forEach((stop) => stop());
       observer.disconnect();
       node.removeEventListener("focusin", settle);

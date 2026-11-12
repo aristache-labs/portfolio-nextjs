@@ -1931,12 +1931,23 @@
 }
 
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  .actionFirst {
+  /* The two actions sit together at rest. The callouts beside the first one need room, so the
+     second slides over only while they show. */
+  .actionFirst:hover,
+  .actionFirst:focus-within {
     margin-right: 94px;
   }
 
   .buttonAnnotations {
     display: block;
+  }
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* Only the property list: the wrapper's utility classes already set the duration and easing for
+     its magnetic transform, and a `transition` shorthand here would replace them. */
+  .actionFirst {
+    transition-property: transform, margin-right;
   }
 }
 

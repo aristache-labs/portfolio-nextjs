@@ -1,7 +1,7 @@
 "use client";
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
-import { sectionNavigationPending } from "@/lib/section-navigation";
+import { createTravelGate, sectionNavigationPending } from "@/lib/section-navigation";
 
 import { m, useAnimationControls } from "framer-motion";
 import {
@@ -74,10 +74,11 @@ export function SolidSkillEntrance({
           sequence.publish("complete");
         });
     };
+    const gate = createTravelGate(node.current, start);
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry?.isIntersecting && node.current && !sectionNavigationPending(node.current))
-          start();
+        if (!node.current || sectionNavigationPending(node.current) || gate.passing()) return;
+        if (entry?.isIntersecting) start();
       },
       { threshold: 0.1 },
     );
@@ -91,6 +92,7 @@ export function SolidSkillEntrance({
     const element = node.current;
     element.addEventListener("focusin", focus);
     return () => {
+      gate.dispose();
       active = false;
       observer.disconnect();
       controls.stop();
@@ -236,11 +238,12 @@ export function SkillEntrance({
           sequence.publish("complete");
         });
     };
+    const gate = createTravelGate(node, start, 32);
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (sectionNavigationPending(node)) return;
+        if (sectionNavigationPending(node) || gate.passing()) return;
         if (entry?.isIntersecting && entry.intersectionRatio >= 0.1) start();
-        else if (entry && entry.boundingClientRect.bottom <= 0) {
+        else if (entry && entry.boundingClientRect.bottom <= 0 && !gate.isSkipped()) {
           observer.disconnect();
           finish();
         }
@@ -252,12 +255,14 @@ export function SkillEntrance({
       finish();
     };
     const skipped = () => {
+      if (gate.passing() || gate.isSkipped()) return;
       if (!started && node.getBoundingClientRect().bottom <= 0) focus();
     };
     observer.observe(node);
     node.addEventListener("focusin", focus);
     window.addEventListener("scrollend", skipped);
     return () => {
+      gate.dispose();
       active = false;
       observer?.disconnect();
       controls.stop();

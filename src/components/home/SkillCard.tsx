@@ -1,6 +1,7 @@
 "use client";
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { createTravelGate } from "@/lib/section-navigation";
 
 import Image from "next/image";
 import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
@@ -94,7 +95,9 @@ export function SkillCard({
       animation?.stop();
       update(percent);
     };
+    let travel: ReturnType<typeof createTravelGate> | undefined;
     const onScrollEnd = () => {
+      if (travel?.passing() || travel?.isSkipped()) return;
       if (!started.current && node.getBoundingClientRect().top < window.innerHeight) finish();
     };
     const start = (delay: number) => {
@@ -132,12 +135,14 @@ export function SkillCard({
       });
     } else {
       update(0);
+      const gate = createTravelGate(node, () => start(0.4));
+      travel = gate;
       observer = new IntersectionObserver((entries) => {
-        if (!active || started.current) return;
+        if (!active || started.current || gate.passing()) return;
         const entry = entries.find((item) => item.target === node);
         if (!entry) return;
         if (!entry.isIntersecting) {
-          if (entry.boundingClientRect.bottom <= 0) finish();
+          if (entry.boundingClientRect.bottom <= 0 && !gate.isSkipped()) finish();
           return;
         }
         start(0.4);
@@ -147,6 +152,7 @@ export function SkillCard({
     }
     return () => {
       active = false;
+      travel?.dispose();
       unsubscribe?.();
       observer?.disconnect();
       animation?.stop();

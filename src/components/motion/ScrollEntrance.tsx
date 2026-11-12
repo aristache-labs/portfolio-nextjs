@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
 import { animate, useScroll } from "framer-motion";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { sectionTravelSkips, subscribeSectionNavigationComplete } from "@/lib/section-navigation";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
 import styles from "./scroll-entrance.module.css";
@@ -68,8 +69,35 @@ export function useScrollEntrance(
     }
     let animation: ReturnType<typeof animate> | undefined;
     let peak = -1;
+    // A section jump passed this element before it ever entered. Computing its scroll progress
+    // mid-jump would finish the entrance unseen, so it waits and plays timed on the first visit.
+    let skipped = false;
+    const playTimed = () => {
+      skipped = false;
+      element.style.setProperty("--entry", "0");
+      animation = animate(0, 1, {
+        duration: 0.8,
+        onUpdate: (value) => element.style.setProperty("--entry", String(value)),
+        onComplete: () => {
+          peak = 1;
+        },
+      });
+    };
     const update = () => {
       if (animation) return;
+      if (sectionTravelSkips(element)) {
+        if (peak < 1) skipped = true;
+        return;
+      }
+      if (skipped) {
+        const bounds = element.getBoundingClientRect();
+        // Above the screen it stays prepared; on screen it plays timed; below it enters by scroll.
+        if (bounds.bottom <= 0) return;
+        if (bounds.top < innerHeight) {
+          if (mode === "static") skipped = false;
+          else return playTimed();
+        } else skipped = false;
+      }
       const travelled = (START * innerHeight - element.getBoundingClientRect().top) / innerHeight;
       const current = smoothstep(phaseProgress(travelled, lag, lag + SPAN));
       if (current <= peak) return;
@@ -84,20 +112,16 @@ export function useScrollEntrance(
     };
     const bounds = element.getBoundingClientRect();
     if (navigation.replay && mode !== "static" && bounds.top < innerHeight && bounds.bottom > 0) {
-      element.style.setProperty("--entry", "0");
-      animation = animate(0, 1, {
-        duration: 0.8,
-        onUpdate: (value) => element.style.setProperty("--entry", String(value)),
-        onComplete: () => {
-          peak = 1;
-        },
-      });
+      playTimed();
     } else update();
     const unsubscribe = scrollY.on("change", update);
+    // The jump has landed: a skipped element left on screen is not followed by another scroll.
+    const unsubscribeTravel = subscribeSectionNavigationComplete(update);
     window.addEventListener("resize", update);
     element.addEventListener("focusin", reveal);
     return () => {
       unsubscribe();
+      unsubscribeTravel();
       animation?.stop();
       window.removeEventListener("resize", update);
       element.removeEventListener("focusin", reveal);

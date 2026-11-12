@@ -5,7 +5,11 @@ import { useLayoutEffect, useMemo, useRef, type ReactNode, type RefObject } from
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { createRevealSequence, RevealSequence } from "./RevealSequence";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
-import { sectionNavigationPending } from "@/lib/section-navigation";
+import {
+  sectionNavigationPending,
+  sectionTravelSkips,
+  subscribeSectionNavigationComplete,
+} from "@/lib/section-navigation";
 
 const VISIBLE = { opacity: 1, x: 0, y: 0 };
 
@@ -76,8 +80,12 @@ export function useProgressiveReveal({
       return;
     }
     let observer: IntersectionObserver | undefined;
+    let unsubscribeTravel: (() => void) | undefined;
     let active = true;
     let settled = false;
+    // A section jump passed this element on its way elsewhere. It stays prepared and plays on the
+    // first real visit instead of being finished off-screen or animated mid-jump.
+    let skippedByTravel = false;
     let rightStart = 0;
     const setRightStart = (bounds: DOMRectReadOnly) => {
       rightStart = Math.max(0, window.innerWidth - bounds.left) + 24;
@@ -110,6 +118,7 @@ export function useProgressiveReveal({
     };
     const onScrollEnd = () => {
       if (finished.current || sectionNavigationPending(node)) return;
+      if (skippedByTravel || sectionTravelSkips(node)) return;
       // The observer owns the first entrance after our explicit navigation completion.
       const bounds = node.getBoundingClientRect();
       if (navigation.replay && bounds.top < window.innerHeight && bounds.bottom > 0) return;
@@ -133,53 +142,70 @@ export function useProgressiveReveal({
       show(bounds);
     } else {
       const expressive = mode === "expressive";
+      const inset = Math.min(viewportInset, Math.round(window.innerHeight * 0.15));
+      const enter = () => {
+        skippedByTravel = false;
+        finished.current = true;
+        observer?.disconnect();
+        if (effect === "cascade") {
+          void controls.start("visible").then(() => {
+            if (active && !settled) sequence.publish("complete");
+          });
+          return;
+        }
+        const entrance = controls.start({
+          opacity: effect === "slide-from-right" || !fade ? 1 : [0, 1],
+          ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
+          ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
+          ...(effect === "fade-from-left" ? { x: [-48, 0] } : {}),
+          ...(fromRight ? { x: [rightStart, 0] } : {}),
+          ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
+          ...(effect === "zoom" ? { scale: [0.9, 1] } : {}),
+          ...(effect === "line" ? { scaleX: [0, 1] } : {}),
+          transition: {
+            duration,
+            delay: delay ?? (expressive ? desktopDelay : 0.3),
+            ease: ease ?? (effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1]),
+          },
+        });
+        if (effect === "zoom") {
+          void entrance.then(() => {
+            if (active && !settled) sequence.publish("complete");
+          });
+        }
+      };
       observer = new IntersectionObserver(
         (entries) => {
           if (!active || finished.current || sectionNavigationPending(node)) return;
           const entry = entries.find((item) => item.target === node);
           if (!entry) return;
+          // A jump is only passing through: stay prepared, play on the first real visit.
+          if (sectionTravelSkips(node)) {
+            skippedByTravel = true;
+            return;
+          }
           if (!entry.isIntersecting) {
             // Keep skipped content visible without animating above the viewport.
-            if (entry.boundingClientRect.bottom <= 0) {
+            if (entry.boundingClientRect.bottom <= 0 && !skippedByTravel) {
               observer?.disconnect();
               show(entry.boundingClientRect);
             }
             return;
           }
-          finished.current = true;
-          observer?.disconnect();
-          if (effect === "cascade") {
-            void controls.start("visible").then(() => {
-              if (active && !settled) sequence.publish("complete");
-            });
-            return;
-          }
-          const entrance = controls.start({
-            opacity: effect === "slide-from-right" || !fade ? 1 : [0, 1],
-            ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
-            ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
-            ...(effect === "fade-from-left" ? { x: [-48, 0] } : {}),
-            ...(fromRight ? { x: [rightStart, 0] } : {}),
-            ...(effect === "focus" ? { scale: [expressive ? 0.97 : 0.99, 1] } : {}),
-            ...(effect === "zoom" ? { scale: [0.9, 1] } : {}),
-            ...(effect === "line" ? { scaleX: [0, 1] } : {}),
-            transition: {
-              duration,
-              delay: delay ?? (expressive ? desktopDelay : 0.3),
-              ease: ease ?? (effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1]),
-            },
-          });
-          if (effect === "zoom") {
-            void entrance.then(() => {
-              if (active && !settled) sequence.publish("complete");
-            });
-          }
+          enter();
         },
         {
           // Wait until the element has moved beyond the bottom edge of the screen.
-          rootMargin: `0px 0px -${Math.min(viewportInset, Math.round(window.innerHeight * 0.15))}px 0px`,
+          rootMargin: `0px 0px -${inset}px 0px`,
         },
       );
+      // The jump has landed. If the page stopped with this element already on screen the observer
+      // will not report it again, so start its entrance now. Anything above stays prepared.
+      unsubscribeTravel = subscribeSectionNavigationComplete(() => {
+        if (!active || finished.current || !skippedByTravel) return;
+        const rect = node.getBoundingClientRect();
+        if (rect.top < window.innerHeight - inset && rect.bottom > 0) enter();
+      });
       // Prepare only offscreen content, before it can be seen during scrolling.
       if (fromRight) {
         setRightStart(bounds!);
@@ -205,6 +231,7 @@ export function useProgressiveReveal({
     return () => {
       active = false;
       observer?.disconnect();
+      unsubscribeTravel?.();
       window.removeEventListener("scrollend", onScrollEnd);
       window.removeEventListener("resize", prepareRightSlide);
       node.removeEventListener("focusin", onFocus);

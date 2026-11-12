@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { AnimatePresence, m, useMotionValue, useScroll } from "framer-motion";
 import { sectionScrollPosition } from "@/lib/scroll-to-section";
+import { sectionTravelSkips, subscribeSectionNavigationComplete } from "@/lib/section-navigation";
 import { ArrowDownToLine, MapPin } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
@@ -129,6 +130,9 @@ function ScrollTimelineRail({
     let landing = 0;
     let lastActive: number | undefined;
     const update = (progress: number) => {
+      // A section jump that only passes through must not light the rail or enter every role
+      // unseen; the landing and later scrolling bring the roles in on the first real visit.
+      if (sectionTravelSkips(list)) return;
       if (ipadProLandscape) {
         progress = length > 0 ? Math.max(0, Math.min(1, (window.scrollY - landing) / length)) : 0;
         landingFill.set(progress);
@@ -182,6 +186,7 @@ function ScrollTimelineRail({
     };
     measure();
     const unsubscribe = fill.on("change", update);
+    const unsubscribeTravel = subscribeSectionNavigationComplete(() => update(fill.get()));
     const resize = typeof ResizeObserver === "function" ? new ResizeObserver(measure) : undefined;
     resize?.observe(list);
     const nav = document.querySelector('header nav[aria-label="Primary"]');
@@ -189,6 +194,7 @@ function ScrollTimelineRail({
     window.addEventListener("resize", measure);
     return () => {
       unsubscribe();
+      unsubscribeTravel();
       resize?.disconnect();
       window.removeEventListener("resize", measure);
       dots.forEach((dot) => dot.removeAttribute("data-timeline-filled"));

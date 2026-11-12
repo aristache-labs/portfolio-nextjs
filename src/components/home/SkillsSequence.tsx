@@ -10,7 +10,11 @@ import {
 } from "react";
 import { animate, useMotionValue, useScroll, type MotionValue } from "framer-motion";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
-import { sectionNavigationPending } from "@/lib/section-navigation";
+import {
+  sectionNavigationPending,
+  sectionTravelSkips,
+  subscribeSectionNavigationComplete,
+} from "@/lib/section-navigation";
 import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
 import styles from "./skills-sequence.module.css";
 
@@ -44,18 +48,11 @@ function SceneDriver({
         "--skills-light",
         String(smoothstep(phaseProgress(peak.get(), 0.3, 1))),
       );
-    const update = () => {
-      if (sectionNavigationPending(node) || entering) return;
-      const current = Math.max(
-        0,
-        Math.min(1, 1 - node.getBoundingClientRect().top / (START * innerHeight)),
-      );
-      if (current <= peak.get()) return;
-      peak.set(current);
-      paint();
-    };
-    paint();
-    if (navigation.replay) {
+    // A section jump passed the scene before it assembled. Following the scroll mid-jump would
+    // assemble it unseen, so it waits and plays timed on the first real visit.
+    let skipped = false;
+    const playTimed = () => {
+      skipped = false;
       const destination = Math.max(
         0,
         Math.min(1, 1 - node.getBoundingClientRect().top / (START * innerHeight)),
@@ -72,7 +69,31 @@ function SceneDriver({
           entering = false;
         },
       });
-    } else update();
+    };
+    const update = () => {
+      if (sectionNavigationPending(node) || entering) return;
+      if (sectionTravelSkips(node)) {
+        if (peak.get() < 1) skipped = true;
+        return;
+      }
+      if (skipped) {
+        const bounds = node.getBoundingClientRect();
+        // Above the screen it stays disassembled; on screen it assembles timed; below, by scroll.
+        if (bounds.bottom <= 0) return;
+        if (bounds.top < innerHeight) return playTimed();
+        skipped = false;
+      }
+      const current = Math.max(
+        0,
+        Math.min(1, 1 - node.getBoundingClientRect().top / (START * innerHeight)),
+      );
+      if (current <= peak.get()) return;
+      peak.set(current);
+      paint();
+    };
+    paint();
+    if (navigation.replay) playTimed();
+    else update();
     const interrupt = () => {
       if (!entering) return;
       entering = false;
@@ -88,12 +109,14 @@ function SceneDriver({
         interrupt();
     };
     const unsubscribe = scrollY.on("change", update);
+    const unsubscribeTravel = subscribeSectionNavigationComplete(update);
     window.addEventListener("wheel", interrupt, { passive: true });
     window.addEventListener("touchmove", interrupt, { passive: true });
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", update);
     return () => {
       unsubscribe();
+      unsubscribeTravel();
       entrance?.stop();
       window.removeEventListener("wheel", interrupt);
       window.removeEventListener("touchmove", interrupt);
