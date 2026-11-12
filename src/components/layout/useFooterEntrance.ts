@@ -3,6 +3,7 @@
 import { useEffect, type RefObject } from "react";
 import { useScroll } from "framer-motion";
 import { phaseProgress, smoothstep } from "@/lib/scroll-phase";
+import { sectionTravelSkips, subscribeSectionNavigationComplete } from "@/lib/section-navigation";
 
 /**
  * The share of the footer's travel each part uses, in reading order. Parts arrive during the
@@ -50,6 +51,8 @@ export function useFooterEntrance(footer: RefObject<HTMLElement | null>, enabled
       }
     };
     const update = () => {
+      // The footer is far below a jump that only passes through; the landing refreshes it.
+      if (sectionTravelSkips(element)) return;
       const remaining = document.documentElement.scrollHeight - innerHeight - window.scrollY;
       const progress = footerProgress(element.getBoundingClientRect().top, innerHeight, remaining);
       // The backdrop parallax follows the scroll both ways; only the parts are one way.
@@ -68,6 +71,7 @@ export function useFooterEntrance(footer: RefObject<HTMLElement | null>, enabled
     };
     update();
     const unsubscribe = scrollY.on("change", update);
+    const unsubscribeTravel = subscribeSectionNavigationComplete(update);
     window.addEventListener("resize", update);
     element.addEventListener("focusin", focus);
     // Late content above (images, lazy sections) changes the page height without a scroll event,
@@ -77,6 +81,7 @@ export function useFooterEntrance(footer: RefObject<HTMLElement | null>, enabled
     return () => {
       resize?.disconnect();
       unsubscribe();
+      unsubscribeTravel();
       window.removeEventListener("resize", update);
       element.removeEventListener("focusin", focus);
       element.style.removeProperty("--footer-depth");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
-import { sectionNavigationPending } from "@/lib/section-navigation";
+import { createTravelGate, sectionNavigationPending } from "@/lib/section-navigation";
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
@@ -46,18 +46,23 @@ export function AboutReveal({
     if (!ready || !node || played.current || mode === "static") return;
     if (typeof IntersectionObserver !== "function") return;
     node.dataset.reveal = "armed";
+    const play = () => {
+      played.current = true;
+      node.dataset.reveal = "play";
+      observer.disconnect();
+    };
+    const gate = createTravelGate(node, play);
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (sectionNavigationPending(node)) return;
+        if (sectionNavigationPending(node) || gate.passing()) return;
         if (!entry?.isIntersecting) return;
-        played.current = true;
-        node.dataset.reveal = "play";
-        observer.disconnect();
+        play();
       },
       { rootMargin },
     );
     observer.observe(node);
     return () => {
+      gate.dispose();
       observer.disconnect();
       if (!played.current) delete node.dataset.reveal;
     };

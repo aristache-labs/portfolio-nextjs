@@ -14,6 +14,7 @@ const eslintConfig = [
       "node_modules/**",
       "next-env.d.ts",
       ".claude/**",
+      ".agents/**",
       "drizzle/**",
       "playwright-report*/**",
       "test-results/**",

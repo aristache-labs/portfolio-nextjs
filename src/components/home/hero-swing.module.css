@@ -1,19 +1,33 @@
 /* Letters hang from a rail and swing out of phase. Desktop only: phones have no room under the logo. */
-.anchor {
+.anchor,
+.origin {
   display: none;
 }
 
 @media (min-width: 1024px) and (min-height: 501px) {
+  /* A zero-size marker in the same grid cell as the greeting. It gives the cell's own corner, which
+     the greeting's transform animation would otherwise hide from a measurement. */
+  .origin {
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    justify-self: start;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
   .anchor {
     display: block;
     grid-column: 1;
     grid-row: 1;
     align-self: start;
     justify-self: start;
-    /* Pulled up into the hero's top padding so it hangs just under the logo, in line with the
-       copy's left edge (the intro has a 2rem left padding). */
-    margin-top: -8.1rem;
-    margin-left: 3.85rem;
+    /* Pulled up into the hero's top padding so it hangs just under the logo. HeroSwingText sets
+       --swing-top and --swing-left from the measured header wordmark; these are the fallback. */
+    margin-top: var(--swing-top, -8.1rem);
+    margin-left: var(--swing-left, 3.85rem);
     /* Swing In Top: hinged on its top edge, so it swings down from the logo and settles. It is
        fully opaque almost at once, so it reads as a swing and not a fade. `backwards`, not
        `both`, so the scroll transition below can still move it afterwards. The Hero's global

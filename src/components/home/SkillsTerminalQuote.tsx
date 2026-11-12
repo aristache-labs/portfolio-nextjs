@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties } from "react";
 import { Quote } from "lucide-react";
+import { createTravelGate } from "@/lib/section-navigation";
 import responsiveCss from "./skills-responsive.module.css";
 import quoteCss from "./skills-quote.module.css";
 import terminalCss from "./skills-terminal.module.css";
@@ -19,16 +20,23 @@ export function SkillsTerminalQuote() {
       node.dataset.live = "";
       return;
     }
+    const play = () => {
+      node.dataset.live = "";
+      observer.disconnect();
+    };
+    const gate = createTravelGate(node, play);
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        node.dataset.live = "";
-        observer.disconnect();
+        if (gate.passing() || !entry?.isIntersecting) return;
+        play();
       },
       { threshold: 0.6 },
     );
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      gate.dispose();
+      observer.disconnect();
+    };
   }, []);
 
   return (

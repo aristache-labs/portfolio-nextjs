@@ -5,6 +5,7 @@ import { useContext, useEffect, useRef } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { RevealSequence } from "./RevealSequence";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { createTravelGate } from "@/lib/section-navigation";
 
 /** Preserve the supplied grouping, precision, prefix and suffix. */
 export function countFormat(value: string) {
@@ -53,7 +54,9 @@ export function SpringCount({ value }: { value: string }) {
       animation?.stop();
       text.textContent = value;
     };
+    let travel: ReturnType<typeof createTravelGate> | undefined;
     const onScrollEnd = () => {
+      if (travel?.passing() || travel?.isSkipped()) return;
       if (!started.current && node.getBoundingClientRect().top < window.innerHeight) finish();
     };
     const start = (delay: number) => {
@@ -98,13 +101,15 @@ export function SpringCount({ value }: { value: string }) {
     } else {
       // Enhance only offscreen content; server HTML and the first client render stay final.
       text.textContent = number.format(0);
+      const gate = createTravelGate(node, () => start(0.3));
+      travel = gate;
       observer = new IntersectionObserver(
         (entries) => {
-          if (!active || started.current) return;
+          if (!active || started.current || gate.passing()) return;
           const entry = entries.find((item) => item.target === node);
           if (!entry) return;
           if (!entry.isIntersecting) {
-            if (entry.boundingClientRect.bottom <= 0) finish();
+            if (entry.boundingClientRect.bottom <= 0 && !gate.isSkipped()) finish();
             return;
           }
           start(0.3);
@@ -117,6 +122,7 @@ export function SpringCount({ value }: { value: string }) {
 
     return () => {
       active = false;
+      travel?.dispose();
       unsubscribe?.();
       observer?.disconnect();
       animation?.stop();
