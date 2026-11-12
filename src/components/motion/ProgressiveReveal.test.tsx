@@ -8,6 +8,7 @@ import { SpringCount } from "./SpringCount";
 import { SkillCard } from "@/components/home/SkillCard";
 import { SkillEntrance } from "@/components/home/SkillEntrance";
 import { beginSectionNavigation } from "@/lib/section-navigation";
+import { REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 
 const controls = vi.hoisted(() => ({ set: vi.fn(), start: vi.fn(), stop: vi.fn() }));
@@ -202,7 +203,7 @@ describe("ProgressiveReveal", () => {
 
   it("plays an element resting inside the wait band instead of popping it in", () => {
     const { container } = render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
-    // 100px into a 768px screen: past the bottom edge but short of the 215px the entrance waits for.
+    // 100px into the screen: past the bottom edge but short of the depth the entrance waits for.
     vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
       top: window.innerHeight - 100,
       bottom: window.innerHeight + 100,
@@ -444,9 +445,9 @@ describe("ProgressiveReveal", () => {
 
   it("waits beyond the screen edge before starting the entrance", () => {
     const { container } = render(<ProgressiveReveal>Metrics</ProgressiveReveal>);
-    // The entrance waits until the element is well into the screen (28% of its height).
+    // The entrance waits until the element is well into the screen (REVEAL_DEPTH of its height).
     expect(observerOptions).toHaveBeenCalledWith({
-      rootMargin: `0px 0px -${Math.round(window.innerHeight * 0.28)}px 0px`,
+      rootMargin: `0px 0px -${revealInset(REVEAL_DEPTH)}px 0px`,
     });
     intersect(container.firstElementChild!, window.innerHeight - 10, false);
     expect(controls.start).not.toHaveBeenCalled();

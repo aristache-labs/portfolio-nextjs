@@ -121,6 +121,27 @@ describe("ProgressiveReveal while a section jump travels", () => {
     expect(controls.start).toHaveBeenCalledTimes(1);
   });
 
+  it("plays an element a menu jump leaves resting inside the wait band", () => {
+    // About's results row rests low on screen: on screen, yet outside what the observer watches.
+    const { container } = render(
+      <section id="about">
+        <ProgressiveReveal>Stats</ProgressiveReveal>
+      </section>,
+    );
+    const section = container.firstElementChild as HTMLElement;
+    vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
+      top: window.innerHeight - 100,
+      bottom: window.innerHeight + 100,
+    } as DOMRect);
+    let finish!: (arrived?: boolean) => void;
+    act(() => {
+      finish = beginSectionNavigation(section);
+    });
+    expect(controls.start).not.toHaveBeenCalled();
+    act(() => finish(true));
+    expect(controls.start).toHaveBeenCalledTimes(1);
+  });
+
   it("still finishes content skipped by an ordinary fast scroll", () => {
     const { node } = setup();
     intersect(node, -600, false);
