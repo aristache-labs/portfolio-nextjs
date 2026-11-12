@@ -1,6 +1,6 @@
 /**
- * Every media query the motion layer branches on, in one place. Hooks, GSAP `matchMedia`
- * conditions share these definitions. CSS modules mirror the Fold geometry to keep
+ * Every media query the motion layer branches on, in one place. Components and hooks
+ * share these definitions. CSS modules mirror the Fold geometry to keep
  * layout and motion in agreement without changing ordinary portrait phones.
  */
 
@@ -32,13 +32,3 @@ export const COMPACT_TOUCH_QUERY = `${PORTRAIT_PHONE_QUERY}, ${TOUCH_LANDSCAPE_Q
 
 /** Short landscape windows, the `landscape-short:` Tailwind variant. */
 export const LANDSCAPE_SHORT_QUERY = "(orientation: landscape) and (max-height: 500px)";
-
-/** Named conditions for `gsap.matchMedia()`. */
-export const MOTION_CONDITIONS = {
-  desktop: PINNED_SCENE_QUERY,
-  portrait: PORTRAIT_PHONE_QUERY,
-  landscapeShort: LANDSCAPE_SHORT_QUERY,
-  reduced: "(prefers-reduced-motion: reduce)",
-} as const;
-
-export type MotionConditions = Record<keyof typeof MOTION_CONDITIONS, boolean>;
