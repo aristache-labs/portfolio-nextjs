@@ -51,9 +51,9 @@ describe("touch distances", () => {
   });
 
   it("pull from a shorter reach on touch", () => {
-    expect(pickSnapTarget(sections, 1100, 900, false)?.id).toBe("about");
-    expect(pickSnapTarget(sections, 1100, 900, true)).toBeNull();
-    expect(pickSnapTarget(sections, 1060, 900, true)?.id).toBe("about");
+    expect(pickSnapTarget(sections, 1160, 900, false)?.id).toBe("about");
+    expect(pickSnapTarget(sections, 1160, 900, true)).toBeNull();
+    expect(pickSnapTarget(sections, 1100, 900, true)?.id).toBe("about");
   });
 });
 
@@ -121,7 +121,7 @@ describe("settleOnNearestSection", () => {
 
   it("does not pull from the longer desktop reach on touch screens", () => {
     mount();
-    vi.spyOn(window, "scrollY", "get").mockReturnValue(1095);
+    vi.spyOn(window, "scrollY", "get").mockReturnValue(1160);
     expect(settleOnNearestSection(true)).toBeNull();
     expect(scrollToPosition).not.toHaveBeenCalled();
   });

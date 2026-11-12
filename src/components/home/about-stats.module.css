@@ -1241,3 +1241,20 @@
     font-size: 20px;
   }
 }
+@media (min-width: 1840px) and (min-height: 900px) and (pointer: fine) {
+  .section {
+    /* The desktop anchor lands after the pinned intro has already scrolled. */
+    padding-bottom: clamp(9rem, calc(75svh - 33rem), 18rem);
+  }
+
+  .biography,
+  .copy,
+  .results {
+    zoom: 1.12;
+  }
+
+  .results {
+    max-width: 80.5rem;
+    margin-inline: auto;
+  }
+}

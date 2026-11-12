@@ -282,3 +282,8 @@
     margin-inline: auto;
   }
 }
+@media (min-width: 1840px) and (min-height: 900px) and (pointer: fine) {
+  .section > [data-scroll-anchor] {
+    zoom: 1.07;
+  }
+}
