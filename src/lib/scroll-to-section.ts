@@ -27,6 +27,7 @@ const NAVIGATION_KEYS = [
 function scrollWithLenis(
   lenis: Lenis,
   destination: number,
+  resolve: () => number,
   duration: number,
   onFinish?: (arrived: boolean) => void,
 ): () => void {
@@ -54,7 +55,15 @@ function scrollWithLenis(
   lenis.scrollTo(destination, {
     duration: duration / 1000,
     easing: easeInOutSine,
-    onComplete: () => stop(true),
+    onComplete: () => {
+      // The destination was measured once, before the jump. Sections that finish rendering on the
+      // way can move the target, so land on where it is now (the native path does the same).
+      const goal = resolve();
+      if (!stopped && Math.abs(goal - lenis.scroll) > 1.5) {
+        lenis.scrollTo(goal, { immediate: true, force: true });
+      }
+      stop(true);
+    },
   });
   return cancel;
 }
@@ -259,7 +268,7 @@ export function scrollToPosition(
   // Roughly 1.1s per 1000px, so nearby sections still glide and far jumps are not rushed.
   const duration = Math.min(3200, Math.max(900, Math.abs(destination - start) * 1.1));
   const lenis = getSmoothScroll();
-  if (lenis) return scrollWithLenis(lenis, destination, duration, onFinish);
+  if (lenis) return scrollWithLenis(lenis, destination, resolve, duration, onFinish);
   let frame = 0;
   let startedAt: number | undefined;
   let stopped = false;

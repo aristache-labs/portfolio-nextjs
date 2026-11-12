@@ -2,6 +2,7 @@
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { createTravelGate, sectionNavigationPending } from "@/lib/section-navigation";
+import { MOBILE_REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
 
 import { useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
@@ -34,7 +35,8 @@ export function useExperienceMobileReveal(ref: RefObject<HTMLDivElement | null>,
       node.dataset.mobileReveal = "static";
       observer.disconnect();
     };
-    const gate = createTravelGate(node, reveal, 24);
+    const inset = revealInset(MOBILE_REVEAL_DEPTH);
+    const gate = createTravelGate(node, reveal, inset);
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (sectionNavigationPending(node) || gate.passing()) return;
@@ -44,7 +46,7 @@ export function useExperienceMobileReveal(ref: RefObject<HTMLDivElement | null>,
         )
           reveal();
       },
-      { rootMargin: "0px 0px -24px 0px", threshold: 0.08 },
+      { rootMargin: `0px 0px -${inset}px 0px`, threshold: 0.08 },
     );
     observer.observe(node);
     node.addEventListener("focusin", focus);

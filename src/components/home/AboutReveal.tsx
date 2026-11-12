@@ -2,12 +2,14 @@
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { createTravelGate, sectionNavigationPending } from "@/lib/section-navigation";
+import { MOBILE_REVEAL_DEPTH } from "@/lib/reveal-depth";
 
 import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 
-const DEFAULT_ROOT_MARGIN = "0px 0px -10% 0px";
+/** Same wait as the other phone reveals: the block starts once it is properly on screen. */
+const DEFAULT_ROOT_MARGIN = `0px 0px -${Math.round(MOBILE_REVEAL_DEPTH * 100)}% 0px`;
 
 /**
  * Marks its box `data-reveal="armed"` until it scrolls into view, then `"play"`, so CSS can

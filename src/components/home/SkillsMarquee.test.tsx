@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 describe("SkillsMarquee entrance", () => {
-  it("waits until half visible and re-arms after leaving so a return can animate", () => {
+  it("waits until half visible, then plays once and stays", () => {
     installMatchMedia();
     let notify!: IntersectionObserverCallback;
     const disconnect = vi.fn();
@@ -37,12 +37,9 @@ describe("SkillsMarquee entrance", () => {
     expect(strip.dataset.entrance).toBe("armed");
     emit(0.8);
     expect(strip.dataset.entrance).toBe("visible");
-    expect(disconnect).not.toHaveBeenCalled();
-    emit(0);
-    expect(strip.dataset.entrance).toBe("armed");
-    emit(1);
-    expect(strip.dataset.entrance).toBe("visible");
-    unmount();
+    // It plays once: observing stops, so scrolling past again never replays the entrance.
     expect(disconnect).toHaveBeenCalledOnce();
+    unmount();
+    expect(strip.dataset.entrance).toBe("visible");
   });
 });

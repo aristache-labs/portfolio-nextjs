@@ -2,6 +2,7 @@
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { createTravelGate, sectionNavigationPending } from "@/lib/section-navigation";
+import { MOBILE_REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
 
 import { m, useAnimationControls } from "framer-motion";
 import {
@@ -238,7 +239,8 @@ export function SkillEntrance({
           sequence.publish("complete");
         });
     };
-    const gate = createTravelGate(node, start, 32);
+    const inset = revealInset(MOBILE_REVEAL_DEPTH);
+    const gate = createTravelGate(node, start, inset);
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (sectionNavigationPending(node) || gate.passing()) return;
@@ -248,7 +250,7 @@ export function SkillEntrance({
           finish();
         }
       },
-      { rootMargin: "0px 0px -32px 0px", threshold: 0.1 },
+      { rootMargin: `0px 0px -${inset}px 0px`, threshold: 0.1 },
     );
     const focus = () => {
       observer?.disconnect();

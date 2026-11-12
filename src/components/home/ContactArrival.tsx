@@ -2,6 +2,7 @@
 
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
 import { createTravelGate, sectionNavigationPending } from "@/lib/section-navigation";
+import { MOBILE_REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
 import { settleWhenDone } from "@/lib/settle-animations";
 
 import { useLayoutEffect, useRef, type CSSProperties, type RefObject } from "react";
@@ -107,6 +108,7 @@ export function ContactArrival({
         }),
       );
     };
+    const inset = revealInset(MOBILE_REVEAL_DEPTH);
     // The jump landed with steps already on screen: the observer will not report them again.
     const gate = createTravelGate(
       node,
@@ -115,10 +117,10 @@ export function ContactArrival({
         for (const target of targets) {
           const rect = target.getBoundingClientRect();
           const armed = target.dataset.contactReveal === "armed";
-          if (armed && rect.top < window.innerHeight - 24 && rect.bottom > 0) play(target);
+          if (armed && rect.top < window.innerHeight - inset && rect.bottom > 0) play(target);
         }
       },
-      24,
+      inset,
     );
     const observer = new IntersectionObserver(
       (entries) => {
@@ -130,7 +132,7 @@ export function ContactArrival({
           play(entry.target as HTMLElement);
         }
       },
-      { rootMargin: "0px 0px -24px 0px", threshold: 0.08 },
+      { rootMargin: `0px 0px -${inset}px 0px`, threshold: 0.08 },
     );
     const settle = () => {
       userSettled = true;

@@ -5,6 +5,7 @@ import { useLayoutEffect, useMemo, useRef, type ReactNode, type RefObject } from
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { createRevealSequence, RevealSequence } from "./RevealSequence";
 import { useSectionNavigation } from "@/hooks/useSectionNavigation";
+import { REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
 import {
   sectionNavigationPending,
   sectionTravelSkips,
@@ -51,7 +52,7 @@ export function useProgressiveReveal({
   effect = "rise",
   fade = true,
   ease,
-  viewportInset = 120,
+  viewportInset,
   countOnJump = false,
   element,
   enabled = true,
@@ -87,6 +88,12 @@ export function useProgressiveReveal({
     // first real visit instead of being finished off-screen or animated mid-jump.
     let skippedByTravel = false;
     let rightStart = 0;
+    // Without an explicit inset the entrance waits until the element is well into the screen.
+    const inset =
+      viewportInset === undefined
+        ? revealInset(REVEAL_DEPTH)
+        : Math.min(viewportInset, revealInset(0.15));
+    let enterEntrance: (() => void) | undefined;
     const setRightStart = (bounds: DOMRectReadOnly) => {
       rightStart = Math.max(0, window.innerWidth - bounds.left) + 24;
       controls.set({ opacity: effect === "fade-from-right" ? 0 : 1, x: rightStart, y: 0 });
@@ -121,9 +128,14 @@ export function useProgressiveReveal({
       if (skippedByTravel || sectionTravelSkips(node)) return;
       // The observer owns the first entrance after our explicit navigation completion.
       const bounds = node.getBoundingClientRect();
-      if (navigation.replay && bounds.top < window.innerHeight && bounds.bottom > 0) return;
+      // (Inside the wait band the observer never reports it, so that case falls through.)
+      if (navigation.replay && bounds.top < window.innerHeight - inset && bounds.bottom > 0) return;
       // A jump can skip the observer's intersection entirely. Check once after scrolling.
-      if (bounds.top < window.innerHeight) show(bounds);
+      if (bounds.top >= window.innerHeight) return;
+      // Resting inside the wait band, it has not had its turn yet: play it, do not pop it in.
+      const inBand = bounds.top >= window.innerHeight - inset && bounds.bottom > 0;
+      if (inBand && enterEntrance) enterEntrance();
+      else show(bounds);
     };
     const onFocus = () => {
       show();
@@ -142,7 +154,6 @@ export function useProgressiveReveal({
       show(bounds);
     } else {
       const expressive = mode === "expressive";
-      const inset = Math.min(viewportInset, Math.round(window.innerHeight * 0.15));
       const enter = () => {
         skippedByTravel = false;
         finished.current = true;
@@ -174,6 +185,7 @@ export function useProgressiveReveal({
           });
         }
       };
+      enterEntrance = enter;
       observer = new IntersectionObserver(
         (entries) => {
           if (!active || finished.current || sectionNavigationPending(node)) return;
@@ -224,6 +236,17 @@ export function useProgressiveReveal({
       }
       sequence.publish("prepared");
       observer.observe(node);
+      // After a menu jump the page can come to rest with this element inside the wait band: on
+      // screen, yet outside what the observer watches, so it would never be reported. Play it now.
+      if (navigation.replay) {
+        const rest = node.getBoundingClientRect();
+        if (
+          rest.bottom > 0 &&
+          rest.top < window.innerHeight &&
+          rest.top >= window.innerHeight - inset
+        )
+          enter();
+      }
       window.addEventListener("scrollend", onScrollEnd);
       node.addEventListener("focusin", onFocus);
     }
@@ -271,7 +294,7 @@ export function ProgressiveReveal({
   effect = "rise",
   fade = true,
   ease,
-  viewportInset = 120,
+  viewportInset,
   countOnJump = false,
 }: ProgressiveRevealProps) {
   const element = useRef<HTMLDivElement>(null);
