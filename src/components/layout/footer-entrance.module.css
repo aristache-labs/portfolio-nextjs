@@ -1,0 +1,72 @@
+/* One shared entrance for the footer's headline, subtitle, call to action and bottom bar, on every
+   screen. useEntranceOnce marks the footer data-entrance="armed", then "play" once it comes into
+   view. These parts are outside the scroll scene and the phone reveals (FooterPart `entrance`), so
+   nothing else drives them. Only the start is set in keyframes, so each part ends on its own values, and
+   fill is `backwards`, so a part never stays held by an animation that has finished. */
+@media (prefers-reduced-motion: no-preference) {
+  .footer[data-entrance="armed"] [data-entrance-part] {
+    opacity: 0;
+  }
+
+  .footer[data-entrance="armed"] [data-entrance-part="bar"] {
+    opacity: 1;
+    transform: translateY(100%);
+    clip-path: inset(0 -1em 100% -1em);
+  }
+
+  .footer[data-entrance="play"] [data-entrance-part="title"] {
+    animation: footer-focus-in 1s cubic-bezier(0.55, 0.085, 0.68, 0.53) backwards;
+  }
+
+  .footer[data-entrance="play"] [data-entrance-part="subtitle"] {
+    animation: footer-fade-in-up 900ms 200ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .footer[data-entrance="play"] [data-entrance-part="cta"] {
+    animation: footer-pop-in 800ms 500ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .footer[data-entrance="play"] [data-entrance-part="bar"] {
+    animation: footer-slide-in-up 800ms 650ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+}
+
+/* Focus In: out of a blur into sharp text. */
+@keyframes footer-focus-in {
+  from {
+    opacity: 0;
+    filter: blur(12px);
+  }
+}
+
+@keyframes footer-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+}
+
+/* Pop In: a small overshoot, so the button lands with a bounce. */
+@keyframes footer-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+/* Slide In Up: the clip's bottom inset follows the slide, so the clip line stays on the final
+   bottom edge. */
+@keyframes footer-slide-in-up {
+  from {
+    transform: translateY(100%);
+    clip-path: inset(0 -1em 100% -1em);
+  }
+  to {
+    transform: translateY(0);
+    clip-path: inset(-1em -1em -2em -1em);
+  }
+}
