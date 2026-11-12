@@ -69,6 +69,9 @@ export function subscribeSectionNavigation(node: () => HTMLElement | null, notif
   };
 }
 
+/** Longest a section jump may stay open: the slowest paced jump plus its settling frames. */
+const NAVIGATION_TIMEOUT = 6000;
+
 /** Explicit completion belongs to our scroll driver, not the browser's per-frame scrollend. */
 export function beginSectionNavigation(target: HTMLElement) {
   destination = target;
@@ -77,9 +80,10 @@ export function beginSectionNavigation(target: HTMLElement) {
     if (node && target.contains(node)) listener.notify(true);
   }
   let finished = false;
-  return (arrived = true) => {
+  const finish = (arrived = true) => {
     if (finished) return;
     finished = true;
+    clearTimeout(watchdog);
     if (destination === target) destination = null;
     for (const listener of listeners) {
       const node = listener.node();
@@ -87,4 +91,10 @@ export function beginSectionNavigation(target: HTMLElement) {
     }
     completionListeners.forEach((listener) => listener(target, arrived));
   };
+  // While a jump is open, every section outside the destination holds its entrance back. If the
+  // scroll driver never reports back (Lenis stopped mid-jump by an opened dialog, a very slow
+  // device, a throttled tab), those sections would stay held for good. A jump takes at most about
+  // 4 seconds, so this ends it. Finishing is idempotent, so a driver that does report is unaffected.
+  const watchdog = setTimeout(() => finish(false), NAVIGATION_TIMEOUT);
+  return finish;
 }

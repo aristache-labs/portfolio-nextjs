@@ -66,6 +66,22 @@ describe("section travel", () => {
     gate.dispose();
   });
 
+  it("ends a jump whose scroll driver never reports back, so nothing stays held", () => {
+    vi.useFakeTimers();
+    try {
+      const finish = beginSectionNavigation(destination);
+      expect(sectionTravelSkips(passed)).toBe(true);
+      vi.advanceTimersByTime(5999);
+      expect(sectionTravelSkips(passed)).toBe(true);
+      vi.advanceTimersByTime(2);
+      expect(sectionTravelSkips(passed)).toBe(false);
+      // A driver that reports late changes nothing.
+      expect(() => finish(true)).not.toThrow();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("stops listening once disposed", () => {
     place(100, 300);
     const onLanded = vi.fn();
