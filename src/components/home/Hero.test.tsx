@@ -4,7 +4,7 @@ import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
 import { FOLD_VIEWPORT_QUERY, HERO_VIDEO_QUERY } from "@/hooks/useMediaQuery";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
-import { IDENTITY } from "@/lib/identity";
+import { HERO_DEFAULTS } from "@/lib/identity";
 import { Hero } from "./Hero";
 import { setConsentInset } from "@/lib/consent-inset";
 import { CONSENT_KEY, saveAnalyticsConsent } from "@/lib/analytics-consent";
@@ -96,7 +96,7 @@ describe("Hero", () => {
       container.querySelector('a[href="/resume.pdf"]'),
       container.querySelector('a[aria-label="GitHub"]'),
       ...container.querySelectorAll("h1 span"),
-      paragraphs.find((element) => element.textContent === IDENTITY.summary),
+      paragraphs.find((element) => element.textContent === HERO_DEFAULTS.summary),
       paragraphs.find((element) => element.textContent?.includes("Available for projects")),
     ];
 
@@ -117,7 +117,9 @@ describe("Hero", () => {
   it("renders the full name, specialization and introduction immediately", () => {
     render(<Hero profile={profile} />);
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1).toHaveAccessibleName("Adrian Cristache Infrastructure meets innovation.");
+    expect(h1).toHaveAccessibleName(
+      "Adrian Cristache Enterprise IT, PowerShell automation, and app development.",
+    );
     expect(screen.getByText("Adrian", { selector: "span" })).toBeVisible();
     expect(h1.querySelector(".sr-only")).toBeNull();
     expect(h1.querySelectorAll('svg[aria-hidden="true"] text')).toHaveLength(2);
@@ -126,9 +128,9 @@ describe("Hero", () => {
     expect(h1.lastElementChild).not.toBeEmptyDOMElement();
     expect(
       screen.getByText(
-        /My experience spans enterprise IT, PowerShell automation and script security\./,
+        /I deploy and maintain enterprise systems, automate repetitive tasks with PowerShell/,
       ),
-    ).toHaveTextContent("In my spare time, I build web and mobile applications.");
+    ).toHaveTextContent("I also build web and mobile applications.");
     expect(screen.getByText(profile.roles[0]).closest("p")).toHaveTextContent(
       profile.roles.join(" · "),
     );
@@ -145,11 +147,13 @@ describe("Hero", () => {
     if (remainder) {
       expect(h1.firstElementChild?.lastElementChild).toHaveTextContent(remainder);
       expect(h1).toHaveAccessibleName(
-        first + " " + remainder + " Infrastructure meets innovation.",
+        first + " " + remainder + " Enterprise IT, PowerShell automation, and app development.",
       );
     } else {
       expect(h1.querySelector(".sr-only")).toBeNull();
-      expect(h1).toHaveAccessibleName(`${first} Infrastructure meets innovation.`);
+      expect(h1).toHaveAccessibleName(
+        `${first} Enterprise IT, PowerShell automation, and app development.`,
+      );
       expect(h1.querySelectorAll('svg[aria-hidden="true"] text')).toHaveLength(1);
     }
   });
