@@ -26,7 +26,7 @@ import { POST } from "./route";
 const validMessage = {
   name: "Alex & Team",
   email: "alex@example.com",
-  subject: "Project Collaboration",
+  subject: "Project inquiry",
   message: 'Hello <team> & "Adrian"!\nLet us discuss a project.',
 };
 
@@ -59,13 +59,13 @@ describe("contact template delivery", () => {
       from: "Portfolio <mail@example.com>",
       to: "owner@example.com",
       replyTo: "alex@example.com",
-      subject: "Contact: Project Collaboration",
+      subject: "Contact: Project inquiry",
       template: {
         id: "portfolio-contact",
         variables: {
           CONTACT_NAME: "Alex &amp; Team",
           CONTACT_EMAIL: "alex@example.com",
-          CONTACT_SUBJECT: "Project Collaboration",
+          CONTACT_SUBJECT: "Project inquiry",
           CONTACT_MESSAGE:
             "Hello &lt;team&gt; &amp; &quot;Adrian&quot;!\nLet us discuss a project.",
         },

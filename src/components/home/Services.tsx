@@ -5,7 +5,7 @@ import { Section } from "@/components/ui/Section";
 import { Card } from "@/components/ui/Card";
 import { ServiceCard } from "./ServiceCard";
 import { SectionBackdrop } from "./SectionBackdrop";
-import labelCss from "@/components/ui/section-label.module.css";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import headingCss from "./section-heading.module.css";
 import layoutCss from "./services-layout.module.css";
 import type { Service } from "@/db/schema";
@@ -46,11 +46,7 @@ export function Services({ services, number = "05" }: { services: ServiceRow[]; 
     >
       <div className="mb-5">
         <ProgressiveReveal duration={0.6} delay={0}>
-          <p className={`${labelCss.label} ${headingCss.label}`}>
-            <span className={labelCss.number}>{number}</span>
-            <span>Services</span>
-            <span aria-hidden className={labelCss.rule} />
-          </p>
+          <SectionLabel number={number} name="Services" className={headingCss.label} />
         </ProgressiveReveal>
         <ProgressiveReveal duration={0.8} delay={0.1}>
           <h2 className={headingCss.title}>

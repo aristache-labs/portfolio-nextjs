@@ -112,7 +112,7 @@ export function ImageUploadField({
       <input
         ref={fileRef}
         type="file"
-        accept="image/png,image/jpeg,image/webp,image/avif,image/gif,image/svg+xml"
+        accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];

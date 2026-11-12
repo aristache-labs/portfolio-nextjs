@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import {
   BLOB_FOLDERS,
+  MAX_BYTES,
   uploadAvatar,
   uploadIcon,
   uploadProjectMedia,
@@ -26,6 +27,12 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // The whole body is read into memory by formData(), so refuse an oversized one first. The extra
+  // 64KB covers the multipart framing around the file.
+  if (Number(req.headers.get("content-length")) > MAX_BYTES + 64 * 1024) {
+    return NextResponse.json({ error: "Image too large (max 5MB)" }, { status: 413 });
   }
 
   const formData = await req.formData();

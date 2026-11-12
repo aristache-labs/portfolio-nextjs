@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, type ElementType } from "react";
+import { useRef } from "react";
 import { useEntranceOnce } from "@/hooks/useEntranceOnce";
 import labelCss from "./section-label.module.css";
 
-/** The beam, plus the cool-down that follows it (see section-label.module.css). */
+/** The beam plus the cool-down that follows it. Keep it above both in section-label.module.css. */
 const BEAM_PLAY_MS = 2000;
 
 /**
@@ -16,18 +16,23 @@ export function SectionLabel({
   name,
   className = "",
   as: Tag = "p",
-  ...rest
+  "data-scroll-anchor": scrollAnchor,
 }: {
   number: string;
   name: string;
   className?: string;
-  as?: ElementType;
-} & Record<string, unknown>) {
+  as?: "p" | "div";
+  "data-scroll-anchor"?: boolean;
+}) {
   const ref = useRef<HTMLElement>(null);
   useEntranceOnce(ref, true, "beam", BEAM_PLAY_MS);
 
   return (
-    <Tag ref={ref} className={`${labelCss.label} ${className}`} {...rest}>
+    <Tag
+      ref={ref as never}
+      className={`${labelCss.label} ${className}`}
+      data-scroll-anchor={scrollAnchor}
+    >
       <span className={labelCss.number}>{number}</span>
       <span>{name}</span>
       <span aria-hidden className={labelCss.rule} />

@@ -380,7 +380,7 @@ export function Contact({
 
               {/* Same scale and weight as the other section headings. */}
               <h2 className={headingCss.title}>
-                Discuss a <span className={headingCss.accent}>project</span>.
+                Let’s <span className={headingCss.accent}>talk</span>.
               </h2>
             </div>,
           )}
@@ -389,8 +389,8 @@ export function Contact({
             "fade",
             0.03,
             <p className={`${subtitleCss.subtitle} mt-4 max-w-[475px]`}>
-              For infrastructure, automation, web and mobile projects, share your requirements
-              below.
+              Hiring for a role or planning a project? Tell me what you’re looking for and where I
+              could help.
             </p>,
           )}
 
@@ -530,7 +530,7 @@ export function Contact({
               </div>
 
               <h3 className="font-display mt-3 text-xl leading-snug font-medium tracking-[-0.02em] text-white">
-                Project <span className="text-brand-mid">details</span>
+                Send me a <span className="text-brand-mid">message</span>
               </h3>
             </div>
 
@@ -626,7 +626,7 @@ export function Contact({
                       setMessage(event.target.value);
                       if ("message" in fieldErrors) validateField("message", event.target.value);
                     }}
-                    placeholder="Project scope, current stack, constraints and timeline."
+                    placeholder="A short summary of the role or project and any timing you have in mind."
                     className={`${inputClass} h-[92px] resize-none py-2.5 pointer-coarse:h-[92px]`}
                   />
                   <span aria-hidden className={formCss.focusLine} />

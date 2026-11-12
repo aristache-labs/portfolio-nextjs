@@ -246,7 +246,7 @@ test("contact form interactions are excluded from analytics and do not send mail
     .toBe(true);
   await form.locator('[name="name"]').fill("Analytics Test");
   await form.locator('[name="email"]').fill("analytics@example.com");
-  await form.locator('[name="subject"]').selectOption({ label: "General Question" });
+  await form.locator('[name="subject"]').selectOption({ label: "General question" });
   await form
     .locator('[name="message"]')
     .fill("Controlled analytics verification without sending a real contact message.");
