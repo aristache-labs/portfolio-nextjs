@@ -331,16 +331,16 @@ body {
 }
 
 /* Landscape touch: sections off screen are not rendered, so a fast scroll through the whole page
-   cannot pile up layers. SectionRenderBudget sets each section's placeholder height first. */
-html[data-render-budget] main section[id],
+   cannot pile up layers. SectionRenderBudget sets each section's placeholder height first.
+   About stays rendered: it rises over the hero's fade, and a skipped section paints for the first
+   time only when it touches the viewport, which stalls a frame in the middle of that fade when
+   scrolling down. It is the section next to the hero, so skipping it saves almost no memory. */
+html[data-render-budget] main section[id]:not(#about),
 html[data-render-budget] footer {
   content-visibility: auto;
 }
 html[data-render-budget] #hero {
   contain-intrinsic-size: auto var(--render-budget-hero, 100svh);
-}
-html[data-render-budget] #about {
-  contain-intrinsic-size: auto var(--render-budget-about, 100svh);
 }
 html[data-render-budget] #skills {
   contain-intrinsic-size: auto var(--render-budget-skills, 100svh);
