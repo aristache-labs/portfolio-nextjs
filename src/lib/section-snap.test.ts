@@ -13,12 +13,19 @@ const {
   SNAP_DURATION_MS,
   SNAP_MAX_DISTANCE,
   SNAP_THRESHOLD_RATIO,
+  SNAP_TOUCH_DURATION_MS,
+  SNAP_TOUCH_MAX_DISTANCE,
+  SNAP_TOUCH_THRESHOLD_RATIO,
   pickSnapTarget,
   settleOnNearestSection,
   snapDistance,
 } = await import("./section-snap");
 
 afterEach(() => {
+  // The mocked glide never ends by itself: end every jump a test started, or the next test would
+  // see a section jump still in progress.
+  for (const call of scrollToPosition.mock.calls)
+    (call[2] as ((arrived: boolean) => void) | undefined)?.(false);
   document.body.innerHTML = "";
   scrollToPosition.mockClear();
   vi.restoreAllMocks();
@@ -33,6 +40,20 @@ describe("snapDistance", () => {
   it("is a share of the viewport, capped on tall screens", () => {
     expect(snapDistance(400)).toBeCloseTo(400 * SNAP_THRESHOLD_RATIO);
     expect(snapDistance(2000)).toBe(SNAP_MAX_DISTANCE);
+  });
+});
+
+describe("touch distances", () => {
+  it("are shorter than the desktop ones and capped", () => {
+    expect(snapDistance(600, true)).toBeCloseTo(600 * SNAP_TOUCH_THRESHOLD_RATIO);
+    expect(snapDistance(2000, true)).toBe(SNAP_TOUCH_MAX_DISTANCE);
+    expect(snapDistance(800, true)).toBeLessThan(snapDistance(800));
+  });
+
+  it("pull from a shorter reach on touch", () => {
+    expect(pickSnapTarget(sections, 1100, 900, false)?.id).toBe("about");
+    expect(pickSnapTarget(sections, 1100, 900, true)).toBeNull();
+    expect(pickSnapTarget(sections, 1060, 900, true)?.id).toBe("about");
   });
 });
 
@@ -64,6 +85,10 @@ describe("settleOnNearestSection", () => {
       '<section id="about" data-position="1000"></section><section id="skills" data-position="2400"></section>';
     vi.spyOn(window, "scrollY", "get").mockReturnValue(1040);
     vi.spyOn(window, "innerHeight", "get").mockReturnValue(900);
+    // jsdom has no layout: give every section a real height, as a rendered one has.
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      height: 600,
+    } as DOMRect);
   };
 
   it("glides to the near section with a short duration", () => {
@@ -79,6 +104,35 @@ describe("settleOnNearestSection", () => {
     expect(destination()).toBe(1000);
     expect(reduced).toBe(false);
     expect(options).toEqual({ duration: SNAP_DURATION_MS });
+  });
+
+  it("uses the quicker glide on touch screens", () => {
+    mount();
+    vi.spyOn(window, "scrollY", "get").mockReturnValue(1060);
+    expect(settleOnNearestSection(true)).not.toBeNull();
+    const [, , , options] = scrollToPosition.mock.calls[0] as [
+      unknown,
+      unknown,
+      unknown,
+      { duration: number },
+    ];
+    expect(options).toEqual({ duration: SNAP_TOUCH_DURATION_MS });
+  });
+
+  it("does not pull from the longer desktop reach on touch screens", () => {
+    mount();
+    vi.spyOn(window, "scrollY", "get").mockReturnValue(1095);
+    expect(settleOnNearestSection(true)).toBeNull();
+    expect(scrollToPosition).not.toHaveBeenCalled();
+  });
+
+  it("ignores a section that has not rendered yet", () => {
+    mount();
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      height: 0,
+    } as DOMRect);
+    expect(settleOnNearestSection()).toBeNull();
+    expect(scrollToPosition).not.toHaveBeenCalled();
   });
 
   it("does nothing while a section jump is running", () => {

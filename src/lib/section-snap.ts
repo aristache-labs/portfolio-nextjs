@@ -9,6 +9,14 @@ export const SNAP_THRESHOLD_RATIO = 0.12;
 export const SNAP_MAX_DISTANCE = 120;
 /** A glide this short reads as a settle, not as a jump. */
 export const SNAP_DURATION_MS = 520;
+/**
+ * Touch screens: the finger and the momentum already carry the page, so the pull is shorter and
+ * waits longer, and the glide is quicker. Phones also have less height to spare.
+ */
+export const SNAP_TOUCH_IDLE_MS = 140;
+export const SNAP_TOUCH_THRESHOLD_RATIO = 0.1;
+export const SNAP_TOUCH_MAX_DISTANCE = 90;
+export const SNAP_TOUCH_DURATION_MS = 420;
 /** Closer than this the page is already where it should be. */
 const SNAP_MIN_DISTANCE = 2;
 
@@ -25,8 +33,10 @@ export const SNAP_SECTION_IDS = [
 export type SnapCandidate = { id: string; position: number };
 
 /** The farthest a section start may be from the scroll position and still pull the page. */
-export function snapDistance(viewportHeight: number) {
-  return Math.min(SNAP_MAX_DISTANCE, viewportHeight * SNAP_THRESHOLD_RATIO);
+export function snapDistance(viewportHeight: number, touch = false) {
+  return touch
+    ? Math.min(SNAP_TOUCH_MAX_DISTANCE, viewportHeight * SNAP_TOUCH_THRESHOLD_RATIO)
+    : Math.min(SNAP_MAX_DISTANCE, viewportHeight * SNAP_THRESHOLD_RATIO);
 }
 
 /**
@@ -38,8 +48,9 @@ export function pickSnapTarget(
   candidates: SnapCandidate[],
   scrollY: number,
   viewportHeight: number,
+  touch = false,
 ): SnapCandidate | null {
-  const limit = snapDistance(viewportHeight);
+  const limit = snapDistance(viewportHeight, touch);
   let best: SnapCandidate | null = null;
   let bestDistance = Infinity;
   for (const candidate of candidates) {
@@ -57,22 +68,23 @@ export function pickSnapTarget(
  * Settles the page on the nearest section start. Returns a cancel function, or null when there
  * is nothing to do (a jump is already running, or no section is near enough).
  */
-export function settleOnNearestSection(): (() => void) | null {
+export function settleOnNearestSection(touch = false): (() => void) | null {
   if (sectionNavigationInProgress()) return null;
   const candidates: SnapCandidate[] = [];
   const elements = new Map<string, HTMLElement>();
   for (const id of SNAP_SECTION_IDS) {
     const element = document.getElementById(id);
-    if (!element) continue;
+    // A section that has not rendered yet (zero height) has no real start to settle on.
+    if (!element || element.getBoundingClientRect().height <= 0) continue;
     elements.set(id, element);
     candidates.push({ id, position: sectionScrollPosition(element) });
   }
-  const target = pickSnapTarget(candidates, window.scrollY, window.innerHeight);
+  const target = pickSnapTarget(candidates, window.scrollY, window.innerHeight, touch);
   const element = target ? elements.get(target.id) : undefined;
   if (!target || !element) return null;
 
   const finish = beginSectionNavigation(element);
   return scrollToPosition(() => sectionScrollPosition(element), false, finish, {
-    duration: SNAP_DURATION_MS,
+    duration: touch ? SNAP_TOUCH_DURATION_MS : SNAP_DURATION_MS,
   });
 }
