@@ -16,12 +16,9 @@ export const BLOB_FOLDERS = {
 
 export type BlobFolder = (typeof BLOB_FOLDERS)[keyof typeof BLOB_FOLDERS];
 
-const MAX_BYTES = 5 * 1024 * 1024; // 5MB raw upload cap
+export const MAX_BYTES = 5 * 1024 * 1024; // 5MB raw upload cap
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"];
-// SVG is allowed for icon-style uploads but stored raw (vectors don't go
-// through the sharp raster pipeline). Kept separate so the resize helper
-// above stays raster-only.
-const SVG_TYPE = "image/svg+xml";
+// SVG is not accepted: it can carry scripts and is not worth sanitising for a few icons.
 
 type ResizeOptions = {
   width: number;
@@ -66,27 +63,15 @@ export async function optimizeAndUploadImage(
   return blob.url;
 }
 
-async function putRawSvg(file: File, folder: BlobFolder): Promise<string> {
-  const key = `${folder}/${crypto.randomUUID()}.svg`;
-  const blob = await put(key, Buffer.from(await file.arrayBuffer()), {
-    access: "public",
-    contentType: SVG_TYPE,
-    token: process.env.BLOB_READ_WRITE_TOKEN,
-  });
-  return blob.url;
-}
-
 /**
- * Upload an icon-style image (skill icons, etc.). SVGs are stored raw so they
- * stay crisp at any size; raster formats are resized + re-encoded to WebP via
+ * Upload an icon-style image (skill icons, etc.): resized and re-encoded to WebP via
  * optimizeAndUploadImage. Returns the public CDN URL.
  */
 export async function uploadIcon(file: File, folder: BlobFolder): Promise<string> {
   if (file.size > MAX_BYTES) {
     throw new Error("Image too large (max 5MB)");
   }
-  if (file.type === SVG_TYPE) return putRawSvg(file, folder);
-  // Raster icons: fit inside a 128px box (preserve aspect), WebP.
+  // Fit inside a 128px box (preserve aspect), WebP.
   return optimizeAndUploadImage(file, folder, { width: 128, height: 128, fit: "inside" });
 }
 
@@ -99,7 +84,6 @@ export async function uploadAvatar(file: File): Promise<string> {
   if (file.size > MAX_BYTES) {
     throw new Error("Image too large (max 5MB)");
   }
-  if (file.type === SVG_TYPE) return putRawSvg(file, BLOB_FOLDERS.avatar);
   return optimizeAndUploadImage(file, BLOB_FOLDERS.avatar, {
     width: 1024,
     height: 1024,

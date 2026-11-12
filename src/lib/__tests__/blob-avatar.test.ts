@@ -45,15 +45,11 @@ describe("uploadAvatar", () => {
     );
   });
 
-  it("still stores an SVG raw", async () => {
-    putMock.mockResolvedValue({ url: "https://blob.test/x.svg" });
-    const url = await uploadAvatar(fakeFile("image/svg+xml", 100, "a.svg"));
-    expect(url).toBe("https://blob.test/x.svg");
-    expect(putMock).toHaveBeenCalledWith(
-      expect.stringMatching(/^avatar\/.+\.svg$/),
-      expect.any(Buffer),
-      expect.objectContaining({ contentType: "image/svg+xml" }),
-    );
+  it("refuses an SVG, for avatars and icons alike", async () => {
+    const svg = fakeFile("image/svg+xml", 100, "a.svg");
+    await expect(uploadAvatar(svg)).rejects.toThrow(/Unsupported image type/);
+    await expect(uploadIcon(svg, "skills")).rejects.toThrow(/Unsupported image type/);
+    expect(putMock).not.toHaveBeenCalled();
   });
 
   it("rejects oversize files", async () => {
