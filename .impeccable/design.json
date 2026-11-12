@@ -1,0 +1,97 @@
+{
+  "title": "Design System: Aristache",
+  "components": [
+    {
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;padding:.625rem 1.25rem;font:500 .875rem/1.25rem system-ui;cursor:pointer;transition:background-position .3s ease-out,color .3s ease-out,border-color .3s ease-out;border:0;color:white;background:var(--gradient-brand,linear-gradient(135deg,#0f6e68,#58e5d0)) 0% 50%/160% 160%;box-shadow:0 10px 34px -12px rgb(var(--brand-deep-rgb,15 110 104)/.55)}.ds-button:hover{background-position:90% 50%}.ds-button:focus-visible{outline:2px solid var(--ring,#58e5d0);outline-offset:2px;}",
+      "html": "<button class=\"ds-button\">View projects</button>",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "name": "Primary Button"
+    },
+    {
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;padding:.625rem 1.25rem;font:500 .875rem/1.25rem system-ui;cursor:pointer;transition:background-position .3s ease-out,color .3s ease-out,border-color .3s ease-out;border:1px solid var(--border-color,#253134);background:var(--surface,#11191b);color:var(--fg,#f5f7f7)}.ds-button:hover{border-color:var(--fg,#f5f7f7)}.ds-button:focus-visible{outline:2px solid var(--ring,#58e5d0);outline-offset:2px;}",
+      "html": "<button class=\"ds-button\">Contact</button>",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "name": "Secondary Button"
+    },
+    {
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;padding:.625rem 1.25rem;font:500 .875rem/1.25rem system-ui;cursor:pointer;transition:background-position .3s ease-out,color .3s ease-out,border-color .3s ease-out;border:0;background:transparent;color:var(--muted,#a0adb1)}.ds-button:hover{color:var(--fg,#f5f7f7)}.ds-button:focus-visible{outline:2px solid var(--ring,#58e5d0);outline-offset:2px;}",
+      "html": "<button class=\"ds-button\">Close</button>",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "name": "Ghost Button"
+    },
+    {
+      "css": ".ds-card{padding:1.5rem;border:1px solid var(--border-color,#253134);border-radius:1rem;background:var(--surface,#11191b);color:var(--fg,#f5f7f7);transition:background-color .15s,border-color .15s}.ds-card:hover{background:var(--surface-2,#182225);border-color:rgb(245 247 247/.2)}",
+      "html": "<article class=\"ds-card\">Project details</article>",
+      "kind": "card",
+      "refersTo": "card",
+      "name": "Card"
+    },
+    {
+      "css": ".ds-field{border:1px solid var(--border-color,#253134);border-radius:.5rem;background:var(--bg,#080c0d);color:var(--fg,#f5f7f7);padding:.5rem .75rem;font-size:.875rem}.ds-field::placeholder{color:color-mix(in oklab,var(--muted,#a0adb1) 70%,transparent)}.ds-field:focus{outline:2px solid var(--ring,#58e5d0);border-color:transparent}.ds-field:disabled{opacity:.6}",
+      "html": "<input class=\"ds-field\" aria-label=\"Title\" placeholder=\"Title\">",
+      "kind": "input",
+      "refersTo": "admin-input",
+      "name": "Admin Input"
+    },
+    {
+      "css": ".ds-nav{padding:.75rem;background:rgb(8 12 13/.7);border-bottom:1px solid rgb(var(--brand-mid-rgb,88 229 208)/.3);backdrop-filter:blur(24px);box-shadow:0 8px 40px rgb(0 0 0/.45)}.ds-nav-link{display:inline-flex;border:1px solid rgb(var(--brand-mid-rgb,88 229 208)/.4);border-radius:9999px;padding:.625rem 1.25rem;background:rgb(var(--brand-deep-rgb,15 110 104)/.2);color:var(--fg,#f5f7f7);font:500 .875rem/1.25rem system-ui;text-decoration:none}.ds-nav-link:hover{background:rgb(var(--brand-deep-rgb,15 110 104)/.35)}.ds-nav-link:focus-visible{outline:2px solid var(--ring,#58e5d0)}",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link\" href=\"#contact\">Contact</a></nav>",
+      "kind": "nav",
+      "refersTo": "button-secondary",
+      "name": "Navigation Contact"
+    },
+    {
+      "css": ".ds-tag{display:inline-flex;border:1px solid var(--border-color,#253134);border-radius:9999px;padding:.125rem .375rem;background:var(--chip-surface,#182225);color:var(--muted,#a0adb1);font:10px/1 system-ui}",
+      "html": "<span class=\"ds-tag\">TypeScript</span>",
+      "kind": "chip",
+      "refersTo": "card",
+      "name": "Project Tag"
+    }
+  ],
+  "schemaVersion": 2,
+  "extensions": {
+    "motion": [
+      {
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "name": "section-entrance",
+        "purpose": "Arrival easing in homepage section styles."
+      }
+    ],
+    "shadows": [
+      {
+        "value": "0 10px 34px -12px rgb(var(--brand-deep-rgb)/0.55)",
+        "name": "primary-button",
+        "purpose": "Primary action glow."
+      },
+      {
+        "value": "0 8px 40px rgba(0,0,0,0.45)",
+        "name": "scrolled-nav",
+        "purpose": "Depth below the scrolled navigation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "portrait-phone-max",
+        "value": "767px"
+      },
+      {
+        "name": "landscape-short-max-height",
+        "value": "500px"
+      },
+      {
+        "name": "xl",
+        "value": "80rem"
+      }
+    ]
+  },
+  "narrative": {
+    "dos": [],
+    "northStar": "Obsidian dark",
+    "donts": [],
+    "overview": "Aristache has a technical, cinematic visual identity. Section media, near-black surfaces, and turquoise accents give the homepage depth. The same dark palette carries through navigation, dialogs, and the admin interface."
+  },
+  "generatedAt": "2026-11-12T18:03:55.7351821Z"
+}

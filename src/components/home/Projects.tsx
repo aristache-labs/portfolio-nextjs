@@ -7,7 +7,6 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
 import { ProjectCoverGate } from "./ProjectCoverGate";
 import { ProjectsBrowser } from "./ProjectsBrowser";
-import { ScrubWord } from "./ScrubWord";
 import { SectionBackdrop } from "./SectionBackdrop";
 import subtitleCss from "./section-subtitle.module.css";
 import headingCss from "./section-heading.module.css";
@@ -36,10 +35,7 @@ export function Projects({
         <div className={layoutCss.headingText}>
           <SectionLabel number={number} name="Projects" className={headingCss.label} />
           <h2 className={headingCss.title}>
-            Selected{" "}
-            <span className={headingCss.accent}>
-              <ScrubWord>Projects</ScrubWord>
-            </span>
+            Selected <span className={headingCss.accent}>Projects</span>
           </h2>
         </div>
       </div>
