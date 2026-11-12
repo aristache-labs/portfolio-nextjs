@@ -5,7 +5,14 @@ import { deferPortraitHtml } from "./portrait-html.mjs";
 const htmlPath = path.join(process.cwd(), ".next/server/app/index.html");
 const gatePath = path.join(process.cwd(), "scripts/poster-script-gate.js");
 
-// On Vercel the home page has once come out of `next build` without this prerendered file, which
+// With a platform adapter (NEXT_ADAPTER_PATH, as on Vercel) scripts/portrait-adapter.mjs has
+// already deferred the scripts of the prerendered home page, and the file below is not written.
+if (process.env.NEXT_ADAPTER_PATH) {
+  console.log("portrait scripts: handled by scripts/portrait-adapter.mjs");
+  process.exit(0);
+}
+
+// On other platforms the home page has once come out of `next build` without this prerendered file, which
 // failed the whole deploy. The page is still served, only without the deferred portrait scripts,
 // so a missing file is a loud warning plus a description of what the build produced instead.
 if (!fs.existsSync(htmlPath)) {
