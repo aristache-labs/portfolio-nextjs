@@ -86,12 +86,10 @@
 }
 
 @media (min-width: 1024px) {
-  /* Fixed poster ratios mean height follows width, so a narrower grid is the way to a shorter one. */
+  /* Hero on the left, two horizontal cards on the right. Everything scales with the width, so
+     the group stays short on wide screens and fills the row. */
   .featuredGrid {
-    width: 100%;
-    max-width: 70rem;
-    margin-inline: auto;
-    grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 55%) minmax(0, 1fr);
     grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 

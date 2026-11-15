@@ -160,20 +160,23 @@ export function FeaturedCard({
   if (variant === "compact")
     return (
       <article
-        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:flex-col lg:items-stretch lg:gap-3 lg:p-4`}
+        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:items-stretch lg:gap-3 lg:p-2.5`}
       >
         <CardBorderGlow />
-        <Frame className="aspect-video w-[38%] max-w-56 shrink-0 lg:w-full lg:max-w-none">
+        <Frame className="aspect-video w-[38%] max-w-56 shrink-0 lg:w-[58%] lg:max-w-none lg:self-center">
           <Cover project={project} sizes={COMPACT_COVER_SIZES} />
         </Frame>
-        <div className="flex min-w-0 flex-1 flex-col lg:flex-none">
+        {/* From 1024px: title at the top, description in the middle, actions at the bottom. */}
+        <div className="flex min-w-0 flex-1 flex-col lg:py-1.5 lg:pr-1.5">
           <h3 className="line-clamp-2 text-base leading-snug font-semibold break-words lg:text-lg">
             {project.title}
           </h3>
           {description && (
-            <p className="text-muted mt-1.5 line-clamp-1 text-sm leading-relaxed text-pretty max-lg:hidden">
-              {description}
-            </p>
+            <div className="flex min-h-0 flex-1 items-center max-lg:hidden">
+              <p className="text-muted line-clamp-4 py-1.5 text-sm leading-relaxed text-pretty">
+                {description}
+              </p>
+            </div>
           )}
           <ProjectComponents project={project} />
           <Actions project={project} onQuickView={onQuickView} compact />
@@ -181,12 +184,12 @@ export function FeaturedCard({
       </article>
     );
   return (
-    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-3 p-4`}>
+    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-2.5 p-3`}>
       <CardBorderGlow />
       <Frame className={`${layoutStyles.heroFrame} aspect-[1600/950] w-full`}>
         <Cover project={project} sizes={HERO_COVER_SIZES} loading={eager ? "eager" : "lazy"} />
       </Frame>
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col px-1 pb-1">
         <h3 className="text-xl leading-snug font-semibold break-words lg:text-xl">
           {project.title}
         </h3>
