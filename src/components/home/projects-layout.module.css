@@ -1060,6 +1060,23 @@
   opacity: 0.45;
 }
 
+@media (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .showcaseControls {
+    position: relative;
+    top: 4px;
+  }
+
+  .showcaseControls > button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .showcaseControls > button svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
 .showcaseTrack {
   display: flex;
   overflow-x: auto;
