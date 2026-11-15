@@ -96,8 +96,27 @@ function Cover({
 
 const FRAME = "relative overflow-hidden rounded-xl border border-white/8 bg-black/35";
 
-function Frame({ className, children }: { className: string; children: ReactNode }) {
-  return <div className={`${FRAME} ${className}`}>{children}</div>;
+function Frame({
+  className,
+  children,
+  title,
+  onQuickView,
+}: {
+  className: string;
+  children: ReactNode;
+  title: string;
+  onQuickView: MouseEventHandler<HTMLButtonElement>;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${FRAME} ${className} focus-visible:outline-ring cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2`}
+      aria-label={`Open preview for ${title}`}
+      onClick={onQuickView}
+    >
+      {children}
+    </button>
+  );
 }
 
 function Actions({
@@ -190,6 +209,8 @@ export function FeaturedCard({
       >
         <CardBorderGlow />
         <Frame
+          title={project.title}
+          onQuickView={onQuickView}
           className={`${layoutStyles.asideMedia} w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center`}
         >
           <Cover project={project} sizes={COMPACT_COVER_SIZES} intrinsic />
@@ -214,7 +235,11 @@ export function FeaturedCard({
   return (
     <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-4 p-3`}>
       <CardBorderGlow />
-      <Frame className={`${layoutStyles.heroFrame} w-full flex-1`}>
+      <Frame
+        title={project.title}
+        onQuickView={onQuickView}
+        className={`${layoutStyles.heroFrame} w-full flex-1`}
+      >
         <Cover
           project={project}
           sizes={HERO_COVER_SIZES}
@@ -364,7 +389,11 @@ export function FeaturedShowcase({
           return (
             <div key={project.id} className={layoutStyles.showcaseSlide} inert={index !== active}>
               <article className={`${SHELL} ${layoutStyles.showcaseCard}`}>
-                <Frame className={layoutStyles.showcaseMedia}>
+                <Frame
+                  title={project.title}
+                  onQuickView={(event) => onQuickView(project, event)}
+                  className={layoutStyles.showcaseMedia}
+                >
                   <Cover
                     project={project}
                     sizes="60vw"
