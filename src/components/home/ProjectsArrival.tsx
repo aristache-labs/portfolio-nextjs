@@ -44,7 +44,7 @@ export function ProjectsArrival({
   plain = false,
   ...desktopProps
 }: ProgressiveRevealProps & {
-  kind?: "heading" | "featured" | "recent" | "card" | "label" | "action";
+  kind?: "heading" | "featured" | "recent" | "card" | "label" | "action" | "showcase";
   order?: number;
   scrollFrom?: "left" | "right" | "below";
   scrollLag?: number;

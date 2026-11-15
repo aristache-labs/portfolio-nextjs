@@ -47,6 +47,31 @@ export function groupProjects(projects: MergedProject[]): ProjectPresentation[] 
     );
 }
 
+export const MAX_FEATURED = 3;
+
+/**
+ * Splits groups into the homepage highlights. Featured follows the admin `order` only (a live
+ * site never reorders it). Recently updated is strictly newest push first and only takes
+ * projects with a known push date. Everything else stays reachable in `rest`.
+ */
+export function selectHighlights(groups: ProjectPresentation[], recentLimit: number) {
+  const featured = groups
+    .filter((p) => p.featured)
+    .sort((a, b) => a.order - b.order || a.id - b.id)
+    .slice(0, MAX_FEATURED);
+  const featuredIds = new Set(featured.map((p) => p.id));
+  const others = groups.filter((p) => !featuredIds.has(p.id));
+  const recent = others
+    .filter((p) => p.pushedAt)
+    .sort((a, b) => b.pushedAt!.getTime() - a.pushedAt!.getTime() || a.id - b.id)
+    .slice(0, recentLimit);
+  const recentIds = new Set(recent.map((p) => p.id));
+  const rest = others
+    .filter((p) => !recentIds.has(p.id))
+    .sort((a, b) => liveFirst(a, b) || Number(b.featured) - Number(a.featured));
+  return { featured, recent, rest };
+}
+
 /**
  * The project with the newest GitHub push, for the "Building now" strip, regardless of
  * whether it has a live site. Returns null when no project has a push date.

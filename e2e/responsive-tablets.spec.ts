@@ -1089,24 +1089,24 @@ for (const hasTouch of [true, false]) {
       [860, 744, 2],
       [836, 842, 2],
       [842, 836, 2],
-      [768, 1024, 1],
-      [768, 948, 1],
-      [820, 1180, 1],
-      [834, 1194, 1],
-      [834, 1210, 1],
-      [1023, 1376, 1],
-      [1024, 1366, 1],
+      [768, 1024, 2],
+      [768, 948, 2],
+      [820, 1180, 2],
+      [834, 1194, 2],
+      [834, 1210, 2],
+      [1023, 1376, 2],
+      [1024, 1366, 2],
       [800, 1280, 2],
       [1120, 1792, 2],
     ]) {
-      test(`${width}x${height}: Latest work and More projects columns`, async ({ page }) => {
+      test(`${width}x${height}: Recently updated and More projects columns`, async ({ page }) => {
         await page.emulateMedia({ reducedMotion: "reduce" });
         await open(page, width, height);
         const section = page.locator("#projects");
         test.skip(!(await section.count()), "Projects is hidden in site settings");
         await section.scrollIntoViewIfNeeded();
-        const latest = section.locator('[class*="recentTrack"]').first();
-        test.skip(!(await latest.count()), "No Latest work data");
+        const latest = section.locator('[class*="recentGrid"]').first();
+        test.skip(!(await latest.count()), "No Recently updated data");
         await expect
           .poll(() =>
             latest.evaluate(

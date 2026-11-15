@@ -1,10 +1,19 @@
 "use client";
 
-import { cardDescription } from "@/lib/project-presentation";
+import { cardDescription, pushedLabel, type ProjectPresentation } from "@/lib/project-presentation";
 import { ProjectComponents } from "./ProjectComponents";
 import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 
-import type { MouseEventHandler } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type MouseEvent,
+  type MouseEventHandler,
+  type ReactNode,
+} from "react";
 
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
@@ -12,53 +21,50 @@ import layoutStyles from "./projects-layout.module.css";
 
 import Image from "next/image";
 import { useProjectCoversReady } from "./ProjectCoverGate";
-import { ExternalLink, GitFork, Github, Maximize2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CircleDot,
+  CodeXml,
+  ExternalLink,
+  Github,
+  GitPullRequest,
+  Inbox,
+  Maximize2,
+  Menu,
+  Pause,
+  Play,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { ScrollDepth } from "@/components/motion/ScrollDepth";
 import type { MergedProject } from "@/lib/projects";
-import { pluralize } from "@/utils/plural";
-import { COMPACT_PROJECT_ACTION, GLASS_CARD, PRIMARY_TAG } from "./project-styles";
-import { FOLD_VIEWPORT_QUERY } from "@/lib/motion-queries";
+import { COMPACT_PROJECT_ACTION, GLASS_CARD } from "./project-styles";
 
-// Fallbacks follow site-container padding and the two-column highlights layout.
-// Lazy covers use their actual layout width when the browser supports auto sizes.
-const FEATURED_COVER_SIZES = [
-  `${FOLD_VIEWPORT_QUERY} calc((100vw - clamp(3rem, 5vw, 5.5rem)) * 0.86)`,
-  "(orientation: portrait) calc(100vw - clamp(3rem, 5vw, 5.5rem))",
-  "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
-  "(orientation: landscape) and (min-width: 640px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
-  "calc(100vw - clamp(3rem, 5vw, 5.5rem))",
-].join(", ");
+// The hero frame is about two thirds of the container on desktop and full width below it. The
+// small previews are thumbnails. Lazy covers use their real layout width where `auto` is supported.
+const HERO_COVER_SIZES = "(min-width: 1024px) 1000px, 100vw";
+const COMPACT_COVER_SIZES = "(min-width: 1024px) 480px, 144px";
 
-const RECENT_COVER_SIZES = [
-  `${FOLD_VIEWPORT_QUERY} 192px`,
-  "(orientation: portrait) and (max-width: 1023px) 80px",
-  "(orientation: portrait) calc(min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem)",
-  "(orientation: landscape) and (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) calc(18vw)",
-  "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 3.5rem) / 4 - 1.5rem)",
-  "(min-width: 640px) 192px",
-  "(orientation: landscape) and (max-height: 500px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1rem) / 2 - 1.75rem)",
-  "calc(100vw - clamp(3rem, 5vw, 5.5rem) - 1.75rem)",
-].join(", ");
+/** The poster fills its frame edge to edge. Frames use the real poster ratios (hero 1600x950, the rest 1600x900) so nothing is cropped; spare height goes to the text area. */
+const FIT = "object-cover object-center";
 
 function Cover({
   project,
   sizes,
-  fit,
-  priority = false,
   loading = "lazy",
+  intrinsic = false,
 }: {
   project: MergedProject;
   sizes: string;
-  fit: string;
-  priority?: boolean;
   loading?: "eager" | "lazy";
+  intrinsic?: boolean;
 }) {
   const ready = useProjectCoversReady();
+  const placeholderSize = intrinsic ? "aspect-video w-full" : "size-full";
+  const imageSize = intrinsic ? "block h-auto w-full object-contain" : FIT;
   if (project.coverImage && !ready)
     return (
       <>
-        <div className="size-full bg-white/3" />
+        <span className={`block ${placeholderSize} bg-white/3`} />
         <noscript>
           {/* Native fallback is intentionally outside Next image optimization when JS is off. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -66,7 +72,7 @@ function Cover({
             src={project.coverImage}
             alt={`${project.title} preview`}
             loading="lazy"
-            className={`absolute inset-0 size-full ${fit}`}
+            className={intrinsic ? imageSize : `absolute inset-0 size-full ${FIT}`}
           />
         </noscript>
       </>
@@ -75,53 +81,41 @@ function Cover({
     <Image
       src={project.coverImage}
       alt={`${project.title} preview`}
-      fill
-      sizes={priority || loading === "eager" ? sizes : `auto, ${sizes}`}
-      loading={priority ? undefined : loading}
+      {...(intrinsic ? { width: 1600, height: 900 } : { fill: true })}
+      sizes={loading === "eager" ? sizes : `auto, ${sizes}`}
+      loading={loading}
       // Card covers render at thumbnail size; the default quality is visually identical there
       // and roughly a third lighter. Quick View keeps 90 for full-width screenshots.
       fetchPriority="low"
-      priority={priority}
-      className={`${motionStyles.cover} ${fit}`}
+      className={intrinsic ? imageSize : `${motionStyles.cover} ${imageSize}`}
     />
   ) : (
-    <div className="size-full bg-(image:--gradient-brand) opacity-70" />
+    <span className={`block ${placeholderSize} bg-(image:--gradient-brand) opacity-70`} />
   );
 }
 
-function Stats({ project }: { project: MergedProject }) {
-  return (
-    <div className="text-muted flex shrink-0 items-center gap-3 text-xs">
-      {(project.forks ?? 0) > 0 && (
-        <span
-          className="flex items-center gap-1"
-          aria-label={pluralize(project.forks ?? 0, "fork")}
-        >
-          <GitFork className="size-3.5" aria-hidden /> {project.forks ?? "—"}
-        </span>
-      )}
-    </div>
-  );
-}
+const FRAME = "relative overflow-hidden rounded-xl border border-white/8 bg-black/35";
 
-/**
- * The first chip is GitHub's primary language. The rest are the tags stored on the project
- * (admin), the same kind of hand-written labels a site shows beyond the language bar.
- */
-function Tags({ project }: { project: MergedProject }) {
-  if (!project.language && project.tags.length === 0) return null;
+function Frame({
+  className,
+  children,
+  title,
+  onQuickView,
+}: {
+  className: string;
+  children: ReactNode;
+  title: string;
+  onQuickView: MouseEventHandler<HTMLButtonElement>;
+}) {
   return (
-    <div className="ml-auto flex min-w-0 basis-[max-content] flex-wrap justify-end gap-1.5 [&>span]:px-2.5 [&>span]:py-1 [&>span]:text-[12px]">
-      {project.language && <span className={PRIMARY_TAG}>{project.language}</span>}
-      {project.tags.map((tag) => (
-        <span
-          key={tag}
-          className="border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[11px] leading-tight"
-        >
-          {tag}
-        </span>
-      ))}
-    </div>
+    <button
+      type="button"
+      className={`${FRAME} ${className} focus-visible:outline-ring cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2`}
+      aria-label={`Open preview for ${title}`}
+      onClick={onQuickView}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -129,16 +123,19 @@ function Actions({
   project,
   onQuickView,
   compact = false,
+  spacing,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
   compact?: boolean;
+  /** Top margin; defaults to the card's own rhythm. */
+  spacing?: string;
 }) {
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
   const compactClass = compact ? COMPACT_PROJECT_ACTION : undefined;
   return (
     <div
-      className={`${actionStyles.actions} ${compact ? `${actionStyles.recent} ${actionStyles.compact} mt-2` : `${actionStyles.featured} mt-4`} flex flex-wrap items-center gap-2`}
+      className={`${actionStyles.actions} ${compact ? `${actionStyles.recent} ${actionStyles.compact} ${spacing ?? "mt-2"}` : `${actionStyles.featured} mt-4`} flex flex-wrap items-center gap-2`}
     >
       <Button
         className={compactClass}
@@ -175,158 +172,410 @@ function Actions({
           rel="noopener noreferrer"
           leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
         >
-          Live
+          <span className={actionStyles.liveLabel}>Live</span>
         </Button>
-      )}
-      {compact && (
-        <span className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[11px] tracking-[0.04em] uppercase">
-          {("hasLive" in project ? project.hasLive : project.homepage)
-            ? "Released"
-            : "In development"}
-        </span>
       )}
     </div>
   );
 }
 
-const SHELL = `${GLASS_CARD} group relative h-full w-full overflow-hidden rounded-2xl border transition-colors duration-300 hover:border-(--brand-mid)/40`;
+const CARD = `${motionStyles.card} group relative h-full w-full overflow-hidden rounded-2xl border`;
+const SHELL = `${CARD} ${GLASS_CARD} transition-colors duration-300 hover:border-(--brand-mid)/40`;
 
-/** Big card: preview on top, then title, a short description, tags and actions. */
+/**
+ * Featured card. `hero` is the large one: a centred screenshot in an inset frame, then title,
+ * a short description and the actions. `compact` is the framed preview beside title and actions.
+ */
 export function FeaturedCard({
   project,
   onQuickView,
-  depth = false,
+  variant = "hero",
   eager = false,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
+  variant?: "hero" | "compact";
   eager?: boolean;
-  /** Let the cover drift and settle inside its frame while scrolling (expressive desktops). */
-  depth?: boolean;
 }) {
+  const description = cardDescription(project);
+  // The hero has room for the full text, trimmed by line-clamp; the short pitch is the fallback.
+  const heroDescription = project.description?.trim().replace(/\s+/g, " ") || description;
+  // Below 1024px the secondary cards are image-and-text rows; from 1024px they become full cards
+  // like the hero (poster, title, short description, actions).
+  if (variant === "compact")
+    return (
+      <article
+        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:items-stretch lg:gap-3 lg:p-2`}
+      >
+        <CardBorderGlow />
+        <Frame
+          title={project.title}
+          onQuickView={onQuickView}
+          className={`${layoutStyles.asideMedia} w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center`}
+        >
+          <Cover project={project} sizes={COMPACT_COVER_SIZES} intrinsic />
+        </Frame>
+        {/* The whole block (title, description, actions) is centred next to the poster at its natural height. */}
+        <div
+          className={`${layoutStyles.featuredDetails} flex min-w-0 flex-1 flex-col justify-center lg:pr-1.5`}
+        >
+          <h3 className="line-clamp-2 text-base leading-snug font-semibold break-words lg:text-lg">
+            {project.title}
+          </h3>
+          {description && (
+            <p className="text-muted mt-2 line-clamp-3 text-sm leading-relaxed text-pretty max-lg:hidden">
+              {description}
+            </p>
+          )}
+          <ProjectComponents project={project} />
+          <Actions project={project} onQuickView={onQuickView} compact spacing="mt-2 lg:mt-5" />
+        </div>
+      </article>
+    );
   return (
-    <article className={`${motionStyles.card} ${layoutStyles.featuredCard} ${SHELL} flex flex-col`}>
+    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-4 p-3`}>
       <CardBorderGlow />
-      <ScrollDepth
-        enabled={depth}
-        className={`${layoutStyles.featuredImage} relative aspect-video w-full shrink-0 overflow-hidden border-b border-white/8`}
+      <Frame
+        title={project.title}
+        onQuickView={onQuickView}
+        className={`${layoutStyles.heroFrame} w-full flex-1`}
       >
         <Cover
           project={project}
-          sizes={FEATURED_COVER_SIZES}
-          fit="object-cover"
+          sizes={HERO_COVER_SIZES}
           loading={eager ? "eager" : "lazy"}
+          intrinsic
         />
-      </ScrollDepth>
-      <div className={`${layoutStyles.featuredBody} flex flex-1 flex-col p-4 sm:p-5`}>
-        <span
-          className={`${layoutStyles.featuredLabel} text-brand-mid mb-1.5 font-mono text-[11px] tracking-[0.18em] uppercase`}
-        >
-          Featured
-        </span>
-        <div
-          className={`${actionStyles.featuredHeading} flex flex-wrap items-center justify-between gap-x-3 gap-y-2`}
-        >
-          <h3 className="max-w-full min-w-0 text-lg leading-snug font-semibold break-words">
-            {project.title}
-          </h3>
-          <Tags project={project} />
-        </div>
-        {(project.forks ?? 0) > 0 && (
-          <div className="mt-2">
-            <Stats project={project} />
-          </div>
-        )}
-        {cardDescription(project) && (
+      </Frame>
+      <div className={`${layoutStyles.featuredDetails} flex shrink-0 flex-col px-1 pb-1`}>
+        <h3 className="text-xl leading-snug font-semibold break-words">{project.title}</h3>
+        {heroDescription && (
           <p
-            className={`${actionStyles.featuredDescription} text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty lg:line-clamp-3`}
+            className={`${layoutStyles.heroText} text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty`}
           >
-            {cardDescription(project)}
+            {heroDescription}
           </p>
         )}
         <ProjectComponents project={project} />
-        <div className="mt-auto">
-          <Actions project={project} onQuickView={onQuickView} />
-        </div>
+        <Actions project={project} onQuickView={onQuickView} />
       </div>
     </article>
   );
 }
 
-/** Compact card with a shared title/update row and smaller actions. */
+export function FeaturedShowcase({
+  projects,
+  label,
+  reducedMotion,
+  onQuickView,
+}: {
+  projects: ProjectPresentation[];
+  label: ReactNode;
+  reducedMotion: boolean;
+  onQuickView: (project: ProjectPresentation, event: MouseEvent<HTMLButtonElement>) => void;
+}) {
+  const track = useRef<HTMLDivElement>(null);
+  const settleTimer = useRef<number | undefined>(undefined);
+  const [active, setActive] = useState(0);
+  const [settledSlide, setSettledSlide] = useState<number | null>(null);
+  const [inView, setInView] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const autoplay = !reducedMotion && !paused && projects.length > 1;
+
+  useEffect(() => () => window.clearTimeout(settleTimer.current), []);
+
+  const moveTo = useCallback(
+    (index: number, instant = reducedMotion) => {
+      const element = track.current;
+      if (!element || index < 0 || index >= projects.length) return;
+      element.scrollTo({
+        left: index * element.clientWidth,
+        behavior: instant ? "instant" : "smooth",
+      });
+    },
+    [projects.length, reducedMotion],
+  );
+
+  useEffect(() => {
+    if (!track.current || typeof IntersectionObserver !== "function") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.intersectionRatio >= 0.6),
+      { threshold: 0.6 },
+    );
+    observer.observe(track.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!autoplay || !inView) return;
+    const timer = window.setInterval(() => {
+      if (document.hidden) return;
+      const next = (active + 1) % projects.length;
+      moveTo(next, next === 0);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [active, autoplay, inView, moveTo, projects.length]);
+
+  function navigate(index: number) {
+    setPaused(true);
+    moveTo(index);
+  }
+
+  return (
+    <div role="region" aria-label="Featured projects">
+      <div className={layoutStyles.showcaseHeader}>
+        {label}
+        {projects.length > 1 && (
+          <div className={layoutStyles.showcaseControls}>
+            <span role="status" aria-live={autoplay ? "off" : "polite"}>
+              {active + 1} / {projects.length}
+              <span className="sr-only"> {projects[active]?.title}</span>
+            </span>
+            {!reducedMotion && (
+              <Button
+                variant="secondary"
+                size="sm"
+                aria-label={paused ? "Play featured projects" : "Pause featured projects"}
+                onClick={() => setPaused(!paused)}
+              >
+                {paused ? <Play size={15} aria-hidden /> : <Pause size={15} aria-hidden />}
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              aria-label="Previous featured project"
+              aria-disabled={active === 0}
+              onFocus={() => setPaused(true)}
+              onClick={() => navigate(active - 1)}
+            >
+              <ChevronLeft size={18} aria-hidden />
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              aria-label="Next featured project"
+              aria-disabled={active === projects.length - 1}
+              onFocus={() => setPaused(true)}
+              onClick={() => navigate(active + 1)}
+            >
+              <ChevronRight size={18} aria-hidden />
+            </Button>
+          </div>
+        )}
+      </div>
+      <div
+        ref={track}
+        className={layoutStyles.showcaseTrack}
+        onPointerDown={() => setPaused(true)}
+        onFocusCapture={() => setPaused(true)}
+        onScroll={({ currentTarget }) => {
+          const { scrollLeft, clientWidth } = currentTarget;
+          const index = Math.max(
+            0,
+            Math.min(projects.length - 1, Math.round(scrollLeft / clientWidth)),
+          );
+          if (index !== active) setActive(index);
+          if (reducedMotion) return;
+
+          window.clearTimeout(settleTimer.current);
+          settleTimer.current = window.setTimeout(() => {
+            setSettledSlide((previous) => (previous === null && index === 0 ? null : index));
+          }, 100);
+        }}
+      >
+        {projects.map((project, index) => {
+          const description = cardDescription(project);
+          return (
+            <div key={project.id} className={layoutStyles.showcaseSlide} inert={index !== active}>
+              <article className={`${SHELL} ${layoutStyles.showcaseCard}`}>
+                <Frame
+                  title={project.title}
+                  onQuickView={(event) => onQuickView(project, event)}
+                  className={layoutStyles.showcaseMedia}
+                >
+                  <Cover
+                    project={project}
+                    sizes="60vw"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    intrinsic
+                  />
+                </Frame>
+                <div className={layoutStyles.showcaseCopy}>
+                  <div
+                    className={layoutStyles.showcaseText}
+                    data-awaiting-rise={
+                      !reducedMotion && index !== (settledSlide ?? 0) ? "" : undefined
+                    }
+                    data-rise={!reducedMotion && settledSlide === index ? "" : undefined}
+                  >
+                    {(project.category || project.language) && (
+                      <p className={layoutStyles.showcaseCategory}>
+                        {project.category || project.language}
+                      </p>
+                    )}
+                    <h3>{project.title}</h3>
+                    {description && (
+                      <p className={layoutStyles.showcaseDescription}>{description}</p>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={(event) => onQuickView(project, event)}
+                    aria-label={`View ${project.title}`}
+                    leftIcon={<Maximize2 size={14} aria-hidden />}
+                  >
+                    View project
+                  </Button>
+                </div>
+              </article>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const GITHUB_OWNER = "aristache-labs";
+const GITHUB_AVATAR = "https://avatars.githubusercontent.com/u/29801489?v=4";
+const relativeTime = new Intl.RelativeTimeFormat("en", { numeric: "always" });
+const subscribeToUpdatedLabel = () => () => {};
+
+function RecentUpdate({ date }: { date: Date }) {
+  const label = useSyncExternalStore(
+    subscribeToUpdatedLabel,
+    () => {
+      const days = Math.floor(Math.max(0, Date.now() - date.getTime()) / 86_400_000);
+      if (days >= 365) return relativeTime.format(-Math.floor(days / 365), "year");
+      if (days >= 30) return relativeTime.format(-Math.floor(days / 30), "month");
+      if (days >= 7) return relativeTime.format(-Math.floor(days / 7), "week");
+      return days ? relativeTime.format(-days, "day") : "today";
+    },
+    () => pushedLabel(date),
+  );
+  return <time dateTime={date.toISOString()}>Updated {label}</time>;
+}
+
 export function RecentCard({
   project,
   onQuickView,
-  priority = false,
-  depth = false,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
-  priority?: boolean;
-  /** Let the cover drift and settle inside its frame while scrolling (expressive desktops). */
-  depth?: boolean;
 }) {
+  const category = project.category;
+  const repoUrl = (project.htmlUrl ?? `https://github.com/${GITHUB_OWNER}/${project.repo}`).replace(
+    /\/+$/,
+    "",
+  );
   return (
-    <article
-      className={`${motionStyles.card} ${layoutStyles.recentCard} ${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
-    >
-      <CardBorderGlow />
-      <ScrollDepth
-        enabled={depth}
-        className={`${layoutStyles.recentImage} ${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}
+    <article className={`${layoutStyles.recentCard} ${CARD}`}>
+      <button
+        type="button"
+        className={`${FRAME} ${layoutStyles.recentMedia}`}
+        aria-label={`View ${project.title}`}
+        onClick={onQuickView}
       >
-        <Cover
-          project={project}
-          sizes={RECENT_COVER_SIZES}
-          fit="object-cover"
-          priority={priority}
-        />
-      </ScrollDepth>
-      <div
-        className={`${layoutStyles.recentContent} ${actionStyles.recentContent} flex min-w-0 flex-1 flex-col`}
-      >
-        <div className={actionStyles.recentText}>
-          <div className="flex min-w-0 items-baseline justify-between gap-2">
-            <h3
-              title={project.title}
-              className="min-w-0 truncate text-[15px] leading-snug font-semibold"
+        <Cover project={project} sizes="(min-width: 1200px) 206px, 176px" intrinsic />
+        <span className={layoutStyles.repoView} aria-hidden>
+          <Maximize2 size={14} />
+          View
+        </span>
+      </button>
+      <div className={layoutStyles.repoHeader}>
+        <span className={layoutStyles.repoGlyph} aria-hidden>
+          <Menu size={14} />
+        </span>
+        <Github size={18} aria-hidden />
+        <div className={layoutStyles.repoPath} title={`${GITHUB_OWNER}/${project.repo}`}>
+          <span>{GITHUB_OWNER}</span>
+          <span aria-hidden>/</span>
+          <strong>{project.repo}</strong>
+        </div>
+        <span className={layoutStyles.repoGlyph} aria-hidden>
+          <GitPullRequest size={14} />
+        </span>
+        <span className={layoutStyles.repoGlyph} aria-hidden>
+          <Inbox size={14} />
+        </span>
+        <Image src={GITHUB_AVATAR} alt="" width={22} height={22} className="rounded-full" />
+      </div>
+      <div className={layoutStyles.repoSummary}>
+        <div className={layoutStyles.repoTitle}>
+          <h3 title={project.title}>{project.title}</h3>
+          {category && (
+            <span
+              className={layoutStyles.repoBadge}
+              data-category={project.category}
+              title={category}
             >
-              {project.title}
-            </h3>
-            {(project.language || project.tags[0]) && (
-              <div className="flex shrink-0 items-center gap-1">
-                <span className={PRIMARY_TAG}>{project.language || project.tags[0]}</span>
-                {(project.language
-                  ? project.tags.find(
-                      (tag) => tag.toLowerCase() !== project.language?.toLowerCase(),
-                    )
-                  : project.tags[1]) && (
-                  <span
-                    className={`${actionStyles.recentExtraTag} border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[11px] leading-tight`}
-                  >
-                    {project.language
-                      ? project.tags.find(
-                          (tag) => tag.toLowerCase() !== project.language?.toLowerCase(),
-                        )
-                      : project.tags[1]}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-          {(project.forks ?? 0) > 0 && <Stats project={project} />}
-          {cardDescription(project) && (
-            <p
-              className={`${actionStyles.recentDescription} text-muted mt-1.5 line-clamp-2 text-sm leading-relaxed text-pretty`}
-            >
-              {cardDescription(project)}
-            </p>
+              {category === "Automation & Tools" ? (
+                <>
+                  Automation<span className={layoutStyles.repoBadgeSuffix}> &amp; Tools</span>
+                </>
+              ) : (
+                category
+              )}
+            </span>
           )}
         </div>
-        <div className={`${actionStyles.recentFooter} mt-auto`}>
-          <ProjectComponents project={project} />
-          <Actions project={project} onQuickView={onQuickView} compact />
-        </div>
+        {project.pushedAt && (
+          <p className={layoutStyles.repoMeta}>
+            <RecentUpdate date={project.pushedAt} />
+          </p>
+        )}
+      </div>
+      <div className={layoutStyles.repoActions}>
+        {project.homepage && (
+          <Button
+            className={layoutStyles.repoLive}
+            href={project.homepage}
+            aria-label={`Live site for ${project.title}`}
+            variant="ghost"
+            size="sm"
+            target="_blank"
+            rel="noopener noreferrer"
+            leftIcon={<ExternalLink size={15} aria-hidden />}
+          >
+            <span className={layoutStyles.repoActionLabel}>Live</span>
+          </Button>
+        )}
+        <Button
+          href={repoUrl}
+          aria-label={`Code for ${project.title}`}
+          variant="ghost"
+          size="sm"
+          target="_blank"
+          rel="noopener noreferrer"
+          leftIcon={<CodeXml size={15} aria-hidden />}
+        >
+          <span className={layoutStyles.repoActionLabel}>Code</span>
+        </Button>
+        <Button
+          className={layoutStyles.repoIssues}
+          href={`${repoUrl}/issues`}
+          aria-label={`Issues for ${project.title}`}
+          variant="ghost"
+          size="sm"
+          target="_blank"
+          rel="noopener noreferrer"
+          leftIcon={<CircleDot size={15} aria-hidden />}
+        >
+          <span className={layoutStyles.repoActionLabel}>Issues</span>
+        </Button>
+        <Button
+          className={layoutStyles.repoPulls}
+          href={`${repoUrl}/pulls`}
+          aria-label={`Pull requests for ${project.title}`}
+          variant="ghost"
+          size="sm"
+          target="_blank"
+          rel="noopener noreferrer"
+          leftIcon={<GitPullRequest size={15} aria-hidden />}
+        >
+          <span className={layoutStyles.repoActionLabel}>Pull requests</span>
+        </Button>
       </div>
     </article>
   );

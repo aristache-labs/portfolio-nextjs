@@ -6,6 +6,7 @@ import {
   groupProjects,
   liveFirst,
   pushedLabel,
+  selectHighlights,
 } from "./project-presentation";
 import { projectInsertSchema } from "./schemas";
 
@@ -101,6 +102,37 @@ describe("project presentation", () => {
     expect(currentlyBuilding(live)?.id).toBe(2);
     expect(currentlyBuilding(groupProjects([fixture(1, { pushedAt: null })]))).toBeNull();
     expect(currentlyBuilding([])).toBeNull();
+  });
+  it("orders Featured by admin order, not by a live site, and caps at three", () => {
+    const { featured } = selectHighlights(
+      groupProjects([
+        fixture(1, { featured: true, order: 3, homepage: "https://live.example" }),
+        fixture(2, { featured: true, order: 1 }),
+        fixture(3, { featured: true, order: 2 }),
+        fixture(4, { featured: true, order: 4 }),
+      ]),
+      4,
+    );
+    expect(featured.map((p) => p.id)).toEqual([2, 3, 1]);
+  });
+  it.each([0, 1, 2, 3])("handles %i featured projects", (count) => {
+    const list = Array.from({ length: count }, (_, i) => fixture(i + 1, { featured: true }));
+    expect(selectHighlights(groupProjects(list), 4).featured).toHaveLength(count);
+  });
+  it("sorts Recently updated by push date, skips undated and featured, keeps the rest", () => {
+    const { featured, recent, rest } = selectHighlights(
+      groupProjects([
+        fixture(1, { featured: true, pushedAt: new Date("2026-11-10") }),
+        fixture(2, { pushedAt: new Date("2026-10-01"), homepage: "https://live.example" }),
+        fixture(3, { pushedAt: new Date("2026-11-05") }),
+        fixture(4, { pushedAt: null }),
+        fixture(5, { pushedAt: new Date("2026-09-01") }),
+      ]),
+      2,
+    );
+    expect(featured.map((p) => p.id)).toEqual([1]);
+    expect(recent.map((p) => p.id)).toEqual([3, 2]);
+    expect(rest.map((p) => p.id).sort()).toEqual([4, 5]);
   });
   it("prints the push date in UTC so server and browser agree", () => {
     expect(pushedLabel(new Date("2026-11-04T23:30:00Z"))).toBe("Nov 4");

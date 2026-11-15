@@ -16,47 +16,8 @@
     margin-bottom: 40px;
   }
 
-  .section .recentTrack,
   .section .projectGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .section .stack {
-    flex-direction: row;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 8px;
-  }
-
-  .section .stack > * {
-    position: static;
-    width: 86%;
-    flex-shrink: 0;
-    scroll-snap-align: center;
-  }
-
-  .section .recentRow {
-    position: static;
-  }
-
-  .section .featuredCard,
-  .section .recentCard {
-    animation: none;
-    scale: 1;
-  }
-
-  .section .featuredCard::after,
-  .section .recentCard::after {
-    content: none;
-  }
-}
-
-/* Ultra landscape retains desktop rows and scroll scenes at a larger reading scale. */
-/* Desktop: a slightly wider, shorter cover, so the whole first featured card fits under the
-   heading without squeezing the heading's spacing. Later, more specific rules still win. */
-@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
-  .featuredImage {
-    aspect-ratio: 2 / 1;
   }
 }
 
@@ -66,13 +27,6 @@
     zoom: 1.2;
   }
 }
-.highlights {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-  gap: 24px;
-  margin-bottom: 40px;
-}
 
 /* iPad Pro 13 landscape enlarges copy, controls and card spacing with the other sections. */
 @media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) {
@@ -81,126 +35,639 @@
   }
 }
 
+/* Highlights: the Featured group, then Recently updated, each the full width of the section. */
+.highlights {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
 .column {
   display: flex;
   min-width: 0;
   flex-direction: column;
 }
 
-.recentTrack {
+/* Featured bento: one hero and up to two compact cards. A single column on phones, the compact
+   cards side by side from 640px, and the 2.4:1 bento (hero left, two stacked right) from 1024px. */
+.featuredGrid {
   display: grid;
-  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
-@media (orientation: landscape) and (min-width: 640px) {
-  .highlights {
+.heroSlot {
+  grid-column: 1 / -1;
+}
+
+.heroFrame {
+  margin-inline: auto;
+}
+
+.featuredCard,
+.recentCard {
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .featuredGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
 
-@media (orientation: landscape) and (max-height: 500px) {
-  .highlights {
-    gap: 16px;
+  /* A lone secondary card takes the full row instead of leaving an empty slot. */
+  .featuredGrid[data-count="2"] .asideSlot {
+    grid-column: 1 / -1;
+  }
+
+  .featuredGrid[data-count="1"] .heroFrame {
+    max-width: 44rem;
   }
 }
 
-/* Keep a full-width preview and comfortable controls on short touch screens. */
-@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
-  .featuredImage {
-    height: clamp(120px, 36svh, 160px);
-    aspect-ratio: auto;
+@media (min-width: 1024px) {
+  /* Hero on the left, two horizontal cards on the right. Everything scales with the width, so
+     the group stays short on wide screens and fills the row. */
+  .featuredGrid {
+    grid-template-columns: minmax(0, 55%) minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 
-  .featuredImage img {
-    object-fit: cover;
+  .heroSlot {
+    grid-column: 1;
+    grid-row: 1 / span 2;
   }
 
-  .featuredBody {
-    padding: 16px;
+  .asideSlot,
+  .featuredGrid[data-count="2"] .asideSlot {
+    grid-column: 2;
   }
 
-  /* The column heading already identifies these projects as featured. */
-  .featuredLabel {
+  .featuredGrid[data-count="2"] .asideSlot {
+    grid-row: 1 / span 2;
+  }
+
+  .featuredGrid[data-count="1"] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .featuredGrid[data-count="1"] .heroSlot {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+/* Recently updated: horizontal cards, one per row on phones and 2x2 from 640px. */
+.recentCard {
+  --repo-poster-width: clamp(84px, 25%, 144px);
+  --repo-inset: 12px;
+  --repo-background: #0d1117;
+  --repo-foreground: #f0f6fc;
+  --repo-muted: #9198a1;
+  --repo-divider: #30363d;
+  display: grid;
+  grid-template-columns: var(--repo-poster-width) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  gap: 2px 12px;
+  min-height: 106px;
+  padding: 8px 12px;
+  border-color: var(--repo-divider);
+  background: var(--repo-background);
+  color: var(--repo-foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  container-type: inline-size;
+}
+
+.recentCard.recentCard:hover,
+.recentCard:focus-within {
+  translate: none;
+  border-color: #444c56;
+  box-shadow: none;
+}
+
+.recentMedia {
+  display: block;
+  grid-row: 1 / 4;
+  padding: 0;
+  cursor: pointer;
+}
+
+.recentMedia:focus-visible {
+  outline: 2px solid var(--brand-mid);
+  outline-offset: 2px;
+}
+
+.repoView {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 44px;
+  min-height: 32px;
+  padding: 2px 6px;
+  transform: translate(-50%, -50%);
+  border-radius: 6px;
+  background: var(--gradient-brand-action);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.repoHeader,
+.repoSummary,
+.repoActions {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.repoHeader {
+  --repo-header-lift: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: calc(-1 * var(--repo-header-lift));
+  padding-bottom: calc(2px + var(--repo-header-lift));
+  border-bottom: 1px solid var(--repo-divider);
+}
+
+.repoHeader > :not(.repoPath) {
+  flex: none;
+}
+
+.repoHeader > img {
+  width: 20px;
+  height: 20px;
+}
+
+.repoGlyph {
+  display: grid;
+  width: 22px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid var(--repo-divider);
+  border-radius: 5px;
+  color: var(--repo-muted);
+}
+
+.repoPath {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  color: var(--repo-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.repoPath > span {
+  flex: none;
+}
+
+.repoPath strong,
+.repoBadge,
+.repoSummary :is(h3, p) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repoPath strong {
+  color: var(--repo-foreground);
+  font-weight: 600;
+}
+
+.repoTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 6px;
+  min-width: 0;
+}
+
+.repoTitle h3 {
+  min-width: 0;
+  font-size: clamp(14px, 3cqw, 18px);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.repoBadge {
+  --repo-badge-tint: var(--repo-muted);
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 1px 6px;
+  border: 1px solid color-mix(in srgb, var(--repo-badge-tint) 34%, transparent);
+  border-radius: 999px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--repo-badge-tint) 20%, transparent),
+    color-mix(in srgb, var(--repo-badge-tint) 7%, transparent)
+  );
+  box-shadow: inset 0 1px rgb(255 255 255 / 0.1);
+  color: color-mix(in srgb, var(--repo-badge-tint) 82%, var(--repo-foreground));
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.repoBadge[data-category="Websites"] {
+  --repo-badge-tint: var(--brand-bright);
+}
+
+.repoBadge[data-category="Web Apps"] {
+  --repo-badge-tint: #a4dbba;
+}
+
+.repoBadge[data-category="Mobile Apps"] {
+  --repo-badge-tint: #c6b8ed;
+}
+
+.repoBadge[data-category="Desktop Apps"] {
+  --repo-badge-tint: #9bc7ed;
+}
+
+.repoBadge[data-category="Automation & Tools"] {
+  --repo-badge-tint: #dbc495;
+}
+
+@container (max-width: 470px) {
+  .repoBadgeSuffix {
+    position: absolute;
+    clip-path: inset(50%);
+  }
+}
+
+.repoSummary p {
+  margin-top: 2px;
+  color: var(--repo-muted);
+  font-size: 12px;
+  line-height: 1.1;
+}
+
+.repoActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  padding-top: 2px;
+  border-top: 1px solid var(--repo-divider);
+}
+
+.repoActions > :is(a, button) {
+  min-width: 44px;
+  min-height: 32px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.repoActions > :is(a, button) > span {
+  gap: 4px;
+}
+
+.repoActions > a {
+  color: var(--repo-foreground);
+}
+
+.repoActions > a:is(:hover, :focus-visible) {
+  background: rgb(255 255 255 / 0.06);
+}
+
+@media (pointer: coarse) {
+  .repoActions > :is(a, button) {
+    position: relative;
+  }
+
+  .repoActions > :is(a, button)::before {
+    position: absolute;
+    inset: -6px 0;
+    content: "";
+  }
+}
+
+@media (min-width: 1200px) {
+  .recentCard {
+    --recent-height: 138px;
+    --repo-inset: 10px;
+    --repo-poster-width: calc((var(--recent-height) - 2px - 2 * var(--repo-inset)) * 16 / 9);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 5px 18px;
+    height: var(--recent-height);
+    padding: var(--repo-inset);
+  }
+
+  .recentMedia {
+    align-self: stretch;
+    min-height: 0;
+  }
+
+  .recentMedia img {
+    height: 100%;
+  }
+
+  .repoHeader {
+    --repo-header-lift: 4px;
+  }
+
+  .repoActions {
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+
+@container (max-width: 28rem) {
+  .repoHeader {
+    grid-row: 1;
+    grid-column: 1 / -1;
+  }
+
+  .recentMedia {
+    grid-row: 2 / 4;
+  }
+
+  .repoSummary {
+    grid-row: 2;
+  }
+
+  .repoActions {
+    grid-row: 3;
+  }
+}
+
+@container (max-width: 290px) {
+  .repoPulls .repoActionLabel {
     display: none;
   }
 }
 
-/* Latest work is built from rows so each row can stack on the previous one. Below 1024px the
-   rows and their cards flatten (display: contents) into the plain list the layout always had. */
-.recentRow,
-.stackItem {
-  display: contents;
+@container (max-width: 245px) {
+  .repoActions > a .repoActionLabel {
+    display: none;
+  }
 }
 
-@media (orientation: landscape) and (min-width: 1024px) {
-  .recentTrack {
-    display: flex;
-    flex-direction: column;
+@media (max-width: 679px) and (orientation: portrait) {
+  .recentCard {
+    --recent-height: calc(clamp(96px, 33vw, 144px) * 0.75 + 26px);
+    --repo-inset: 8px;
+    --repo-header-row: 23px;
+    --repo-poster-height: calc(
+      var(--recent-height) - 2px - 2 * var(--repo-inset) - var(--repo-header-row)
+    );
+    --repo-poster-width: calc((var(--repo-poster-height) - 2px) * 16 / 9 + 2px);
+    min-height: var(--recent-height);
+    padding: var(--repo-inset);
   }
 
-  .recentRow {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+  .repoHeader {
+    --repo-header-lift: 4px;
+    padding-bottom: var(--repo-header-lift);
   }
 
-  .stackItem {
-    display: flex;
-    min-width: 0;
+  .recentMedia {
+    grid-row: 2 / -1;
   }
 
-  .stackItem > * {
-    flex: 1;
-    min-width: 0;
+  .repoSummary {
+    align-self: start;
   }
 
-  /* Share the showcase height only when both groups have enough projects.
-     Extra room goes to the screenshots rather than empty text panels. */
-  .balanced {
-    align-items: stretch;
+  .repoSummary p {
+    margin-top: 7px;
   }
 
-  .balanced .recentTrack {
-    flex: 1;
+  .repoActions {
+    grid-column: 2;
+    justify-content: flex-end;
+    padding-top: 0;
+    border-top: 0;
   }
 
-  .balanced .recentRow {
-    flex: 1 1 0;
-    min-height: 0;
+  .repoActions > .repoPulls {
+    display: none;
   }
 
-  .balanced .recentCard {
+  .repoActions > .repoLive {
+    margin-inline-end: auto;
+  }
+
+  @container (max-width: 340px) {
+    .repoIssues .repoActionLabel {
+      display: none;
+    }
+  }
+
+  @container (max-width: 275px) {
+    .repoActions > a .repoActionLabel {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .recentCard {
+    --recent-height: 138px;
+    --repo-inset: 10px;
+    --repo-header-row: 23px;
+    --repo-poster-height: calc(
+      var(--recent-height) - 2px - 2 * var(--repo-inset) - var(--repo-header-row)
+    );
+    --repo-poster-width: calc((var(--repo-poster-height) - 2px) * 16 / 9 + 2px);
+    min-height: var(--recent-height);
+    padding: 6px 6px 6px var(--repo-inset);
+  }
+
+  .repoHeader {
+    --repo-header-lift: 2px;
+    grid-row: 1;
+    grid-column: 1 / -1;
+  }
+
+  .recentMedia {
+    grid-row: 2 / -1;
+  }
+
+  .repoSummary {
+    grid-row: 2;
+    align-self: start;
+    margin-top: calc(
+      (var(--recent-height) - 14px - var(--repo-header-row) - var(--repo-poster-height)) / 2
+    );
+  }
+
+  @container (700px <= width <= 800px) {
+    .recentCard {
+      --repo-poster-height: 70px;
+    }
+  }
+
+  .repoGlyph,
+  .repoHeader > img {
+    height: 18px;
+  }
+
+  .repoHeader > img {
+    width: 18px;
+  }
+
+  .repoTitle h3 {
+    font-size: 13px;
+  }
+
+  .repoSummary p {
+    margin-top: 7px;
+    font-size: 11px;
+  }
+
+  .repoActions {
+    grid-row: 3;
+    align-self: end;
+    justify-content: flex-end;
+    column-gap: 3px;
+  }
+
+  .repoActions > .repoPulls {
+    display: none;
+  }
+
+  .repoActions > .repoLive {
+    margin-inline-end: auto;
+  }
+}
+
+@media (max-width: 679px) and (orientation: portrait),
+  (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .repoTitle {
+    column-gap: 4px;
+  }
+
+  .repoBadge {
+    padding-inline: 3px;
+    font-size: 10px;
+  }
+
+  .recentMedia {
+    height: var(--repo-poster-height);
+  }
+
+  .recentMedia img {
     height: 100%;
   }
+}
 
-  .balanced .recentImage {
-    flex: 1;
-    min-height: clamp(8rem, 11vw, 11rem);
-    aspect-ratio: auto;
+@media (max-width: 679px) and (orientation: portrait),
+  (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .repoView {
+    inset: auto auto 9px 9px;
+    min-height: 26px;
+    padding-inline: 5px;
+    transform: none;
+    border: 1px solid rgb(var(--brand-mid-rgb) / 0.42);
+    background: color-mix(in srgb, var(--repo-background) 76%, transparent);
+    color: var(--repo-foreground);
+    font-size: 11px;
   }
 
-  .balanced .recentContent {
-    flex: 0 0 auto;
-  }
-
-  .balanced .recentImage img {
-    object-fit: cover;
+  .repoView svg {
+    width: 12px;
+    height: 12px;
   }
 }
 
-/* iPad Pro 11 landscape gives Latest work a little more room beside Featured. */
-@media (orientation: landscape) and (min-width: 1181px) and (max-width: 1249px) and (min-height: 700px) and (max-height: 850px) {
-  .highlights {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .recentCard {
+    grid-template-columns: var(--repo-poster-width) minmax(0, 1fr) auto;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+
+  .recentMedia {
+    grid-row: 1 / -1;
+  }
+
+  .repoHeader {
+    grid-row: 1;
+    grid-column: 2 / -1;
+  }
+
+  .repoSummary,
+  .repoSummary .repoMeta {
+    display: contents;
+  }
+
+  .repoTitle {
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  .repoActions {
+    grid-row: 4;
+    grid-column: 2 / -1;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .repoActions > .repoLive {
+    margin-inline-end: auto;
+  }
+
+  .repoMeta time {
+    grid-row: 2;
+    grid-column: 3;
+    justify-self: end;
+    white-space: nowrap;
+  }
+
+  .repoView {
+    opacity: 0;
+    transition: opacity 160ms ease-out;
+  }
+
+  .recentMedia::after {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.28);
+    content: "";
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .recentMedia:is(:hover, :focus-visible) .repoView,
+  .recentMedia:is(:hover, :focus-visible)::after {
+    opacity: 1;
+  }
+
+  @container (max-width: 470px) {
+    .repoPulls .repoActionLabel {
+      display: none;
+    }
   }
 }
 
-/* Galaxy Tab S7 held sideways (and the same-sized simulator): a narrower Featured column
-   leaves more room for the two columns of Latest work. */
-@media (orientation: landscape) and (min-width: 1250px) and (max-width: 1300px) and (max-height: 840px) {
-  .highlights {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+@media (prefers-reduced-motion: reduce) {
+  .repoView {
+    transition: none;
+  }
+}
+
+.recentGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .recentGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
 }
 
@@ -281,183 +748,6 @@
   }
 }
 
-/* Stacking: featured cards, and Latest work row by row, pin in turn and the next slides over the
-   previous. Sticky only, so the section gains no scroll length. The previous card recedes with a
-   transform-only shrink and a scrim, driven by the next one's travel where the browser supports
-   it. Desktop pins below the 72px bar; short landscape pins below its 44px bar. */
-@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
-  (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape),
-  (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape),
-  (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) {
-  .stack > *,
-  .recentRow {
-    position: sticky;
-  }
-
-  .stack > :nth-child(1),
-  .recentRow:nth-child(1) {
-    top: 104px;
-    z-index: 1;
-  }
-
-  .stack > :nth-child(2),
-  .recentRow:nth-child(2) {
-    top: 128px;
-    z-index: 2;
-  }
-
-  .stack > :nth-child(n + 3),
-  .recentRow:nth-child(n + 3) {
-    top: 152px;
-    z-index: 3;
-  }
-}
-
-/* iPad-sized touch landscape (1024-1180px wide, up to 800px tall) shares this stacking with short
-   landscape phones: Featured on the left, Latest work as one column on the right. */
-@media (orientation: landscape) and (max-height: 500px),
-  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) {
-  .recentRow {
-    display: contents;
-  }
-
-  .stack > *,
-  .stackItem {
-    position: sticky;
-    top: calc(60px + var(--stack, 0) * 12px);
-    z-index: calc(var(--stack, 0) + 1);
-  }
-
-  .stack > :nth-child(1) {
-    --stack: 0;
-  }
-
-  .stack > :nth-child(2) {
-    --stack: 1;
-  }
-
-  .stack > :nth-child(n + 3) {
-    --stack: 2;
-  }
-
-  /* Each card is its own sticky box here (rows stay flattened), and the list becomes a plain
-     column because sticky cannot cross grid areas. */
-  .stackItem {
-    display: block;
-  }
-
-  .recentTrack {
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
-  (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape),
-  (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape),
-  (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse),
-  (orientation: landscape) and (max-height: 500px),
-  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) {
-  .featuredCard::after,
-  .recentCard::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    background: rgb(4 8 10 / 0.55);
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
-    (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-    (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-    (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
-    (orientation: landscape) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
-    (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) and (prefers-reduced-motion: no-preference) {
-    .stack {
-      timeline-scope: --featured-next;
-    }
-
-    .stack > :nth-child(2) {
-      view-timeline: --featured-next block;
-    }
-
-    .stack > :nth-child(1) .featuredCard,
-    .stack > :nth-child(1) .featuredCard::after {
-      animation: featured-recede linear both;
-      animation-timeline: --featured-next;
-      animation-range: entry 55% entry 100%;
-    }
-
-    .stack > :nth-child(1) .featuredCard::after {
-      animation-name: featured-scrim;
-    }
-  }
-
-  /* Latest work (desktop rows): each row recedes as the next one arrives. */
-  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
-    (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-    (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-    (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-    .recentTrack {
-      timeline-scope: --recent-2, --recent-3;
-    }
-
-    .recentRow:nth-child(2) {
-      view-timeline: --recent-2 block;
-    }
-
-    .recentRow:nth-child(3) {
-      view-timeline: --recent-3 block;
-    }
-
-    .recentRow:nth-child(-n + 2) .recentCard,
-    .recentRow:nth-child(-n + 2) .recentCard::after {
-      animation: featured-recede linear both;
-      animation-range: entry 55% entry 100%;
-    }
-
-    .recentRow:nth-child(-n + 2) .recentCard::after {
-      animation-name: featured-scrim;
-    }
-
-    .recentRow:nth-child(1) .recentCard,
-    .recentRow:nth-child(1) .recentCard::after {
-      animation-timeline: --recent-2;
-    }
-
-    .recentRow:nth-child(2) .recentCard,
-    .recentRow:nth-child(2) .recentCard::after {
-      animation-timeline: --recent-3;
-    }
-  }
-}
-
-/* Let the reader scroll past the iPad menu landing before Latest work begins receding.
-   Keep the same travel span so the later start does not make the shrink feel abrupt. */
-@media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-  (min-width: 1181px) and (max-width: 1249px) and (min-height: 700px) and (max-height: 850px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
-  .recentRow:nth-child(-n + 2) .recentCard,
-  .recentRow:nth-child(-n + 2) .recentCard::after {
-    animation-range: entry 80% entry 125%;
-  }
-}
-
-@keyframes featured-recede {
-  to {
-    scale: 0.95;
-  }
-}
-
-@keyframes featured-scrim {
-  to {
-    opacity: 1;
-  }
-}
-
 /* Heading row: the copy on the left and, on desktop and short landscape, the Building now card on
    the right, bottom-aligned with the subtitle so the section gains no height. Portrait keeps the
    card under the heading. */
@@ -523,21 +813,6 @@
     align-items: flex-end;
     justify-content: space-between;
   }
-  /* Featured swipes sideways in both orientations, like the portrait phone, with the next card
-     peeking in. Latest work below stays a single full-width column. */
-  .stack {
-    flex-direction: row;
-    scroll-snap-type: x mandatory;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    padding-bottom: 8px;
-  }
-  .stack > * {
-    width: 86%;
-    flex-shrink: 0;
-    scroll-snap-align: center;
-  }
-  .highlights,
   .projectGrid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -545,15 +820,7 @@
 
 /* Fold viewports keep two compact cards per row in either orientation. */
 @media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
-  .recentTrack,
   .projectGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Portrait tablets show four Latest work cards as two rows. */
-@media (min-width: 740px) and (max-width: 1100px) and (min-height: 900px) and (max-height: 1400px) and (orientation: portrait) {
-  .recentTrack {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -581,24 +848,16 @@
   }
 }
 
-/* iPad mini and Air 4 portrait keep four Latest work cards in one column. */
+/* iPad mini and Air 4 portrait show two More projects columns. */
 @media (min-width: 760px) and (max-width: 780px) and (min-height: 900px) and (max-height: 1050px) and (orientation: portrait),
   (min-width: 810px) and (max-width: 825px) and (min-height: 1000px) and (max-height: 1200px) and (orientation: portrait) {
-  .recentTrack {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .projectGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* iPad Pro 11 portrait keeps four Latest work cards readable in one column. */
+/* iPad Pro 11 portrait shows two More projects columns. */
 @media (min-width: 830px) and (max-width: 840px) and (min-height: 1000px) and (max-height: 1250px) and (orientation: portrait) {
-  .recentTrack {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .projectGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -635,43 +894,6 @@
     border-radius: 0.5rem;
   }
 
-  .stack > *,
-  .recentRow {
-    position: static;
-  }
-
-  .stack > :nth-child(1) .featuredCard,
-  .featuredCard,
-  .recentCard {
-    animation: none;
-    scale: 1;
-  }
-
-  .featuredCard::after,
-  .recentCard::after {
-    content: none;
-  }
-
-  .recentTrack {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1rem;
-  }
-
-  .recentCard {
-    flex-direction: row;
-    padding: 1rem;
-  }
-
-  .recentCard .recentImage {
-    width: 12rem;
-    aspect-ratio: auto;
-    align-self: stretch;
-  }
-
-  .recentCard h3 {
-    font-size: 0.9375rem;
-  }
-
   .headingDescription.headingDescription {
     font-size: 1.0625rem;
   }
@@ -701,5 +923,266 @@
 @media (min-width: 768px) {
   .headingText {
     flex: 0 0 70%;
+  }
+}
+
+/* Use the available content width for the landscape Recently updated columns. */
+.column {
+  container-type: inline-size;
+}
+
+@media (max-width: 679px) and (orientation: portrait) {
+  .asideSlot .featuredCard {
+    padding: 12px;
+  }
+
+  .asideMedia {
+    width: clamp(96px, 33vw, 144px);
+  }
+
+  .asideMedia + div {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+}
+
+.showcaseHeader,
+.showcaseControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.showcaseHeader {
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.showcaseHeader .groupTitle {
+  margin: 0;
+}
+
+.showcaseControls {
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.showcaseControls > button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+.showcaseControls > button[aria-disabled="true"] {
+  opacity: 0.45;
+}
+
+.showcaseTrack {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.showcaseSlide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.showcaseCard {
+  display: grid;
+  grid-template-columns: minmax(0, min(60%, 100svh)) minmax(0, 1fr);
+  gap: clamp(12px, 3vw, 28px);
+  min-height: clamp(212px, 64svh, 280px);
+  padding: 14px;
+}
+
+.showcaseMedia {
+  align-self: center;
+}
+
+.showcaseCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-block: 8px;
+  overflow-wrap: anywhere;
+}
+
+.showcaseCopy > button {
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+.showcaseCategory {
+  color: var(--brand-bright);
+  font-size: 13px;
+}
+
+.showcaseText h3 {
+  margin-top: 4px;
+  font-size: clamp(19px, 3vw, 28px);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.showcaseDescription {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .showcaseText[data-awaiting-rise] :is(h3, .showcaseDescription) {
+    opacity: 0;
+  }
+
+  .showcaseText[data-rise] h3 {
+    animation: contentRise 380ms ease-out both;
+  }
+
+  .showcaseText[data-rise] .showcaseDescription {
+    animation: contentRise 380ms ease-out 65ms both;
+  }
+}
+
+@keyframes contentRise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .recentGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @container (min-width: 700px) {
+    .recentGrid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 501px) and (hover: hover) and (pointer: fine) {
+  .featuredGrid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    min-height: 350px;
+    aspect-ratio: 2.62 / 1;
+  }
+
+  .featuredGrid[data-count="1"] {
+    aspect-ratio: 3.1 / 1;
+  }
+
+  .featuredGrid[data-count="3"] {
+    grid-template-columns: minmax(0, 1.91fr) minmax(0, 1fr);
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  .featuredCard > :is(.heroFrame, .asideMedia) {
+    position: absolute;
+    inset: 0;
+    align-self: stretch;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .featuredCard > :is(.heroFrame, .asideMedia) img {
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .featuredGrid[data-count="3"] .heroSlot .featuredCard {
+    height: auto;
+  }
+
+  .featuredGrid[data-count="3"] .heroSlot .heroFrame {
+    position: relative;
+    inset: auto;
+    flex: none;
+    width: 100%;
+  }
+
+  .featuredGrid[data-count="3"] .heroSlot .heroFrame img {
+    height: auto;
+  }
+
+  .featuredDetails {
+    position: absolute;
+    z-index: 1;
+    inset: auto 0 0;
+    max-height: 100%;
+    padding: 16px;
+    overflow-y: auto;
+    pointer-events: none;
+  }
+
+  .featuredDetails::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: linear-gradient(to top, var(--background) 70%, transparent);
+    content: "";
+    opacity: 0;
+  }
+
+  .featuredDetails > * {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .featuredDetails > :last-child > a {
+    visibility: hidden;
+  }
+
+  .featuredCard:is(:hover, :focus-within) .featuredDetails {
+    pointer-events: auto;
+  }
+
+  .featuredCard:is(:hover, :focus-within) .featuredDetails::before,
+  .featuredCard:is(:hover, :focus-within) .featuredDetails > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  .featuredCard:is(:hover, :focus-within) .featuredDetails > :last-child > a {
+    visibility: visible;
+  }
+
+  .featuredDetails > p {
+    -webkit-line-clamp: 2;
+  }
+
+  .featuredDetails > :last-child {
+    margin-top: 10px;
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 501px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .featuredDetails::before,
+  .featuredDetails > * {
+    transition:
+      opacity 220ms ease-out,
+      transform 220ms ease-out;
   }
 }
