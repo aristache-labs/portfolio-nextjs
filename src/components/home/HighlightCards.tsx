@@ -1,10 +1,10 @@
 "use client";
 
-import { cardDescription } from "@/lib/project-presentation";
+import { cardDescription, pushedLabel } from "@/lib/project-presentation";
 import { ProjectComponents } from "./ProjectComponents";
 import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 
-import type { MouseEventHandler } from "react";
+import type { MouseEventHandler, ReactNode } from "react";
 
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
@@ -12,46 +12,26 @@ import layoutStyles from "./projects-layout.module.css";
 
 import Image from "next/image";
 import { useProjectCoversReady } from "./ProjectCoverGate";
-import { ExternalLink, GitFork, Github, Maximize2 } from "lucide-react";
+import { ExternalLink, Github, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { ScrollDepth } from "@/components/motion/ScrollDepth";
 import type { MergedProject } from "@/lib/projects";
-import { pluralize } from "@/utils/plural";
-import { COMPACT_PROJECT_ACTION, GLASS_CARD, PRIMARY_TAG } from "./project-styles";
-import { FOLD_VIEWPORT_QUERY } from "@/lib/motion-queries";
+import { COMPACT_PROJECT_ACTION, GLASS_CARD } from "./project-styles";
 
-// Fallbacks follow site-container padding and the two-column highlights layout.
-// Lazy covers use their actual layout width when the browser supports auto sizes.
-const FEATURED_COVER_SIZES = [
-  `${FOLD_VIEWPORT_QUERY} calc((100vw - clamp(3rem, 5vw, 5.5rem)) * 0.86)`,
-  "(orientation: portrait) calc(100vw - clamp(3rem, 5vw, 5.5rem))",
-  "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
-  "(orientation: landscape) and (min-width: 640px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1.5rem) / 2)",
-  "calc(100vw - clamp(3rem, 5vw, 5.5rem))",
-].join(", ");
+// The hero frame is about two thirds of the container on desktop and full width below it. The
+// small previews are thumbnails. Lazy covers use their real layout width where `auto` is supported.
+const HERO_COVER_SIZES = "(min-width: 1024px) 640px, 100vw";
+const COMPACT_COVER_SIZES = "(min-width: 1024px) 420px, 144px";
 
-const RECENT_COVER_SIZES = [
-  `${FOLD_VIEWPORT_QUERY} 192px`,
-  "(orientation: portrait) and (max-width: 1023px) 80px",
-  "(orientation: portrait) calc(min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 1.5rem)",
-  "(orientation: landscape) and (max-width: 1023px) and (max-height: 500px) and (pointer: coarse) calc(18vw)",
-  "(min-width: 1024px) calc((min(100vw, 86rem) - clamp(3rem, 5vw, 5.5rem) - 3.5rem) / 4 - 1.5rem)",
-  "(min-width: 640px) 192px",
-  "(orientation: landscape) and (max-height: 500px) calc((100vw - clamp(3rem, 5vw, 5.5rem) - 1rem) / 2 - 1.75rem)",
-  "calc(100vw - clamp(3rem, 5vw, 5.5rem) - 1.75rem)",
-].join(", ");
+/** Whole screenshot, never cropped: `contain` inside a dark inset frame. */
+const FIT = "object-contain";
 
 function Cover({
   project,
   sizes,
-  fit,
-  priority = false,
   loading = "lazy",
 }: {
   project: MergedProject;
   sizes: string;
-  fit: string;
-  priority?: boolean;
   loading?: "eager" | "lazy";
 }) {
   const ready = useProjectCoversReady();
@@ -66,7 +46,7 @@ function Cover({
             src={project.coverImage}
             alt={`${project.title} preview`}
             loading="lazy"
-            className={`absolute inset-0 size-full ${fit}`}
+            className={`absolute inset-0 size-full ${FIT}`}
           />
         </noscript>
       </>
@@ -76,51 +56,24 @@ function Cover({
       src={project.coverImage}
       alt={`${project.title} preview`}
       fill
-      sizes={priority || loading === "eager" ? sizes : `auto, ${sizes}`}
-      loading={priority ? undefined : loading}
+      sizes={loading === "eager" ? sizes : `auto, ${sizes}`}
+      loading={loading}
       // Card covers render at thumbnail size; the default quality is visually identical there
       // and roughly a third lighter. Quick View keeps 90 for full-width screenshots.
       fetchPriority="low"
-      priority={priority}
-      className={`${motionStyles.cover} ${fit}`}
+      className={`${motionStyles.cover} ${FIT}`}
     />
   ) : (
     <div className="size-full bg-(image:--gradient-brand) opacity-70" />
   );
 }
 
-function Stats({ project }: { project: MergedProject }) {
+function Frame({ className, children }: { className: string; children: ReactNode }) {
   return (
-    <div className="text-muted flex shrink-0 items-center gap-3 text-xs">
-      {(project.forks ?? 0) > 0 && (
-        <span
-          className="flex items-center gap-1"
-          aria-label={pluralize(project.forks ?? 0, "fork")}
-        >
-          <GitFork className="size-3.5" aria-hidden /> {project.forks ?? "—"}
-        </span>
-      )}
-    </div>
-  );
-}
-
-/**
- * The first chip is GitHub's primary language. The rest are the tags stored on the project
- * (admin), the same kind of hand-written labels a site shows beyond the language bar.
- */
-function Tags({ project }: { project: MergedProject }) {
-  if (!project.language && project.tags.length === 0) return null;
-  return (
-    <div className="ml-auto flex min-w-0 basis-[max-content] flex-wrap justify-end gap-1.5 [&>span]:px-2.5 [&>span]:py-1 [&>span]:text-[12px]">
-      {project.language && <span className={PRIMARY_TAG}>{project.language}</span>}
-      {project.tags.map((tag) => (
-        <span
-          key={tag}
-          className="border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[11px] leading-tight"
-        >
-          {tag}
-        </span>
-      ))}
+    <div
+      className={`relative overflow-hidden rounded-xl border border-white/8 bg-black/35 ${className}`}
+    >
+      {children}
     </div>
   );
 }
@@ -178,70 +131,68 @@ function Actions({
           Live
         </Button>
       )}
-      {compact && (
-        <span className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[11px] tracking-[0.04em] uppercase">
-          {("hasLive" in project ? project.hasLive : project.homepage)
-            ? "Released"
-            : "In development"}
-        </span>
-      )}
     </div>
   );
 }
 
-const SHELL = `${GLASS_CARD} group relative h-full w-full overflow-hidden rounded-2xl border transition-colors duration-300 hover:border-(--brand-mid)/40`;
+const SHELL = `${GLASS_CARD} ${motionStyles.card} group relative h-full w-full overflow-hidden rounded-2xl border transition-colors duration-300 hover:border-(--brand-mid)/40`;
 
-/** Big card: preview on top, then title, a short description, tags and actions. */
+/**
+ * Featured card. `hero` is the large one: a centred screenshot in an inset frame, then title,
+ * a short description and the actions. `compact` is the framed preview beside title and actions.
+ */
 export function FeaturedCard({
   project,
   onQuickView,
-  depth = false,
+  variant = "hero",
   eager = false,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
+  variant?: "hero" | "compact";
   eager?: boolean;
-  /** Let the cover drift and settle inside its frame while scrolling (expressive desktops). */
-  depth?: boolean;
 }) {
-  return (
-    <article className={`${motionStyles.card} ${layoutStyles.featuredCard} ${SHELL} flex flex-col`}>
-      <CardBorderGlow />
-      <ScrollDepth
-        enabled={depth}
-        className={`${layoutStyles.featuredImage} relative aspect-video w-full shrink-0 overflow-hidden border-b border-white/8`}
+  const description = cardDescription(project);
+  // The hero has room for the full text, trimmed by line-clamp; the short pitch is the fallback.
+  const heroDescription = project.description?.trim().replace(/\s+/g, " ") || description;
+  // Below 1024px the secondary cards are image-and-text rows; from 1024px they become full cards
+  // like the hero (poster, title, short description, actions).
+  if (variant === "compact")
+    return (
+      <article
+        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:flex-col lg:items-stretch lg:gap-4 lg:p-5`}
       >
-        <Cover
-          project={project}
-          sizes={FEATURED_COVER_SIZES}
-          fit="object-cover"
-          loading={eager ? "eager" : "lazy"}
-        />
-      </ScrollDepth>
-      <div className={`${layoutStyles.featuredBody} flex flex-1 flex-col p-4 sm:p-5`}>
-        <span
-          className={`${layoutStyles.featuredLabel} text-brand-mid mb-1.5 font-mono text-[11px] tracking-[0.18em] uppercase`}
-        >
-          Featured
-        </span>
-        <div
-          className={`${actionStyles.featuredHeading} flex flex-wrap items-center justify-between gap-x-3 gap-y-2`}
-        >
-          <h3 className="max-w-full min-w-0 text-lg leading-snug font-semibold break-words">
+        <CardBorderGlow />
+        <Frame className="aspect-[4/3] w-[38%] max-w-56 shrink-0 lg:aspect-[23/10] lg:w-full lg:max-w-none lg:flex-1">
+          <Cover project={project} sizes={COMPACT_COVER_SIZES} />
+        </Frame>
+        <div className="flex min-w-0 flex-1 flex-col lg:flex-none">
+          <h3 className="line-clamp-2 text-base leading-snug font-semibold break-words lg:text-xl">
             {project.title}
           </h3>
-          <Tags project={project} />
+          {description && (
+            <p className="text-muted mt-1.5 line-clamp-2 hidden text-sm leading-relaxed text-pretty lg:block">
+              {description}
+            </p>
+          )}
+          <ProjectComponents project={project} />
+          <Actions project={project} onQuickView={onQuickView} compact />
         </div>
-        {(project.forks ?? 0) > 0 && (
-          <div className="mt-2">
-            <Stats project={project} />
-          </div>
-        )}
-        {cardDescription(project) && (
-          <p
-            className={`${actionStyles.featuredDescription} text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty lg:line-clamp-3`}
-          >
-            {cardDescription(project)}
+      </article>
+    );
+  return (
+    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-4 p-4 sm:p-5`}>
+      <CardBorderGlow />
+      <Frame className={`${layoutStyles.heroFrame} aspect-video w-full`}>
+        <Cover project={project} sizes={HERO_COVER_SIZES} loading={eager ? "eager" : "lazy"} />
+      </Frame>
+      <div className="flex flex-1 flex-col">
+        <h3 className="text-xl leading-snug font-semibold break-words lg:text-2xl">
+          {project.title}
+        </h3>
+        {heroDescription && (
+          <p className="text-muted mt-2 line-clamp-3 text-sm leading-relaxed text-pretty lg:line-clamp-6 lg:text-base">
+            {heroDescription}
           </p>
         )}
         <ProjectComponents project={project} />
@@ -253,80 +204,33 @@ export function FeaturedCard({
   );
 }
 
-/** Compact card with a shared title/update row and smaller actions. */
+/** Horizontal card: compact framed preview, then title, metadata and a visible action. */
 export function RecentCard({
   project,
   onQuickView,
-  priority = false,
-  depth = false,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
-  priority?: boolean;
-  /** Let the cover drift and settle inside its frame while scrolling (expressive desktops). */
-  depth?: boolean;
 }) {
+  const meta = [
+    project.category || project.language,
+    project.pushedAt && pushedLabel(project.pushedAt),
+  ]
+    .filter(Boolean)
+    .join(" · ");
   return (
-    <article
-      className={`${motionStyles.card} ${layoutStyles.recentCard} ${actionStyles.recentCard} ${SHELL} flex flex-col gap-3.5 p-3.5 sm:flex-row sm:items-stretch sm:p-4 lg:flex-col lg:p-3`}
-    >
+    <article className={`${layoutStyles.recentCard} ${SHELL} flex items-center gap-3 p-3 sm:p-3.5`}>
       <CardBorderGlow />
-      <ScrollDepth
-        enabled={depth}
-        className={`${layoutStyles.recentImage} ${actionStyles.recentImage} ring-border relative aspect-video w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-inset sm:aspect-auto sm:w-48 sm:self-stretch lg:aspect-[2.4/1] lg:w-full`}
-      >
-        <Cover
-          project={project}
-          sizes={RECENT_COVER_SIZES}
-          fit="object-cover"
-          priority={priority}
-        />
-      </ScrollDepth>
-      <div
-        className={`${layoutStyles.recentContent} ${actionStyles.recentContent} flex min-w-0 flex-1 flex-col`}
-      >
-        <div className={actionStyles.recentText}>
-          <div className="flex min-w-0 items-baseline justify-between gap-2">
-            <h3
-              title={project.title}
-              className="min-w-0 truncate text-[15px] leading-snug font-semibold"
-            >
-              {project.title}
-            </h3>
-            {(project.language || project.tags[0]) && (
-              <div className="flex shrink-0 items-center gap-1">
-                <span className={PRIMARY_TAG}>{project.language || project.tags[0]}</span>
-                {(project.language
-                  ? project.tags.find(
-                      (tag) => tag.toLowerCase() !== project.language?.toLowerCase(),
-                    )
-                  : project.tags[1]) && (
-                  <span
-                    className={`${actionStyles.recentExtraTag} border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[11px] leading-tight`}
-                  >
-                    {project.language
-                      ? project.tags.find(
-                          (tag) => tag.toLowerCase() !== project.language?.toLowerCase(),
-                        )
-                      : project.tags[1]}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-          {(project.forks ?? 0) > 0 && <Stats project={project} />}
-          {cardDescription(project) && (
-            <p
-              className={`${actionStyles.recentDescription} text-muted mt-1.5 line-clamp-2 text-sm leading-relaxed text-pretty`}
-            >
-              {cardDescription(project)}
-            </p>
-          )}
-        </div>
-        <div className={`${actionStyles.recentFooter} mt-auto`}>
-          <ProjectComponents project={project} />
-          <Actions project={project} onQuickView={onQuickView} compact />
-        </div>
+      <Frame className="aspect-[4/3] w-20 shrink-0 sm:w-36">
+        <Cover project={project} sizes={COMPACT_COVER_SIZES} />
+      </Frame>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <h3 title={project.title} className="truncate text-[15px] leading-snug font-semibold">
+          {project.title}
+        </h3>
+        {meta && <p className="text-muted mt-0.5 truncate text-xs">{meta}</p>}
+        <ProjectComponents project={project} />
+        <Actions project={project} onQuickView={onQuickView} compact />
       </div>
     </article>
   );

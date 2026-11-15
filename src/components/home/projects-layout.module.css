@@ -16,47 +16,8 @@
     margin-bottom: 40px;
   }
 
-  .section .recentTrack,
   .section .projectGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .section .stack {
-    flex-direction: row;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 8px;
-  }
-
-  .section .stack > * {
-    position: static;
-    width: 86%;
-    flex-shrink: 0;
-    scroll-snap-align: center;
-  }
-
-  .section .recentRow {
-    position: static;
-  }
-
-  .section .featuredCard,
-  .section .recentCard {
-    animation: none;
-    scale: 1;
-  }
-
-  .section .featuredCard::after,
-  .section .recentCard::after {
-    content: none;
-  }
-}
-
-/* Ultra landscape retains desktop rows and scroll scenes at a larger reading scale. */
-/* Desktop: a slightly wider, shorter cover, so the whole first featured card fits under the
-   heading without squeezing the heading's spacing. Later, more specific rules still win. */
-@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
-  .featuredImage {
-    aspect-ratio: 2 / 1;
   }
 }
 
@@ -66,13 +27,6 @@
     zoom: 1.2;
   }
 }
-.highlights {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-  gap: 24px;
-  margin-bottom: 40px;
-}
 
 /* iPad Pro 13 landscape enlarges copy, controls and card spacing with the other sections. */
 @media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) {
@@ -81,126 +35,102 @@
   }
 }
 
+/* Highlights: the Featured group, then Recently updated, each the full width of the section. */
+.highlights {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
 .column {
   display: flex;
   min-width: 0;
   flex-direction: column;
 }
 
-.recentTrack {
+/* Featured bento: one hero and up to two compact cards. A single column on phones, the compact
+   cards side by side from 640px, and the 1.9:1 bento (hero left, two stacked right) from 1024px. */
+.featuredGrid {
   display: grid;
-  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
-@media (orientation: landscape) and (min-width: 640px) {
-  .highlights {
+.heroSlot {
+  grid-column: 1 / -1;
+}
+
+.heroFrame {
+  margin-inline: auto;
+}
+
+.featuredCard,
+.recentCard {
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .featuredGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-}
 
-@media (orientation: landscape) and (max-height: 500px) {
-  .highlights {
-    gap: 16px;
+  /* A lone secondary card takes the full row instead of leaving an empty slot. */
+  .featuredGrid[data-count="2"] .asideSlot {
+    grid-column: 1 / -1;
+  }
+
+  .featuredGrid[data-count="1"] .heroFrame {
+    max-width: 44rem;
   }
 }
 
-/* Keep a full-width preview and comfortable controls on short touch screens. */
-@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
-  .featuredImage {
-    height: clamp(120px, 36svh, 160px);
-    aspect-ratio: auto;
+@media (min-width: 1024px) {
+  .featuredGrid {
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 
-  .featuredImage img {
-    object-fit: cover;
+  .heroSlot {
+    grid-column: 1;
+    grid-row: 1 / span 2;
   }
 
-  .featuredBody {
-    padding: 16px;
+  .asideSlot,
+  .featuredGrid[data-count="2"] .asideSlot {
+    grid-column: 2;
   }
 
-  /* The column heading already identifies these projects as featured. */
-  .featuredLabel {
-    display: none;
+  .featuredGrid[data-count="2"] .asideSlot {
+    grid-row: 1 / span 2;
+  }
+
+  .featuredGrid[data-count="1"] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+  }
+
+  .featuredGrid[data-count="1"] .heroSlot {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .heroFrame {
+    aspect-ratio: 16 / 9;
   }
 }
 
-/* Latest work is built from rows so each row can stack on the previous one. Below 1024px the
-   rows and their cards flatten (display: contents) into the plain list the layout always had. */
-.recentRow,
-.stackItem {
-  display: contents;
+/* Recently updated: horizontal cards, one per row on phones and 2x2 from 640px. */
+.recentGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
 }
 
-@media (orientation: landscape) and (min-width: 1024px) {
-  .recentTrack {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .recentRow {
-    display: grid;
+@media (min-width: 640px) {
+  .recentGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
-  }
-
-  .stackItem {
-    display: flex;
-    min-width: 0;
-  }
-
-  .stackItem > * {
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* Share the showcase height only when both groups have enough projects.
-     Extra room goes to the screenshots rather than empty text panels. */
-  .balanced {
-    align-items: stretch;
-  }
-
-  .balanced .recentTrack {
-    flex: 1;
-  }
-
-  .balanced .recentRow {
-    flex: 1 1 0;
-    min-height: 0;
-  }
-
-  .balanced .recentCard {
-    height: 100%;
-  }
-
-  .balanced .recentImage {
-    flex: 1;
-    min-height: clamp(8rem, 11vw, 11rem);
-    aspect-ratio: auto;
-  }
-
-  .balanced .recentContent {
-    flex: 0 0 auto;
-  }
-
-  .balanced .recentImage img {
-    object-fit: cover;
-  }
-}
-
-/* iPad Pro 11 landscape gives Latest work a little more room beside Featured. */
-@media (orientation: landscape) and (min-width: 1181px) and (max-width: 1249px) and (min-height: 700px) and (max-height: 850px) {
-  .highlights {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-  }
-}
-
-/* Galaxy Tab S7 held sideways (and the same-sized simulator): a narrower Featured column
-   leaves more room for the two columns of Latest work. */
-@media (orientation: landscape) and (min-width: 1250px) and (max-width: 1300px) and (max-height: 840px) {
-  .highlights {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   }
 }
 
@@ -281,183 +211,6 @@
   }
 }
 
-/* Stacking: featured cards, and Latest work row by row, pin in turn and the next slides over the
-   previous. Sticky only, so the section gains no scroll length. The previous card recedes with a
-   transform-only shrink and a scrim, driven by the next one's travel where the browser supports
-   it. Desktop pins below the 72px bar; short landscape pins below its 44px bar. */
-@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
-  (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape),
-  (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape),
-  (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) {
-  .stack > *,
-  .recentRow {
-    position: sticky;
-  }
-
-  .stack > :nth-child(1),
-  .recentRow:nth-child(1) {
-    top: 104px;
-    z-index: 1;
-  }
-
-  .stack > :nth-child(2),
-  .recentRow:nth-child(2) {
-    top: 128px;
-    z-index: 2;
-  }
-
-  .stack > :nth-child(n + 3),
-  .recentRow:nth-child(n + 3) {
-    top: 152px;
-    z-index: 3;
-  }
-}
-
-/* iPad-sized touch landscape (1024-1180px wide, up to 800px tall) shares this stacking with short
-   landscape phones: Featured on the left, Latest work as one column on the right. */
-@media (orientation: landscape) and (max-height: 500px),
-  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) {
-  .recentRow {
-    display: contents;
-  }
-
-  .stack > *,
-  .stackItem {
-    position: sticky;
-    top: calc(60px + var(--stack, 0) * 12px);
-    z-index: calc(var(--stack, 0) + 1);
-  }
-
-  .stack > :nth-child(1) {
-    --stack: 0;
-  }
-
-  .stack > :nth-child(2) {
-    --stack: 1;
-  }
-
-  .stack > :nth-child(n + 3) {
-    --stack: 2;
-  }
-
-  /* Each card is its own sticky box here (rows stay flattened), and the list becomes a plain
-     column because sticky cannot cross grid areas. */
-  .stackItem {
-    display: block;
-  }
-
-  .recentTrack {
-    display: flex;
-    flex-direction: column;
-  }
-}
-
-@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover),
-  (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape),
-  (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape),
-  (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse),
-  (orientation: landscape) and (max-height: 500px),
-  (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) {
-  .featuredCard::after,
-  .recentCard::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    background: rgb(4 8 10 / 0.55);
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-@supports (animation-timeline: view()) {
-  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
-    (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-    (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-    (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
-    (orientation: landscape) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
-    (orientation: landscape) and (pointer: coarse) and (min-width: 1024px) and (max-width: 1180px) and (max-height: 840px) and (prefers-reduced-motion: no-preference) {
-    .stack {
-      timeline-scope: --featured-next;
-    }
-
-    .stack > :nth-child(2) {
-      view-timeline: --featured-next block;
-    }
-
-    .stack > :nth-child(1) .featuredCard,
-    .stack > :nth-child(1) .featuredCard::after {
-      animation: featured-recede linear both;
-      animation-timeline: --featured-next;
-      animation-range: entry 55% entry 100%;
-    }
-
-    .stack > :nth-child(1) .featuredCard::after {
-      animation-name: featured-scrim;
-    }
-  }
-
-  /* Latest work (desktop rows): each row recedes as the next one arrives. */
-  @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference),
-    (min-width: 1750px) and (max-width: 1830px) and (min-height: 1000px) and (max-height: 1150px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-    (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-    (min-width: 1181px) and (max-width: 1300px) and (min-height: 700px) and (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-    .recentTrack {
-      timeline-scope: --recent-2, --recent-3;
-    }
-
-    .recentRow:nth-child(2) {
-      view-timeline: --recent-2 block;
-    }
-
-    .recentRow:nth-child(3) {
-      view-timeline: --recent-3 block;
-    }
-
-    .recentRow:nth-child(-n + 2) .recentCard,
-    .recentRow:nth-child(-n + 2) .recentCard::after {
-      animation: featured-recede linear both;
-      animation-range: entry 55% entry 100%;
-    }
-
-    .recentRow:nth-child(-n + 2) .recentCard::after {
-      animation-name: featured-scrim;
-    }
-
-    .recentRow:nth-child(1) .recentCard,
-    .recentRow:nth-child(1) .recentCard::after {
-      animation-timeline: --recent-2;
-    }
-
-    .recentRow:nth-child(2) .recentCard,
-    .recentRow:nth-child(2) .recentCard::after {
-      animation-timeline: --recent-3;
-    }
-  }
-}
-
-/* Let the reader scroll past the iPad menu landing before Latest work begins receding.
-   Keep the same travel span so the later start does not make the shrink feel abrupt. */
-@media (min-width: 1340px) and (max-width: 1390px) and (min-height: 900px) and (max-height: 1050px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
-  (min-width: 1181px) and (max-width: 1249px) and (min-height: 700px) and (max-height: 850px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
-  .recentRow:nth-child(-n + 2) .recentCard,
-  .recentRow:nth-child(-n + 2) .recentCard::after {
-    animation-range: entry 80% entry 125%;
-  }
-}
-
-@keyframes featured-recede {
-  to {
-    scale: 0.95;
-  }
-}
-
-@keyframes featured-scrim {
-  to {
-    opacity: 1;
-  }
-}
-
 /* Heading row: the copy on the left and, on desktop and short landscape, the Building now card on
    the right, bottom-aligned with the subtitle so the section gains no height. Portrait keeps the
    card under the heading. */
@@ -523,21 +276,6 @@
     align-items: flex-end;
     justify-content: space-between;
   }
-  /* Featured swipes sideways in both orientations, like the portrait phone, with the next card
-     peeking in. Latest work below stays a single full-width column. */
-  .stack {
-    flex-direction: row;
-    scroll-snap-type: x mandatory;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    padding-bottom: 8px;
-  }
-  .stack > * {
-    width: 86%;
-    flex-shrink: 0;
-    scroll-snap-align: center;
-  }
-  .highlights,
   .projectGrid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -545,15 +283,7 @@
 
 /* Fold viewports keep two compact cards per row in either orientation. */
 @media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
-  .recentTrack,
   .projectGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-/* Portrait tablets show four Latest work cards as two rows. */
-@media (min-width: 740px) and (max-width: 1100px) and (min-height: 900px) and (max-height: 1400px) and (orientation: portrait) {
-  .recentTrack {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -581,24 +311,16 @@
   }
 }
 
-/* iPad mini and Air 4 portrait keep four Latest work cards in one column. */
+/* iPad mini and Air 4 portrait show two More projects columns. */
 @media (min-width: 760px) and (max-width: 780px) and (min-height: 900px) and (max-height: 1050px) and (orientation: portrait),
   (min-width: 810px) and (max-width: 825px) and (min-height: 1000px) and (max-height: 1200px) and (orientation: portrait) {
-  .recentTrack {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .projectGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* iPad Pro 11 portrait keeps four Latest work cards readable in one column. */
+/* iPad Pro 11 portrait shows two More projects columns. */
 @media (min-width: 830px) and (max-width: 840px) and (min-height: 1000px) and (max-height: 1250px) and (orientation: portrait) {
-  .recentTrack {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .projectGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -633,43 +355,6 @@
     width: 1.75rem;
     height: 1.75rem;
     border-radius: 0.5rem;
-  }
-
-  .stack > *,
-  .recentRow {
-    position: static;
-  }
-
-  .stack > :nth-child(1) .featuredCard,
-  .featuredCard,
-  .recentCard {
-    animation: none;
-    scale: 1;
-  }
-
-  .featuredCard::after,
-  .recentCard::after {
-    content: none;
-  }
-
-  .recentTrack {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1rem;
-  }
-
-  .recentCard {
-    flex-direction: row;
-    padding: 1rem;
-  }
-
-  .recentCard .recentImage {
-    width: 12rem;
-    aspect-ratio: auto;
-    align-self: stretch;
-  }
-
-  .recentCard h3 {
-    font-size: 0.9375rem;
   }
 
   .headingDescription.headingDescription {

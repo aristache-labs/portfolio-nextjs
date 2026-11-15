@@ -100,7 +100,7 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     const container = document.createElement("div");
     container.innerHTML = renderToString(<Projects projects={list} />);
     expect(container.querySelector("h2")).toHaveTextContent("Selected Projects");
-    expect(container.querySelectorAll("article")).toHaveLength(14);
+    expect(container.querySelectorAll("article")).toHaveLength(12);
     for (const element of container.querySelectorAll("h2, h3, button")) {
       for (let node: Element | null = element; node; node = node.parentElement) {
         expect((node as HTMLElement).style.opacity).not.toBe("0");
@@ -276,16 +276,15 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       vi.stubGlobal("ResizeObserver", originalObserver);
     }
   });
-  it("shows six recent and six lower cards on desktop without duplicates", () => {
+  it("shows four recent and six lower cards on desktop without duplicates", () => {
     render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(14);
-    expect(screen.queryByText("Show more Latest work")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
-    expect(screen.getAllByRole("article")).toHaveLength(14);
-    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
-    expect(screen.getAllByRole("article")).toHaveLength(16);
-    fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
     expect(screen.getAllByRole("article")).toHaveLength(12);
+    fireEvent.click(screen.getByRole("button", { name: /^Websites/ }));
+    expect(screen.getAllByRole("article")).toHaveLength(12);
+    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
+    expect(screen.getAllByRole("article")).toHaveLength(14);
+    fireEvent.click(screen.getByRole("button", { name: /^Desktop Apps/ }));
+    expect(screen.getAllByRole("article")).toHaveLength(10);
   });
 
   it.each([
@@ -307,13 +306,13 @@ describe("ProjectsBrowser categories and responsive limits", () => {
   it("shows two lower cards in portrait and keeps undisplayed recent projects accessible", () => {
     installMatchMedia({ "(max-width: 1023px)": true });
     render(<ProjectsBrowser projects={list} />);
-    expect(screen.getAllByRole("article")).toHaveLength(6);
+    expect(screen.getAllByRole("article")).toHaveLength(7);
     fireEvent.click(screen.getByRole("button", { name: /^Web Apps/ }));
-    expect(screen.getByRole("heading", { name: "Project 5" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Project 7" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Project 6" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Project 8" })).not.toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Project 10" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
-    expect(screen.getByRole("heading", { name: "Project 7" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Project 8" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     expect(screen.getByRole("heading", { name: "Project 10" })).toBeInTheDocument();
   });
@@ -331,13 +330,13 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       installMatchMedia({ "(max-width: 1023px)": true, [query]: true });
       render(<ProjectsBrowser projects={list} />);
       expect(screen.getAllByRole("article")).toHaveLength(totalCount);
-      const recentHeading = screen.getByText("Latest work");
+      const recentHeading = screen.getByText("Recently updated");
       const recentColumn = recentHeading.parentElement!.parentElement!;
       expect(within(recentColumn).getAllByRole("article")).toHaveLength(recentCount);
       expect(screen.queryByRole("button", { name: /^Automation & Tools/ })).not.toBeInTheDocument();
       expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
       expect(screen.getByText("More projects").tagName).toBe("P");
-      expect(screen.getByText("Latest work").tagName).toBe("P");
+      expect(screen.getByText("Recently updated").tagName).toBe("P");
       expect(screen.getByText("Featured", { exact: true, selector: "p" }).tagName).toBe("P");
     },
   );
@@ -355,22 +354,21 @@ describe("ProjectsBrowser categories and responsive limits", () => {
     );
     expect(screen.queryByRole("button", { name: /^Websites/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getAllByRole("article")).toHaveLength(14);
+    expect(screen.getAllByRole("article")).toHaveLength(12);
     expect(screen.getByRole("button", { name: "Show more projects" })).toBeInTheDocument();
   });
 
   it("resets an emptied category after the viewport moves its projects into recent", () => {
-    // Six Web Apps: two recent on mobile, all six recent on desktop.
-    const sixWebApps = list.filter((p) => p.id !== 9 && p.id !== 10);
+    // Four Web Apps: three recent on a phone, all four recent on desktop.
+    const fourWebApps = list.filter((p) => p.id <= 6 || p.id >= 11);
     installMatchMedia({ "(max-width: 1023px)": true });
-    const { rerender } = render(<ProjectsBrowser projects={sixWebApps} />);
+    const { rerender } = render(<ProjectsBrowser projects={fourWebApps} />);
     fireEvent.click(screen.getByRole("button", { name: /^Web Apps/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Show more projects" }));
     installMatchMedia();
-    rerender(<ProjectsBrowser projects={[...sixWebApps]} />);
+    rerender(<ProjectsBrowser projects={[...fourWebApps]} />);
     expect(screen.queryByRole("button", { name: /^Web Apps/ })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^All/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getAllByRole("article")).toHaveLength(14);
+    expect(screen.getAllByRole("article")).toHaveLength(12);
   });
 
   it("restores focus to Projects when the opener disappears while the gallery is open", async () => {
@@ -393,6 +391,28 @@ describe("ProjectsBrowser categories and responsive limits", () => {
       unmount();
       vi.stubGlobal("ResizeObserver", originalObserver);
     }
+  });
+
+  it.each([
+    ["no featured", 0],
+    ["one featured", 1],
+    ["three featured", 3],
+  ])("renders %s with long titles and missing covers", (_name, count) => {
+    const long = "A very long project title that keeps going past any reasonable card width";
+    render(
+      <ProjectsBrowser
+        projects={Array.from({ length: count + 2 }, (_, i) =>
+          project(i + 1, {
+            title: `${long} ${i + 1}`,
+            featured: i < count,
+            pushedAt: new Date(2026, 9, 20 - i),
+          }),
+        )}
+      />,
+    );
+    expect(screen.getAllByRole("article")).toHaveLength(count + 2);
+    expect(screen.getByText("Recently updated")).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { level: 3 })[0]).toHaveTextContent("A very long");
   });
 
   it("names project actions in all three card layouts", () => {
