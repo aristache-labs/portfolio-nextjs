@@ -23,7 +23,7 @@ const HERO_COVER_SIZES = "(min-width: 1024px) 1000px, 100vw";
 const COMPACT_COVER_SIZES = "(min-width: 1024px) 480px, 144px";
 
 /** The poster fills its frame edge to edge. Frames use the real poster ratios (hero 1600x950, the rest 1600x900) so nothing is cropped; spare height goes to the text area. */
-const FIT = "object-cover object-top";
+const FIT = "object-cover object-center";
 
 function Cover({
   project,
@@ -82,16 +82,19 @@ function Actions({
   project,
   onQuickView,
   compact = false,
+  spacing,
 }: {
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
   compact?: boolean;
+  /** Top margin; defaults to the card's own rhythm. */
+  spacing?: string;
 }) {
   const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
   const compactClass = compact ? COMPACT_PROJECT_ACTION : undefined;
   return (
     <div
-      className={`${actionStyles.actions} ${compact ? `${actionStyles.recent} ${actionStyles.compact} mt-2` : `${actionStyles.featured} mt-4`} flex flex-wrap items-center gap-2`}
+      className={`${actionStyles.actions} ${compact ? `${actionStyles.recent} ${actionStyles.compact} ${spacing ?? "mt-2"}` : `${actionStyles.featured} mt-4`} flex flex-wrap items-center gap-2`}
     >
       <Button
         className={compactClass}
@@ -160,33 +163,31 @@ export function FeaturedCard({
   if (variant === "compact")
     return (
       <article
-        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:items-stretch lg:gap-3 lg:p-2.5`}
+        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:items-stretch lg:gap-3 lg:p-2`}
       >
         <CardBorderGlow />
-        <Frame className="aspect-video w-[38%] max-w-56 shrink-0 lg:w-[58%] lg:max-w-none lg:self-center">
+        <Frame className="aspect-[4/3] w-[38%] max-w-56 shrink-0 lg:w-[58%] lg:max-w-none lg:self-center">
           <Cover project={project} sizes={COMPACT_COVER_SIZES} />
         </Frame>
-        {/* From 1024px: title at the top, description in the middle, actions at the bottom. */}
-        <div className="flex min-w-0 flex-1 flex-col lg:py-1.5 lg:pr-1.5">
+        {/* The whole block (title, description, actions) is centred next to the poster at its natural height. */}
+        <div className="flex min-w-0 flex-1 flex-col justify-center lg:pr-1.5">
           <h3 className="line-clamp-2 text-base leading-snug font-semibold break-words lg:text-lg">
             {project.title}
           </h3>
           {description && (
-            <div className="flex min-h-0 flex-1 items-center max-lg:hidden">
-              <p className="text-muted line-clamp-4 py-1.5 text-sm leading-relaxed text-pretty">
-                {description}
-              </p>
-            </div>
+            <p className="text-muted mt-2 line-clamp-3 text-sm leading-relaxed text-pretty max-lg:hidden">
+              {description}
+            </p>
           )}
           <ProjectComponents project={project} />
-          <Actions project={project} onQuickView={onQuickView} compact />
+          <Actions project={project} onQuickView={onQuickView} compact spacing="mt-2 lg:mt-5" />
         </div>
       </article>
     );
   return (
     <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-2.5 p-3`}>
       <CardBorderGlow />
-      <Frame className={`${layoutStyles.heroFrame} aspect-[1600/950] w-full`}>
+      <Frame className={`${layoutStyles.heroFrame} aspect-[2/1] w-full`}>
         <Cover project={project} sizes={HERO_COVER_SIZES} loading={eager ? "eager" : "lazy"} />
       </Frame>
       <div className="flex flex-1 flex-col px-1 pb-1">
@@ -224,7 +225,7 @@ export function RecentCard({
   return (
     <article className={`${layoutStyles.recentCard} ${SHELL} flex items-center gap-3 p-3 sm:p-3.5`}>
       <CardBorderGlow />
-      <Frame className="aspect-video w-24 shrink-0 sm:w-36">
+      <Frame className="aspect-[4/3] w-24 shrink-0 sm:w-36">
         <Cover project={project} sizes={COMPACT_COVER_SIZES} />
       </Frame>
       <div className="flex min-w-0 flex-1 flex-col">
