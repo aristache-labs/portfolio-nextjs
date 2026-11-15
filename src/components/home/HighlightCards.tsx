@@ -19,11 +19,11 @@ import { COMPACT_PROJECT_ACTION, GLASS_CARD } from "./project-styles";
 
 // The hero frame is about two thirds of the container on desktop and full width below it. The
 // small previews are thumbnails. Lazy covers use their real layout width where `auto` is supported.
-const HERO_COVER_SIZES = "(min-width: 1024px) 640px, 100vw";
-const COMPACT_COVER_SIZES = "(min-width: 1024px) 420px, 144px";
+const HERO_COVER_SIZES = "(min-width: 1024px) 1000px, 100vw";
+const COMPACT_COVER_SIZES = "(min-width: 1024px) 480px, 144px";
 
-/** Whole screenshot, never cropped: `contain` inside a dark inset frame. */
-const FIT = "object-contain";
+/** The poster fills its frame edge to edge. Frames use the real poster ratios (hero 1600x950, the rest 1600x900) so nothing is cropped; spare height goes to the text area. */
+const FIT = "object-cover object-top";
 
 function Cover({
   project,
@@ -160,18 +160,18 @@ export function FeaturedCard({
   if (variant === "compact")
     return (
       <article
-        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:flex-col lg:items-stretch lg:gap-4 lg:p-5`}
+        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:flex-col lg:items-stretch lg:gap-3 lg:p-4`}
       >
         <CardBorderGlow />
-        <Frame className="aspect-[4/3] w-[38%] max-w-56 shrink-0 lg:aspect-[23/10] lg:w-full lg:max-w-none lg:flex-1">
+        <Frame className="aspect-video w-[38%] max-w-56 shrink-0 lg:w-full lg:max-w-none">
           <Cover project={project} sizes={COMPACT_COVER_SIZES} />
         </Frame>
         <div className="flex min-w-0 flex-1 flex-col lg:flex-none">
-          <h3 className="line-clamp-2 text-base leading-snug font-semibold break-words lg:text-xl">
+          <h3 className="line-clamp-2 text-base leading-snug font-semibold break-words lg:text-lg">
             {project.title}
           </h3>
           {description && (
-            <p className="text-muted mt-1.5 line-clamp-2 hidden text-sm leading-relaxed text-pretty lg:block">
+            <p className="text-muted mt-1.5 line-clamp-1 text-sm leading-relaxed text-pretty max-lg:hidden">
               {description}
             </p>
           )}
@@ -181,17 +181,17 @@ export function FeaturedCard({
       </article>
     );
   return (
-    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-4 p-4 sm:p-5`}>
+    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-3 p-4`}>
       <CardBorderGlow />
-      <Frame className={`${layoutStyles.heroFrame} aspect-video w-full`}>
+      <Frame className={`${layoutStyles.heroFrame} aspect-[1600/950] w-full`}>
         <Cover project={project} sizes={HERO_COVER_SIZES} loading={eager ? "eager" : "lazy"} />
       </Frame>
       <div className="flex flex-1 flex-col">
-        <h3 className="text-xl leading-snug font-semibold break-words lg:text-2xl">
+        <h3 className="text-xl leading-snug font-semibold break-words lg:text-xl">
           {project.title}
         </h3>
         {heroDescription && (
-          <p className="text-muted mt-2 line-clamp-3 text-sm leading-relaxed text-pretty lg:line-clamp-6 lg:text-base">
+          <p className="text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty">
             {heroDescription}
           </p>
         )}
@@ -221,7 +221,7 @@ export function RecentCard({
   return (
     <article className={`${layoutStyles.recentCard} ${SHELL} flex items-center gap-3 p-3 sm:p-3.5`}>
       <CardBorderGlow />
-      <Frame className="aspect-[4/3] w-20 shrink-0 sm:w-36">
+      <Frame className="aspect-video w-24 shrink-0 sm:w-36">
         <Cover project={project} sizes={COMPACT_COVER_SIZES} />
       </Frame>
       <div className="flex min-w-0 flex-1 flex-col">

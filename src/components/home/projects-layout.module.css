@@ -50,7 +50,7 @@
 }
 
 /* Featured bento: one hero and up to two compact cards. A single column on phones, the compact
-   cards side by side from 640px, and the 1.9:1 bento (hero left, two stacked right) from 1024px. */
+   cards side by side from 640px, and the 2.4:1 bento (hero left, two stacked right) from 1024px. */
 .featuredGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -86,8 +86,12 @@
 }
 
 @media (min-width: 1024px) {
+  /* Fixed poster ratios mean height follows width, so a narrower grid is the way to a shorter one. */
   .featuredGrid {
-    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+    width: 100%;
+    max-width: 70rem;
+    margin-inline: auto;
+    grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
     grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 
@@ -113,10 +117,6 @@
   .featuredGrid[data-count="1"] .heroSlot {
     grid-column: 1;
     grid-row: auto;
-  }
-
-  .heroFrame {
-    aspect-ratio: 16 / 9;
   }
 }
 
