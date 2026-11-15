@@ -66,21 +66,21 @@
     mask-image: linear-gradient(90deg, black calc(100% - 28px), transparent);
     mask-repeat: no-repeat;
     animation:
-      label-light var(--beam-duration) linear both,
-      label-cool 700ms ease-out var(--beam-duration) forwards;
+      label-light var(--beam-duration) linear var(--beam-delay, 0ms) both,
+      label-cool 700ms ease-out calc(var(--beam-delay, 0ms) + var(--beam-duration)) forwards;
   }
 
   .label[data-beam="play"] > :nth-child(-n + 2) {
-    animation: label-settle 500ms ease-out var(--beam-duration) both;
+    animation: label-settle 500ms ease-out calc(var(--beam-delay, 0ms) + var(--beam-duration)) both;
   }
 
   .label[data-beam="play"] .rule {
     transform-origin: left;
-    animation: label-rule-draw var(--beam-duration) linear both;
+    animation: label-rule-draw var(--beam-duration) linear var(--beam-delay, 0ms) both;
   }
 
   .label:is([data-beam="play"], [data-beam="done"]) .rule {
-    transition: background-color 400ms ease-out var(--beam-duration);
+    transition: background-color 400ms ease-out calc(var(--beam-delay, 0ms) + var(--beam-duration));
     background-color: rgb(var(--brand-mid-rgb) / 0.23);
   }
 

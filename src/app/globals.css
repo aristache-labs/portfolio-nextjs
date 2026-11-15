@@ -22,6 +22,8 @@
   --color-ring: var(--ring);
 
   --gradient-brand: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
+  /* Same ramp, darkened so white text clears 4.5:1 across the whole fill. Decoration keeps --gradient-brand. */
+  --gradient-brand-action: linear-gradient(135deg, #0f6e68 0%, #1f8478 100%);
 
   /* Typography */
   --font-sans: var(--font-geist-sans);
@@ -79,6 +81,8 @@
   --background: var(--bg);
   --foreground: var(--fg);
   --gradient-brand: linear-gradient(135deg, #0f6e68 0%, #58e5d0 100%);
+  /* Same ramp, darkened so white text clears 4.5:1 across the whole fill. Decoration keeps --gradient-brand. */
+  --gradient-brand-action: linear-gradient(135deg, #0f6e68 0%, #1f8478 100%);
   /* Brand gradient for TEXT: a brighter ramp so both ends clear the deep ground - the
      ramp's deep end is nearly invisible on it. Used by gradient-text everywhere (logo
      wordmark, tagline, stats, headings). */

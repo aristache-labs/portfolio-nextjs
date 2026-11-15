@@ -13,6 +13,8 @@ import Link from "next/link";
 import { Merienda } from "next/font/google";
 import { AnimatePresence, m, type Variants } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
+import { AboutReveal } from "./AboutReveal";
+import { HeadingWords } from "./HeadingWords";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
 import { ArrowRight, ArrowUpRight, Loader2, Mail, RadioTower, Send } from "lucide-react";
@@ -372,18 +374,19 @@ export function Contact({
         <div
           className={`${motionCss.copy} landscape-short:w-[42%] min-w-0 lg:w-[42%] lg:max-w-[640px]`}
         >
-          {leftArrival(
-            "slide",
-            0,
-            <div>
-              <SectionLabel number={number} name="Contact" className={headingCss.label} />
+          <AboutReveal>
+            <SectionLabel
+              number={number}
+              name="Contact"
+              delayMs={300}
+              className={headingCss.label}
+            />
 
-              {/* Same scale and weight as the other section headings. */}
-              <h2 className={headingCss.title}>
-                Let’s <span className={headingCss.accent}>talk</span>.
-              </h2>
-            </div>,
-          )}
+            {/* Same scale and weight as the other section headings. */}
+            <h2 className={headingCss.title}>
+              <HeadingWords lead="Let’s" accent="talk" tail="." />
+            </h2>
+          </AboutReveal>
 
           {leftArrival(
             "fade",

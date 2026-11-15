@@ -212,7 +212,6 @@ describe("Contact", () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [PINNED_SCENE_QUERY]: true });
     const { container } = render(<Contact socials={mockSocials} email={email} />);
     const from = (element: Element) => element.closest("[data-from]")?.getAttribute("data-from");
-    expect(from(screen.getByRole("heading", { name: "Let’s talk." }))).toBe("left");
     for (const card of container.querySelectorAll("ul a")) {
       expect(from(card)).toBe("left");
       // The glass card is the element that fades, directly inside the moving wrapper.

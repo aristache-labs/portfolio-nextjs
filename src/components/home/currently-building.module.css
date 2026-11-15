@@ -43,7 +43,7 @@
   gap: 7px;
   color: var(--brand-mid);
   font-family: var(--font-geist-mono), monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -199,11 +199,11 @@
 
   .label {
     gap: 6px;
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .date {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .title {

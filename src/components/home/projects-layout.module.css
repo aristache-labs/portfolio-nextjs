@@ -695,3 +695,11 @@
     padding-block: 0;
   }
 }
+
+/* The label's line shrink-wrapped to the title. 70% of the row carries it to the middle of the page
+   where the heading row runs sideways, so the beam travels like the other sections. */
+@media (min-width: 768px) {
+  .headingText {
+    flex: 0 0 70%;
+  }
+}

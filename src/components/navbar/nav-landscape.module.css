@@ -63,7 +63,7 @@
     border-radius: 999px;
     background: color-mix(in srgb, var(--bg) 86%, transparent);
     color: var(--fg);
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.2;
   }
   .availabilityText {

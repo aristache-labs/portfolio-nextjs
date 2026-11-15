@@ -26,11 +26,6 @@
     animation-duration: 650ms;
   }
 
-  .reveal[data-kind="title"][data-reveal="play"] > :first-child > :last-child {
-    transform-origin: left;
-    animation: skills-rule 700ms 100ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
   .reveal[data-kind]:focus-within > * {
     animation: none;
     opacity: 1;
@@ -54,14 +49,5 @@
     opacity: 1;
     filter: blur(0);
     transform: translate(0, 0);
-  }
-}
-
-@keyframes skills-rule {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
   }
 }
