@@ -11,7 +11,7 @@
   overscroll-behavior: contain;
   padding: 16px;
   border: 1px solid rgb(var(--brand-mid-rgb) / 0.16);
-  border-radius: 18px;
+  border-radius: var(--radius-card-lg);
   background:
     radial-gradient(120% 90% at 0% 0%, rgb(var(--brand-deep-rgb) / 0.22), transparent 62%),
     color-mix(in srgb, var(--bg) 86%, transparent);
@@ -51,7 +51,7 @@
   flex-shrink: 0;
   place-items: center;
   border: 1px solid rgb(var(--brand-mid-rgb) / 0.25);
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   background: linear-gradient(
     145deg,
     rgb(var(--brand-mid-rgb) / 0.16),
@@ -311,7 +311,7 @@
   .action,
   .manage {
     min-height: 36px;
-    border-radius: 10px;
+    border-radius: var(--radius-control);
   }
 
   .action {
@@ -356,7 +356,7 @@
     width: min(340px, calc(100% - 376px));
     min-width: 180px;
     padding: 10px 12px 12px;
-    border-radius: 14px;
+    border-radius: var(--radius-card-sm);
   }
 
   .header {
@@ -412,7 +412,7 @@
   .manage {
     min-height: 36px;
     padding-inline: 8px;
-    border-radius: 10px;
+    border-radius: var(--radius-control);
     font-size: 12px;
   }
 
@@ -517,7 +517,7 @@
     align-items: center;
     gap: 20px;
     padding: 12px 12px 12px 20px;
-    border-radius: 18px;
+    border-radius: var(--radius-card-lg);
   }
 
   .panel[data-compact] .copy {
@@ -607,7 +607,7 @@
     width: min(350px, calc(100% - 24px));
     max-height: calc(100dvh - 96px - env(safe-area-inset-bottom));
     padding: 12px;
-    border-radius: 14px;
+    border-radius: var(--radius-card-sm);
   }
 
   .panel:not([data-compact]) .header {
@@ -685,7 +685,7 @@
   .panel[data-compact] .manage {
     min-height: 40px;
     padding-inline: 10px;
-    border-radius: 10px;
+    border-radius: var(--radius-control);
     font-size: 12px;
   }
 

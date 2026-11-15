@@ -89,7 +89,7 @@
     min-height: 44px;
     padding: 8px 12px;
     font-size: 13px;
-    border-radius: 10px;
+    border-radius: var(--radius-control);
   }
 
   .actions svg {
@@ -144,7 +144,7 @@
     min-height: 44px;
     padding: 7px 10px;
     font-size: 12px;
-    border-radius: 9px;
+    border-radius: var(--radius-chip);
   }
 
   .actions.featured svg {

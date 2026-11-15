@@ -13,6 +13,17 @@ colors:
   border: "#253134"
   muted: "#a0adb1"
   overlay: "rgba(8, 12, 13, 0.92)"
+  white: "#ffffff"
+  black: "#000000"
+  terminal-ground: "#0d1117"
+  terminal-bar: "#161b22"
+  terminal-border: "#30363d"
+  terminal-ink: "#e6edf3"
+  terminal-muted: "#8b949e"
+  terminal-close: "#ff5f57"
+  terminal-minimize: "#febc2e"
+  terminal-zoom: "#28c840"
+  mint-ink: "#d7fbf6"
 typography:
   headline:
     fontFamily: "Sora, sans-serif"
@@ -26,11 +37,37 @@ typography:
   control:
     fontSize: "0.875rem"
     fontWeight: 500
+  text-10:
+    fontSize: "10px"
+  text-11:
+    fontSize: "11px"
+  text-12:
+    fontSize: "12px"
+  text-13:
+    fontSize: "13px"
+  text-14:
+    fontSize: "14px"
+  text-15:
+    fontSize: "15px"
+  text-16:
+    fontSize: "16px"
+  text-17:
+    fontSize: "17px"
+  text-18:
+    fontSize: "18px"
+  text-20:
+    fontSize: "20px"
+  text-22:
+    fontSize: "22px"
 rounded:
   field: "0.5rem"
   panel: "1rem"
   pill: "9999px"
   tile: "0.75rem"
+  chip: "9px"
+  control: "10px"
+  card-sm: "14px"
+  card-lg: "18px"
 spacing:
   control-gap: "0.5rem"
   panel-padding: "1.5rem"
@@ -101,7 +138,7 @@ Cards use tonal surfaces and thin borders, with a lighter surface and border on 
 
 ## Shapes
 
-Pill buttons and compact tags contrast with the 1rem corners of cards and dialogs. Radii in use: 8px (fields), 12px (tiles), 16px (cards, dialogs), 999px (pills); 10, 14 and 18px appear in single components. Admin fields use 0.5rem corners and a fine border. The existing Aristache monogram remains the brand mark.
+Pill buttons and compact tags contrast with the 1rem corners of cards and dialogs. Radii in use: 8px (fields), 12px (tiles), 16px (cards, dialogs), 999px (pills); 9, 10, 14 and 18px are the shared variables `--radius-chip`, `--radius-control`, `--radius-card-sm` and `--radius-card-lg`. Admin fields use 0.5rem corners and a fine border. The existing Aristache monogram remains the brand mark.
 
 ## Components
 

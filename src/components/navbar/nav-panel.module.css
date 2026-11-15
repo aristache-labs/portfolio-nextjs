@@ -273,7 +273,7 @@
     gap: 14px;
     padding: 11px 14px;
     border-color: transparent;
-    border-radius: 18px;
+    border-radius: var(--radius-card-lg);
     font-size: 17px;
     letter-spacing: -0.015em;
   }
@@ -523,7 +523,7 @@
     align-self: stretch;
     justify-self: stretch;
     padding: 14px 18px;
-    border-radius: 18px;
+    border-radius: var(--radius-card-lg);
   }
 
   .actionTitle {
