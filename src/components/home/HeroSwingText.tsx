@@ -35,6 +35,7 @@ function layoutPosition(element: HTMLElement) {
  *  puffs out once the page scrolls. */
 export function HeroSwingText({ text = "WELCOME" }: { text?: string }) {
   const [away, setAway] = useState(false);
+  const [atTop, setAtTop] = useState(false);
   const anchor = useRef<HTMLDivElement>(null);
   const origin = useRef<HTMLDivElement>(null);
 
@@ -78,16 +79,20 @@ export function HeroSwingText({ text = "WELCOME" }: { text?: string }) {
   }, [place]);
 
   useEffect(() => {
-    const update = () => setAway(window.scrollY > AWAY_SCROLL_PX);
+    const update = () => {
+      const y = window.scrollY;
+      setAway(y > AWAY_SCROLL_PX);
+      setAtTop(y <= 1);
+    };
     update();
     window.addEventListener("scroll", update, { passive: true });
     return () => window.removeEventListener("scroll", update);
   }, []);
 
-  // Back at the top the header is full size again, so measure once more.
-  useEffect(() => {
-    if (!away) place();
-  }, [away, place]);
+  // The greeting starts fading in at 60px, before its position can be measured at the top.
+  useLayoutEffect(() => {
+    if (atTop) place();
+  }, [atTop, place]);
 
   return (
     <>

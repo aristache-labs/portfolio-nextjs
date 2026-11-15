@@ -155,7 +155,7 @@ export function Hero({
     useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout && !ultraPortrait;
   const touchScene =
     useMediaQuery(HERO_LANDSCAPE_PIN_QUERY) && mode !== "static" && transitionToAbout;
-  // Portrait phones use CSS-only scroll motion, so no per-frame script is mounted for them.
+  // Portrait phones use CSS for the scene and only track scroll for the CTA.
   const portraitPhone = useMediaQuery(PORTRAIT_PHONE_QUERY);
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopAnchorScroll.current?.(), []);
@@ -306,9 +306,10 @@ export function Hero({
       data-touch-scene={touchScene || undefined}
       className={`${styles.hero} relative scroll-mt-24`}
     >
-      {mode !== "static" && !portraitPhone && (
+      {mode !== "static" && !reduce && (
         <HeroScrollMotion
           section={sectionRef}
+          ctaOnly={portraitPhone}
           expressive={expressive}
           variant={desktopPinned ? "desktop" : touchScene ? "touch" : undefined}
         />

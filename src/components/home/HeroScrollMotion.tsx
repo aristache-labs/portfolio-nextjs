@@ -12,7 +12,7 @@ export const HERO_LANDSCAPE_PIN_QUERY = LANDSCAPE_LAYOUT_QUERY;
 
 /** About rises from the bottom on desktop, so layers leave in the order it covers them. */
 const DESKTOP_EXIT_PHASES = [
-  { name: "actions", start: 0.12, end: 0.5 },
+  { name: "actions", start: 0.22, end: 0.58 },
   { name: "details", start: 0.22, end: 0.62 },
   { name: "specialization", start: 0.32, end: 0.78 },
   { name: "title", start: 0.55, end: 1 },
@@ -20,7 +20,7 @@ const DESKTOP_EXIT_PHASES = [
 
 /** Shorter pins than desktop, so the lower layers clear sooner while the name still overlaps About. */
 const TOUCH_EXIT_PHASES = [
-  { name: "actions", start: 0.08, end: 0.4 },
+  { name: "actions", start: 0.18, end: 0.48 },
   { name: "details", start: 0.18, end: 0.52 },
   { name: "specialization", start: 0.3, end: 0.7 },
   { name: "title", start: 0.58, end: 1 },
@@ -32,6 +32,7 @@ const HANDOFF_RANGE = {
 } as const;
 
 const PHASE_NAMES = TOUCH_EXIT_PHASES.map((phase) => phase.name);
+const CTA_RETURN_COLLAPSE_PX = 48;
 
 export type HeroScrollVariant = "desktop" | "touch";
 
@@ -40,11 +41,13 @@ export function HeroScrollMotion({
   section,
   expressive,
   variant,
+  ctaOnly,
 }: {
   section: RefObject<HTMLElement | null>;
   expressive: boolean;
   /** Which pinned scene is active; omitted when the hero scrolls away unpinned. */
   variant?: HeroScrollVariant;
+  ctaOnly?: boolean;
 }) {
   const pinned = variant !== undefined;
   const { scrollYProgress } = useScroll({
@@ -55,9 +58,40 @@ export function HeroScrollMotion({
   useEffect(() => {
     const node = section.current;
     if (!node) return;
+    if (ctaOnly) {
+      let previousY = window.scrollY;
+      const updatePortrait = () => {
+        const y = window.scrollY;
+        node.toggleAttribute(
+          "data-cta-expanding",
+          y < previousY
+            ? y > CTA_RETURN_COLLAPSE_PX && y < node.clientHeight
+            : y > 0 && y < node.clientHeight * 0.8,
+        );
+        previousY = y;
+      };
+      window.addEventListener("scroll", updatePortrait, { passive: true });
+      return () => {
+        window.removeEventListener("scroll", updatePortrait);
+        node.removeAttribute("data-cta-expanding");
+      };
+    }
     const phases = variant === "desktop" ? DESKTOP_EXIT_PHASES : TOUCH_EXIT_PHASES;
+    const start = window.matchMedia(LANDSCAPE_LAYOUT_QUERY).matches ? 0 : pinned ? 0.08 : 0.15;
+    let previous = scrollYProgress.get();
     const update = (value: number) => {
       const progress = Math.max(0, Math.min(1, value));
+      const scrolling = progress !== previous;
+      const returning = progress < previous;
+      previous = progress;
+      node.toggleAttribute(
+        "data-cta-expanding",
+        scrolling &&
+          progress > 0 &&
+          (returning
+            ? window.scrollY > CTA_RETURN_COLLAPSE_PX
+            : progress >= start && progress < (pinned ? phases[0].end : 0.8)),
+      );
       if (pinned) node.style.setProperty("--hero-light-progress", String(progress));
       else node.style.removeProperty("--hero-light-progress");
       for (const phase of phases) {
@@ -96,6 +130,7 @@ export function HeroScrollMotion({
     const unsubscribe = scrollYProgress.on("change", update);
     return () => {
       unsubscribe();
+      node.removeAttribute("data-cta-expanding");
       for (const name of [
         "media-y",
         "media-scale",
@@ -108,7 +143,7 @@ export function HeroScrollMotion({
       }
       for (const name of PHASE_NAMES) node.style.removeProperty(`--hero-exit-${name}`);
     };
-  }, [expressive, pinned, scrollYProgress, section, variant]);
+  }, [ctaOnly, expressive, pinned, scrollYProgress, section, variant]);
 
   return null;
 }
