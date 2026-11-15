@@ -282,3 +282,29 @@
     inset: -5px 0;
   }
 }
+
+@media (max-width: 679px) and (orientation: portrait),
+  (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .actions:is(.featured, .recent) {
+    row-gap: 11px;
+  }
+
+  .actions:is(.featured, .recent) > button {
+    min-height: 32px;
+    padding-inline: 8px;
+  }
+
+  .actions:is(.featured, .recent) > button > span {
+    gap: 4px;
+  }
+
+  .actions:is(.featured, .recent) > button::before {
+    inset-block: -6px;
+  }
+}
+
+@media (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .featured :is(.githubLabel, .liveLabel) {
+    display: none;
+  }
+}

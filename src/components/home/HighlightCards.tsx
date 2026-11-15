@@ -167,7 +167,7 @@ export function FeaturedCard({
       >
         <CardBorderGlow />
         <Frame
-          className={`${layoutStyles.asideMedia} aspect-[4/3] w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center [@media(max-width:679px)_and_(orientation:portrait)]:w-24`}
+          className={`${layoutStyles.asideMedia} aspect-[4/3] w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center`}
         >
           <Cover project={project} sizes={COMPACT_COVER_SIZES} />
         </Frame>
@@ -231,7 +231,9 @@ export function RecentCard({
       className={`${layoutStyles.recentCard} ${SHELL} @container grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 border-white/5! p-3 sm:p-3.5 @[34rem]:grid-cols-[auto_minmax(0,1fr)_auto] @[34rem]:gap-x-4`}
     >
       <CardBorderGlow variant="subtle" />
-      <Frame className="row-span-2 aspect-[4/3] w-[5.25rem] self-center @[34rem]:row-span-1 @[34rem]:w-36">
+      <Frame
+        className={`${layoutStyles.recentMedia} row-span-2 aspect-[4/3] w-[5.25rem] self-center @[34rem]:row-span-1 @[34rem]:w-36`}
+      >
         <Cover project={project} sizes={COMPACT_COVER_SIZES} />
       </Frame>
       <div className="min-w-0">
