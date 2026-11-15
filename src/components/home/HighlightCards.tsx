@@ -35,7 +35,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
-import { GLASS_CARD } from "./project-styles";
 
 // The hero frame is about two thirds of the container on desktop and full width below it. The
 // small previews are thumbnails. Lazy covers use their real layout width where `auto` is supported.
@@ -121,7 +120,6 @@ function Frame({
 
 const GITHUB_OWNER = "aristache-labs";
 const CARD = `${motionStyles.card} group relative h-full w-full overflow-hidden rounded-2xl border`;
-const SHELL = `${CARD} ${GLASS_CARD} transition-colors duration-300 hover:border-(--brand-mid)/40`;
 
 /**
  * Featured card in the same GitHub style as the Recently updated cards. Phones and tablets: poster,
@@ -245,6 +243,52 @@ export function FeaturedCard({
         </div>
       </div>
     </article>
+  );
+}
+
+function ShowcaseActions({
+  project,
+  onQuickView,
+}: {
+  project: MergedProject;
+  onQuickView: MouseEventHandler<HTMLButtonElement>;
+}) {
+  const repoUrl = (project.htmlUrl ?? `https://github.com/${GITHUB_OWNER}/${project.repo}`).replace(
+    /\/+$/,
+    "",
+  );
+  const link = (href: string, label: string, aria: string, icon: ReactNode) => (
+    <Button
+      href={href}
+      aria-label={`${aria} for ${project.title}`}
+      variant="ghost"
+      size="sm"
+      target="_blank"
+      rel="noopener noreferrer"
+      leftIcon={icon}
+    >
+      {label}
+    </Button>
+  );
+  return (
+    <div className={layoutStyles.showcaseActions}>
+      <div>
+        <Button
+          size="sm"
+          onClick={onQuickView}
+          aria-label={`View ${project.title}`}
+          leftIcon={<Maximize2 size={13} aria-hidden />}
+        >
+          View
+        </Button>
+        {project.homepage &&
+          link(project.homepage, "Live", "Live site", <ExternalLink size={15} aria-hidden />)}
+      </div>
+      <div>
+        {link(repoUrl, "Code", "Code", <CodeXml size={15} aria-hidden />)}
+        {link(`${repoUrl}/issues`, "Issues", "Issues", <CircleDot size={15} aria-hidden />)}
+      </div>
+    </div>
   );
 }
 
@@ -373,7 +417,7 @@ export function FeaturedShowcase({
           const description = cardDescription(project);
           return (
             <div key={project.id} className={layoutStyles.showcaseSlide} inert={index !== active}>
-              <article className={`${SHELL} ${layoutStyles.showcaseCard}`}>
+              <article className={`${CARD} ${layoutStyles.showcaseCard}`}>
                 <Frame
                   title={project.title}
                   onQuickView={(event) => onQuickView(project, event)}
@@ -387,6 +431,7 @@ export function FeaturedShowcase({
                   />
                 </Frame>
                 <div className={layoutStyles.showcaseCopy}>
+                  <RepoHeader repo={project.repo} />
                   <div
                     className={layoutStyles.showcaseText}
                     data-awaiting-rise={
@@ -394,24 +439,22 @@ export function FeaturedShowcase({
                     }
                     data-rise={!reducedMotion && settledSlide === index ? "" : undefined}
                   >
-                    {(project.category || project.language) && (
-                      <p className={layoutStyles.showcaseCategory}>
-                        {project.category || project.language}
-                      </p>
-                    )}
-                    <h3>{project.title}</h3>
+                    <div className={layoutStyles.repoTitle}>
+                      <h3>{project.title}</h3>
+                      {project.category && (
+                        <span className={layoutStyles.repoBadge} data-category={project.category}>
+                          {project.category}
+                        </span>
+                      )}
+                    </div>
                     {description && (
                       <p className={layoutStyles.showcaseDescription}>{description}</p>
                     )}
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={(event) => onQuickView(project, event)}
-                    aria-label={`View ${project.title}`}
-                    leftIcon={<Maximize2 size={14} aria-hidden />}
-                  >
-                    View project
-                  </Button>
+                  <ShowcaseActions
+                    project={project}
+                    onQuickView={(event) => onQuickView(project, event)}
+                  />
                 </div>
               </article>
             </div>
@@ -441,6 +484,29 @@ function RecentUpdate({ date }: { date: Date }) {
   return <time dateTime={date.toISOString()}>Updated {label}</time>;
 }
 
+function RepoHeader({ repo }: { repo: string }) {
+  return (
+    <div className={layoutStyles.repoHeader}>
+      <span className={layoutStyles.repoGlyph} aria-hidden>
+        <Menu size={14} />
+      </span>
+      <Github size={18} aria-hidden />
+      <div className={layoutStyles.repoPath} title={`${GITHUB_OWNER}/${repo}`}>
+        <span>{GITHUB_OWNER}</span>
+        <span aria-hidden>/</span>
+        <strong>{repo}</strong>
+      </div>
+      <span className={layoutStyles.repoGlyph} aria-hidden>
+        <GitPullRequest size={14} />
+      </span>
+      <span className={layoutStyles.repoGlyph} aria-hidden>
+        <Inbox size={14} />
+      </span>
+      <Image src={GITHUB_AVATAR} alt="" width={22} height={22} className="rounded-full" />
+    </div>
+  );
+}
+
 export function RecentCard({
   project,
   onQuickView,
@@ -467,24 +533,7 @@ export function RecentCard({
           View
         </span>
       </button>
-      <div className={layoutStyles.repoHeader}>
-        <span className={layoutStyles.repoGlyph} aria-hidden>
-          <Menu size={14} />
-        </span>
-        <Github size={18} aria-hidden />
-        <div className={layoutStyles.repoPath} title={`${GITHUB_OWNER}/${project.repo}`}>
-          <span>{GITHUB_OWNER}</span>
-          <span aria-hidden>/</span>
-          <strong>{project.repo}</strong>
-        </div>
-        <span className={layoutStyles.repoGlyph} aria-hidden>
-          <GitPullRequest size={14} />
-        </span>
-        <span className={layoutStyles.repoGlyph} aria-hidden>
-          <Inbox size={14} />
-        </span>
-        <Image src={GITHUB_AVATAR} alt="" width={22} height={22} className="rounded-full" />
-      </div>
+      <RepoHeader repo={project.repo} />
       <div className={layoutStyles.repoSummary}>
         <div className={layoutStyles.repoTitle}>
           <h3 title={project.title}>{project.title}</h3>
