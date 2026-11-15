@@ -403,9 +403,6 @@ export function ProjectQuickView({
               </span>
             </Button>
           )}
-          <div className={styles.footerBadges}>
-            <ProjectRepoBadges repo={project.repo} />
-          </div>
           {(
             [
               ["", "Code", <CodeXml key="i" className="size-3.5" aria-hidden />],
@@ -421,7 +418,7 @@ export function ProjectQuickView({
               key={label}
               href={`${githubUrl.replace(/\/+$/, "")}${suffix}`}
               aria-label={`${label} for ${project.title}`}
-              className={`min-h-11 min-w-11 ${styles.repoLink} ${suffix ? "" : styles.firstRepoLink} ${suffix === "/pulls" ? styles.pullsLink : ""}`}
+              className={`min-h-11 min-w-11 ${styles.repoLink} ${suffix === "/pulls" ? "hidden lg:inline-flex" : ""} ${suffix ? "" : styles.firstRepoLink}`}
               variant="ghost"
               size="sm"
               target="_blank"
@@ -431,6 +428,9 @@ export function ProjectQuickView({
               {label}
             </Button>
           ))}
+          <div className={styles.footerBadges}>
+            <ProjectRepoBadges repo={project.repo} />
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

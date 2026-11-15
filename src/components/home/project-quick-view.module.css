@@ -603,15 +603,17 @@
     column-gap: 4px;
   }
 
-  .footer > .pullsLink {
-    display: none;
-  }
-
   .footer > .repoLink {
     padding-inline: 4px;
   }
 
   .footerBadges img {
     height: 16px;
+  }
+}
+
+@media (max-width: 1023px) and (orientation: portrait) {
+  .footerBadges a[href$="/graphs/contributors"] {
+    display: none;
   }
 }
