@@ -45,16 +45,20 @@ function Cover({
   project,
   sizes,
   loading = "lazy",
+  intrinsic = false,
 }: {
   project: MergedProject;
   sizes: string;
   loading?: "eager" | "lazy";
+  intrinsic?: boolean;
 }) {
   const ready = useProjectCoversReady();
+  const placeholderSize = intrinsic ? "aspect-video w-full" : "size-full";
+  const imageSize = intrinsic ? "block h-auto w-full object-contain" : FIT;
   if (project.coverImage && !ready)
     return (
       <>
-        <div className="size-full bg-white/3" />
+        <div className={`${placeholderSize} bg-white/3`} />
         <noscript>
           {/* Native fallback is intentionally outside Next image optimization when JS is off. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -62,7 +66,7 @@ function Cover({
             src={project.coverImage}
             alt={`${project.title} preview`}
             loading="lazy"
-            className={`absolute inset-0 size-full ${FIT}`}
+            className={intrinsic ? imageSize : `absolute inset-0 size-full ${FIT}`}
           />
         </noscript>
       </>
@@ -71,16 +75,16 @@ function Cover({
     <Image
       src={project.coverImage}
       alt={`${project.title} preview`}
-      fill
+      {...(intrinsic ? { width: 1600, height: 900 } : { fill: true })}
       sizes={loading === "eager" ? sizes : `auto, ${sizes}`}
       loading={loading}
       // Card covers render at thumbnail size; the default quality is visually identical there
       // and roughly a third lighter. Quick View keeps 90 for full-width screenshots.
       fetchPriority="low"
-      className={`${motionStyles.cover} ${FIT}`}
+      className={intrinsic ? imageSize : `${motionStyles.cover} ${imageSize}`}
     />
   ) : (
-    <div className="size-full bg-(image:--gradient-brand) opacity-70" />
+    <div className={`${placeholderSize} bg-(image:--gradient-brand) opacity-70`} />
   );
 }
 
@@ -154,7 +158,8 @@ function Actions({
   );
 }
 
-const SHELL = `${GLASS_CARD} ${motionStyles.card} group relative h-full w-full overflow-hidden rounded-2xl border transition-colors duration-300 hover:border-(--brand-mid)/40`;
+const CARD = `${motionStyles.card} group relative h-full w-full overflow-hidden rounded-2xl border`;
+const SHELL = `${CARD} ${GLASS_CARD} transition-colors duration-300 hover:border-(--brand-mid)/40`;
 
 /**
  * Featured card. `hero` is the large one: a centred screenshot in an inset frame, then title,
@@ -183,9 +188,9 @@ export function FeaturedCard({
       >
         <CardBorderGlow />
         <Frame
-          className={`${layoutStyles.asideMedia} aspect-[4/3] w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center`}
+          className={`${layoutStyles.asideMedia} w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center`}
         >
-          <Cover project={project} sizes={COMPACT_COVER_SIZES} />
+          <Cover project={project} sizes={COMPACT_COVER_SIZES} intrinsic />
         </Frame>
         {/* The whole block (title, description, actions) is centred next to the poster at its natural height. */}
         <div
@@ -207,8 +212,13 @@ export function FeaturedCard({
   return (
     <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-4 p-3`}>
       <CardBorderGlow />
-      <Frame className={`${layoutStyles.heroFrame} aspect-[2/1] w-full flex-1`}>
-        <Cover project={project} sizes={HERO_COVER_SIZES} loading={eager ? "eager" : "lazy"} />
+      <Frame className={`${layoutStyles.heroFrame} w-full flex-1`}>
+        <Cover
+          project={project}
+          sizes={HERO_COVER_SIZES}
+          loading={eager ? "eager" : "lazy"}
+          intrinsic
+        />
       </Frame>
       <div className={`${layoutStyles.featuredDetails} flex shrink-0 flex-col px-1 pb-1`}>
         <h3 className="text-xl leading-snug font-semibold break-words">{project.title}</h3>
@@ -275,7 +285,7 @@ export function FeaturedShowcase({
       if (document.hidden) return;
       const next = (active + 1) % projects.length;
       moveTo(next, next === 0);
-    }, 2000);
+    }, 5000);
     return () => window.clearInterval(timer);
   }, [active, autoplay, inView, moveTo, projects.length]);
 
@@ -353,7 +363,12 @@ export function FeaturedShowcase({
             <div key={project.id} className={layoutStyles.showcaseSlide} inert={index !== active}>
               <article className={`${SHELL} ${layoutStyles.showcaseCard}`}>
                 <Frame className={layoutStyles.showcaseMedia}>
-                  <Cover project={project} sizes="60vw" loading={index === 0 ? "eager" : "lazy"} />
+                  <Cover
+                    project={project}
+                    sizes="60vw"
+                    loading={index === 0 ? "eager" : "lazy"}
+                    intrinsic
+                  />
                 </Frame>
                 <div className={layoutStyles.showcaseCopy}>
                   <div
@@ -411,9 +426,8 @@ export function RecentCard({
     .join(" · ");
   return (
     <article
-      className={`${layoutStyles.recentCard} ${SHELL} @container grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 border-white/5! p-3 sm:p-3.5 @[34rem]:grid-cols-[auto_minmax(0,1fr)_auto] @[34rem]:gap-x-4`}
+      className={`${layoutStyles.recentCard} ${CARD} @container grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 p-3 sm:p-3.5 @[34rem]:grid-cols-[auto_minmax(0,1fr)_auto] @[34rem]:gap-x-4`}
     >
-      <CardBorderGlow variant="subtle" />
       <Frame
         className={`${layoutStyles.recentMedia} row-span-2 aspect-[4/3] w-[5.25rem] self-center @[34rem]:row-span-1 @[34rem]:w-36`}
       >

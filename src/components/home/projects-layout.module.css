@@ -119,6 +119,31 @@
 }
 
 /* Recently updated: horizontal cards, one per row on phones and 2x2 from 640px. */
+.recentCard {
+  border-color: rgb(255 255 255 / 0.1);
+  background:
+    linear-gradient(145deg, rgb(var(--brand-mid-rgb) / 0.07), transparent 52%),
+    color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow: inset 0 1px rgb(255 255 255 / 0.035);
+  backdrop-filter: blur(8px);
+}
+
+.recentCard:focus-within {
+  border-color: rgb(var(--brand-mid-rgb) / 0.42);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .recentCard:hover {
+    border-color: rgb(var(--brand-mid-rgb) / 0.42);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .recentCard {
+    transition: border-color 180ms ease-out;
+  }
+}
+
 .recentGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -466,14 +491,14 @@
 
 .showcaseCard {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-columns: minmax(0, min(60%, 100svh)) minmax(0, 1fr);
   gap: clamp(12px, 3vw, 28px);
   min-height: clamp(212px, 64svh, 280px);
   padding: 14px;
 }
 
-.showcaseMedia img {
-  object-fit: contain;
+.showcaseMedia {
+  align-self: center;
 }
 
 .showcaseCopy {
@@ -551,27 +576,51 @@
 
 @media (min-width: 1024px) and (min-height: 501px) and (hover: hover) and (pointer: fine) {
   .featuredGrid {
-    grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     min-height: 350px;
-    aspect-ratio: 2.7 / 1;
+    aspect-ratio: 2.62 / 1;
   }
 
   .featuredGrid[data-count="1"] {
     aspect-ratio: 3.1 / 1;
   }
 
+  .featuredGrid[data-count="3"] {
+    grid-template-columns: minmax(0, 1.91fr) minmax(0, 1fr);
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
   .featuredCard > :is(.heroFrame, .asideMedia) {
     position: absolute;
-    inset: 10px;
+    inset: 0;
     align-self: stretch;
     width: auto;
     max-width: none;
     margin: 0;
     aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
   }
 
   .featuredCard > :is(.heroFrame, .asideMedia) img {
+    height: 100%;
     object-fit: contain;
+  }
+
+  .featuredGrid[data-count="3"] .heroSlot .featuredCard {
+    height: auto;
+  }
+
+  .featuredGrid[data-count="3"] .heroSlot .heroFrame {
+    position: relative;
+    inset: auto;
+    flex: none;
+    width: 100%;
+  }
+
+  .featuredGrid[data-count="3"] .heroSlot .heroFrame img {
+    height: auto;
   }
 
   .featuredDetails {
