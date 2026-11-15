@@ -34,7 +34,8 @@ async function navigate(page: Page, name: string, id: string) {
 async function wheelTo(page: Page, id: string) {
   const next = page.locator(`#${id}`);
   const distance = await next.evaluate((node) => node.getBoundingClientRect().top + 2);
-  await page.mouse.wheel(0, distance);
+  // Mobile WebKit has no mouse wheel; a native scrollBy is the same input for these checks.
+  await page.evaluate((top) => scrollBy({ top, behavior: "instant" }), distance);
   await expect
     .poll(() => next.evaluate((node) => Math.abs(node.getBoundingClientRect().top + 2)))
     .toBeLessThan(8);
@@ -43,7 +44,8 @@ async function wheelTo(page: Page, id: string) {
 async function wheelToBeginning(page: Page, id: string) {
   const heading = page.locator(`#${id} h2`).first();
   const distance = await heading.evaluate((node) => node.getBoundingClientRect().top - 110);
-  await page.mouse.wheel(0, distance);
+  // Mobile WebKit has no mouse wheel; a native scrollBy is the same input for these checks.
+  await page.evaluate((top) => scrollBy({ top, behavior: "instant" }), distance);
   await expect
     .poll(() => heading.evaluate((node) => Math.abs(node.getBoundingClientRect().top - 110)))
     .toBeLessThan(8);

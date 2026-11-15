@@ -126,6 +126,14 @@ describe("settleOnNearestSection", () => {
     expect(scrollToPosition).not.toHaveBeenCalled();
   });
 
+  it("does not pull back up from a section only a little taller than the screen", () => {
+    mount();
+    vi.spyOn(window, "innerHeight", "get").mockReturnValue(560);
+    vi.spyOn(window, "scrollY", "get").mockReturnValue(1060);
+    expect(settleOnNearestSection(true)).toBeNull();
+    expect(scrollToPosition).not.toHaveBeenCalled();
+  });
+
   it("ignores a section that has not rendered yet", () => {
     mount();
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({

@@ -306,8 +306,8 @@ export function SiteNav({
                     className={cn(
                       chromeStyles.desktopLink,
                       // The invisible ::before lifts the touch target from the 19px text line to
-                      // about 43px (iPads in landscape show this row), inside the 32px gap.
-                      "group relative text-[15px] transition-colors before:absolute before:-inset-x-2 before:-inset-y-3",
+                      // at least 42px even with a short fallback font (iPads in landscape show this row), inside the 32px gap.
+                      "group relative text-[15px] transition-colors before:absolute before:-inset-x-2 before:-inset-y-3.5",
                       isActive
                         ? "font-medium text-(--brand-bright)"
                         : "text-foreground/70 hover:text-foreground",

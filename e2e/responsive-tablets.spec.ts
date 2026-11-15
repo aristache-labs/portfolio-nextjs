@@ -54,6 +54,7 @@ test.describe("Fold whole-page landscape behavior", () => {
           }
           await link.tap();
           await page.waitForTimeout(1400);
+          await scrollIdle(page);
           const section = page.locator(`#${id}`);
           // Sections clip poster overscan and offscreen entrance positions.
           const overflow = await page.evaluate(
@@ -337,6 +338,8 @@ test.describe("Short Fold About and Skills remain reachable after menu navigatio
         test.skip(!(await link.count()), `${id} is hidden in site settings`);
         await link.tap();
         await page.waitForTimeout(2600);
+        // The landing keeps correcting while a late section settles; scrolling earlier is overridden.
+        await scrollIdle(page);
         const bottom = await page.evaluate((sectionId) => {
           const section = document.getElementById(sectionId)!;
           const last = section.querySelector<HTMLElement>(
@@ -352,9 +355,11 @@ test.describe("Short Fold About and Skills remain reachable after menu navigatio
         }, id);
         const last = sectionLast(page, id);
         if (await last.count())
-          await last.evaluate((node) =>
-            node.scrollIntoView({ block: "center", behavior: "instant" }),
-          );
+          // scrollBy, not scrollIntoView: Lenis follows scrollBy and would pull the page back from a native jump.
+          await last.evaluate((node) => {
+            const box = node.getBoundingClientRect();
+            scrollBy({ top: box.top + box.height / 2 - innerHeight / 2, behavior: "instant" });
+          });
         if (id === "about") {
           const readResults = () =>
             page.evaluate(() => {
@@ -869,6 +874,20 @@ test.describe("About biography touch target", () => {
   }
 });
 
+/** A native jump can start the touch settle glide, which drags the page back if another jump interrupts it. */
+async function scrollIdle(page: Page) {
+  await expect
+    .poll(
+      async () => {
+        const before = await page.evaluate(() => scrollY);
+        await page.waitForTimeout(600);
+        return before === (await page.evaluate(() => scrollY));
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(true);
+}
+
 async function open(page: Page, width: number, height: number) {
   await page.addInitScript(() => {
     // Keep the consent banner out of the way; it is not what these specs measure.
@@ -1009,6 +1028,7 @@ for (const hasTouch of [true, false]) {
             continue;
           }
           await section.scrollIntoViewIfNeeded();
+          await scrollIdle(page);
           await expect(section).toBeVisible();
           await expect
             .poll(() =>
@@ -1032,6 +1052,7 @@ for (const hasTouch of [true, false]) {
             const tabs = section.getByRole("tab");
             if ((await tabs.count()) > 1) {
               await tabs.nth(1).scrollIntoViewIfNeeded();
+              await scrollIdle(page);
               await page.evaluate(
                 () =>
                   new Promise<void>((resolve) =>
@@ -1179,17 +1200,26 @@ for (const hasTouch of [true, false]) {
             const link = page.locator(`header a[href="#${id}"]:visible`).first();
             await expect(link).toBeVisible();
             await link.click();
-            await expect(section.locator("h2").first()).toBeInViewport();
+            // The paced jump covers several screens; WebKit frames are slow enough to stretch it past 5 s.
+            await expect(
+              section.locator("h2").first(),
+              `${id} heading after the menu link`,
+            ).toBeInViewport({
+              timeout: 20_000,
+            });
             // Seeing the heading does not mean the paced section jump has finished.
             let previousScroll: number | undefined;
             let stationarySamples = 0;
             await expect
-              .poll(async () => {
-                const position = await page.evaluate(() => scrollY);
-                stationarySamples = position === previousScroll ? stationarySamples + 1 : 0;
-                previousScroll = position;
-                return stationarySamples;
-              })
+              .poll(
+                async () => {
+                  const position = await page.evaluate(() => scrollY);
+                  stationarySamples = position === previousScroll ? stationarySamples + 1 : 0;
+                  previousScroll = position;
+                  return stationarySamples;
+                },
+                { timeout: 20_000 },
+              )
               .toBeGreaterThanOrEqual(2);
             if (id === "experience" && width > height && reducedMotion === "no-preference") {
               const dots = section.locator("[data-timeline-dot]");

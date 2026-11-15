@@ -523,6 +523,17 @@
     gap: 2px;
   }
 
+  /* The pill stays compact so the results row fits; its tap area still reaches 44px. */
+  .copy button {
+    position: relative;
+  }
+
+  .copy button::after {
+    content: "";
+    position: absolute;
+    inset: -6px -6px;
+  }
+
   .copy button svg {
     width: 12px;
     height: 12px;
