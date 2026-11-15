@@ -260,3 +260,25 @@
     min-width: 44px;
   }
 }
+
+@media (max-width: 679px) and (orientation: portrait),
+  (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .actions:is(.featured, .recent) {
+    row-gap: 10px;
+  }
+
+  .actions:is(.featured, .recent) > :is(a, button) {
+    position: relative;
+    min-width: 44px;
+    min-height: 34px;
+    padding: 4px 7px;
+    font-size: 11px;
+  }
+
+  /* The visible button is smaller than its 44px touch target. */
+  .actions:is(.featured, .recent) > :is(a, button)::before {
+    content: "";
+    position: absolute;
+    inset: -5px 0;
+  }
+}

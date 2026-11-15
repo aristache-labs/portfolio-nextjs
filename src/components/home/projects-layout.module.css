@@ -387,130 +387,85 @@
   }
 }
 
-/* Phone landscape (short screens). Featured keeps the desktop composition at a compact scale:
-   the hero on the left (58%) and two cards stacked on the right, matched in height. The switch
-   follows the usable width of the column (after section padding and safe-area insets), and a
-   column too narrow for readable text and 44px targets falls back to a single column. The hero
-   media is a bounded, centred frame that keeps its 2:1 ratio instead of a shallow banner. */
+/* Phone landscape (short screens): Featured is a row you can swipe of equal cards, two visible at a
+   time with a sliver of the third showing so it reads as scrollable. Each card keeps its poster on
+   top and the title and actions below, which keeps the group short. Recently updated goes to two
+   columns once the column (after padding and safe-area insets) is wide enough for readable text. */
 .column {
   container-type: inline-size;
 }
 
 @media (orientation: landscape) and (max-height: 500px) {
   .featuredGrid {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
     gap: 12px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .featuredGrid::-webkit-scrollbar {
+    display: none;
   }
 
   .heroSlot,
-  .asideSlot,
-  .featuredGrid[data-count="2"] .asideSlot {
-    grid-column: 1;
-    grid-row: auto;
+  .asideSlot {
+    flex: 0 0 calc((100% - 12px) / 2);
+    scroll-snap-align: start;
   }
 
-  .heroFrame {
+  /* Two cards and about 12% of the third are visible on load. */
+  .featuredGrid[data-count="3"] > * {
+    flex-basis: calc((100% - 24px) / 2.12);
+  }
+
+  /* End space, so the last card can scroll fully into view with a gutter. */
+  .featuredGrid[data-count="3"]::after {
+    content: "";
+    flex: 0 0 0;
+  }
+
+  .featuredCard {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .heroFrame,
+  .asideMedia {
     flex: none;
-    align-self: center;
-    width: auto;
-    max-width: 100%;
-    height: clamp(110px, 34svh, 170px);
-    aspect-ratio: 2 / 1;
+    align-self: stretch;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    aspect-ratio: 2.2 / 1;
+  }
+
+  .heroText {
+    display: none;
+  }
+
+  .heroSlot h3,
+  .asideSlot h3 {
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .heroSlot [class*="actions"] {
+    margin-top: 6px;
+  }
+
+  .asideSlot [class*="actions"] {
+    margin-top: 6px;
   }
 
   .recentGrid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* Wide enough: the large project on the left (58%) and the two secondary projects stacked on
-     the right. The secondary rows are sized first (about 140px each, 12px apart); the large card
-     matches their combined height and its image fills what is left, fully visible. */
   @container (min-width: 700px) {
-    .featuredGrid {
-      grid-template-columns: minmax(0, 58%) minmax(0, 1fr);
-      grid-template-rows: repeat(2, minmax(140px, auto));
-      gap: 12px;
-    }
-
-    .heroSlot {
-      grid-column: 1;
-      grid-row: 1 / span 2;
-    }
-
-    .asideSlot,
-    .featuredGrid[data-count="2"] .asideSlot {
-      grid-column: 2;
-      grid-row: auto;
-    }
-
-    .featuredGrid[data-count="2"] .asideSlot {
-      grid-row: 1 / span 2;
-    }
-
-    .featuredGrid[data-count="1"] {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: none;
-    }
-
-    .featuredGrid[data-count="1"] .heroSlot {
-      grid-column: 1;
-      grid-row: auto;
-    }
-
-    .heroFrame {
-      flex: 1 1 0;
-      align-self: stretch;
-      width: 100%;
-      min-height: 0;
-      max-width: none;
-      height: auto;
-      aspect-ratio: auto;
-    }
-
-    /* No dark panel: the border and radius sit directly on the visible screenshot, which stays
-       centred at its own aspect ratio. !important beats the inline fill styles of next/image. */
-    .heroFrame {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: visible;
-      border: 0;
-      border-radius: 0;
-      background: transparent;
-    }
-
-    .heroFrame img {
-      position: static !important;
-      width: auto !important;
-      height: auto !important;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      border: 1px solid rgb(255 255 255 / 0.12);
-      border-radius: 12px;
-    }
-
-    /* Tighter padding so the image, title and three actions all fit in the narrow cards. */
-    .heroSlot .featuredCard,
-    .asideSlot .featuredCard {
-      padding: 10px;
-      gap: 8px;
-    }
-
-    .asideSlot [class*="actions"] {
-      gap: 6px;
-    }
-
-    .heroSlot [class*="actions"] {
-      margin-top: 10px;
-    }
-
-    .asideMedia {
-      width: 40%;
-      max-width: none;
-      aspect-ratio: 4 / 3;
-    }
-
     .recentGrid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;

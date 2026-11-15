@@ -167,7 +167,7 @@ export function FeaturedCard({
       >
         <CardBorderGlow />
         <Frame
-          className={`${layoutStyles.asideMedia} aspect-[4/3] w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center`}
+          className={`${layoutStyles.asideMedia} aspect-[4/3] w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center [@media(max-width:679px)_and_(orientation:portrait)]:w-24`}
         >
           <Cover project={project} sizes={COMPACT_COVER_SIZES} />
         </Frame>
