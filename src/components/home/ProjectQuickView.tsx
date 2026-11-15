@@ -9,6 +9,7 @@ import {
   CircleDot,
   CodeXml,
   ExternalLink,
+  Link,
   GitFork,
   GitPullRequest,
   Star,
@@ -284,7 +285,7 @@ export function ProjectQuickView({
         style={{ "--preview-ratio": activeRatio ?? 16 / 9 } as CSSProperties}
       >
         <div className={styles.repoBar}>
-          <RepoHeader repo={project.repo} />
+          <RepoHeader repo={project.repo} pullsUrl={`${githubUrl.replace(/\/+$/, "")}/pulls`} />
         </div>
         {components.length > 1 && (
           <label className="block px-5 pt-4 text-sm">
@@ -379,10 +380,6 @@ export function ProjectQuickView({
             </dl>
           )}
           <div className={`lg:hidden ${styles.mobileOnlyHidden}`}>{tags}</div>
-          {/* Badges sit under the description, so the footer keeps Live left and repo links right. */}
-          <div className={styles.inlineBadges}>
-            <ProjectRepoBadges repo={project.repo} />
-          </div>
         </DialogBody>
 
         <DialogFooter
@@ -396,7 +393,7 @@ export function ProjectQuickView({
               size="sm"
               target="_blank"
               rel="noopener noreferrer"
-              leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
+              leftIcon={<Link className="size-3.5" aria-hidden />}
             >
               <span className={styles.mobileOnlyHidden}>Live</span>
               <span
@@ -406,6 +403,9 @@ export function ProjectQuickView({
               </span>
             </Button>
           )}
+          <div className={styles.footerBadges}>
+            <ProjectRepoBadges repo={project.repo} />
+          </div>
           {(
             [
               ["", "Code", <CodeXml key="i" className="size-3.5" aria-hidden />],
@@ -421,7 +421,7 @@ export function ProjectQuickView({
               key={label}
               href={`${githubUrl.replace(/\/+$/, "")}${suffix}`}
               aria-label={`${label} for ${project.title}`}
-              className={`min-h-11 min-w-11 ${styles.repoLink} ${suffix ? "" : styles.firstRepoLink}`}
+              className={`min-h-11 min-w-11 ${styles.repoLink} ${suffix ? "" : styles.firstRepoLink} ${suffix === "/pulls" ? styles.pullsLink : ""}`}
               variant="ghost"
               size="sm"
               target="_blank"

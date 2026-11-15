@@ -9,7 +9,7 @@ import type { MouseEventHandler } from "react";
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
 
-import { GitFork, ExternalLink, Github, Maximize2 } from "lucide-react";
+import { GitFork, Link, Github, Maximize2 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
@@ -125,7 +125,7 @@ export function ProjectCard({
               size="sm"
               target="_blank"
               rel="noopener noreferrer"
-              leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
+              leftIcon={<Link className="size-3.5" aria-hidden />}
             >
               Live
             </Button>
