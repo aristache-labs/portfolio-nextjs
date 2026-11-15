@@ -268,7 +268,40 @@ describe("ProjectsBrowser highlights", () => {
     for (const id of [1, 2, 3]) {
       expect(screen.getByRole("button", { name: "View Project " + id })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Code for Project " + id })).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Live site for Project " + id })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Live site for Project " + id })).toHaveAttribute(
+        "href",
+        "https://example.com",
+      );
     }
+    const repo = list[2].htmlUrl;
+    expect(screen.getByRole("link", { name: "Issues for Project 3" })).toHaveAttribute(
+      "href",
+      `${repo}/issues`,
+    );
+    expect(screen.getByRole("link", { name: "Pull requests for Project 3" })).toHaveAttribute(
+      "href",
+      `${repo}/pulls`,
+    );
+    const recent = screen.getByRole("heading", { name: "Project 3" }).closest("article")!;
+    expect(within(recent).getByText(/^Updated /)).toHaveAttribute(
+      "datetime",
+      list[2].pushedAt?.toISOString(),
+    );
+  });
+
+  it("shows assigned categories and leaves uncategorized projects without a badge", () => {
+    const pushedAt = new Date("2026-10-28T12:00:00Z");
+    render(
+      <ProjectsBrowser
+        projects={[
+          project(1, { pushedAt, category: "Automation & Tools" }),
+          project(2, { pushedAt }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByTitle("Automation & Tools")).toHaveTextContent("Automation & Tools");
+    const uncategorized = screen.getByRole("heading", { name: "Project 2" }).closest("article");
+    expect(uncategorized?.querySelector("[data-category]")).toBeNull();
   });
 });

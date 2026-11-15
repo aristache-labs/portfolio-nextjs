@@ -9,6 +9,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type MouseEvent,
   type MouseEventHandler,
   type ReactNode,
@@ -23,9 +24,14 @@ import { useProjectCoversReady } from "./ProjectCoverGate";
 import {
   ChevronLeft,
   ChevronRight,
+  CircleDot,
+  CodeXml,
   ExternalLink,
   Github,
+  GitPullRequest,
+  Inbox,
   Maximize2,
+  Menu,
   Pause,
   Play,
 } from "lucide-react";
@@ -58,7 +64,7 @@ function Cover({
   if (project.coverImage && !ready)
     return (
       <>
-        <div className={`${placeholderSize} bg-white/3`} />
+        <span className={`block ${placeholderSize} bg-white/3`} />
         <noscript>
           {/* Native fallback is intentionally outside Next image optimization when JS is off. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -84,18 +90,14 @@ function Cover({
       className={intrinsic ? imageSize : `${motionStyles.cover} ${imageSize}`}
     />
   ) : (
-    <div className={`${placeholderSize} bg-(image:--gradient-brand) opacity-70`} />
+    <span className={`block ${placeholderSize} bg-(image:--gradient-brand) opacity-70`} />
   );
 }
 
+const FRAME = "relative overflow-hidden rounded-xl border border-white/8 bg-black/35";
+
 function Frame({ className, children }: { className: string; children: ReactNode }) {
-  return (
-    <div
-      className={`relative overflow-hidden rounded-xl border border-white/8 bg-black/35 ${className}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={`${FRAME} ${className}`}>{children}</div>;
 }
 
 function Actions({
@@ -406,11 +408,26 @@ export function FeaturedShowcase({
   );
 }
 
-/**
- * Horizontal card sized by its own width (container query). Wide: thumbnail, title and metadata
- * grouped beside it, actions on the right, both centred. Narrow: the actions drop below the
- * metadata, aligned with the title.
- */
+const GITHUB_OWNER = "aristache-labs";
+const GITHUB_AVATAR = "https://avatars.githubusercontent.com/u/29801489?v=4";
+const relativeTime = new Intl.RelativeTimeFormat("en", { numeric: "always" });
+const subscribeToUpdatedLabel = () => () => {};
+
+function RecentUpdate({ date }: { date: Date }) {
+  const label = useSyncExternalStore(
+    subscribeToUpdatedLabel,
+    () => {
+      const days = Math.floor(Math.max(0, Date.now() - date.getTime()) / 86_400_000);
+      if (days >= 365) return relativeTime.format(-Math.floor(days / 365), "year");
+      if (days >= 30) return relativeTime.format(-Math.floor(days / 30), "month");
+      if (days >= 7) return relativeTime.format(-Math.floor(days / 7), "week");
+      return days ? relativeTime.format(-days, "day") : "today";
+    },
+    () => pushedLabel(date),
+  );
+  return <time dateTime={date.toISOString()}>Updated {label}</time>;
+}
+
 export function RecentCard({
   project,
   onQuickView,
@@ -418,34 +435,119 @@ export function RecentCard({
   project: MergedProject;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
 }) {
-  const meta = [
-    project.category || project.language,
-    project.pushedAt && pushedLabel(project.pushedAt),
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const category = project.category;
+  const repoUrl = (project.htmlUrl ?? `https://github.com/${GITHUB_OWNER}/${project.repo}`).replace(
+    /\/+$/,
+    "",
+  );
   return (
-    <article
-      className={`${layoutStyles.recentCard} ${CARD} @container grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 p-3 sm:p-3.5 @[34rem]:grid-cols-[auto_minmax(0,1fr)_auto] @[34rem]:gap-x-4`}
-    >
-      <Frame
-        className={`${layoutStyles.recentMedia} row-span-2 aspect-[4/3] w-[5.25rem] self-center @[34rem]:row-span-1 @[34rem]:w-36`}
+    <article className={`${layoutStyles.recentCard} ${CARD}`}>
+      <button
+        type="button"
+        className={`${FRAME} ${layoutStyles.recentMedia}`}
+        aria-label={`View ${project.title}`}
+        onClick={onQuickView}
       >
-        <Cover project={project} sizes={COMPACT_COVER_SIZES} />
-      </Frame>
-      <div className="min-w-0">
-        <h3 title={project.title} className="truncate text-[15px] leading-snug font-semibold">
-          {project.title}
-        </h3>
-        {meta && <p className="text-muted mt-1.5 truncate text-xs">{meta}</p>}
-        <ProjectComponents project={project} />
+        <Cover project={project} sizes="(min-width: 1200px) 206px, 176px" intrinsic />
+        <span className={layoutStyles.repoView} aria-hidden>
+          <Maximize2 size={14} />
+          View
+        </span>
+      </button>
+      <div className={layoutStyles.repoHeader}>
+        <span className={layoutStyles.repoGlyph} aria-hidden>
+          <Menu size={14} />
+        </span>
+        <Github size={18} aria-hidden />
+        <div className={layoutStyles.repoPath} title={`${GITHUB_OWNER}/${project.repo}`}>
+          <span>{GITHUB_OWNER}</span>
+          <span aria-hidden>/</span>
+          <strong>{project.repo}</strong>
+        </div>
+        <span className={layoutStyles.repoGlyph} aria-hidden>
+          <GitPullRequest size={14} />
+        </span>
+        <span className={layoutStyles.repoGlyph} aria-hidden>
+          <Inbox size={14} />
+        </span>
+        <Image src={GITHUB_AVATAR} alt="" width={22} height={22} className="rounded-full" />
       </div>
-      <Actions
-        project={project}
-        onQuickView={onQuickView}
-        compact
-        spacing="col-start-2 mt-3 @[34rem]:col-start-3 @[34rem]:row-start-1 @[34rem]:mt-0 @[34rem]:flex-nowrap @[34rem]:self-center"
-      />
+      <div className={layoutStyles.repoSummary}>
+        <div className={layoutStyles.repoTitle}>
+          <h3 title={project.title}>{project.title}</h3>
+          {category && (
+            <span
+              className={layoutStyles.repoBadge}
+              data-category={project.category}
+              title={category}
+            >
+              {category === "Automation & Tools" ? (
+                <>
+                  Automation<span className={layoutStyles.repoBadgeSuffix}> &amp; Tools</span>
+                </>
+              ) : (
+                category
+              )}
+            </span>
+          )}
+        </div>
+        {project.pushedAt && (
+          <p className={layoutStyles.repoMeta}>
+            <RecentUpdate date={project.pushedAt} />
+          </p>
+        )}
+      </div>
+      <div className={layoutStyles.repoActions}>
+        {project.homepage && (
+          <Button
+            className={layoutStyles.repoLive}
+            href={project.homepage}
+            aria-label={`Live site for ${project.title}`}
+            variant="ghost"
+            size="sm"
+            target="_blank"
+            rel="noopener noreferrer"
+            leftIcon={<ExternalLink size={15} aria-hidden />}
+          >
+            <span className={layoutStyles.repoActionLabel}>Live</span>
+          </Button>
+        )}
+        <Button
+          href={repoUrl}
+          aria-label={`Code for ${project.title}`}
+          variant="ghost"
+          size="sm"
+          target="_blank"
+          rel="noopener noreferrer"
+          leftIcon={<CodeXml size={15} aria-hidden />}
+        >
+          <span className={layoutStyles.repoActionLabel}>Code</span>
+        </Button>
+        <Button
+          className={layoutStyles.repoIssues}
+          href={`${repoUrl}/issues`}
+          aria-label={`Issues for ${project.title}`}
+          variant="ghost"
+          size="sm"
+          target="_blank"
+          rel="noopener noreferrer"
+          leftIcon={<CircleDot size={15} aria-hidden />}
+        >
+          <span className={layoutStyles.repoActionLabel}>Issues</span>
+        </Button>
+        <Button
+          className={layoutStyles.repoPulls}
+          href={`${repoUrl}/pulls`}
+          aria-label={`Pull requests for ${project.title}`}
+          variant="ghost"
+          size="sm"
+          target="_blank"
+          rel="noopener noreferrer"
+          leftIcon={<GitPullRequest size={15} aria-hidden />}
+        >
+          <span className={layoutStyles.repoActionLabel}>Pull requests</span>
+        </Button>
+      </div>
     </article>
   );
 }
