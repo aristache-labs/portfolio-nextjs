@@ -24,11 +24,11 @@ import {
   ChevronRight,
   CircleDot,
   CodeXml,
-  ExternalLink,
+  Link,
   Github,
   GitPullRequest,
   Inbox,
-  Maximize2,
+  Eye,
   Menu,
   Pause,
   Play,
@@ -93,6 +93,17 @@ function Cover({
 
 const FRAME = "relative overflow-hidden rounded-xl border border-white/8 bg-black/35";
 
+function PosterEye() {
+  return (
+    <span className={layoutStyles.repoView} aria-hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    </span>
+  );
+}
+
 function Frame({
   className,
   children,
@@ -109,11 +120,12 @@ function Frame({
   return (
     <button
       type="button"
-      className={`${FRAME} ${className} focus-visible:outline-ring cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2`}
+      className={`${FRAME} ${className} ${layoutStyles.posterTrigger} focus-visible:outline-ring cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2`}
       aria-label={label}
       onClick={onQuickView}
     >
       {children}
+      <PosterEye />
     </button>
   );
 }
@@ -177,17 +189,6 @@ export function FeaturedCard({
         />
       </Frame>
       <div className={layoutStyles.heroBody}>
-        {/* Pointer shortcut above the title; the poster button is the accessible "View". */}
-        <button
-          type="button"
-          className={layoutStyles.heroView}
-          tabIndex={-1}
-          aria-hidden
-          onClick={onQuickView}
-        >
-          <Maximize2 size={13} />
-          View
-        </button>
         <div className={layoutStyles.heroTitle}>
           <h3>{project.title}</h3>
           {category && (
@@ -200,15 +201,13 @@ export function FeaturedCard({
         <ProjectComponents project={project} />
         <div className={layoutStyles.heroActions}>
           <div className={layoutStyles.heroLinks}>
-            {/* Touch and narrow screens: View joins the row; the poster stays the accessible "View". */}
             <button
               type="button"
               className={layoutStyles.heroRowView}
-              tabIndex={-1}
-              aria-hidden
+              aria-label={`View ${project.title}`}
               onClick={onQuickView}
             >
-              <Maximize2 size={13} />
+              <Eye size={13} aria-hidden />
               View
             </button>
             {project.homepage && (
@@ -219,7 +218,7 @@ export function FeaturedCard({
                 size="sm"
                 target="_blank"
                 rel="noopener noreferrer"
-                leftIcon={<ExternalLink size={15} aria-hidden />}
+                leftIcon={<Link size={15} aria-hidden />}
               >
                 <span className={layoutStyles.heroLabel}>Live</span>
               </Button>
@@ -232,12 +231,6 @@ export function FeaturedCard({
               "Issues",
               <CircleDot size={15} aria-hidden />,
               layoutStyles.heroIssues,
-            )}
-            {link(
-              "/pulls",
-              "Pull requests",
-              <GitPullRequest size={15} aria-hidden />,
-              layoutStyles.heroPulls,
             )}
           </div>
         </div>
@@ -277,12 +270,12 @@ function ShowcaseActions({
           size="sm"
           onClick={onQuickView}
           aria-label={`View ${project.title}`}
-          leftIcon={<Maximize2 size={13} aria-hidden />}
+          leftIcon={<Eye size={13} aria-hidden />}
         >
           View
         </Button>
         {project.homepage &&
-          link(project.homepage, "Live", "Live site", <ExternalLink size={15} aria-hidden />)}
+          link(project.homepage, "Live", "Live site", <Link size={15} aria-hidden />)}
       </div>
       <div>
         {link(repoUrl, "Code", "Code", <CodeXml size={15} aria-hidden />)}
@@ -484,7 +477,7 @@ function RecentUpdate({ date }: { date: Date }) {
   return <time dateTime={date.toISOString()}>Updated {label}</time>;
 }
 
-export function RepoHeader({ repo }: { repo: string }) {
+export function RepoHeader({ repo, pullsUrl }: { repo: string; pullsUrl?: string }) {
   return (
     <div className={layoutStyles.repoHeader}>
       <span className={layoutStyles.repoGlyph} aria-hidden>
@@ -496,9 +489,21 @@ export function RepoHeader({ repo }: { repo: string }) {
         <span aria-hidden>/</span>
         <strong>{repo}</strong>
       </div>
-      <span className={layoutStyles.repoGlyph} aria-hidden>
-        <GitPullRequest size={14} />
-      </span>
+      {pullsUrl ? (
+        <a
+          className={`${layoutStyles.repoGlyph} hover:text-foreground focus-visible:outline-ring focus-visible:outline-2`}
+          href={pullsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Pull requests for ${repo} on GitHub`}
+        >
+          <GitPullRequest size={14} aria-hidden />
+        </a>
+      ) : (
+        <span className={layoutStyles.repoGlyph} aria-hidden>
+          <GitPullRequest size={14} />
+        </span>
+      )}
       <span className={layoutStyles.repoGlyph} aria-hidden>
         <Inbox size={14} />
       </span>
@@ -528,12 +533,9 @@ export function RecentCard({
         onClick={onQuickView}
       >
         <Cover project={project} sizes="(min-width: 1200px) 206px, 176px" intrinsic />
-        <span className={layoutStyles.repoView} aria-hidden>
-          <Maximize2 size={14} />
-          View
-        </span>
+        <PosterEye />
       </button>
-      <RepoHeader repo={project.repo} />
+      <RepoHeader repo={project.repo} pullsUrl={`${repoUrl}/pulls`} />
       <div className={layoutStyles.repoSummary}>
         <div className={layoutStyles.repoTitle}>
           <h3 title={project.title}>{project.title}</h3>
@@ -560,6 +562,15 @@ export function RecentCard({
         )}
       </div>
       <div className={layoutStyles.repoActions}>
+        <Button
+          className={layoutStyles.repoDesktopView}
+          size="sm"
+          leftIcon={<Eye size={13} aria-hidden />}
+          aria-label={`Open project details for ${project.title}`}
+          onClick={onQuickView}
+        >
+          View
+        </Button>
         {project.homepage && (
           <Button
             className={layoutStyles.repoLive}
@@ -569,7 +580,7 @@ export function RecentCard({
             size="sm"
             target="_blank"
             rel="noopener noreferrer"
-            leftIcon={<ExternalLink size={15} aria-hidden />}
+            leftIcon={<Link size={15} aria-hidden />}
           >
             <span className={layoutStyles.repoActionLabel}>Live</span>
           </Button>
@@ -596,18 +607,6 @@ export function RecentCard({
           leftIcon={<CircleDot size={15} aria-hidden />}
         >
           <span className={layoutStyles.repoActionLabel}>Issues</span>
-        </Button>
-        <Button
-          className={layoutStyles.repoPulls}
-          href={`${repoUrl}/pulls`}
-          aria-label={`Pull requests for ${project.title}`}
-          variant="ghost"
-          size="sm"
-          target="_blank"
-          rel="noopener noreferrer"
-          leftIcon={<GitPullRequest size={15} aria-hidden />}
-        >
-          <span className={layoutStyles.repoActionLabel}>Pull requests</span>
         </Button>
       </div>
     </article>
