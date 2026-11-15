@@ -502,12 +502,6 @@
     );
   }
 
-  @container (700px <= width <= 800px) {
-    .recentCard {
-      --repo-poster-height: 70px;
-    }
-  }
-
   .repoGlyph,
   .repoHeader > img {
     height: 18px;
