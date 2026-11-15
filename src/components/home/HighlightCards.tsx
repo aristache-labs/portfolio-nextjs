@@ -484,7 +484,7 @@ function RecentUpdate({ date }: { date: Date }) {
   return <time dateTime={date.toISOString()}>Updated {label}</time>;
 }
 
-function RepoHeader({ repo }: { repo: string }) {
+export function RepoHeader({ repo }: { repo: string }) {
   return (
     <div className={layoutStyles.repoHeader}>
       <span className={layoutStyles.repoGlyph} aria-hidden>

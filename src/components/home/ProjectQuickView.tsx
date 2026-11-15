@@ -3,7 +3,17 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import { ProjectRepoBadges } from "./ProjectRepoBadges";
-import { ChevronLeft, ChevronRight, Star, GitFork, ExternalLink, Github } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  CircleDot,
+  CodeXml,
+  ExternalLink,
+  GitFork,
+  GitPullRequest,
+  Star,
+} from "lucide-react";
+import { RepoHeader } from "./HighlightCards";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +24,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/Button";
-import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 import type { MergedProject } from "@/lib/projects";
 import { pluralize } from "@/utils/plural";
 import styles from "./project-quick-view.module.css";
@@ -274,6 +283,9 @@ export function ProjectQuickView({
         className={`max-w-2xl ${styles.dialog}`}
         style={{ "--preview-ratio": activeRatio ?? 16 / 9 } as CSSProperties}
       >
+        <div className={styles.repoBar}>
+          <RepoHeader repo={project.repo} />
+        </div>
         {components.length > 1 && (
           <label className="block px-5 pt-4 text-sm">
             Component
@@ -367,6 +379,10 @@ export function ProjectQuickView({
             </dl>
           )}
           <div className={`lg:hidden ${styles.mobileOnlyHidden}`}>{tags}</div>
+          {/* Badges sit under the description, so the footer keeps Live left and repo links right. */}
+          <div className={styles.inlineBadges}>
+            <ProjectRepoBadges repo={project.repo} />
+          </div>
         </DialogBody>
 
         <DialogFooter
@@ -390,28 +406,32 @@ export function ProjectQuickView({
               </span>
             </Button>
           )}
-          <Button
-            href={githubUrl}
-            aria-label={`Code for ${project.title}`}
-            className="min-h-11 min-w-11"
-            variant="secondary"
-            size="sm"
-            target="_blank"
-            rel="noopener noreferrer"
-            leftIcon={<Github className="size-3.5" aria-hidden />}
-          >
-            <span className={styles.mobileOnlyHidden}>GitHub</span>
-            <span
-              className={`hidden [@media(max-width:1023px)_and_(orientation:portrait)]:inline ${styles.shortLabel}`}
+          {(
+            [
+              ["", "Code", <CodeXml key="i" className="size-3.5" aria-hidden />],
+              ["/issues", "Issues", <CircleDot key="i" className="size-3.5" aria-hidden />],
+              [
+                "/pulls",
+                "Pull requests",
+                <GitPullRequest key="i" className="size-3.5" aria-hidden />,
+              ],
+            ] as const
+          ).map(([suffix, label, icon]) => (
+            <Button
+              key={label}
+              href={`${githubUrl.replace(/\/+$/, "")}${suffix}`}
+              aria-label={`${label} for ${project.title}`}
+              className={`min-h-11 min-w-11 ${styles.repoLink} ${suffix ? "" : styles.firstRepoLink}`}
+              variant="ghost"
+              size="sm"
+              target="_blank"
+              rel="noopener noreferrer"
+              leftIcon={icon}
             >
-              GitHub
-            </span>
-          </Button>
-          <div className="ml-auto">
-            <ProjectRepoBadges repo={project.repo} />
-          </div>
+              {label}
+            </Button>
+          ))}
         </DialogFooter>
-        <CardBorderGlow />
       </DialogContent>
     </Dialog>
   );
