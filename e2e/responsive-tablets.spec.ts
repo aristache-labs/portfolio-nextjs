@@ -1196,17 +1196,26 @@ for (const hasTouch of [true, false]) {
             const link = page.locator(`header a[href="#${id}"]:visible`).first();
             await expect(link).toBeVisible();
             await link.click();
-            await expect(section.locator("h2").first()).toBeInViewport();
+            // The paced jump covers several screens; WebKit frames are slow enough to stretch it past 5 s.
+            await expect(
+              section.locator("h2").first(),
+              `${id} heading after the menu link`,
+            ).toBeInViewport({
+              timeout: 20_000,
+            });
             // Seeing the heading does not mean the paced section jump has finished.
             let previousScroll: number | undefined;
             let stationarySamples = 0;
             await expect
-              .poll(async () => {
-                const position = await page.evaluate(() => scrollY);
-                stationarySamples = position === previousScroll ? stationarySamples + 1 : 0;
-                previousScroll = position;
-                return stationarySamples;
-              })
+              .poll(
+                async () => {
+                  const position = await page.evaluate(() => scrollY);
+                  stationarySamples = position === previousScroll ? stationarySamples + 1 : 0;
+                  previousScroll = position;
+                  return stationarySamples;
+                },
+                { timeout: 20_000 },
+              )
               .toBeGreaterThanOrEqual(2);
             if (id === "experience" && width > height && reducedMotion === "no-preference") {
               const dots = section.locator("[data-timeline-dot]");
