@@ -61,9 +61,27 @@ describe("globals.css mirrors brand.ts", () => {
       "--accent-on-chip",
       "--period",
       "--gradient-brand",
+      "--gradient-brand-action",
       "--gradient-ink",
     ]) {
       expect(css, `${token} should be defined`).toContain(`${token}:`);
+    }
+  });
+
+  it("keeps white text at 4.5:1 on both ends of the action gradient", () => {
+    const stops = css.match(
+      /--gradient-brand-action: linear-gradient\(135deg, (#[0-9a-f]{6}) 0%, (#[0-9a-f]{6}) 100%\)/i,
+    );
+    expect(stops, "--gradient-brand-action should be a two-stop gradient").not.toBeNull();
+    const luminance = (hex: string) => {
+      const [r, g, b] = hexToRgb(hex).map((c) => {
+        const v = c / 255;
+        return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    for (const stop of [stops![1], stops![2]]) {
+      expect(1.05 / (luminance(stop) + 0.05), `white on ${stop}`).toBeGreaterThanOrEqual(4.5);
     }
   });
 

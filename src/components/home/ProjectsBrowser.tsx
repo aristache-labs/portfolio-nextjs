@@ -388,7 +388,7 @@ export function ProjectsBrowser({
                     whileTap={mode === "static" ? undefined : { scale: 0.98 }}
                     className={`${categoryCss.button} min-h-11 min-w-11 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
                       active
-                        ? "border-brand-bright/60 bg-(image:--gradient-brand) text-white"
+                        ? "border-brand-bright/60 bg-(image:--gradient-brand-action) text-white"
                         : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
                     }`}
                   >

@@ -8,6 +8,9 @@ import { ArrowDownToLine, MapPin } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ExperienceReveal } from "./ExperienceReveal";
+import { AboutReveal } from "./AboutReveal";
+import { HeadingWords } from "./HeadingWords";
+
 import { useTimelineEntrance } from "./useTimelineEntrance";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
@@ -578,18 +581,18 @@ export function Experience({
           data-compact={compact ? "" : undefined}
           className={`${styles.intro} landscape-short:sticky landscape-short:top-20 landscape-short:z-10 landscape-short:self-start relative min-w-0 lg:sticky lg:top-24 lg:z-10 lg:self-start`}
         >
-          <ExperienceReveal
-            mobile={portrait || landscape}
-            kind="title"
-            effect="fade"
-            className="mb-5"
-          >
-            <SectionLabel number={number} name="Experience" className={headingCss.label} />
+          <AboutReveal className="mb-5">
+            <SectionLabel
+              number={number}
+              name="Experience"
+              delayMs={300}
+              className={headingCss.label}
+            />
             {/* Same scale and weight as the About and Skills headings. */}
             <h2 className={headingCss.title}>
-              Where I&apos;ve <span className={headingCss.accent}>worked</span>
+              <HeadingWords lead="Where I've" accent="worked" />
             </h2>
-          </ExperienceReveal>
+          </AboutReveal>
           <div className={styles.subtitleFold}>
             <div>
               <ExperienceReveal

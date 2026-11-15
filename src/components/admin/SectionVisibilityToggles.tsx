@@ -95,7 +95,9 @@ export function SectionVisibilityToggles({
               <span
                 className={cn(
                   "grid size-9 shrink-0 place-items-center rounded-lg transition-colors",
-                  on ? "bg-(image:--gradient-brand) text-white" : "bg-foreground/10 text-muted",
+                  on
+                    ? "bg-(image:--gradient-brand-action) text-white"
+                    : "bg-foreground/10 text-muted",
                 )}
               >
                 <Icon className="size-4.5" aria-hidden />

@@ -60,3 +60,53 @@
     margin-bottom: 14px;
   }
 }
+
+/* One entrance for every section heading, as in About: the words rise out of a blur, then the accent
+   underline draws. AboutReveal marks the wrapper armed and then play when it scrolls into view. */
+.word {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* The label comes first, then the title and subtitle, so nothing shows ahead of its turn. */
+  [data-reveal="armed"] :is(.label, .word, .block) {
+    opacity: 0;
+  }
+
+  [data-reveal="armed"] .accent::after {
+    transform: scaleX(0);
+  }
+
+  [data-reveal="play"] :is(.word, .block) {
+    animation: heading-word-in 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(200ms + var(--i, 0) * 90ms);
+  }
+
+  [data-reveal="play"] .label {
+    animation: heading-label-in 400ms ease-out both;
+  }
+
+  [data-reveal="play"] .accent::after {
+    animation: heading-draw 700ms 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes heading-label-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes heading-draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes heading-word-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(0.45em);
+  }
+}

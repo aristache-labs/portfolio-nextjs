@@ -125,29 +125,4 @@ describe("Skills content identity", () => {
     expectSameNodes(serverNodes);
     expect(container.querySelector("[data-reveal=armed]")).toBeNull();
   });
-
-  it("clears the desktop Motion values before the mobile CSS entrance takes over", async () => {
-    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
-      top: 2000,
-      bottom: 2100,
-      left: 100,
-      right: 500,
-      width: 400,
-      height: 100,
-      x: 100,
-      y: 2000,
-      toJSON: () => ({}),
-    });
-    const { setProfile } = await mount("desktop");
-    const heading = container.querySelector("h2")!.parentElement!;
-    expect(heading).toHaveStyle({ opacity: "0" });
-    await act(async () => setProfile("portrait"));
-    await act(async () => {
-      await new Promise(requestAnimationFrame);
-      await new Promise(requestAnimationFrame);
-    });
-    expect(container.querySelector("h2")!.parentElement).toBe(heading);
-    expect(heading).toHaveStyle({ opacity: "1", transform: "none" });
-    expect(heading).toHaveAttribute("data-reveal", "armed");
-  });
 });

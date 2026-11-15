@@ -71,7 +71,7 @@ export default async function AdminDashboard() {
               href={c.href}
               className="border-border bg-surface hover:border-foreground/20 hover:bg-surface-2 flex flex-col gap-3 rounded-2xl border p-5 transition"
             >
-              <span className="grid size-9 place-items-center rounded-lg bg-(image:--gradient-brand) text-white">
+              <span className="grid size-9 place-items-center rounded-lg bg-(image:--gradient-brand-action) text-white">
                 <Icon className="size-4.5" aria-hidden />
               </span>
               <div>
@@ -90,7 +90,7 @@ export default async function AdminDashboard() {
         className="border-border bg-surface hover:border-foreground/20 hover:bg-surface-2 flex items-center justify-between gap-4 rounded-2xl border p-5 transition"
       >
         <div className="flex items-center gap-4">
-          <span className="grid size-10 place-items-center rounded-xl bg-(image:--gradient-brand) text-white">
+          <span className="grid size-10 place-items-center rounded-xl bg-(image:--gradient-brand-action) text-white">
             <User className="size-5" aria-hidden />
           </span>
           <div>

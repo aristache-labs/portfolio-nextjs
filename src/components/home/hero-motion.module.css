@@ -192,7 +192,7 @@
 
 .tagline {
   color: rgb(var(--brand-bright-rgb) / 0.65);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.18em;
   line-height: 1.8;
 }
@@ -285,7 +285,7 @@
 
   .tagline {
     font-size: 0.8125rem;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.05em;
   }
 }
 
@@ -695,7 +695,7 @@
     margin-bottom: 1rem;
     margin-inline: auto;
     text-align: center;
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.12em;
   }
 
@@ -718,7 +718,7 @@
     font-size: 0.8625rem;
     display: block;
     text-align: center;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.05em;
   }
 
   .actions {
@@ -879,7 +879,7 @@
 
   .specialization {
     margin-bottom: 0.75rem;
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
   }
 
   .headline {
@@ -1317,7 +1317,7 @@
 
   .tagline {
     text-align: left;
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.18em;
   }
 
@@ -1495,7 +1495,7 @@
 
   .tagline {
     font-size: 0.8125rem;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.05em;
   }
 }
 

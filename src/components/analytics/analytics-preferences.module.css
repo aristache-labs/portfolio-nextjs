@@ -75,7 +75,7 @@
   margin: 0 0 2px;
   color: rgb(var(--brand-bright-rgb) / 0.7);
   font-family: var(--font-geist-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.25em;
   line-height: 12px;
   text-transform: uppercase;
@@ -229,7 +229,7 @@
 /* The confirming action: the hero's primary gradient, shifted on hover like Button primary. */
 .primary {
   border-color: rgb(var(--brand-bright-rgb) / 0.35);
-  background: var(--gradient-brand) 0% 50% / 160% 160%;
+  background: var(--gradient-brand-action) 0% 50% / 160% 160%;
   color: #fff;
   font-weight: 600;
   box-shadow:
@@ -244,7 +244,7 @@
 
 .primary:hover {
   border-color: rgb(var(--brand-bright-rgb) / 0.6);
-  background: var(--gradient-brand) 90% 50% / 160% 160%;
+  background: var(--gradient-brand-action) 90% 50% / 160% 160%;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.22),
     0 10px 28px -8px rgb(var(--brand-mid-rgb) / 0.75);

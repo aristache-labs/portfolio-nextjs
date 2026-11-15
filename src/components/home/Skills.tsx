@@ -12,6 +12,9 @@ import { SkillEntrance, SolidSkillEntrance } from "./SkillEntrance";
 import { SkillsMarquee } from "./SkillsMarquee";
 import { SkillSlot, SkillsScene } from "./SkillsSequence";
 import { SkillsGridReveal, SkillsReveal } from "./SkillsReveal";
+import { AboutReveal } from "./AboutReveal";
+import { HeadingWords } from "./HeadingWords";
+
 import { SectionBackdrop, TABLET_LANDSCAPE_QUERY } from "./SectionBackdrop";
 import responsiveCss from "./skills-responsive.module.css";
 import { SectionLabel } from "@/components/ui/SectionLabel";
@@ -231,26 +234,20 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           <div className={`${responsiveCss.split} lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6`}>
             <div aria-hidden className="hidden lg:block" />
             <div className={`${responsiveCss.heading} min-w-0 text-left`}>
-              <SkillsReveal
-                mobile={mobile}
-                kind="title"
-                effect="focus"
-                duration={1.3}
-                delay={0.4}
-                className={responsiveCss.title}
-              >
+              <AboutReveal className={responsiveCss.title}>
                 <SectionLabel
                   as="div"
                   number={number}
                   name="Skills"
+                  delayMs={300}
                   className={`${responsiveCss.sectionLabel} ${headingCss.label}`}
                   data-scroll-anchor
                 />
 
                 <h2 className={headingCss.title}>
-                  Tools I <span className={headingCss.accent}>trust</span>
+                  <HeadingWords lead="Tools I" accent="trust" />
                 </h2>
-              </SkillsReveal>
+              </AboutReveal>
               <aside className={responsiveCss.quoteAnchor}>
                 <SkillsReveal
                   mobile={mobile}
@@ -348,7 +345,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                                     ? { duration: 0 }
                                     : { type: "spring", visualDuration: 0.45, bounce: 0.2 }
                                 }
-                                className="border-brand-bright/60 absolute -inset-px rounded-full border bg-(image:--gradient-brand)"
+                                className="border-brand-bright/60 absolute -inset-px rounded-full border bg-(image:--gradient-brand-action)"
                               />
                             )}
                             <span className="relative">{value}</span>

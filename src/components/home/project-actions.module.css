@@ -21,7 +21,7 @@
   .actions a,
   .actions button {
     padding: 5px 7px;
-    font-size: 10px;
+    font-size: 11px;
   }
   .actions a > span,
   .actions button > span {
@@ -77,7 +77,7 @@
     gap: 4px;
   }
   .featuredHeading > div > span {
-    font-size: 10px;
+    font-size: 11px;
     padding: 3px 6px;
   }
   .featuredHeading > div > span:nth-child(n + 3) {
@@ -126,7 +126,7 @@
     gap: 4px;
   }
   .featuredHeading > div > span {
-    font-size: 10px;
+    font-size: 11px;
     padding: 3px 6px;
   }
   .featuredHeading > div > span:nth-child(n + 3) {
@@ -170,7 +170,7 @@
     height: 12px;
   }
   .actions.recent time {
-    font-size: 10px;
+    font-size: 11px;
     padding: 3px 5px;
   }
 }

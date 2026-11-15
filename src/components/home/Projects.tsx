@@ -1,5 +1,8 @@
+import type { CSSProperties } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { ProjectsArrival } from "./ProjectsArrival";
+import { AboutReveal } from "./AboutReveal";
+import { HeadingWords } from "./HeadingWords";
 import motionCss from "./project-motion.module.css";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { Section } from "@/components/ui/Section";
@@ -27,24 +30,30 @@ export function Projects({
 }) {
   // The heading lives inside the browser so the Building now card can sit beside it.
   const header = (
-    <ProjectsArrival kind="heading" effect="slide" className={layoutCss.sectionHeading}>
+    <AboutReveal className={layoutCss.sectionHeading}>
       <div
         className={`${layoutCss.headingRow} mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between`}
       >
         {/* Same scale and weight as the About, Skills and Experience headings. */}
         <div className={layoutCss.headingText}>
-          <SectionLabel number={number} name="Projects" className={headingCss.label} />
+          <SectionLabel
+            number={number}
+            name="Projects"
+            delayMs={300}
+            className={headingCss.label}
+          />
           <h2 className={headingCss.title}>
-            Selected <span className={headingCss.accent}>Projects</span>
+            <HeadingWords lead="Selected" accent="Projects" />
           </h2>
         </div>
       </div>
       <p
-        className={`${layoutCss.headingDescription} ${subtitleCss.subtitle} mb-10 max-w-2xl text-pretty lg:mb-6`}
+        style={{ "--i": 3 } as CSSProperties}
+        className={`${layoutCss.headingDescription} ${subtitleCss.subtitle} ${headingCss.block} mb-10 max-w-2xl text-pretty lg:mb-6`}
       >
         Web and mobile applications, infrastructure projects and automation tools.
       </p>
-    </ProjectsArrival>
+    </AboutReveal>
   );
 
   return (

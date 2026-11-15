@@ -116,7 +116,7 @@ function Tags({ project }: { project: MergedProject }) {
       {project.tags.map((tag) => (
         <span
           key={tag}
-          className="border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[10px] leading-tight"
+          className="border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[11px] leading-tight"
         >
           {tag}
         </span>
@@ -179,7 +179,7 @@ function Actions({
         </Button>
       )}
       {compact && (
-        <span className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[10px] tracking-[0.04em] uppercase">
+        <span className="text-muted ml-auto shrink-0 rounded-md border border-white/10 bg-white/3 px-2 py-1 text-[11px] tracking-[0.04em] uppercase">
           {("hasLive" in project ? project.hasLive : project.homepage)
             ? "Released"
             : "In development"}
@@ -302,7 +302,7 @@ export function RecentCard({
                     )
                   : project.tags[1]) && (
                   <span
-                    className={`${actionStyles.recentExtraTag} border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[10px] leading-tight`}
+                    className={`${actionStyles.recentExtraTag} border-border text-muted rounded-full border bg-(--chip-surface) px-1.5 py-0.5 text-[11px] leading-tight`}
                   >
                     {project.language
                       ? project.tags.find(

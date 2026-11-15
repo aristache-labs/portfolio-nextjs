@@ -297,7 +297,7 @@ describe("Skills", () => {
 
   it("renders section heading", () => {
     render(<Skills skills={mockSkills} />);
-    expect(screen.getByText("Tools I")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Tools I trust" })).toBeInTheDocument();
     expect(screen.getByText("trust")).toBeInTheDocument();
     expect(screen.getByText(/Infrastructure on one side/)).toBeInTheDocument();
     expect(screen.getByText(/Tools evolve\./).closest("blockquote")).toHaveTextContent(
@@ -390,7 +390,7 @@ describe("Skills", () => {
 
   it("renders an empty state gracefully", () => {
     render(<Skills skills={[]} />);
-    expect(screen.getByText("Tools I")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Tools I trust" })).toBeInTheDocument();
   });
 });
 

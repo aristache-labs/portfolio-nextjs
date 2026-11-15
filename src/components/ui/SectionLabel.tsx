@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type CSSProperties } from "react";
 import { useEntranceOnce } from "@/hooks/useEntranceOnce";
 import labelCss from "./section-label.module.css";
 
@@ -9,29 +9,33 @@ const BEAM_PLAY_MS = 2000;
 
 /**
  * The "01 ABOUT" line above a section title. A laser runs under it once, the first time it comes
- * properly into view, lights the letters and leaves the separator behind.
+ * properly into view, lights the letters and leaves the separator behind. `delayMs` holds the beam
+ * back while a reveal around the label is still fading it in, so the letters light up in view.
  */
 export function SectionLabel({
   number,
   name,
   className = "",
   as: Tag = "p",
+  delayMs = 0,
   "data-scroll-anchor": scrollAnchor,
 }: {
   number: string;
   name: string;
   className?: string;
   as?: "p" | "div";
+  delayMs?: number;
   "data-scroll-anchor"?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
-  useEntranceOnce(ref, true, "beam", BEAM_PLAY_MS);
+  useEntranceOnce(ref, true, "beam", BEAM_PLAY_MS + delayMs);
 
   return (
     <Tag
       ref={ref as never}
       className={`${labelCss.label} ${className}`}
       data-scroll-anchor={scrollAnchor}
+      style={delayMs ? ({ "--beam-delay": `${delayMs}ms` } as CSSProperties) : undefined}
     >
       <span className={labelCss.number}>{number}</span>
       <span>{name}</span>
