@@ -1149,7 +1149,7 @@
    the compact padding and grid exactly as they are. */
 @media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] {
-    min-height: calc(100svh + 87svh);
+    min-height: calc(100svh + 125svh);
   }
 
   .hero[data-touch-scene] + :global(#about) {
@@ -1724,12 +1724,12 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .primaryAction {
+  .actions {
     --cta-layer-duration: 1050ms;
     --cta-layer-ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .hero[data-cta-expanding] .primaryAction,
+  .hero[data-cta-expanding] .actions,
   .primaryAction:focus-visible {
     --cta-layer-duration: 550ms;
     --cta-layer-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -1887,23 +1887,19 @@
 }
 
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  /* The two actions sit together at rest. The callouts beside the first one need room, so the
-     second slides over only while they show. */
-  .actionFirst:hover,
-  .actionFirst:focus-within {
-    margin-right: 94px;
-  }
-
   .buttonAnnotations {
     display: block;
   }
 }
 
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  /* Only the property list: the wrapper's utility classes already set the duration and easing for
-     its magnetic transform, and a `transition` shorthand here would replace them. */
-  .actionFirst {
-    transition-property: transform, margin-right;
+  .actions:has(.primaryAction:is(:hover, :focus-visible)) {
+    --cta-layer-duration: 550ms;
+    --cta-layer-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .actions:has(.primaryAction:is(:hover, :focus-visible)) .actionSecond {
+    translate: 94px 0;
   }
 }
 
@@ -1955,17 +1951,16 @@
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .actionSecond .contactAction {
-    transition-property:
-      transform, box-shadow, background-color, background-position, border-color, color, opacity,
-      visibility;
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference),
+  (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
+  .actionSecond {
+    transition-property: transform, translate;
+    transition-duration: 550ms, var(--cta-layer-duration);
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1), var(--cta-layer-ease);
   }
 
-  .hero[data-cta-expanding] .actionSecond:not(:focus-within) .contactAction {
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
+  .hero[data-cta-expanding] .actionSecond {
+    translate: 94px 0;
   }
 }
 
