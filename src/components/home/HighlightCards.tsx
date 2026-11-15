@@ -201,21 +201,32 @@ export function FeaturedCard({
         {description && <p className={layoutStyles.heroText}>{description}</p>}
         <ProjectComponents project={project} />
         <div className={layoutStyles.heroActions}>
-          {project.homepage ? (
-            <Button
-              href={project.homepage}
-              aria-label={`Live site for ${project.title}`}
-              variant="ghost"
-              size="sm"
-              target="_blank"
-              rel="noopener noreferrer"
-              leftIcon={<ExternalLink size={15} aria-hidden />}
+          <div className={layoutStyles.heroLinks}>
+            {/* Touch and narrow screens: View joins the row; the poster stays the accessible "View". */}
+            <button
+              type="button"
+              className={layoutStyles.heroRowView}
+              tabIndex={-1}
+              aria-hidden
+              onClick={onQuickView}
             >
-              <span className={layoutStyles.heroLabel}>Live</span>
-            </Button>
-          ) : (
-            <span />
-          )}
+              <Maximize2 size={13} />
+              View
+            </button>
+            {project.homepage && (
+              <Button
+                href={project.homepage}
+                aria-label={`Live site for ${project.title}`}
+                variant="ghost"
+                size="sm"
+                target="_blank"
+                rel="noopener noreferrer"
+                leftIcon={<ExternalLink size={15} aria-hidden />}
+              >
+                <span className={layoutStyles.heroLabel}>Live</span>
+              </Button>
+            )}
+          </div>
           <div className={layoutStyles.heroLinks}>
             {link("", "Code", <CodeXml size={15} aria-hidden />)}
             {link(

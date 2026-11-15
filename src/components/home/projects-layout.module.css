@@ -1285,7 +1285,28 @@
 
 .heroLinks {
   display: flex;
+  align-items: center;
   gap: 2px;
+}
+
+.heroRowView {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  margin-right: 4px;
+  padding: 2px 10px;
+  border-radius: 6px;
+  background: var(--gradient-brand-action);
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Below desktop hover the row is View + Live on the left, Code + Issues on the right. */
+.heroPulls {
+  display: none;
 }
 
 .heroActions a {
@@ -1308,7 +1329,6 @@
 }
 
 @container (max-width: 400px) {
-  .heroIssues .heroLabel,
   .heroPulls .heroLabel {
     display: none;
   }
@@ -1324,6 +1344,14 @@
   .heroCard {
     gap: 0;
     padding: 0;
+  }
+
+  .heroRowView {
+    display: none;
+  }
+
+  .heroPulls {
+    display: inline-flex;
   }
 
   /* One or three cards: the poster keeps its ratio and sets the card height. */
