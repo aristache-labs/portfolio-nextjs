@@ -1717,35 +1717,49 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .primaryAction {
+    --cta-layer-duration: 850ms;
+  }
+
+  .hero[data-cta-expanding] .primaryAction,
+  .primaryAction:focus-visible {
+    --cta-layer-duration: 550ms;
+  }
+
   .buttonFoundation,
   .buttonSurface,
   .buttonLid,
   .buttonGuides,
   .buttonLabel {
     transition:
-      transform 550ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform var(--cta-layer-duration) cubic-bezier(0.22, 1, 0.36, 1),
       opacity 350ms ease,
       color 350ms ease;
   }
 
+  .hero[data-cta-expanding] .primaryAction .buttonFoundation,
   .primaryAction:focus-visible .buttonFoundation {
-    transform: translateY(22px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(25px) rotateX(48deg) rotateZ(-10deg);
   }
 
+  .hero[data-cta-expanding] .primaryAction .buttonSurface,
   .primaryAction:focus-visible .buttonSurface {
-    transform: translateY(8px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(10px) rotateX(48deg) rotateZ(-10deg);
   }
 
+  .hero[data-cta-expanding] .primaryAction .buttonLabel,
   .primaryAction:focus-visible .buttonLabel {
-    transform: translateY(-10px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(-12px) rotateX(48deg) rotateZ(-10deg);
     color: var(--brand-bright);
   }
 
+  .hero[data-cta-expanding] .primaryAction .buttonLid,
   .primaryAction:focus-visible .buttonLid {
     opacity: 1;
-    transform: translateY(-32px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(-37px) rotateX(48deg) rotateZ(-10deg);
   }
 
+  .hero[data-cta-expanding] .primaryAction .buttonGuides,
   .primaryAction:focus-visible .buttonGuides {
     opacity: 1;
     transform: rotateX(48deg) rotateZ(-10deg);
@@ -1753,22 +1767,26 @@
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .primaryAction:hover {
+    --cta-layer-duration: 550ms;
+  }
+
   .primaryAction:hover .buttonFoundation {
-    transform: translateY(22px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(25px) rotateX(48deg) rotateZ(-10deg);
   }
 
   .primaryAction:hover .buttonSurface {
-    transform: translateY(8px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(10px) rotateX(48deg) rotateZ(-10deg);
   }
 
   .primaryAction:hover .buttonLabel {
-    transform: translateY(-10px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(-12px) rotateX(48deg) rotateZ(-10deg);
     color: var(--fg);
   }
 
   .primaryAction:hover .buttonLid {
     opacity: 1;
-    transform: translateY(-32px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(-37px) rotateX(48deg) rotateZ(-10deg);
   }
 
   .primaryAction:hover .buttonGuides {
@@ -1804,7 +1822,7 @@
 .buttonAnnotations > span {
   position: absolute;
   left: 0;
-  transform: translateY(calc(-44px + var(--layer-index) * 19px));
+  transform: translateY(calc(-49px + var(--layer-index) * 22px));
 }
 
 .buttonAnnotations > span::before {
@@ -1832,14 +1850,16 @@
   .buttonAnnotations {
     transition:
       opacity 350ms ease,
-      transform 550ms cubic-bezier(0.22, 1, 0.36, 1);
+      transform var(--cta-layer-duration) cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  .hero[data-cta-expanding] .primaryAction .buttonShadow,
   .primaryAction:focus-visible .buttonShadow {
     opacity: 1;
-    transform: translateY(38px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(43px) rotateX(48deg) rotateZ(-10deg);
   }
 
+  .hero[data-cta-expanding] .primaryAction .buttonAnnotations,
   .primaryAction:focus-visible .buttonAnnotations {
     opacity: 1;
   }
@@ -1848,7 +1868,7 @@
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .primaryAction:hover .buttonShadow {
     opacity: 1;
-    transform: translateY(38px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(43px) rotateX(48deg) rotateZ(-10deg);
   }
 
   .primaryAction:hover .buttonAnnotations {
@@ -1874,6 +1894,63 @@
      its magnetic transform, and a `transition` shorthand here would replace them. */
   .actionFirst {
     transition-property: transform, margin-right;
+  }
+}
+
+@media (max-width: 679px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+  (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
+  .buttonAnnotations {
+    display: block;
+    left: calc(100% + 14px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .actions,
+  .secondaryLinks {
+    transition: translate 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero[data-cta-expanding] .actions {
+    translate: 0 var(--cta-drop, 20px);
+  }
+
+  .hero[data-cta-expanding] .secondaryLinks {
+    translate: 0 calc(var(--cta-drop, 20px) + 16px);
+  }
+}
+
+@media (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    --cta-drop: 28px;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  .hero {
+    --cta-drop: 36px;
+  }
+
+  .scrollCue {
+    transition: translate 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero[data-cta-expanding] .scrollCue {
+    translate: 0 64px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .actionSecond .contactAction {
+    transition-property:
+      transform, box-shadow, background-color, background-position, border-color, color, opacity,
+      visibility;
+  }
+
+  .hero[data-cta-expanding] .actionSecond:not(:focus-within) .contactAction {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
   }
 }
 
