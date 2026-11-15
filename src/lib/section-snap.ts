@@ -75,9 +75,20 @@ export function settleOnNearestSection(touch = false): (() => void) | null {
   for (const id of SNAP_SECTION_IDS) {
     const element = document.getElementById(id);
     // A section that has not rendered yet (zero height) has no real start to settle on.
-    if (!element || element.getBoundingClientRect().height <= 0) continue;
+    const height = element?.getBoundingClientRect().height ?? 0;
+    if (!element || height <= 0) continue;
+    const position = sectionScrollPosition(element);
+    // A section only a little taller than the screen would pull back from its last few pixels
+    // every time, so its bottom could never be reached. Pulls from above its start are skipped.
+    const overflow = height - window.innerHeight;
+    if (
+      position < window.scrollY &&
+      overflow > 0 &&
+      overflow <= snapDistance(window.innerHeight, touch)
+    )
+      continue;
     elements.set(id, element);
-    candidates.push({ id, position: sectionScrollPosition(element) });
+    candidates.push({ id, position });
   }
   const target = pickSnapTarget(candidates, window.scrollY, window.innerHeight, touch);
   const element = target ? elements.get(target.id) : undefined;

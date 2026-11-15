@@ -337,6 +337,14 @@ test.describe("Short Fold About and Skills remain reachable after menu navigatio
         test.skip(!(await link.count()), `${id} is hidden in site settings`);
         await link.tap();
         await page.waitForTimeout(2600);
+        // The landing keeps correcting while a late section settles; scrolling earlier is overridden.
+        await expect
+          .poll(async () => {
+            const before = await page.evaluate(() => scrollY);
+            await page.waitForTimeout(600);
+            return before === (await page.evaluate(() => scrollY));
+          })
+          .toBe(true);
         const bottom = await page.evaluate((sectionId) => {
           const section = document.getElementById(sectionId)!;
           const last = section.querySelector<HTMLElement>(
@@ -352,9 +360,11 @@ test.describe("Short Fold About and Skills remain reachable after menu navigatio
         }, id);
         const last = sectionLast(page, id);
         if (await last.count())
-          await last.evaluate((node) =>
-            node.scrollIntoView({ block: "center", behavior: "instant" }),
-          );
+          // scrollBy, not scrollIntoView: Lenis follows scrollBy and would pull the page back from a native jump.
+          await last.evaluate((node) => {
+            const box = node.getBoundingClientRect();
+            scrollBy({ top: box.top + box.height / 2 - innerHeight / 2, behavior: "instant" });
+          });
         if (id === "about") {
           const readResults = () =>
             page.evaluate(() => {
