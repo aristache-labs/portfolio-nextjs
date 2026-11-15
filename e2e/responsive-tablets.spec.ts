@@ -338,13 +338,7 @@ test.describe("Short Fold About and Skills remain reachable after menu navigatio
         await link.tap();
         await page.waitForTimeout(2600);
         // The landing keeps correcting while a late section settles; scrolling earlier is overridden.
-        await expect
-          .poll(async () => {
-            const before = await page.evaluate(() => scrollY);
-            await page.waitForTimeout(600);
-            return before === (await page.evaluate(() => scrollY));
-          })
-          .toBe(true);
+        await scrollIdle(page);
         const bottom = await page.evaluate((sectionId) => {
           const section = document.getElementById(sectionId)!;
           const last = section.querySelector<HTMLElement>(
@@ -879,6 +873,17 @@ test.describe("About biography touch target", () => {
   }
 });
 
+/** A native jump can start the touch settle glide, which drags the page back if another jump interrupts it. */
+async function scrollIdle(page: Page) {
+  await expect
+    .poll(async () => {
+      const before = await page.evaluate(() => scrollY);
+      await page.waitForTimeout(600);
+      return before === (await page.evaluate(() => scrollY));
+    })
+    .toBe(true);
+}
+
 async function open(page: Page, width: number, height: number) {
   await page.addInitScript(() => {
     // Keep the consent banner out of the way; it is not what these specs measure.
@@ -1019,6 +1024,7 @@ for (const hasTouch of [true, false]) {
             continue;
           }
           await section.scrollIntoViewIfNeeded();
+          await scrollIdle(page);
           await expect(section).toBeVisible();
           await expect
             .poll(() =>
@@ -1042,6 +1048,7 @@ for (const hasTouch of [true, false]) {
             const tabs = section.getByRole("tab");
             if ((await tabs.count()) > 1) {
               await tabs.nth(1).scrollIntoViewIfNeeded();
+              await scrollIdle(page);
               await page.evaluate(
                 () =>
                   new Promise<void>((resolve) =>
