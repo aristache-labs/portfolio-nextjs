@@ -131,7 +131,7 @@ function Actions({
           rel="noopener noreferrer"
           leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
         >
-          Live
+          <span className={actionStyles.liveLabel}>Live</span>
         </Button>
       )}
     </div>
@@ -166,7 +166,9 @@ export function FeaturedCard({
         className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:items-stretch lg:gap-3 lg:p-2`}
       >
         <CardBorderGlow />
-        <Frame className="aspect-[4/3] w-[38%] max-w-56 shrink-0 lg:w-[58%] lg:max-w-none lg:self-center">
+        <Frame
+          className={`${layoutStyles.asideMedia} aspect-[4/3] w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center`}
+        >
           <Cover project={project} sizes={COMPACT_COVER_SIZES} />
         </Frame>
         {/* The whole block (title, description, actions) is centred next to the poster at its natural height. */}
@@ -185,30 +187,32 @@ export function FeaturedCard({
       </article>
     );
   return (
-    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-2.5 p-3`}>
+    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-4 p-3`}>
       <CardBorderGlow />
-      <Frame className={`${layoutStyles.heroFrame} aspect-[2/1] w-full`}>
+      <Frame className={`${layoutStyles.heroFrame} aspect-[2/1] w-full flex-1`}>
         <Cover project={project} sizes={HERO_COVER_SIZES} loading={eager ? "eager" : "lazy"} />
       </Frame>
-      <div className="flex flex-1 flex-col px-1 pb-1">
-        <h3 className="text-xl leading-snug font-semibold break-words lg:text-xl">
-          {project.title}
-        </h3>
+      <div className="flex shrink-0 flex-col px-1 pb-1">
+        <h3 className="text-xl leading-snug font-semibold break-words">{project.title}</h3>
         {heroDescription && (
-          <p className="text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty">
+          <p
+            className={`${layoutStyles.heroText} text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty`}
+          >
             {heroDescription}
           </p>
         )}
         <ProjectComponents project={project} />
-        <div className="mt-auto">
-          <Actions project={project} onQuickView={onQuickView} />
-        </div>
+        <Actions project={project} onQuickView={onQuickView} />
       </div>
     </article>
   );
 }
 
-/** Horizontal card: compact framed preview, then title, metadata and a visible action. */
+/**
+ * Horizontal card sized by its own width (container query). Wide: thumbnail, title and metadata
+ * grouped beside it, actions on the right, both centred. Narrow: the actions drop below the
+ * metadata, aligned with the title.
+ */
 export function RecentCard({
   project,
   onQuickView,
@@ -223,19 +227,26 @@ export function RecentCard({
     .filter(Boolean)
     .join(" · ");
   return (
-    <article className={`${layoutStyles.recentCard} ${SHELL} flex items-center gap-3 p-3 sm:p-3.5`}>
-      <CardBorderGlow />
-      <Frame className="aspect-[4/3] w-24 shrink-0 sm:w-36">
+    <article
+      className={`${layoutStyles.recentCard} ${SHELL} @container grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 border-white/5! p-3 sm:p-3.5 @[34rem]:grid-cols-[auto_minmax(0,1fr)_auto] @[34rem]:gap-x-4`}
+    >
+      <CardBorderGlow variant="subtle" />
+      <Frame className="row-span-2 aspect-[4/3] w-[5.25rem] self-center @[34rem]:row-span-1 @[34rem]:w-36">
         <Cover project={project} sizes={COMPACT_COVER_SIZES} />
       </Frame>
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="min-w-0">
         <h3 title={project.title} className="truncate text-[15px] leading-snug font-semibold">
           {project.title}
         </h3>
-        {meta && <p className="text-muted mt-0.5 truncate text-xs">{meta}</p>}
+        {meta && <p className="text-muted mt-1.5 truncate text-xs">{meta}</p>}
         <ProjectComponents project={project} />
-        <Actions project={project} onQuickView={onQuickView} compact />
       </div>
+      <Actions
+        project={project}
+        onQuickView={onQuickView}
+        compact
+        spacing="col-start-2 mt-3 @[34rem]:col-start-3 @[34rem]:row-start-1 @[34rem]:mt-0 @[34rem]:flex-nowrap @[34rem]:self-center"
+      />
     </article>
   );
 }
