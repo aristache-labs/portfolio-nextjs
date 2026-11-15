@@ -1,10 +1,18 @@
 "use client";
 
-import { cardDescription, pushedLabel } from "@/lib/project-presentation";
+import { cardDescription, pushedLabel, type ProjectPresentation } from "@/lib/project-presentation";
 import { ProjectComponents } from "./ProjectComponents";
 import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 
-import type { MouseEventHandler, ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type MouseEventHandler,
+  type ReactNode,
+} from "react";
 
 import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
@@ -12,7 +20,15 @@ import layoutStyles from "./projects-layout.module.css";
 
 import Image from "next/image";
 import { useProjectCoversReady } from "./ProjectCoverGate";
-import { ExternalLink, Github, Maximize2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Github,
+  Maximize2,
+  Pause,
+  Play,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
 import { COMPACT_PROJECT_ACTION, GLASS_CARD } from "./project-styles";
@@ -172,7 +188,9 @@ export function FeaturedCard({
           <Cover project={project} sizes={COMPACT_COVER_SIZES} />
         </Frame>
         {/* The whole block (title, description, actions) is centred next to the poster at its natural height. */}
-        <div className="flex min-w-0 flex-1 flex-col justify-center lg:pr-1.5">
+        <div
+          className={`${layoutStyles.featuredDetails} flex min-w-0 flex-1 flex-col justify-center lg:pr-1.5`}
+        >
           <h3 className="line-clamp-2 text-base leading-snug font-semibold break-words lg:text-lg">
             {project.title}
           </h3>
@@ -192,7 +210,7 @@ export function FeaturedCard({
       <Frame className={`${layoutStyles.heroFrame} aspect-[2/1] w-full flex-1`}>
         <Cover project={project} sizes={HERO_COVER_SIZES} loading={eager ? "eager" : "lazy"} />
       </Frame>
-      <div className="flex shrink-0 flex-col px-1 pb-1">
+      <div className={`${layoutStyles.featuredDetails} flex shrink-0 flex-col px-1 pb-1`}>
         <h3 className="text-xl leading-snug font-semibold break-words">{project.title}</h3>
         {heroDescription && (
           <p
@@ -205,6 +223,171 @@ export function FeaturedCard({
         <Actions project={project} onQuickView={onQuickView} />
       </div>
     </article>
+  );
+}
+
+export function FeaturedShowcase({
+  projects,
+  label,
+  reducedMotion,
+  onQuickView,
+}: {
+  projects: ProjectPresentation[];
+  label: ReactNode;
+  reducedMotion: boolean;
+  onQuickView: (project: ProjectPresentation, event: MouseEvent<HTMLButtonElement>) => void;
+}) {
+  const track = useRef<HTMLDivElement>(null);
+  const settleTimer = useRef<number | undefined>(undefined);
+  const [active, setActive] = useState(0);
+  const [settledSlide, setSettledSlide] = useState<number | null>(null);
+  const [inView, setInView] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const autoplay = !reducedMotion && !paused && projects.length > 1;
+
+  useEffect(() => () => window.clearTimeout(settleTimer.current), []);
+
+  const moveTo = useCallback(
+    (index: number, instant = reducedMotion) => {
+      const element = track.current;
+      if (!element || index < 0 || index >= projects.length) return;
+      element.scrollTo({
+        left: index * element.clientWidth,
+        behavior: instant ? "instant" : "smooth",
+      });
+    },
+    [projects.length, reducedMotion],
+  );
+
+  useEffect(() => {
+    if (!track.current || typeof IntersectionObserver !== "function") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.intersectionRatio >= 0.6),
+      { threshold: 0.6 },
+    );
+    observer.observe(track.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!autoplay || !inView) return;
+    const timer = window.setInterval(() => {
+      if (document.hidden) return;
+      const next = (active + 1) % projects.length;
+      moveTo(next, next === 0);
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [active, autoplay, inView, moveTo, projects.length]);
+
+  function navigate(index: number) {
+    setPaused(true);
+    moveTo(index);
+  }
+
+  return (
+    <div role="region" aria-label="Featured projects">
+      <div className={layoutStyles.showcaseHeader}>
+        {label}
+        {projects.length > 1 && (
+          <div className={layoutStyles.showcaseControls}>
+            <span role="status" aria-live={autoplay ? "off" : "polite"}>
+              {active + 1} / {projects.length}
+              <span className="sr-only"> {projects[active]?.title}</span>
+            </span>
+            {!reducedMotion && (
+              <Button
+                variant="secondary"
+                size="sm"
+                aria-label={paused ? "Play featured projects" : "Pause featured projects"}
+                onClick={() => setPaused(!paused)}
+              >
+                {paused ? <Play size={15} aria-hidden /> : <Pause size={15} aria-hidden />}
+              </Button>
+            )}
+            <Button
+              variant="secondary"
+              size="sm"
+              aria-label="Previous featured project"
+              aria-disabled={active === 0}
+              onFocus={() => setPaused(true)}
+              onClick={() => navigate(active - 1)}
+            >
+              <ChevronLeft size={18} aria-hidden />
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              aria-label="Next featured project"
+              aria-disabled={active === projects.length - 1}
+              onFocus={() => setPaused(true)}
+              onClick={() => navigate(active + 1)}
+            >
+              <ChevronRight size={18} aria-hidden />
+            </Button>
+          </div>
+        )}
+      </div>
+      <div
+        ref={track}
+        className={layoutStyles.showcaseTrack}
+        onPointerDown={() => setPaused(true)}
+        onFocusCapture={() => setPaused(true)}
+        onScroll={({ currentTarget }) => {
+          const { scrollLeft, clientWidth } = currentTarget;
+          const index = Math.max(
+            0,
+            Math.min(projects.length - 1, Math.round(scrollLeft / clientWidth)),
+          );
+          if (index !== active) setActive(index);
+          if (reducedMotion) return;
+
+          window.clearTimeout(settleTimer.current);
+          settleTimer.current = window.setTimeout(() => {
+            setSettledSlide((previous) => (previous === null && index === 0 ? null : index));
+          }, 100);
+        }}
+      >
+        {projects.map((project, index) => {
+          const description = cardDescription(project);
+          return (
+            <div key={project.id} className={layoutStyles.showcaseSlide} inert={index !== active}>
+              <article className={`${SHELL} ${layoutStyles.showcaseCard}`}>
+                <Frame className={layoutStyles.showcaseMedia}>
+                  <Cover project={project} sizes="60vw" loading={index === 0 ? "eager" : "lazy"} />
+                </Frame>
+                <div className={layoutStyles.showcaseCopy}>
+                  <div
+                    className={layoutStyles.showcaseText}
+                    data-awaiting-rise={
+                      !reducedMotion && index !== (settledSlide ?? 0) ? "" : undefined
+                    }
+                    data-rise={!reducedMotion && settledSlide === index ? "" : undefined}
+                  >
+                    {(project.category || project.language) && (
+                      <p className={layoutStyles.showcaseCategory}>
+                        {project.category || project.language}
+                      </p>
+                    )}
+                    <h3>{project.title}</h3>
+                    {description && (
+                      <p className={layoutStyles.showcaseDescription}>{description}</p>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={(event) => onQuickView(project, event)}
+                    aria-label={`View ${project.title}`}
+                    leftIcon={<Maximize2 size={14} aria-hidden />}
+                  >
+                    View project
+                  </Button>
+                </div>
+              </article>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 

@@ -387,10 +387,7 @@
   }
 }
 
-/* Phone landscape (short screens): Featured is a row you can swipe of equal cards, two visible at a
-   time with a sliver of the third showing so it reads as scrollable. Each card keeps its poster on
-   top and the title and actions below, which keeps the group short. Recently updated goes to two
-   columns once the column (after padding and safe-area insets) is wide enough for readable text. */
+/* Use the available content width for the landscape Recently updated columns. */
 .column {
   container-type: inline-size;
 }
@@ -420,80 +417,126 @@
   }
 }
 
+.showcaseHeader,
+.showcaseControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.showcaseHeader {
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.showcaseHeader .groupTitle {
+  margin: 0;
+}
+
+.showcaseControls {
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.showcaseControls > button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+.showcaseControls > button[aria-disabled="true"] {
+  opacity: 0.45;
+}
+
+.showcaseTrack {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.showcaseSlide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.showcaseCard {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: clamp(12px, 3vw, 28px);
+  min-height: clamp(212px, 64svh, 280px);
+  padding: 14px;
+}
+
+.showcaseMedia img {
+  object-fit: contain;
+}
+
+.showcaseCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-block: 8px;
+  overflow-wrap: anywhere;
+}
+
+.showcaseCopy > button {
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+.showcaseCategory {
+  color: var(--brand-bright);
+  font-size: 13px;
+}
+
+.showcaseText h3 {
+  margin-top: 4px;
+  font-size: clamp(19px, 3vw, 28px);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.showcaseDescription {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .showcaseText[data-awaiting-rise] :is(h3, .showcaseDescription) {
+    opacity: 0;
+  }
+
+  .showcaseText[data-rise] h3 {
+    animation: contentRise 380ms ease-out both;
+  }
+
+  .showcaseText[data-rise] .showcaseDescription {
+    animation: contentRise 380ms ease-out 65ms both;
+  }
+}
+
+@keyframes contentRise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (orientation: landscape) and (max-height: 500px) {
-  .featuredGrid {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-  }
-
-  .featuredGrid::-webkit-scrollbar {
-    display: none;
-  }
-
-  .heroSlot,
-  .asideSlot {
-    flex: 0 0 calc((100% - 12px) / 2);
-    scroll-snap-align: start;
-  }
-
-  /* Two cards and a preview of the third are visible on load. */
-  .featuredGrid[data-count="3"] > * {
-    flex-basis: calc((100% - 24px) / 2.28);
-  }
-
-  /* End space, so the last card can scroll fully into view with a gutter. */
-  .featuredGrid[data-count="3"]::after {
-    content: "";
-    flex: 0 0 0;
-  }
-
-  .featuredCard {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    padding: 12px;
-  }
-
-  .heroFrame,
-  .asideMedia {
-    flex: none;
-    align-self: stretch;
-    width: 100%;
-    max-width: none;
-    height: auto;
-    aspect-ratio: 2.5 / 1;
-  }
-
-  .heroFrame img,
-  .asideMedia img {
-    object-fit: contain;
-  }
-
-  .heroFrame + div,
-  .asideMedia + div {
-    padding: 0;
-  }
-
-  .heroText,
-  .asideMedia + div > p {
-    display: none;
-  }
-
-  .heroSlot h3,
-  .asideSlot h3 {
-    font-size: 16px;
-    line-height: 1.3;
-  }
-
-  .heroSlot [class*="actions"],
-  .asideSlot [class*="actions"] {
-    margin-top: 8px;
-  }
-
   .recentGrid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -503,5 +546,90 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 501px) and (hover: hover) and (pointer: fine) {
+  .featuredGrid {
+    grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+    min-height: 350px;
+    aspect-ratio: 2.7 / 1;
+  }
+
+  .featuredGrid[data-count="1"] {
+    aspect-ratio: 3.1 / 1;
+  }
+
+  .featuredCard > :is(.heroFrame, .asideMedia) {
+    position: absolute;
+    inset: 10px;
+    align-self: stretch;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    aspect-ratio: auto;
+  }
+
+  .featuredCard > :is(.heroFrame, .asideMedia) img {
+    object-fit: contain;
+  }
+
+  .featuredDetails {
+    position: absolute;
+    z-index: 1;
+    inset: auto 0 0;
+    max-height: 100%;
+    padding: 16px;
+    overflow-y: auto;
+    pointer-events: none;
+  }
+
+  .featuredDetails::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: linear-gradient(to top, var(--background) 70%, transparent);
+    content: "";
+    opacity: 0;
+  }
+
+  .featuredDetails > * {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .featuredDetails > :last-child > a {
+    visibility: hidden;
+  }
+
+  .featuredCard:is(:hover, :focus-within) .featuredDetails {
+    pointer-events: auto;
+  }
+
+  .featuredCard:is(:hover, :focus-within) .featuredDetails::before,
+  .featuredCard:is(:hover, :focus-within) .featuredDetails > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  .featuredCard:is(:hover, :focus-within) .featuredDetails > :last-child > a {
+    visibility: visible;
+  }
+
+  .featuredDetails > p {
+    -webkit-line-clamp: 2;
+  }
+
+  .featuredDetails > :last-child {
+    margin-top: 10px;
+  }
+}
+
+@media (min-width: 1024px) and (min-height: 501px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .featuredDetails::before,
+  .featuredDetails > * {
+    transition:
+      opacity 220ms ease-out,
+      transform 220ms ease-out;
   }
 }

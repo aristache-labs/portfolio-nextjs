@@ -11,7 +11,7 @@ import { useMemo, useRef, useState, type MouseEvent, type ReactNode } from "reac
 import dynamic from "next/dynamic";
 import { Star, History } from "lucide-react";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
-import { FeaturedCard, RecentCard } from "./HighlightCards";
+import { FeaturedCard, FeaturedShowcase, RecentCard } from "./HighlightCards";
 import { CurrentlyBuilding } from "./CurrentlyBuilding";
 import type { MergedProject } from "@/lib/projects";
 import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
@@ -92,6 +92,9 @@ export function ProjectsBrowser({
   header?: ReactNode;
 }) {
   const { mode } = useAnimationPolicy();
+  const phoneLandscape = useMediaQuery(
+    "(max-width: 1023px) and (max-height: 500px) and (orientation: landscape)",
+  );
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const ultraPortrait = useMediaQuery(
     "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
@@ -152,31 +155,44 @@ export function ProjectsBrowser({
         <div className={layoutCss.highlights}>
           {featured.length > 0 && (
             <div className={layoutCss.column}>
-              <ColumnLabel>Featured</ColumnLabel>
-              <div
-                className={layoutCss.featuredGrid}
-                data-count={Math.min(featured.length, MAX_FEATURED)}
-              >
-                {featured.map((p, i) => (
-                  <Arrival
-                    key={p.id}
-                    scene={scene}
-                    order={i}
-                    from="left"
-                    effect="fade-from-left"
-                    duration={0.7}
-                    delay={i * 0.08}
-                    className={`flex min-w-0 ${i === 0 ? layoutCss.heroSlot : layoutCss.asideSlot}`}
+              {phoneLandscape ? (
+                <ProjectsArrival kind="showcase" effect="fade-from-left" duration={0.7}>
+                  <FeaturedShowcase
+                    projects={featured}
+                    label={<ColumnLabel>Featured</ColumnLabel>}
+                    reducedMotion={mode === "static"}
+                    onQuickView={openQuickView}
+                  />
+                </ProjectsArrival>
+              ) : (
+                <>
+                  <ColumnLabel>Featured</ColumnLabel>
+                  <div
+                    className={layoutCss.featuredGrid}
+                    data-count={Math.min(featured.length, MAX_FEATURED)}
                   >
-                    <FeaturedCard
-                      project={p}
-                      variant={i === 0 ? "hero" : "compact"}
-                      eager={i === 0}
-                      onQuickView={(event) => openQuickView(p, event)}
-                    />
-                  </Arrival>
-                ))}
-              </div>
+                    {featured.map((p, i) => (
+                      <Arrival
+                        key={p.id}
+                        scene={scene}
+                        order={i}
+                        from="left"
+                        effect="fade-from-left"
+                        duration={0.7}
+                        delay={i * 0.08}
+                        className={`flex min-w-0 ${i === 0 ? layoutCss.heroSlot : layoutCss.asideSlot}`}
+                      >
+                        <FeaturedCard
+                          project={p}
+                          variant={i === 0 ? "hero" : "compact"}
+                          eager={i === 0}
+                          onQuickView={(event) => openQuickView(p, event)}
+                        />
+                      </Arrival>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
