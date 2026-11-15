@@ -54,6 +54,7 @@ test.describe("Fold whole-page landscape behavior", () => {
           }
           await link.tap();
           await page.waitForTimeout(1400);
+          await scrollIdle(page);
           const section = page.locator(`#${id}`);
           // Sections clip poster overscan and offscreen entrance positions.
           const overflow = await page.evaluate(
@@ -876,11 +877,14 @@ test.describe("About biography touch target", () => {
 /** A native jump can start the touch settle glide, which drags the page back if another jump interrupts it. */
 async function scrollIdle(page: Page) {
   await expect
-    .poll(async () => {
-      const before = await page.evaluate(() => scrollY);
-      await page.waitForTimeout(600);
-      return before === (await page.evaluate(() => scrollY));
-    })
+    .poll(
+      async () => {
+        const before = await page.evaluate(() => scrollY);
+        await page.waitForTimeout(600);
+        return before === (await page.evaluate(() => scrollY));
+      },
+      { timeout: 20_000 },
+    )
     .toBe(true);
 }
 
