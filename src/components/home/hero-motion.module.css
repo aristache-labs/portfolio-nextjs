@@ -341,7 +341,7 @@
   }
 
   .hero[data-cinematic] {
-    min-height: calc(min(100svh, 56rem) + 45svh);
+    min-height: calc(min(100svh, 56rem) + 55svh);
   }
 
   .hero[data-cinematic] .content {
@@ -420,8 +420,7 @@
     opacity: calc(var(--hero-handoff, 0) * 0.7);
   }
 
-  /* About starts at the bottom of the viewport, so it rises over the scene from the first
-     pixel of scroll. The scene is capped at 56rem, and the pin adds 45svh below it. */
+  /* Keep 10svh before About enters, then preserve the 45svh overlap. */
   .hero[data-cinematic] + :global(#about) {
     z-index: 1;
     margin-top: calc(max(0px, 100svh - 56rem) - 45svh);
@@ -686,6 +685,10 @@
 }
 
 @media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  .hero .scene {
+    min-height: 100dvh;
+  }
+
   .content {
     padding-top: 10rem;
     padding-bottom: 0rem;
@@ -741,7 +744,11 @@
   .secondaryLinks {
     justify-content: center;
     gap: 0.25rem 1rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .scrollCue {
+    margin-top: 0.75rem;
   }
 
   .textLink {
@@ -1142,7 +1149,7 @@
    the compact padding and grid exactly as they are. */
 @media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] {
-    min-height: calc(100svh + 75svh);
+    min-height: calc(100svh + 87svh);
   }
 
   .hero[data-touch-scene] + :global(#about) {
