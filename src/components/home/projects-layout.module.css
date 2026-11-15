@@ -1004,7 +1004,7 @@
   container-type: inline-size;
   display: grid;
   grid-template-columns: minmax(0, min(60%, 100svh)) minmax(0, 1fr);
-  gap: clamp(12px, 3vw, 28px);
+  gap: 12px;
   min-height: clamp(212px, 64svh, 280px);
   padding: 14px;
 }
@@ -1040,7 +1040,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 4px;
-  padding-top: 2px;
+  padding-top: 6px;
   border-top: 1px solid var(--repo-divider);
 }
 
