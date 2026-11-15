@@ -1678,7 +1678,7 @@
 .buttonGuides {
   position: absolute;
   inset: 0;
-  border-radius: 18px;
+  border-radius: var(--radius-card-lg);
   pointer-events: none;
 }
 
@@ -1705,7 +1705,7 @@
 .buttonGuides {
   inset: -10px -10px;
   border: 1px dashed rgb(var(--brand-bright-rgb) / 0.4);
-  border-radius: 18px;
+  border-radius: var(--radius-card-lg);
   opacity: 0;
 }
 

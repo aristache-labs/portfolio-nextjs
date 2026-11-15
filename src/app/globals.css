@@ -38,6 +38,11 @@
 
 /* Obsidian dark, the only theme. Raw values for the @theme var() references. */
 :root {
+  /* Radii used by several components; the rest of the scale is in DESIGN.md. */
+  --radius-chip: 9px;
+  --radius-control: 10px;
+  --radius-card-sm: 14px;
+  --radius-card-lg: 18px;
   color-scheme: dark;
   --bg: #080c0d;
   --fg: #f5f7f7;
