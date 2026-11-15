@@ -1031,6 +1031,7 @@
 
 .showcaseText {
   flex: 1;
+  padding-top: 8px;
 }
 
 /* View / Live on the left, Code / Issues on the right, as in Recently updated. */
@@ -1096,12 +1097,16 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .showcaseText[data-awaiting-rise] :is(h3, .showcaseDescription) {
+  .showcaseText[data-awaiting-rise] :is(h3, .repoBadge, .showcaseDescription) {
     opacity: 0;
   }
 
   .showcaseText[data-rise] h3 {
     animation: contentRise 380ms ease-out both;
+  }
+
+  .showcaseText[data-rise] .repoBadge {
+    animation: contentRise 380ms ease-out 35ms both;
   }
 
   .showcaseText[data-rise] .showcaseDescription {
