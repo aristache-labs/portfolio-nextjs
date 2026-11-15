@@ -449,12 +449,6 @@
   }
 }
 
-@container (max-width: 290px) {
-  .repoPulls .repoActionLabel {
-    display: none;
-  }
-}
-
 @container (max-width: 245px) {
   .repoActions > a .repoActionLabel {
     display: none;
@@ -496,10 +490,6 @@
     justify-content: flex-end;
     padding-top: 0;
     border-top: 0;
-  }
-
-  .repoActions > .repoPulls {
-    display: none;
   }
 
   .repoActions > .repoLive {
@@ -573,10 +563,6 @@
     align-self: end;
     justify-content: flex-end;
     column-gap: 3px;
-  }
-
-  .repoActions > .repoPulls {
-    display: none;
   }
 
   .repoActions > .repoLive {
@@ -684,12 +670,6 @@
   :is(.posterTrigger, .recentMedia):is(:hover, :focus-visible) .repoView,
   .recentMedia:is(:hover, :focus-visible)::after {
     opacity: 1;
-  }
-
-  @container (max-width: 470px) {
-    .repoPulls .repoActionLabel {
-      display: none;
-    }
   }
 }
 
@@ -1465,9 +1445,6 @@
 }
 
 /* Below desktop hover the row is View + Live on the left, Code + Issues on the right. */
-.heroPulls {
-  display: none;
-}
 
 .heroActions a {
   min-width: 44px;
@@ -1488,12 +1465,6 @@
   }
 }
 
-@container (max-width: 400px) {
-  .heroPulls .heroLabel {
-    display: none;
-  }
-}
-
 @container (max-width: 300px) {
   .heroActions a .heroLabel {
     display: none;
@@ -1504,10 +1475,6 @@
   .heroCard {
     gap: 0;
     padding: 0;
-  }
-
-  .heroPulls {
-    display: inline-flex;
   }
 
   /* One or three cards: the poster keeps its ratio and sets the card height. */

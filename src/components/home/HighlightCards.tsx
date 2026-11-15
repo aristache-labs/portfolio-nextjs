@@ -232,12 +232,6 @@ export function FeaturedCard({
               <CircleDot size={15} aria-hidden />,
               layoutStyles.heroIssues,
             )}
-            {link(
-              "/pulls",
-              "Pull requests",
-              <GitPullRequest size={15} aria-hidden />,
-              layoutStyles.heroPulls,
-            )}
           </div>
         </div>
       </div>
@@ -613,18 +607,6 @@ export function RecentCard({
           leftIcon={<CircleDot size={15} aria-hidden />}
         >
           <span className={layoutStyles.repoActionLabel}>Issues</span>
-        </Button>
-        <Button
-          className={layoutStyles.repoPulls}
-          href={`${repoUrl}/pulls`}
-          aria-label={`Pull requests for ${project.title}`}
-          variant="ghost"
-          size="sm"
-          target="_blank"
-          rel="noopener noreferrer"
-          leftIcon={<GitPullRequest size={15} aria-hidden />}
-        >
-          <span className={layoutStyles.repoActionLabel}>Pull requests</span>
         </Button>
       </div>
     </article>
