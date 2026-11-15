@@ -2,7 +2,6 @@
 
 import { cardDescription, pushedLabel, type ProjectPresentation } from "@/lib/project-presentation";
 import { ProjectComponents } from "./ProjectComponents";
-import { CardBorderGlow } from "@/components/ui/CardBorderGlow";
 
 import {
   useCallback,
@@ -15,7 +14,6 @@ import {
   type ReactNode,
 } from "react";
 
-import actionStyles from "./project-actions.module.css";
 import motionStyles from "./project-motion.module.css";
 import layoutStyles from "./projects-layout.module.css";
 
@@ -37,7 +35,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import type { MergedProject } from "@/lib/projects";
-import { COMPACT_PROJECT_ACTION, GLASS_CARD } from "./project-styles";
+import { GLASS_CARD } from "./project-styles";
 
 // The hero frame is about two thirds of the container on desktop and full width below it. The
 // small previews are thumbnails. Lazy covers use their real layout width where `auto` is supported.
@@ -100,18 +98,20 @@ function Frame({
   className,
   children,
   title,
+  label = `Open preview for ${title}`,
   onQuickView,
 }: {
   className: string;
   children: ReactNode;
   title: string;
+  label?: string;
   onQuickView: MouseEventHandler<HTMLButtonElement>;
 }) {
   return (
     <button
       type="button"
       className={`${FRAME} ${className} focus-visible:outline-ring cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2`}
-      aria-label={`Open preview for ${title}`}
+      aria-label={label}
       onClick={onQuickView}
     >
       {children}
@@ -119,72 +119,15 @@ function Frame({
   );
 }
 
-function Actions({
-  project,
-  onQuickView,
-  compact = false,
-  spacing,
-}: {
-  project: MergedProject;
-  onQuickView: MouseEventHandler<HTMLButtonElement>;
-  compact?: boolean;
-  /** Top margin; defaults to the card's own rhythm. */
-  spacing?: string;
-}) {
-  const githubUrl = project.htmlUrl ?? `https://github.com/aristache-labs/${project.repo}`;
-  const compactClass = compact ? COMPACT_PROJECT_ACTION : undefined;
-  return (
-    <div
-      className={`${actionStyles.actions} ${compact ? `${actionStyles.recent} ${actionStyles.compact} ${spacing ?? "mt-2"}` : `${actionStyles.featured} mt-4`} flex flex-wrap items-center gap-2`}
-    >
-      <Button
-        className={compactClass}
-        size="sm"
-        onClick={onQuickView}
-        aria-label={`View ${project.title}`}
-        leftIcon={<Maximize2 className="size-3.5" aria-hidden />}
-      >
-        View
-      </Button>
-      <Button
-        href={githubUrl}
-        aria-label={`Code for ${project.title}`}
-        title="View code on GitHub"
-        className={compactClass}
-        variant="secondary"
-        size="sm"
-        target="_blank"
-        rel="noopener noreferrer"
-        leftIcon={
-          <Github style={{ width: compact ? 16 : 20, height: compact ? 16 : 20 }} aria-hidden />
-        }
-      >
-        <span className={`${actionStyles.githubLabel} sr-only`}>GitHub</span>
-      </Button>
-      {project.homepage && (
-        <Button
-          href={project.homepage}
-          aria-label={`Live site for ${project.title}`}
-          className={compactClass}
-          variant="ghost"
-          size="sm"
-          target="_blank"
-          rel="noopener noreferrer"
-          leftIcon={<ExternalLink className="size-3.5" aria-hidden />}
-        >
-          <span className={actionStyles.liveLabel}>Live</span>
-        </Button>
-      )}
-    </div>
-  );
-}
-
+const GITHUB_OWNER = "aristache-labs";
 const CARD = `${motionStyles.card} group relative h-full w-full overflow-hidden rounded-2xl border`;
 const SHELL = `${CARD} ${GLASS_CARD} transition-colors duration-300 hover:border-(--brand-mid)/40`;
 
 /**
- * Featured card. `hero` is the large one: a centred screenshot in an inset frame, then title,
- * a short description and the actions. `compact` is the framed preview beside title and actions.
+ * Featured card in the same GitHub style as the Recently updated cards. Phones and tablets: poster,
+ * then title with category, description and the Live / Code / Issues / Pull requests row. Desktop
+ * with a pointer: the poster fills the card and everything else shows over it on hover. `compact`
+ * is the same card for the two smaller slots.
  */
 export function FeaturedCard({
   project,
@@ -197,67 +140,98 @@ export function FeaturedCard({
   variant?: "hero" | "compact";
   eager?: boolean;
 }) {
-  const description = cardDescription(project);
-  // The hero has room for the full text, trimmed by line-clamp; the short pitch is the fallback.
-  const heroDescription = project.description?.trim().replace(/\s+/g, " ") || description;
-  // Below 1024px the secondary cards are image-and-text rows; from 1024px they become full cards
-  // like the hero (poster, title, short description, actions).
-  if (variant === "compact")
-    return (
-      <article
-        className={`${layoutStyles.featuredCard} ${SHELL} flex items-center gap-3 p-3.5 lg:items-stretch lg:gap-3 lg:p-2`}
-      >
-        <CardBorderGlow />
-        <Frame
-          title={project.title}
-          onQuickView={onQuickView}
-          className={`${layoutStyles.asideMedia} w-[5.25rem] shrink-0 lg:w-[58%] lg:max-w-none lg:self-center`}
-        >
-          <Cover project={project} sizes={COMPACT_COVER_SIZES} intrinsic />
-        </Frame>
-        {/* The whole block (title, description, actions) is centred next to the poster at its natural height. */}
-        <div
-          className={`${layoutStyles.featuredDetails} flex min-w-0 flex-1 flex-col justify-center lg:pr-1.5`}
-        >
-          <h3 className="line-clamp-2 text-base leading-snug font-semibold break-words lg:text-lg">
-            {project.title}
-          </h3>
-          {description && (
-            <p className="text-muted mt-2 line-clamp-3 text-sm leading-relaxed text-pretty max-lg:hidden">
-              {description}
-            </p>
-          )}
-          <ProjectComponents project={project} />
-          <Actions project={project} onQuickView={onQuickView} compact spacing="mt-2 lg:mt-5" />
-        </div>
-      </article>
-    );
+  const hero = variant === "hero";
+  const description = hero
+    ? project.description?.trim().replace(/\s+/g, " ") || cardDescription(project)
+    : cardDescription(project);
+  const repoUrl = (project.htmlUrl ?? `https://github.com/${GITHUB_OWNER}/${project.repo}`).replace(
+    /\/+$/,
+    "",
+  );
+  const category = project.category;
+  const link = (suffix: string, label: string, icon: ReactNode, className?: string) => (
+    <Button
+      className={className}
+      href={`${repoUrl}${suffix}`}
+      aria-label={`${label} for ${project.title}`}
+      variant="ghost"
+      size="sm"
+      target="_blank"
+      rel="noopener noreferrer"
+      leftIcon={icon}
+    >
+      <span className={layoutStyles.heroLabel}>{label}</span>
+    </Button>
+  );
   return (
-    <article className={`${layoutStyles.featuredCard} ${SHELL} flex flex-col gap-4 p-3`}>
-      <CardBorderGlow />
+    <article className={`${layoutStyles.heroCard} ${hero ? "" : layoutStyles.heroCompact} ${CARD}`}>
       <Frame
         title={project.title}
+        label={`View ${project.title}`}
         onQuickView={onQuickView}
-        className={`${layoutStyles.heroFrame} w-full flex-1`}
+        className={`${layoutStyles.heroMedia} w-full`}
       >
         <Cover
           project={project}
-          sizes={HERO_COVER_SIZES}
+          sizes={hero ? HERO_COVER_SIZES : COMPACT_COVER_SIZES}
           loading={eager ? "eager" : "lazy"}
           intrinsic
         />
       </Frame>
-      <div className={`${layoutStyles.featuredDetails} flex shrink-0 flex-col px-1 pb-1`}>
-        <h3 className="text-xl leading-snug font-semibold break-words">{project.title}</h3>
-        {heroDescription && (
-          <p
-            className={`${layoutStyles.heroText} text-muted mt-2 line-clamp-2 text-sm leading-relaxed text-pretty`}
-          >
-            {heroDescription}
-          </p>
-        )}
+      <div className={layoutStyles.heroBody}>
+        {/* Pointer shortcut above the title; the poster button is the accessible "View". */}
+        <button
+          type="button"
+          className={layoutStyles.heroView}
+          tabIndex={-1}
+          aria-hidden
+          onClick={onQuickView}
+        >
+          <Maximize2 size={13} />
+          View
+        </button>
+        <div className={layoutStyles.heroTitle}>
+          <h3>{project.title}</h3>
+          {category && (
+            <span className={layoutStyles.repoBadge} data-category={category} title={category}>
+              {category}
+            </span>
+          )}
+        </div>
+        {description && <p className={layoutStyles.heroText}>{description}</p>}
         <ProjectComponents project={project} />
-        <Actions project={project} onQuickView={onQuickView} />
+        <div className={layoutStyles.heroActions}>
+          {project.homepage ? (
+            <Button
+              href={project.homepage}
+              aria-label={`Live site for ${project.title}`}
+              variant="ghost"
+              size="sm"
+              target="_blank"
+              rel="noopener noreferrer"
+              leftIcon={<ExternalLink size={15} aria-hidden />}
+            >
+              <span className={layoutStyles.heroLabel}>Live</span>
+            </Button>
+          ) : (
+            <span />
+          )}
+          <div className={layoutStyles.heroLinks}>
+            {link("", "Code", <CodeXml size={15} aria-hidden />)}
+            {link(
+              "/issues",
+              "Issues",
+              <CircleDot size={15} aria-hidden />,
+              layoutStyles.heroIssues,
+            )}
+            {link(
+              "/pulls",
+              "Pull requests",
+              <GitPullRequest size={15} aria-hidden />,
+              layoutStyles.heroPulls,
+            )}
+          </div>
+        </div>
       </div>
     </article>
   );
@@ -437,7 +411,6 @@ export function FeaturedShowcase({
   );
 }
 
-const GITHUB_OWNER = "aristache-labs";
 const GITHUB_AVATAR = "https://avatars.githubusercontent.com/u/29801489?v=4";
 const relativeTime = new Intl.RelativeTimeFormat("en", { numeric: "always" });
 const subscribeToUpdatedLabel = () => () => {};
