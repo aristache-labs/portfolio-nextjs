@@ -1718,12 +1718,14 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .primaryAction {
-    --cta-layer-duration: 850ms;
+    --cta-layer-duration: 1050ms;
+    --cta-layer-ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hero[data-cta-expanding] .primaryAction,
   .primaryAction:focus-visible {
     --cta-layer-duration: 550ms;
+    --cta-layer-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .buttonFoundation,
@@ -1732,8 +1734,8 @@
   .buttonGuides,
   .buttonLabel {
     transition:
-      transform var(--cta-layer-duration) cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 350ms ease,
+      transform var(--cta-layer-duration) var(--cta-layer-ease),
+      opacity calc(var(--cta-layer-duration) * 0.7) var(--cta-layer-ease),
       color 350ms ease;
   }
 
@@ -1769,6 +1771,7 @@
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .primaryAction:hover {
     --cta-layer-duration: 550ms;
+    --cta-layer-ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .primaryAction:hover .buttonFoundation {
@@ -1849,8 +1852,8 @@
   .buttonShadow,
   .buttonAnnotations {
     transition:
-      opacity 350ms ease,
-      transform var(--cta-layer-duration) cubic-bezier(0.22, 1, 0.36, 1);
+      opacity calc(var(--cta-layer-duration) * 0.7) var(--cta-layer-ease),
+      transform var(--cta-layer-duration) var(--cta-layer-ease);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonShadow,
@@ -1908,6 +1911,10 @@
 @media (prefers-reduced-motion: no-preference) {
   .actions,
   .secondaryLinks {
+    transition: translate 850ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hero[data-cta-expanding] :is(.actions, .secondaryLinks) {
     transition: translate 300ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
@@ -1932,10 +1939,11 @@
   }
 
   .scrollCue {
-    transition: translate 300ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: translate 850ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hero[data-cta-expanding] .scrollCue {
+    transition: translate 300ms cubic-bezier(0.22, 1, 0.36, 1);
     translate: 0 64px;
   }
 }
