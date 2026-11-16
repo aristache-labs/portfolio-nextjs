@@ -27,6 +27,25 @@ const exit = (node: HTMLElement, name: string) =>
   Number(node.style.getPropertyValue(`--hero-exit-${name}`));
 
 describe("HeroScrollMotion", () => {
+  it("holds the portrait CTA open through the exit and return until Hero rests", () => {
+    const node = document.createElement("section");
+    render(
+      <HeroScrollMotion
+        section={{ current: node }}
+        expressive={false}
+        variant="touch"
+        holdCtaUntilRest
+      />,
+    );
+
+    for (const progress of [0.1, 0.85, 1, 0.85, 0.02]) {
+      act(() => scroll.progress!.set(progress));
+      expect(node).toHaveAttribute("data-cta-expanding");
+    }
+    act(() => scroll.progress!.set(0));
+    expect(node).not.toHaveAttribute("data-cta-expanding");
+  });
+
   it("reverses the touch handoff when scrolling back to the top", () => {
     const node = document.createElement("section");
     render(<HeroScrollMotion section={{ current: node }} expressive={false} variant="touch" />);
