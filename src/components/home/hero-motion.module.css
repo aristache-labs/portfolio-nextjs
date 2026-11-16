@@ -1778,8 +1778,8 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .hero {
-    --cta-collapse-duration: 1050ms;
-    --cta-content-return-delay: 650ms;
+    --cta-collapse-duration: 650ms;
+    --cta-content-return-delay: 150ms;
   }
 
   .actions {
@@ -2000,6 +2000,10 @@
 
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
+  .hero {
+    --cta-collapse-duration: 550ms;
+  }
+
   .actions {
     margin-top: 1.5rem;
   }
