@@ -781,29 +781,53 @@
   }
 }
 
-@keyframes hero-lift {
-  50% {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-    transform: translateY(var(--lift, -24px));
-  }
-}
-
-@keyframes hero-name-split {
-  to {
-    transform: translateX(24px);
-  }
-}
-
 @keyframes hero-poster-drift {
   to {
     transform: translateY(40%) scale(1.2);
   }
 }
 
-/* Portrait phones: CSS-only motion, no scroll script and no pointer effects. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero[data-touch-scene] :is(.specialization, .availability) {
+    transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
+    opacity: calc(1 - var(--hero-exit-specialization, 0));
+  }
+
+  .hero[data-touch-scene] .exitTitle {
+    transform: translateY(calc(var(--hero-exit-title, 0) * -36px))
+      scale(calc(1 - var(--hero-exit-title, 0) * 0.025));
+    transform-origin: left center;
+    opacity: calc(1 - var(--hero-exit-title, 0));
+  }
+
+  .hero[data-touch-scene] .nameLine {
+    transform: translateY(calc(var(--hero-exit-title, 0) * -20px));
+  }
+
+  .hero[data-touch-scene] .surname {
+    transform: translateX(calc(var(--hero-exit-title, 0) * 28px));
+  }
+
+  .hero[data-touch-scene] .exitDetails {
+    transform: translateY(calc(var(--hero-exit-details, 0) * -24px));
+    opacity: calc(1 - var(--hero-exit-details, 0));
+  }
+
+  .hero[data-touch-scene] .exitActions {
+    transform: translateY(calc(var(--hero-exit-actions, 0) * -16px));
+    opacity: calc(1 - var(--hero-exit-actions, 0));
+  }
+
+  .hero[data-touch-scene]
+    .intro:focus-within
+    :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+}
+
+/* Portrait phones scroll away naturally while the copy exits in layers. */
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero {
     --hero-entry-distance: 8px;
@@ -816,40 +840,8 @@
     max-width: 100%;
   }
 
-  /* Layered exit: each layer leaves at its own speed, so the copy separates from the poster. */
-  @supports (animation-timeline: view()) {
-    .availability,
-    .specialization,
-    .exitTitle {
-      --lift: -80px;
-    }
-
-    .exitDetails {
-      --lift: -130px;
-    }
-
-    .exitActions {
-      --lift: -180px;
-    }
-
-    :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions) {
-      animation: hero-lift linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 65svh;
-    }
-
-    .surname {
-      animation: hero-name-split linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 55svh;
-    }
-
-    .intro:focus-within
-      :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions, .surname) {
-      animation: none;
-    }
-
-    .poster {
+  @supports (animation-timeline: scroll()) {
+    .hero:not([data-touch-scene]) .poster {
       animation: hero-poster-drift linear both;
       animation-timeline: scroll(root block);
       animation-range: 0 80svh;
@@ -997,8 +989,9 @@
   }
 }
 
-/* Touch landscape: the desktop scene, minus the mouse-only pointer depth and spotlight. */
+/* Touch scenes share the pinned handoff to About. */
 @media (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
+  (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] {
     --hero-entry-distance: 18px;
@@ -1047,44 +1040,6 @@
      vertical seam on phone GPUs, and it only shows while the finger is down. */
   .hero[data-touch-scene] .intro {
     transform: none;
-  }
-
-  .hero[data-touch-scene] :is(.specialization, .availability) {
-    transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
-    opacity: calc(1 - var(--hero-exit-specialization, 0));
-  }
-
-  .hero[data-touch-scene] .exitTitle {
-    transform: translateY(calc(var(--hero-exit-title, 0) * -36px))
-      scale(calc(1 - var(--hero-exit-title, 0) * 0.025));
-    transform-origin: left center;
-    opacity: calc(1 - var(--hero-exit-title, 0));
-  }
-
-  .hero[data-touch-scene] .nameLine {
-    transform: translateY(calc(var(--hero-exit-title, 0) * -20px));
-  }
-
-  .hero[data-touch-scene] .surname {
-    transform: translateX(calc(var(--hero-exit-title, 0) * 28px));
-  }
-
-  .hero[data-touch-scene] .exitDetails {
-    transform: translateY(calc(var(--hero-exit-details, 0) * -24px));
-    opacity: calc(1 - var(--hero-exit-details, 0));
-  }
-
-  .hero[data-touch-scene] .exitActions {
-    transform: translateY(calc(var(--hero-exit-actions, 0) * -16px));
-    opacity: calc(1 - var(--hero-exit-actions, 0));
-  }
-
-  .hero[data-touch-scene]
-    .intro:focus-within
-    :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
-    transform: none;
-    opacity: 1;
-    filter: none;
   }
 
   .hero[data-touch-scene] .scrollMedia {
@@ -1146,6 +1101,17 @@
     pointer-events: none;
     background: linear-gradient(to bottom, transparent, rgb(8 12 13 / 0.45) 45%, transparent);
     mask-image: linear-gradient(to bottom, transparent, black 45%, transparent);
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  .hero[data-touch-scene] {
+    min-height: 145svh;
+  }
+
+  .hero[data-touch-scene] + :global(#about) {
+    margin-top: -25svh;
+    padding-top: 4svh;
   }
 }
 

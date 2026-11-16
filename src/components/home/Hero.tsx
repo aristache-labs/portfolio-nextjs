@@ -152,10 +152,9 @@ export function Hero({
   );
   const desktopPinned =
     useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout && !ultraPortrait;
-  const touchScene =
-    useMediaQuery(HERO_LANDSCAPE_PIN_QUERY) && mode !== "static" && transitionToAbout;
-  // Portrait phones use CSS for the scene and only track scroll for the CTA.
+  const touchLandscape = useMediaQuery(HERO_LANDSCAPE_PIN_QUERY);
   const portraitPhone = useMediaQuery(PORTRAIT_PHONE_QUERY);
+  const touchScene = (touchLandscape || portraitPhone) && mode !== "static" && transitionToAbout;
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopAnchorScroll.current?.(), []);
   const navigateToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -308,7 +307,6 @@ export function Hero({
       {mode !== "static" && !reduce && (
         <HeroScrollMotion
           section={sectionRef}
-          ctaOnly={portraitPhone}
           expressive={expressive}
           variant={desktopPinned ? "desktop" : touchScene ? "touch" : undefined}
         />

@@ -2,7 +2,7 @@ import { act, render, screen, cleanup, fireEvent } from "@testing-library/react"
 import { renderToString } from "react-dom/server";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
-import { FOLD_VIEWPORT_QUERY, HERO_VIDEO_QUERY } from "@/hooks/useMediaQuery";
+import { FOLD_VIEWPORT_QUERY, HERO_VIDEO_QUERY, PORTRAIT_PHONE_QUERY } from "@/hooks/useMediaQuery";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { HERO_DEFAULTS } from "@/lib/identity";
 import { Hero } from "./Hero";
@@ -218,6 +218,12 @@ describe("Hero", () => {
     render(<Hero profile={profile} />);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
     expect(screen.getByLabelText(/scroll to explore/i)).toHaveAttribute("href", "#projects");
+  });
+
+  it("uses the touch handoff on portrait phones when About follows Hero", () => {
+    installMatchMedia({ [PORTRAIT_PHONE_QUERY]: true });
+    const { container } = render(<Hero profile={profile} transitionToAbout />);
+    expect(container.querySelector("#hero")).toHaveAttribute("data-touch-scene");
   });
 
   it("renders a single hero poster and no video controls on a touch viewport", () => {

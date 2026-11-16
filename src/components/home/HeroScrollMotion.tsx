@@ -34,6 +34,19 @@ const HANDOFF_RANGE = {
 const PHASE_NAMES = TOUCH_EXIT_PHASES.map((phase) => phase.name);
 const CTA_RETURN_COLLAPSE_PX = 48;
 
+function updateExitPhases(
+  node: HTMLElement,
+  progress: number,
+  phases: typeof TOUCH_EXIT_PHASES | typeof DESKTOP_EXIT_PHASES,
+) {
+  for (const phase of phases) {
+    node.style.setProperty(
+      `--hero-exit-${phase.name}`,
+      String(smoothstep(phaseProgress(progress, phase.start, phase.end))),
+    );
+  }
+}
+
 export type HeroScrollVariant = "desktop" | "touch";
 
 /** Only mounted after motion preferences resolve; native scrolling stays in control. */
@@ -41,13 +54,11 @@ export function HeroScrollMotion({
   section,
   expressive,
   variant,
-  ctaOnly,
 }: {
   section: RefObject<HTMLElement | null>;
   expressive: boolean;
   /** Which pinned scene is active; omitted when the hero scrolls away unpinned. */
   variant?: HeroScrollVariant;
-  ctaOnly?: boolean;
 }) {
   const pinned = variant !== undefined;
   const { scrollYProgress } = useScroll({
@@ -58,26 +69,8 @@ export function HeroScrollMotion({
   useEffect(() => {
     const node = section.current;
     if (!node) return;
-    if (ctaOnly) {
-      let previousY = window.scrollY;
-      const updatePortrait = () => {
-        const y = window.scrollY;
-        node.toggleAttribute(
-          "data-cta-expanding",
-          y < previousY
-            ? y > CTA_RETURN_COLLAPSE_PX && y < node.clientHeight
-            : y > 0 && y < node.clientHeight * 0.8,
-        );
-        previousY = y;
-      };
-      window.addEventListener("scroll", updatePortrait, { passive: true });
-      return () => {
-        window.removeEventListener("scroll", updatePortrait);
-        node.removeAttribute("data-cta-expanding");
-      };
-    }
     const phases = variant === "desktop" ? DESKTOP_EXIT_PHASES : TOUCH_EXIT_PHASES;
-    const start = window.matchMedia(LANDSCAPE_LAYOUT_QUERY).matches ? 0 : pinned ? 0.08 : 0.15;
+    const start = variant === "touch" ? 0 : pinned ? 0.08 : 0.15;
     let previous = scrollYProgress.get();
     const update = (value: number) => {
       const progress = Math.max(0, Math.min(1, value));
@@ -94,15 +87,7 @@ export function HeroScrollMotion({
       );
       if (pinned) node.style.setProperty("--hero-light-progress", String(progress));
       else node.style.removeProperty("--hero-light-progress");
-      for (const phase of phases) {
-        const property = `--hero-exit-${phase.name}`;
-        if (pinned)
-          node.style.setProperty(
-            property,
-            String(smoothstep(phaseProgress(progress, phase.start, phase.end))),
-          );
-        else node.style.removeProperty(property);
-      }
+      if (pinned) updateExitPhases(node, progress, phases);
       if (variant) {
         const range = HANDOFF_RANGE[variant];
         node.style.setProperty(
@@ -143,7 +128,7 @@ export function HeroScrollMotion({
       }
       for (const name of PHASE_NAMES) node.style.removeProperty(`--hero-exit-${name}`);
     };
-  }, [ctaOnly, expressive, pinned, scrollYProgress, section, variant]);
+  }, [expressive, pinned, scrollYProgress, section, variant]);
 
   return null;
 }
