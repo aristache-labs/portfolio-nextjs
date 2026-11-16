@@ -27,23 +27,40 @@ const exit = (node: HTMLElement, name: string) =>
   Number(node.style.getPropertyValue(`--hero-exit-${name}`));
 
 describe("HeroScrollMotion", () => {
-  it("holds the portrait CTA open through the exit and return until Hero rests", () => {
+  it("reverses the portrait fog and holds the CTA open until Hero rests", () => {
     const node = document.createElement("section");
-    render(
+    const about = document.createElement("section");
+    about.id = "about";
+    document.createElement("main").append(node, about);
+    const { unmount } = render(
       <HeroScrollMotion
         section={{ current: node }}
         expressive={false}
         variant="touch"
-        holdCtaUntilRest
+        portraitHandoff
       />,
     );
 
-    for (const progress of [0.1, 0.85, 1, 0.85, 0.02]) {
+    act(() => scroll.progress!.set(0.2));
+    expect(exit(node, "cue")).toBeGreaterThan(0);
+    expect(exit(node, "socials")).toBe(0);
+
+    act(() => scroll.progress!.set(0.55));
+    expect(exit(node, "socials")).toBe(1);
+    expect(exit(node, "actions")).toBeGreaterThan(exit(node, "details"));
+    expect(exit(node, "details")).toBeGreaterThan(0);
+    expect(exit(node, "title")).toBe(0);
+
+    for (const progress of [0.85, 1, 0.85, 0.02]) {
       act(() => scroll.progress!.set(progress));
       expect(node).toHaveAttribute("data-cta-expanding");
+      if (progress === 1) expect(about.style.getPropertyValue("--about-fog-opacity")).toBe("0");
     }
     act(() => scroll.progress!.set(0));
     expect(node).not.toHaveAttribute("data-cta-expanding");
+    expect(about.style.getPropertyValue("--about-fog-opacity")).toBe("1");
+    unmount();
+    expect(about.style.getPropertyValue("--about-fog-opacity")).toBe("");
   });
 
   it("reverses the touch handoff when scrolling back to the top", () => {

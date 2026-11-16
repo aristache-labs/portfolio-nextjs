@@ -1109,13 +1109,62 @@
 }
 
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  .hero[data-touch-scene],
+  .hero[data-touch-scene] + :global(#about) {
+    --about-overlap: 30svh;
+  }
+
   .hero[data-touch-scene] {
     min-height: 145svh;
   }
 
+  .hero[data-touch-scene] .scrollCue:not(:focus-visible) {
+    opacity: calc(1 - var(--hero-exit-cue, 0));
+  }
+
+  .hero[data-touch-scene] .intro:not(:focus-within) .secondaryLinks {
+    transform: translateY(calc(var(--hero-exit-socials, 0) * -16px));
+    opacity: calc(1 - var(--hero-exit-socials, 0));
+  }
+
+  /* Anchor the fog to About's leading edge without unmasking its clipped backdrop. */
+  .hero[data-touch-scene]:not(:has(:focus-visible))::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    inset: auto 0 calc(var(--about-overlap) - 8svh);
+    height: 42svh;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(8 12 13 / 0.18) 42%,
+      rgb(8 12 13 / 0.85) 80%,
+      transparent
+    );
+    opacity: var(--hero-handoff, 0);
+  }
+
   .hero[data-touch-scene] + :global(#about) {
-    margin-top: -30svh;
+    margin-top: calc(-1 * var(--about-overlap));
     padding-top: 0svh;
+  }
+
+  .hero[data-touch-scene] + :global(#about)::before {
+    z-index: 11;
+    height: 38svh;
+    background: linear-gradient(
+      to bottom,
+      rgb(8 12 13 / 0.94),
+      rgb(8 12 13 / 0.65) 40%,
+      transparent
+    );
+    mask-image: none;
+    opacity: var(--about-fog-opacity, 0);
+  }
+
+  .hero[data-touch-scene] + :global(#about):has(:focus-visible)::before {
+    opacity: 0;
   }
 }
 
