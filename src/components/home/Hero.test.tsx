@@ -22,6 +22,39 @@ const profile = {
 };
 
 describe("Hero", () => {
+  it("allows portrait pull-to-refresh only after staying at the top", () => {
+    installMatchMedia({ [PORTRAIT_PHONE_QUERY]: true });
+    vi.useFakeTimers();
+    const previousScrollY = window.scrollY;
+    window.scrollY = 24;
+    const { container, unmount } = render(<Hero profile={profile} />);
+    const hero = container.querySelector("#hero")!;
+    const scrollTo = (y: number) => {
+      window.scrollY = y;
+      window.dispatchEvent(new Event("scroll"));
+      act(() => vi.advanceTimersByTime(20));
+    };
+
+    try {
+      scrollTo(0);
+      act(() => vi.advanceTimersByTime(200));
+      expect(hero).not.toHaveAttribute("data-pull-refresh");
+      scrollTo(24);
+      act(() => vi.advanceTimersByTime(400));
+      expect(hero).not.toHaveAttribute("data-pull-refresh");
+
+      scrollTo(0);
+      act(() => vi.advanceTimersByTime(350));
+      expect(hero).toHaveAttribute("data-pull-refresh");
+      scrollTo(24);
+      expect(hero).not.toHaveAttribute("data-pull-refresh");
+    } finally {
+      unmount();
+      window.scrollY = previousScrollY;
+      vi.useRealTimers();
+    }
+  });
+
   it("keeps its layout independent of the floating consent panel", () => {
     const previousChoice = localStorage.getItem(CONSENT_KEY);
     localStorage.removeItem(CONSENT_KEY);

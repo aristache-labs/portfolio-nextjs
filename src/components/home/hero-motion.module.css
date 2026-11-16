@@ -685,6 +685,10 @@
 }
 
 @media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  :global(html):has(.hero:not([data-pull-refresh])) {
+    overscroll-behavior-y: none;
+  }
+
   .hero .scene {
     min-height: 100svh;
   }
@@ -1108,71 +1112,6 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
-  .hero[data-touch-scene],
-  .hero[data-touch-scene] + :global(#about) {
-    --about-overlap: 30svh;
-  }
-
-  .hero[data-touch-scene] {
-    min-height: 145svh;
-  }
-
-  .hero[data-touch-scene] .scrollCue:not(:focus-visible) {
-    opacity: calc(1 - var(--hero-exit-cue, 0));
-    transform: translateY(calc(var(--hero-exit-cue, 0) * -16px));
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) {
-    transform: translateY(calc(var(--hero-light-progress, 0) * -18svh));
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .secondaryLinks {
-    transform: translateY(calc(var(--hero-exit-socials, 0) * -16px));
-    opacity: calc(1 - var(--hero-exit-socials, 0));
-  }
-
-  /* Anchor the fog to About's leading edge without unmasking its clipped backdrop. */
-  .hero[data-touch-scene]:not(:has(:focus-visible))::after {
-    content: "";
-    position: absolute;
-    z-index: 1;
-    inset: auto 0 calc(var(--about-overlap) - 8svh);
-    height: 42svh;
-    pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(8 12 13 / 0.18) 42%,
-      rgb(8 12 13 / 0.85) 80%,
-      transparent
-    );
-    opacity: var(--hero-handoff, 0);
-  }
-
-  .hero[data-touch-scene] + :global(#about) {
-    margin-top: calc(-1 * var(--about-overlap));
-    padding-top: 0svh;
-  }
-
-  .hero[data-touch-scene] + :global(#about)::before {
-    z-index: 11;
-    height: 38svh;
-    background: linear-gradient(
-      to bottom,
-      rgb(8 12 13 / 0.94),
-      rgb(8 12 13 / 0.65) 40%,
-      transparent
-    );
-    mask-image: none;
-    opacity: var(--about-fog-opacity, 0);
-  }
-
-  .hero[data-touch-scene] + :global(#about):has(:focus-visible)::before {
-    opacity: 0;
-  }
-}
-
 /* Taller touch landscape has room for the 45svh pin. The 112px section padding would
    leave the heading behind the name, so only this height range pulls it forward. */
 @media (orientation: landscape) and (pointer: coarse) and (min-height: 501px) and (prefers-reduced-motion: no-preference),
@@ -1185,13 +1124,20 @@
 /* A 45svh pin is about 176px at 390px tall, and the compact heading sits 106px into
    About, so the name finishes before the heading can be read. A longer pin keeps
    the compact padding and grid exactly as they are. */
-@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference),
+  (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero[data-touch-scene] {
     min-height: calc(100svh + 75svh);
   }
 
   .hero[data-touch-scene] + :global(#about) {
     margin-top: -45svh;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  .hero[data-touch-scene] + :global(#about) {
+    margin-top: -51svh;
   }
 }
 
@@ -2054,7 +2000,8 @@
   }
 }
 
-@media (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference),
+  (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
   .hero .actionSecond {
     scale: 1;
     transition:

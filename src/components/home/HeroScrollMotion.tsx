@@ -26,22 +26,12 @@ const TOUCH_EXIT_PHASES = [
   { name: "title", start: 0.58, end: 1 },
 ] as const;
 
-const PORTRAIT_EXIT_PHASES = [
-  { name: "actions", start: 0.38, end: 0.63 },
-  { name: "cue", start: 0.08, end: 0.27 },
-  { name: "socials", start: 0.25, end: 0.46 },
-  { name: "details", start: 0.51, end: 0.76 },
-  { name: "specialization", start: 0.65, end: 0.9 },
-  { name: "title", start: 0.75, end: 1 },
-] as const;
-
 const HANDOFF_RANGE = {
   desktop: { start: 0.1, end: 0.9 },
   touch: { start: 0.22, end: 0.9 },
 } as const;
 
 const CTA_RETURN_COLLAPSE_PX = 48;
-const PORTRAIT_CTA_REST_PROGRESS = 0.04;
 
 function updateExitPhases(
   node: HTMLElement,
@@ -62,12 +52,10 @@ export type HeroScrollVariant = "desktop" | "touch";
 export function HeroScrollMotion({
   section,
   expressive,
-  portraitHandoff,
   variant,
 }: {
   section: RefObject<HTMLElement | null>;
   expressive: boolean;
-  portraitHandoff?: boolean;
   /** Which pinned scene is active; omitted when the hero scrolls away unpinned. */
   variant?: HeroScrollVariant;
 }) {
@@ -80,34 +68,21 @@ export function HeroScrollMotion({
   useEffect(() => {
     const node = section.current;
     if (!node) return;
-    const next = node.nextElementSibling;
-    const about =
-      portraitHandoff && next instanceof HTMLElement && next.id === "about" ? next : null;
-    const phases = portraitHandoff
-      ? PORTRAIT_EXIT_PHASES
-      : variant === "desktop"
-        ? DESKTOP_EXIT_PHASES
-        : TOUCH_EXIT_PHASES;
+    const phases = variant === "desktop" ? DESKTOP_EXIT_PHASES : TOUCH_EXIT_PHASES;
     const start = variant === "touch" ? 0 : pinned ? 0.08 : 0.15;
     let previous = scrollYProgress.get();
     const update = (value: number) => {
       const progress = Math.max(0, Math.min(1, value));
-      about?.style.setProperty(
-        "--about-fog-opacity",
-        String(1 - smoothstep(phaseProgress(progress, 0.3, 0.92))),
-      );
       const scrolling = progress !== previous;
       const returning = progress < previous;
       previous = progress;
       node.toggleAttribute(
         "data-cta-expanding",
-        portraitHandoff
-          ? progress > PORTRAIT_CTA_REST_PROGRESS
-          : scrolling &&
-              progress > 0 &&
-              (returning
-                ? window.scrollY > CTA_RETURN_COLLAPSE_PX
-                : progress >= start && progress < (pinned ? phases[0].end : 0.8)),
+        scrolling &&
+          progress > 0 &&
+          (returning
+            ? window.scrollY > CTA_RETURN_COLLAPSE_PX
+            : progress >= start && progress < (pinned ? phases[0].end : 0.8)),
       );
       if (pinned) node.style.setProperty("--hero-light-progress", String(progress));
       else node.style.removeProperty("--hero-light-progress");
@@ -139,7 +114,6 @@ export function HeroScrollMotion({
     const unsubscribe = scrollYProgress.on("change", update);
     return () => {
       unsubscribe();
-      about?.style.removeProperty("--about-fog-opacity");
       node.removeAttribute("data-cta-expanding");
       for (const name of [
         "media-y",
@@ -153,7 +127,7 @@ export function HeroScrollMotion({
       }
       for (const { name } of phases) node.style.removeProperty(`--hero-exit-${name}`);
     };
-  }, [expressive, portraitHandoff, pinned, scrollYProgress, section, variant]);
+  }, [expressive, pinned, scrollYProgress, section, variant]);
 
   return null;
 }
