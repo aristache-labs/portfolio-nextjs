@@ -694,6 +694,10 @@
     padding-bottom: 0rem;
   }
 
+  .hero[data-mobile-safari] .content {
+    padding-top: calc(6rem + 52px);
+  }
+
   .specialization {
     margin-bottom: 1rem;
     margin-inline: auto;

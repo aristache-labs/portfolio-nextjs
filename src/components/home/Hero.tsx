@@ -170,6 +170,13 @@ export function Hero({
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const portraitPoster = useMediaQuery(PORTRAIT_POSTER_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const isMobileSafari = /\bVersion\/[\d.]+ Mobile\/\S+ Safari\/[\d.]+$/.test(
+      navigator.userAgent,
+    );
+    sectionRef.current?.toggleAttribute("data-mobile-safari", isMobileSafari);
+  }, []);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(!reduce);
   const playingRef = useRef(playing);
