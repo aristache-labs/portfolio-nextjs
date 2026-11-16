@@ -308,7 +308,6 @@ export function Hero({
         <HeroScrollMotion
           section={sectionRef}
           expressive={expressive}
-          portraitHandoff={portraitPhone && touchScene}
           variant={desktopPinned ? "desktop" : touchScene ? "touch" : undefined}
         />
       )}
