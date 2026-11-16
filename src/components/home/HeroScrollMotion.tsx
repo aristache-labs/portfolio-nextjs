@@ -76,12 +76,7 @@ export function HeroScrollMotion({
         node.removeAttribute("data-cta-expanding");
       };
     }
-    const phases =
-      variant === "desktop"
-        ? DESKTOP_EXIT_PHASES
-        : window.matchMedia("(orientation: landscape) and (max-height: 500px)").matches
-          ? [{ name: "actions", start: 0.42, end: 0.76 }, ...TOUCH_EXIT_PHASES.slice(1)]
-          : TOUCH_EXIT_PHASES;
+    const phases = variant === "desktop" ? DESKTOP_EXIT_PHASES : TOUCH_EXIT_PHASES;
     const start = window.matchMedia(LANDSCAPE_LAYOUT_QUERY).matches ? 0 : pinned ? 0.08 : 0.15;
     let previous = scrollYProgress.get();
     const update = (value: number) => {

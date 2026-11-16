@@ -341,7 +341,7 @@
   }
 
   .hero[data-cinematic] {
-    min-height: calc(min(100svh, 56rem) + 55svh);
+    min-height: calc(min(100svh, 56rem) + 45svh);
   }
 
   .hero[data-cinematic] .content {
@@ -420,7 +420,7 @@
     opacity: calc(var(--hero-handoff, 0) * 0.7);
   }
 
-  /* Keep 10svh before About enters, then preserve the 45svh overlap. */
+  /* About rises from the bottom of the viewport over the pinned scene. */
   .hero[data-cinematic] + :global(#about) {
     z-index: 1;
     margin-top: calc(max(0px, 100svh - 56rem) - 45svh);
@@ -735,10 +735,14 @@
     display: contents;
   }
 
+  .actions .actionSecond {
+    justify-self: end;
+  }
+
   .actions a {
     min-height: 52px;
     padding-inline: 0.75rem;
-    font-size: 0.875rem;
+    font-size: 0.8959rem;
   }
 
   .secondaryLinks {
@@ -845,7 +849,7 @@
   /* About overlaps the hero edge; only its backdrop dissolves, its content stays in place. */
   .hero[data-cinematic] + :global(#about) {
     z-index: 1;
-    margin-top: -8svh;
+    margin-top: -2svh;
     padding-top: 8svh;
     border-radius: 0;
     background-color: transparent;
@@ -1149,11 +1153,11 @@
    the compact padding and grid exactly as they are. */
 @media (orientation: landscape) and (pointer: coarse) and (max-height: 500px) and (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] {
-    min-height: calc(100svh + 125svh);
+    min-height: calc(100svh + 75svh);
   }
 
   .hero[data-touch-scene] + :global(#about) {
-    margin-top: -75svh;
+    margin-top: -45svh;
   }
 }
 
