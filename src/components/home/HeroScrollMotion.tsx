@@ -41,6 +41,7 @@ const HANDOFF_RANGE = {
 } as const;
 
 const CTA_RETURN_COLLAPSE_PX = 48;
+const PORTRAIT_CTA_REST_PROGRESS = 0.04;
 
 function updateExitPhases(
   node: HTMLElement,
@@ -100,12 +101,13 @@ export function HeroScrollMotion({
       previous = progress;
       node.toggleAttribute(
         "data-cta-expanding",
-        progress > 0 &&
-          (portraitHandoff ||
-            (scrolling &&
+        portraitHandoff
+          ? progress > PORTRAIT_CTA_REST_PROGRESS
+          : scrolling &&
+              progress > 0 &&
               (returning
                 ? window.scrollY > CTA_RETURN_COLLAPSE_PX
-                : progress >= start && progress < (pinned ? phases[0].end : 0.8)))),
+                : progress >= start && progress < (pinned ? phases[0].end : 0.8)),
       );
       if (pinned) node.style.setProperty("--hero-light-progress", String(progress));
       else node.style.removeProperty("--hero-light-progress");

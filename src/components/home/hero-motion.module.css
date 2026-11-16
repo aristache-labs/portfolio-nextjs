@@ -1120,6 +1120,11 @@
 
   .hero[data-touch-scene] .scrollCue:not(:focus-visible) {
     opacity: calc(1 - var(--hero-exit-cue, 0));
+    transform: translateY(calc(var(--hero-exit-cue, 0) * -16px));
+  }
+
+  .hero[data-touch-scene] .intro:not(:focus-within) {
+    transform: translateY(calc(var(--hero-light-progress, 0) * -18svh));
   }
 
   .hero[data-touch-scene] .intro:not(:focus-within) .secondaryLinks {

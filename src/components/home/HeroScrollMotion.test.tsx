@@ -51,12 +51,12 @@ describe("HeroScrollMotion", () => {
     expect(exit(node, "details")).toBeGreaterThan(0);
     expect(exit(node, "title")).toBe(0);
 
-    for (const progress of [0.85, 1, 0.85, 0.02]) {
+    for (const progress of [0.85, 1, 0.85, 0.05]) {
       act(() => scroll.progress!.set(progress));
       expect(node).toHaveAttribute("data-cta-expanding");
       if (progress === 1) expect(about.style.getPropertyValue("--about-fog-opacity")).toBe("0");
     }
-    act(() => scroll.progress!.set(0));
+    act(() => scroll.progress!.set(0.03));
     expect(node).not.toHaveAttribute("data-cta-expanding");
     expect(about.style.getPropertyValue("--about-fog-opacity")).toBe("1");
     unmount();
