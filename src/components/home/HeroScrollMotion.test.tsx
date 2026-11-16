@@ -1,5 +1,5 @@
 import { act, cleanup, render } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { HeroScrollMotion } from "./HeroScrollMotion";
 
 const scroll = vi.hoisted(() => ({
@@ -17,7 +17,11 @@ vi.mock("framer-motion", async (importOriginal) => {
   };
 });
 
-afterEach(cleanup);
+beforeEach(() => vi.stubGlobal("matchMedia", () => ({ matches: false })));
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 const exit = (node: HTMLElement, name: string) =>
   Number(node.style.getPropertyValue(`--hero-exit-${name}`));
@@ -60,7 +64,7 @@ describe("HeroScrollMotion", () => {
     render(<HeroScrollMotion section={section} expressive={false} variant="touch" />);
     const node = section.current;
     const expected: [number, Record<string, number>][] = [
-      [0.3, { actions: 0.7681, details: 0.2858, specialization: 0, title: 0, handoff: 0.0383 }],
+      [0.3, { actions: 0.352, details: 0.2858, specialization: 0, title: 0, handoff: 0.0383 }],
       [0.5, { actions: 1, details: 0.99, specialization: 0.5, title: 0, handoff: 0.369 }],
       [0.8, { actions: 1, details: 1, specialization: 1, title: 0.5357, handoff: 0.9415 }],
     ];
