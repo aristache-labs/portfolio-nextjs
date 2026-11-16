@@ -220,7 +220,7 @@ export function SiteNav({
             onClick={() => setOpen(false)}
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={reduce ? undefined : { opacity: 0 }}
+            exit={reduce ? undefined : { opacity: 0, transition: { delay: 0.1, duration: 0.2 } }}
             transition={{ duration: reduce ? 0 : 0.3 }}
             className={`${panelStyles.backdrop} fixed inset-0 z-65 xl:hidden`}
           />
@@ -233,14 +233,14 @@ export function SiteNav({
         data-compact={scrolled && !open ? "" : undefined}
         className={cn(
           chromeStyles.header,
-          "fixed inset-x-0 top-0 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
+          "fixed inset-x-0 top-0 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
           // The open menu sits above the consent bar (z-60); the bar returns when it closes.
-          open ? "z-70" : "z-50",
+          "z-50 has-[#mobile-navigation]:z-70",
           open
-            ? "bg-transparent"
+            ? "border-(--brand-mid)/0 bg-transparent"
             : scrolled
-              ? "bg-background/70 border-b border-(--brand-mid)/30 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
-              : "bg-transparent",
+              ? "bg-background/70 border-(--brand-mid)/30 shadow-[0_8px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+              : "border-(--brand-mid)/0 bg-transparent",
         )}
       >
         <nav
@@ -374,9 +374,9 @@ export function SiteNav({
               id="mobile-navigation"
               initial={reduce ? false : { height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
-              exit={reduce ? undefined : { opacity: 0 }}
+              exit={reduce ? undefined : { height: 0, opacity: 0 }}
               transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
-              className={`${navStyles.panel} ${panelStyles.panel} border-border bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t backdrop-blur-xl xl:hidden`}
+              className={`${navStyles.panel} ${panelStyles.panel} bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t border-(--brand-mid)/30 backdrop-blur-xl xl:hidden`}
             >
               <div className={`site-container ${panelStyles.content}`}>
                 <nav aria-label="Mobile navigation">
