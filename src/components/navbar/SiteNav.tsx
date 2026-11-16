@@ -6,6 +6,7 @@ import { preload } from "react-dom";
 import { SectionLink } from "@/components/common/SectionLink";
 import { useHydratedPathname } from "@/hooks/useHydratedPathname";
 import { AnimatePresence, m } from "framer-motion";
+import { HeroSwingText } from "@/components/home/HeroSwingText";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -260,19 +261,22 @@ export function SiteNav({
             )}
           >
             <Logo className={cn(navStyles.logo, chromeStyles.mark)} />
-            {/* Custom responsive assets share the same candidates as their priority preload. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={WORDMARK.src}
-              alt=""
-              width={WORDMARK.width}
-              height={WORDMARK.height}
-              srcSet={WORDMARK.srcSet}
-              sizes={WORDMARK.sizes}
-              fetchPriority="high"
-              style={{ aspectRatio: `${WORDMARK.width} / ${WORDMARK.height}` }}
-              className={`${navStyles.wordmark} h-auto w-[min(42vw,14rem)]`}
-            />
+            <span className="relative min-w-0">
+              {/* Custom responsive assets share the same candidates as their priority preload. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={WORDMARK.src}
+                alt=""
+                width={WORDMARK.width}
+                height={WORDMARK.height}
+                srcSet={WORDMARK.srcSet}
+                sizes={WORDMARK.sizes}
+                fetchPriority="high"
+                style={{ aspectRatio: `${WORDMARK.width} / ${WORDMARK.height}` }}
+                className={`${navStyles.wordmark} h-auto w-[min(42vw,14rem)]`}
+              />
+              {onHomepage && <HeroSwingText away={scrolled || active !== "hero" || open} />}
+            </span>
           </SectionLink>
 
           {availability?.trim() && onHomepage && scrolled && !open && (

@@ -3,7 +3,11 @@
 import type Lenis from "lenis";
 import { beginSectionNavigation } from "./section-navigation";
 import { getSmoothScroll } from "./smooth-scroll";
-import { FOLD_VIEWPORT_QUERY, TOUCH_LANDSCAPE_QUERY } from "./motion-queries";
+import {
+  BACKGROUND_VIDEO_QUERY,
+  FOLD_VIEWPORT_QUERY,
+  TOUCH_LANDSCAPE_QUERY,
+} from "./motion-queries";
 
 // A sine ease has the lowest top speed of the ease-in-out curves (about 1.6x the average), so the
 // middle of a long jump does not rush. It still starts and stops softly.
@@ -222,12 +226,14 @@ function landingNavHeight() {
 
 /** Align section content consistently below the responsive navigation bar. */
 export function sectionScrollPosition(target: HTMLElement): number {
+  const aboutAdvance =
+    target.id === "about" && window.matchMedia?.(BACKGROUND_VIDEO_QUERY).matches ? 32 : 0;
   // A pinned scene names the viewport offset where its track should sit.
   const landing = target.querySelector<HTMLElement>("[data-scroll-landing]");
   if (landing) {
     const offset = Number(landing.dataset.scrollLanding) || 0;
     const extraGap = target.id === "about" ? navigationGap(target) - SECTION_NAV_GAP : 0;
-    return landing.getBoundingClientRect().top + window.scrollY - offset - extraGap;
+    return landing.getBoundingClientRect().top + window.scrollY - offset - extraGap + aboutAdvance;
   }
   const anchor = target.querySelector<HTMLElement>("[data-scroll-anchor]");
   if (anchor) {
@@ -235,11 +241,12 @@ export function sectionScrollPosition(target: HTMLElement): number {
       anchor.getBoundingClientRect().top +
       window.scrollY -
       landingNavHeight() -
-      navigationGap(target)
+      navigationGap(target) +
+      aboutAdvance
     );
   }
   const margin = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
-  return target.getBoundingClientRect().top + window.scrollY - margin;
+  return target.getBoundingClientRect().top + window.scrollY - margin + aboutAdvance;
 }
 
 /** A paced anchor transition that yields immediately to manual navigation. */
