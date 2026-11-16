@@ -73,3 +73,6 @@ playwright-report/
 playwright-report-production/
 test-results/
 .env*
+
+# HyperFrames video projects (local only)
+/videos

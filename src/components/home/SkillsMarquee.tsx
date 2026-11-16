@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { MOBILE_REVEAL_DEPTH, revealInset } from "@/lib/reveal-depth";
 import { createTravelGate, subscribeSectionNavigationComplete } from "@/lib/section-navigation";
 import styles from "./skills-marquee.module.css";
@@ -23,7 +23,7 @@ export function SkillsMarquee({
 }) {
   const slot = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const node = slot.current;
     if (!node || !loadIcons || skills.length === 0) return;
     if (

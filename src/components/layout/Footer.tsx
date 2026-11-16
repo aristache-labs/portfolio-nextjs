@@ -381,7 +381,7 @@ export function Footer({
             part="bar"
             entrance
             entrancePart="bar"
-            className={`${layout.legal} ${GLASS_CARD} mt-8 grid items-center gap-3 rounded-2xl border px-6 py-4 text-center sm:mt-10 md:grid-cols-[1fr_auto] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
+            className={`${layout.legal} ${GLASS_CARD} mt-8 grid items-center gap-3 rounded-2xl px-6 py-4 text-center sm:mt-10 md:grid-cols-[1fr_auto] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
           >
             <m.div
               initial={false}
