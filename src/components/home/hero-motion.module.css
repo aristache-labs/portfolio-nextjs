@@ -1131,58 +1131,6 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
-  .hero[data-touch-scene] .intro:not(:focus-within) {
-    --portrait-progress: var(--hero-light-progress, 0);
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .exitTitle {
-    opacity: 1;
-    transform: none;
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .secondaryLinks {
-    --portrait-fade: clamp(0, calc((var(--portrait-progress) - 0.04) / 0.24), 1);
-    --portrait-lift: calc(var(--portrait-fade) * -16px);
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .exitDetails {
-    --portrait-fade: clamp(0, calc((var(--portrait-progress) - 0.13) / 0.24), 1);
-    --portrait-lift: calc(var(--portrait-fade) * -24px);
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) :is(.specialization, .availability) {
-    --portrait-fade: clamp(0, calc((var(--portrait-progress) - 0.34) / 0.16), 1);
-    --portrait-lift: calc(var(--portrait-fade) * -40px);
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .name {
-    --portrait-fade: clamp(0, calc((var(--portrait-progress) - 0.5) / 0.15), 1);
-    --portrait-lift: calc(clamp(0, calc((var(--portrait-progress) - 0.36) / 0.29), 1) * -64px);
-    --hero-exit-title: var(--portrait-fade);
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .headline {
-    --portrait-fade: clamp(0, calc((var(--portrait-progress) - 0.68) / 0.15), 1);
-    --portrait-lift: calc(clamp(0, calc((var(--portrait-progress) - 0.48) / 0.28), 1) * -96px);
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .actions {
-    --portrait-fade: clamp(0, calc((var(--portrait-progress) - 0.84) / 0.16), 1);
-    --portrait-lift: calc(
-      clamp(0, calc((var(--portrait-progress) - 0.58) / 0.32), 1) * -1 * clamp(184px, 26svh, 245px)
-    );
-  }
-
-  .hero[data-touch-scene]
-    .intro:not(:focus-within)
-    :is(.secondaryLinks, .exitDetails, .specialization, .availability, .name, .headline, .actions) {
-    opacity: calc(1 - var(--portrait-fade));
-    transform: none;
-    translate: 0 var(--portrait-lift);
-  }
-}
-
 /* The text sets the box width in the existing font at every breakpoint. */
 .nameDraw {
   position: relative;
@@ -2059,9 +2007,7 @@
       scale 140ms ease-out,
       visibility 140ms;
   }
-}
 
-@media (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .hero :is(.exitDetails, .secondaryLinks) {
     transition:
       filter 420ms cubic-bezier(0.4, 0, 0.2, 1) var(--cta-content-return-delay),
