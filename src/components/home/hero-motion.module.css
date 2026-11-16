@@ -849,7 +849,7 @@
   /* About overlaps the hero edge; only its backdrop dissolves, its content stays in place. */
   .hero[data-cinematic] + :global(#about) {
     z-index: 1;
-    margin-top: -8svh;
+    margin-top: -2svh;
     padding-top: 8svh;
     border-radius: 0;
     background-color: transparent;
@@ -1157,7 +1157,7 @@
   }
 
   .hero[data-touch-scene] + :global(#about) {
-    margin-top: -75svh;
+    margin-top: -45svh;
   }
 }
 
