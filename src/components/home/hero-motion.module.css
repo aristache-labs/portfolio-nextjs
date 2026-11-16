@@ -720,11 +720,15 @@
   .tagline {
     font-size: 0.8625rem;
     display: block;
+    position: relative;
+    top: 50px;
     text-align: center;
     letter-spacing: 0.05em;
   }
 
   .actions {
+    position: relative;
+    top: 86px;
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr);
     gap: 0.5rem;
@@ -748,7 +752,7 @@
   .hero .secondaryLinks {
     justify-content: center;
     gap: 0.25rem 1rem;
-    margin-top: 7rem;
+    margin-top: 6.5rem;
   }
 
   .scrollCue {
@@ -1983,19 +1987,19 @@
     translate: none;
   }
 
-  .hero :is(.secondaryLinks, .actionSecond) {
+  .hero .actionSecond {
     transition:
       filter 420ms cubic-bezier(0.4, 0, 0.2, 1) var(--cta-content-return-delay),
       visibility 420ms var(--cta-content-return-delay);
   }
 
-  .hero[data-cta-expanding] :is(.secondaryLinks, .actionSecond) {
+  .hero[data-cta-expanding] .actionSecond {
     transition:
       filter 420ms cubic-bezier(0.4, 0, 0.2, 1),
       visibility 420ms;
   }
 
-  .hero[data-cta-expanding] :is(.secondaryLinks, .actionSecond):not(:focus-within) {
+  .hero[data-cta-expanding] .actionSecond:not(:focus-within) {
     filter: opacity(0);
     visibility: hidden;
   }
@@ -2016,20 +2020,6 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
-  .hero .taglineRow {
-    transition:
-      filter 420ms cubic-bezier(0.4, 0, 0.2, 1) var(--cta-content-return-delay),
-      visibility 420ms var(--cta-content-return-delay);
-  }
-
-  .hero[data-cta-expanding] .taglineRow {
-    filter: opacity(0);
-    visibility: hidden;
-    transition-delay: 0ms;
-  }
-}
-
 @media (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .hero .actionSecond {
     scale: 1;
@@ -2047,16 +2037,18 @@
       visibility 140ms;
   }
 
-  .hero .exitDetails {
+  .hero :is(.exitDetails, .secondaryLinks) {
     transition:
       filter 420ms cubic-bezier(0.4, 0, 0.2, 1) var(--cta-content-return-delay),
       visibility 420ms var(--cta-content-return-delay);
   }
 
-  .hero[data-cta-expanding] .exitDetails {
+  .hero[data-cta-expanding] :is(.exitDetails, .secondaryLinks:not(:focus-within)) {
     filter: opacity(0);
     visibility: hidden;
-    transition-delay: 0ms;
+    transition:
+      filter 420ms cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 420ms;
   }
 }
 
