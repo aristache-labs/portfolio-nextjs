@@ -1,5 +1,6 @@
 import { scrollToPosition, sectionScrollPosition } from "./scroll-to-section";
 import { beginSectionNavigation, sectionNavigationInProgress } from "./section-navigation";
+import { PORTRAIT_PHONE_QUERY } from "./motion-queries";
 
 /** How long the page has to stay still before it settles on a section. */
 export const SNAP_IDLE_MS = 100;
@@ -70,9 +71,12 @@ export function pickSnapTarget(
  */
 export function settleOnNearestSection(touch = false): (() => void) | null {
   if (sectionNavigationInProgress()) return null;
+  const portraitTouch = touch && window.matchMedia?.(PORTRAIT_PHONE_QUERY).matches;
   const candidates: SnapCandidate[] = [];
   const elements = new Map<string, HTMLElement>();
   for (const id of SNAP_SECTION_IDS) {
+    // Keep the pinned Hero–About handoff under the reader's control on portrait phones.
+    if (portraitTouch && id === "about") continue;
     const element = document.getElementById(id);
     // A section that has not rendered yet (zero height) has no real start to settle on.
     const height = element?.getBoundingClientRect().height ?? 0;

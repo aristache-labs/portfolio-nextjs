@@ -2,7 +2,12 @@ import { act, render, screen, cleanup, fireEvent } from "@testing-library/react"
 import { renderToString } from "react-dom/server";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
-import { FOLD_VIEWPORT_QUERY, HERO_VIDEO_QUERY, PORTRAIT_PHONE_QUERY } from "@/hooks/useMediaQuery";
+import {
+  FOLD_VIEWPORT_QUERY,
+  HERO_VIDEO_QUERY,
+  PORTRAIT_PHONE_QUERY,
+  TOUCH_LANDSCAPE_QUERY,
+} from "@/hooks/useMediaQuery";
 import { EXPRESSIVE_MOTION_QUERY, REDUCED_MOTION_QUERY } from "@/hooks/useAnimationPolicy";
 import { HERO_DEFAULTS } from "@/lib/identity";
 import { Hero } from "./Hero";
@@ -22,38 +27,41 @@ const profile = {
 };
 
 describe("Hero", () => {
-  it("allows portrait pull-to-refresh only after staying at the top", () => {
-    installMatchMedia({ [PORTRAIT_PHONE_QUERY]: true });
-    vi.useFakeTimers();
-    const previousScrollY = window.scrollY;
-    window.scrollY = 24;
-    const { container, unmount } = render(<Hero profile={profile} />);
-    const hero = container.querySelector("#hero")!;
-    const scrollTo = (y: number) => {
-      window.scrollY = y;
-      window.dispatchEvent(new Event("scroll"));
-      act(() => vi.advanceTimersByTime(20));
-    };
+  it.each([PORTRAIT_PHONE_QUERY, TOUCH_LANDSCAPE_QUERY])(
+    "allows touch pull-to-refresh only after staying at the top (%s)",
+    (query) => {
+      installMatchMedia({ [query]: true });
+      vi.useFakeTimers();
+      const previousScrollY = window.scrollY;
+      window.scrollY = 24;
+      const { container, unmount } = render(<Hero profile={profile} />);
+      const hero = container.querySelector("#hero")!;
+      const scrollTo = (y: number) => {
+        window.scrollY = y;
+        window.dispatchEvent(new Event("scroll"));
+        act(() => vi.advanceTimersByTime(20));
+      };
 
-    try {
-      scrollTo(0);
-      act(() => vi.advanceTimersByTime(200));
-      expect(hero).not.toHaveAttribute("data-pull-refresh");
-      scrollTo(24);
-      act(() => vi.advanceTimersByTime(400));
-      expect(hero).not.toHaveAttribute("data-pull-refresh");
+      try {
+        scrollTo(0);
+        act(() => vi.advanceTimersByTime(200));
+        expect(hero).not.toHaveAttribute("data-pull-refresh");
+        scrollTo(24);
+        act(() => vi.advanceTimersByTime(400));
+        expect(hero).not.toHaveAttribute("data-pull-refresh");
 
-      scrollTo(0);
-      act(() => vi.advanceTimersByTime(350));
-      expect(hero).toHaveAttribute("data-pull-refresh");
-      scrollTo(24);
-      expect(hero).not.toHaveAttribute("data-pull-refresh");
-    } finally {
-      unmount();
-      window.scrollY = previousScrollY;
-      vi.useRealTimers();
-    }
-  });
+        scrollTo(0);
+        act(() => vi.advanceTimersByTime(500));
+        expect(hero).toHaveAttribute("data-pull-refresh");
+        scrollTo(24);
+        expect(hero).not.toHaveAttribute("data-pull-refresh");
+      } finally {
+        unmount();
+        window.scrollY = previousScrollY;
+        vi.useRealTimers();
+      }
+    },
+  );
 
   it("keeps its layout independent of the floating consent panel", () => {
     const previousChoice = localStorage.getItem(CONSENT_KEY);
@@ -253,10 +261,12 @@ describe("Hero", () => {
     expect(screen.getByLabelText(/scroll to explore/i)).toHaveAttribute("href", "#projects");
   });
 
-  it("uses the touch handoff on portrait phones when About follows Hero", () => {
+  it("keeps the portrait handoff without writing JavaScript scroll progress", () => {
     installMatchMedia({ [PORTRAIT_PHONE_QUERY]: true });
     const { container } = render(<Hero profile={profile} transitionToAbout />);
-    expect(container.querySelector("#hero")).toHaveAttribute("data-touch-scene");
+    const hero = container.querySelector<HTMLElement>("#hero");
+    expect(hero).toHaveAttribute("data-touch-scene");
+    expect(hero?.style.getPropertyValue("--hero-light-progress")).toBe("");
   });
 
   it("renders a single hero poster and no video controls on a touch viewport", () => {

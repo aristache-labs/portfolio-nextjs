@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { beginSectionNavigation } from "./section-navigation";
+import { installMatchMedia } from "@/test/matchMedia";
+import { PORTRAIT_PHONE_QUERY } from "./motion-queries";
 
 const scrollToPosition = vi.fn<(...args: unknown[]) => () => void>(() => () => {});
 const sectionScrollPosition = vi.fn((element: HTMLElement) => Number(element.dataset.position));
@@ -117,6 +119,20 @@ describe("settleOnNearestSection", () => {
       { duration: number },
     ];
     expect(options).toEqual({ duration: SNAP_TOUCH_DURATION_MS });
+  });
+
+  it("leaves the Hero–About handoff under manual control on portrait phones", () => {
+    mount();
+    installMatchMedia({ [PORTRAIT_PHONE_QUERY]: true });
+    try {
+      expect(settleOnNearestSection(true)).toBeNull();
+      expect(scrollToPosition).not.toHaveBeenCalled();
+
+      vi.spyOn(window, "scrollY", "get").mockReturnValue(2360);
+      expect(settleOnNearestSection(true)).not.toBeNull();
+    } finally {
+      installMatchMedia();
+    }
   });
 
   it("does not pull from the longer desktop reach on touch screens", () => {
