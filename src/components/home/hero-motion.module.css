@@ -694,16 +694,18 @@
     padding-bottom: 0rem;
   }
 
-  .hero[data-mobile-safari] .content {
-    padding-top: calc(6rem + 52px);
-  }
-
   .specialization {
+    position: relative;
+    top: 28px;
     margin-bottom: 1rem;
     margin-inline: auto;
     text-align: center;
     font-size: 0.6875rem;
     letter-spacing: 0.12em;
+  }
+
+  .exitTitle {
+    padding-top: 84px;
   }
 
   .name {
@@ -2002,6 +2004,21 @@
   .hero[data-cta-expanding] :is(.secondaryLinks, .actionSecond):not(:focus-within) {
     filter: opacity(0);
     visibility: hidden;
+  }
+}
+
+@media (max-width: 1023px) and (orientation: landscape) and (pointer: coarse) {
+  .secondaryLinks {
+    margin-top: 8px;
+  }
+
+  .secondaryLinks .textLink {
+    font-size: 1.125rem;
+  }
+
+  .textLink > :is(svg, img) {
+    width: 2.25rem;
+    height: 2.25rem;
   }
 }
 
