@@ -726,7 +726,7 @@
 
   .actions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: max-content minmax(0, 1fr);
     gap: 0.5rem;
     margin-top: 1.5rem;
   }
@@ -933,12 +933,12 @@
   .actions a {
     min-height: 44px;
     padding: 10px 18px;
-    font-size: 0.9375rem;
+    font-size: 1.4375rem;
   }
 
-  .actions .primaryAction {
-    min-height: 40px;
-    padding-block: 8px;
+  .actions .contactAction {
+    min-height: 48px;
+    padding: 12px 22px;
   }
 
   .secondaryLinks {
@@ -1344,10 +1344,6 @@
     font-size: 1rem;
   }
 
-  .actions .primaryAction {
-    padding-inline: 2rem;
-  }
-
   .actions .contactAction {
     padding-inline: 1.75rem;
   }
@@ -1669,9 +1665,32 @@
   position: relative;
   isolation: isolate;
   overflow: visible;
+  min-height: 40px;
+  padding: 8px 18px;
+  font-size: 0.9375rem;
+  line-height: 1.25rem;
   background: none;
   box-shadow: none;
   perspective: 650px;
+}
+
+@media (max-width: 767px) and (orientation: portrait),
+  (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .hero .primaryAction {
+    min-height: 48px;
+    padding-block: 12px;
+  }
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .actions {
+    --cta-spread: 1.2;
+    --cta-layer-tilt: 32deg;
+  }
+
+  .hero .primaryAction {
+    padding-inline: 24px;
+  }
 }
 
 .hero .primaryAction:hover {
@@ -1708,7 +1727,8 @@
 }
 
 .buttonLid {
-  background: linear-gradient(170deg, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.03));
+  background: linear-gradient(170deg, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.03))
+    var(--surface);
   border: 1px solid rgb(255 255 255 / 0.3);
   opacity: 0;
 }
@@ -1728,8 +1748,13 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  .hero {
+    --cta-collapse-duration: 1050ms;
+    --cta-content-return-delay: 650ms;
+  }
+
   .actions {
-    --cta-layer-duration: 1050ms;
+    --cta-layer-duration: var(--cta-collapse-duration);
     --cta-layer-ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -1752,30 +1777,34 @@
 
   .hero[data-cta-expanding] .primaryAction .buttonFoundation,
   .primaryAction:focus-visible .buttonFoundation {
-    transform: translateY(calc(25px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(25px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonSurface,
   .primaryAction:focus-visible .buttonSurface {
-    transform: translateY(calc(10px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(10px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonLabel,
   .primaryAction:focus-visible .buttonLabel {
-    transform: translateY(calc(-12px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(-12px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
     color: var(--brand-bright);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonLid,
   .primaryAction:focus-visible .buttonLid {
-    opacity: var(--cta-lid-opacity, 1);
-    transform: translateY(calc(-37px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
+    opacity: 1;
+    transform: translateY(calc(-37px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonGuides,
   .primaryAction:focus-visible .buttonGuides {
     opacity: 1;
-    transform: rotateX(48deg) rotateZ(-10deg);
+    transform: rotateX(var(--cta-layer-tilt, 48deg)) rotateZ(-10deg);
   }
 }
 
@@ -1786,26 +1815,30 @@
   }
 
   .primaryAction:hover .buttonFoundation {
-    transform: translateY(25px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(25px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
   }
 
   .primaryAction:hover .buttonSurface {
-    transform: translateY(10px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(10px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
   }
 
   .primaryAction:hover .buttonLabel {
-    transform: translateY(-12px) rotateX(48deg) rotateZ(-10deg);
-    color: var(--fg);
+    transform: translateY(calc(-12px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
+    color: var(--brand-bright);
   }
 
   .primaryAction:hover .buttonLid {
-    opacity: var(--cta-lid-opacity, 1);
-    transform: translateY(-37px) rotateX(48deg) rotateZ(-10deg);
+    opacity: 1;
+    transform: translateY(calc(-37px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
   }
 
   .primaryAction:hover .buttonGuides {
     opacity: 1;
-    transform: rotateX(48deg) rotateZ(-10deg);
+    transform: rotateX(var(--cta-layer-tilt, 48deg)) rotateZ(-10deg);
   }
 }
 
@@ -1821,7 +1854,7 @@
   display: none;
   position: absolute;
   top: 50%;
-  left: calc(100% + 36px);
+  left: calc(100% + 20px);
   width: 70px;
   pointer-events: none;
   opacity: 0;
@@ -1871,7 +1904,8 @@
   .hero[data-cta-expanding] .primaryAction .buttonShadow,
   .primaryAction:focus-visible .buttonShadow {
     opacity: 1;
-    transform: translateY(calc(43px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(43px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonAnnotations,
@@ -1883,7 +1917,8 @@
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .primaryAction:hover .buttonShadow {
     opacity: 1;
-    transform: translateY(43px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(43px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
+      rotateZ(-10deg);
   }
 
   .primaryAction:hover .buttonAnnotations {
@@ -1912,13 +1947,6 @@
   (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .buttonAnnotations {
     display: block;
-    left: calc(100% + 20px);
-  }
-}
-
-@media (max-width: 1023px) and (orientation: landscape) {
-  .actions {
-    --cta-lid-opacity: 1;
   }
 }
 
@@ -1944,7 +1972,6 @@
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .actions {
-    --cta-spread: 1;
     margin-top: 1.5rem;
   }
 
@@ -1955,10 +1982,70 @@
   .hero[data-cta-expanding] :is(.actions, .secondaryLinks) {
     translate: none;
   }
+
+  .hero :is(.secondaryLinks, .actionSecond) {
+    transition:
+      filter 420ms cubic-bezier(0.4, 0, 0.2, 1) var(--cta-content-return-delay),
+      visibility 420ms var(--cta-content-return-delay);
+  }
+
+  .hero[data-cta-expanding] :is(.secondaryLinks, .actionSecond) {
+    transition:
+      filter 420ms cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 420ms;
+  }
+
+  .hero[data-cta-expanding] :is(.secondaryLinks, .actionSecond):not(:focus-within) {
+    filter: opacity(0);
+    visibility: hidden;
+  }
 }
 
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference),
-  (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  .hero .taglineRow {
+    transition:
+      filter 420ms cubic-bezier(0.4, 0, 0.2, 1) var(--cta-content-return-delay),
+      visibility 420ms var(--cta-content-return-delay);
+  }
+
+  .hero[data-cta-expanding] .taglineRow {
+    filter: opacity(0);
+    visibility: hidden;
+    transition-delay: 0ms;
+  }
+}
+
+@media (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
+  .hero .actionSecond {
+    scale: 1;
+    transition:
+      filter 240ms ease-out var(--cta-content-return-delay),
+      scale 240ms ease-out var(--cta-content-return-delay),
+      visibility 240ms var(--cta-content-return-delay);
+  }
+
+  .hero[data-cta-expanding] .actionSecond:not(:focus-within) {
+    scale: 0.9;
+    transition:
+      filter 140ms ease-out,
+      scale 140ms ease-out,
+      visibility 140ms;
+  }
+
+  .hero .exitDetails {
+    transition:
+      filter 420ms cubic-bezier(0.4, 0, 0.2, 1) var(--cta-content-return-delay),
+      visibility 420ms var(--cta-content-return-delay);
+  }
+
+  .hero[data-cta-expanding] .exitDetails {
+    filter: opacity(0);
+    visibility: hidden;
+    transition-delay: 0ms;
+  }
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .actionSecond {
     transition-property: transform, translate;
     transition-duration: 550ms, var(--cta-layer-duration);
@@ -1967,6 +2054,29 @@
 
   .hero[data-cta-expanding] .actionSecond {
     translate: 94px 0;
+  }
+
+  /* Keep the pointer over the link while the row moves down. */
+  .hero .primaryAction:hover {
+    translate: none;
+  }
+
+  .primaryAction:hover::before {
+    content: "";
+    position: absolute;
+    inset: -20px 0 0;
+  }
+
+  .hero:has(.primaryAction:hover) :is(.actions, .secondaryLinks) {
+    transition: translate 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero:has(.primaryAction:hover) .actions {
+    translate: 0 20px;
+  }
+
+  .hero:has(.primaryAction:hover) .secondaryLinks {
+    translate: 0 36px;
   }
 }
 

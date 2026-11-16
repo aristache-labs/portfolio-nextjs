@@ -464,13 +464,13 @@ export function Hero({
             <div
               className={`${styles.actions} ${styles.exitActions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
             >
-              <Magnetic className={`${styles.actionEntrance} ${styles.actionFirst} max-sm:w-full`}>
+              <span className={`${styles.actionEntrance} ${styles.actionFirst} inline-block`}>
                 <Button
                   variant="primary"
                   size="lg"
                   href="#projects"
                   onClick={(event) => navigateToSection(event, "projects")}
-                  className={`${styles.primaryAction} rounded-2xl px-6 py-3 text-sm max-sm:w-full [@media(max-height:500px)]:py-2.5`}
+                  className={`${styles.primaryAction} rounded-2xl`}
                 >
                   <span aria-hidden="true" className={styles.buttonShadow} />
                   <span aria-hidden="true" className={styles.buttonFoundation} />
@@ -487,7 +487,7 @@ export function Hero({
                     ))}
                   </span>
                 </Button>
-              </Magnetic>
+              </span>
               <div className="flex gap-3 sm:contents">
                 <Magnetic
                   className={`${styles.actionEntrance} ${styles.actionSecond} max-sm:min-w-0 max-sm:flex-1`}
