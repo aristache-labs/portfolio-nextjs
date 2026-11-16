@@ -24,7 +24,7 @@
   }
 
   .marquee[data-entrance="visible"] .entrance {
-    animation: marquee-enter 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: marquee-enter 800ms 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .marquee[data-entrance="armed"] .track {
