@@ -1058,6 +1058,10 @@
     opacity: calc(1 - var(--hero-exit-actions, 0));
   }
 
+  .hero[data-touch-scene] .scrollCue:not(:focus-visible) {
+    opacity: clamp(0, calc(1 - var(--hero-light-progress, 0) / 0.2), 1);
+  }
+
   .hero[data-touch-scene] .sceneControl:focus-visible {
     opacity: 1;
   }
@@ -1107,52 +1111,6 @@
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero[data-touch-scene] {
     min-height: 145svh;
-    --portrait-exit: var(--hero-light-progress, 0);
-    --portrait-tail-exit: clamp(0, calc((var(--portrait-exit) - 0.73) / 0.24), 1);
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) {
-    --hero-exit-specialization: clamp(0, calc((var(--portrait-exit) - 0.1) / 0.15), 1);
-    --hero-exit-title: clamp(0, calc((var(--portrait-exit) - 0.27) / 0.17), 1);
-    --hero-exit-headline: clamp(0, calc((var(--portrait-exit) - 0.44) / 0.15), 1);
-    --hero-exit-details: clamp(0, calc((var(--portrait-exit) - 0.58) / 0.17), 1);
-    --hero-exit-actions: var(--portrait-tail-exit);
-    transform: translateY(calc(var(--portrait-exit) * -60%));
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) :is(.exitTitle, .exitDetails) {
-    transform: none;
-    opacity: 1;
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .nameLine {
-    transform: translate(
-      calc(var(--hero-exit-title) * -28px),
-      calc(var(--hero-exit-title) * -16px)
-    );
-    opacity: calc(1 - var(--hero-exit-title));
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .nameLine.surname {
-    transform: translate(calc(var(--hero-exit-title) * 28px), calc(var(--hero-exit-title) * -16px));
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .headline {
-    transform: translateY(calc(var(--hero-exit-headline) * -20px));
-    opacity: calc(1 - var(--hero-exit-headline));
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .copy {
-    transform: translateY(calc(var(--hero-exit-details) * -20px));
-    opacity: calc(1 - var(--hero-exit-details));
-  }
-
-  .hero[data-touch-scene] .intro:not(:focus-within) .taglineRow {
-    opacity: calc(1 - var(--portrait-tail-exit));
-  }
-
-  .hero[data-touch-scene] .scrollCue:not(:focus-visible) {
-    opacity: calc(1 - var(--portrait-tail-exit));
   }
 
   .hero[data-touch-scene] + :global(#about) {
