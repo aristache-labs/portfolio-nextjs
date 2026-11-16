@@ -19,6 +19,8 @@ import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
 import { HeroDepth } from "./HeroDepth";
 
+const PULL_REFRESH_DELAY_MS = 500;
+
 // Desktop-only WebGL field; its chunk loads after the page is idle, never on touch screens.
 const HeroNetwork = dynamic(() => import("./HeroNetwork"), { ssr: false });
 
@@ -169,6 +171,32 @@ export function Hero({
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const portraitPoster = useMediaQuery(PORTRAIT_POSTER_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const hero = sectionRef.current;
+    if (!portraitPhone || !hero) return;
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const update = () => {
+      if (window.scrollY > 0) {
+        clearTimeout(timer);
+        timer = undefined;
+        hero.removeAttribute("data-pull-refresh");
+      } else if (timer === undefined && !hero.hasAttribute("data-pull-refresh")) {
+        timer = setTimeout(() => {
+          timer = undefined;
+          hero.toggleAttribute("data-pull-refresh", window.scrollY <= 0);
+        }, PULL_REFRESH_DELAY_MS);
+      }
+    };
+
+    update();
+    const unsubscribe = subscribeScroll(update);
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
+      hero.removeAttribute("data-pull-refresh");
+    };
+  }, [portraitPhone]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(!reduce);
   const playingRef = useRef(playing);
