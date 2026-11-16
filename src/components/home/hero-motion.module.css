@@ -686,11 +686,11 @@
 
 @media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero .scene {
-    min-height: 100dvh;
+    min-height: 100svh;
   }
 
   .content {
-    padding-top: 10rem;
+    padding-top: 6rem;
     padding-bottom: 0rem;
   }
 
@@ -1752,24 +1752,24 @@
 
   .hero[data-cta-expanding] .primaryAction .buttonFoundation,
   .primaryAction:focus-visible .buttonFoundation {
-    transform: translateY(25px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(25px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonSurface,
   .primaryAction:focus-visible .buttonSurface {
-    transform: translateY(10px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(10px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonLabel,
   .primaryAction:focus-visible .buttonLabel {
-    transform: translateY(-12px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(-12px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
     color: var(--brand-bright);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonLid,
   .primaryAction:focus-visible .buttonLid {
-    opacity: 1;
-    transform: translateY(-37px) rotateX(48deg) rotateZ(-10deg);
+    opacity: var(--cta-lid-opacity, 1);
+    transform: translateY(calc(-37px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonGuides,
@@ -1799,7 +1799,7 @@
   }
 
   .primaryAction:hover .buttonLid {
-    opacity: 1;
+    opacity: var(--cta-lid-opacity, 1);
     transform: translateY(-37px) rotateX(48deg) rotateZ(-10deg);
   }
 
@@ -1821,13 +1821,13 @@
   display: none;
   position: absolute;
   top: 50%;
-  left: calc(100% + 30px);
+  left: calc(100% + 36px);
   width: 70px;
   pointer-events: none;
   opacity: 0;
   color: var(--brand-bright);
   font-family: var(--font-geist-mono), monospace;
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1835,8 +1835,9 @@
 
 .buttonAnnotations > span {
   position: absolute;
-  left: 0;
-  transform: translateY(calc(-49px + var(--layer-index) * 22px));
+  left: 25%;
+  /* Follow the layer height and the upward tilt at the right edge. */
+  transform: translateY(calc(-50% - 10px + var(--layer-y) * var(--cta-spread, 1)));
 }
 
 .buttonAnnotations > span::before {
@@ -1844,19 +1845,19 @@
   position: absolute;
   top: 50%;
   right: calc(100% + 5px);
-  width: 34px;
+  width: 40px;
   height: 1px;
   background: rgb(var(--brand-bright-rgb) / 0.5);
 }
 
 .buttonAnnotations > span:nth-child(1) {
-  --layer-index: 0;
+  --layer-y: -37px;
 }
 .buttonAnnotations > span:nth-child(2) {
-  --layer-index: 2;
+  --layer-y: -12px;
 }
 .buttonAnnotations > span:nth-child(3) {
-  --layer-index: 3;
+  --layer-y: 10px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -1870,7 +1871,7 @@
   .hero[data-cta-expanding] .primaryAction .buttonShadow,
   .primaryAction:focus-visible .buttonShadow {
     opacity: 1;
-    transform: translateY(43px) rotateX(48deg) rotateZ(-10deg);
+    transform: translateY(calc(43px * var(--cta-spread, 1))) rotateX(48deg) rotateZ(-10deg);
   }
 
   .hero[data-cta-expanding] .primaryAction .buttonAnnotations,
@@ -1911,7 +1912,13 @@
   (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .buttonAnnotations {
     display: block;
-    left: calc(100% + 14px);
+    left: calc(100% + 20px);
+  }
+}
+
+@media (max-width: 1023px) and (orientation: landscape) {
+  .actions {
+    --cta-lid-opacity: 1;
   }
 }
 
@@ -1926,32 +1933,27 @@
   }
 
   .hero[data-cta-expanding] .actions {
-    translate: 0 var(--cta-drop, 20px);
+    translate: 0 20px;
   }
 
   .hero[data-cta-expanding] .secondaryLinks {
-    translate: 0 calc(var(--cta-drop, 20px) + 16px);
+    translate: 0 36px;
   }
 }
 
-@media (max-width: 1023px) and (max-height: 500px) and (orientation: landscape) {
-  .hero {
-    --cta-drop: 28px;
-  }
-}
-
-@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
-  .hero {
-    --cta-drop: 36px;
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
+  (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
+  .actions {
+    --cta-spread: 1;
+    margin-top: 1.5rem;
   }
 
-  .scrollCue {
-    transition: translate 850ms cubic-bezier(0.4, 0, 0.2, 1);
+  .secondaryLinks {
+    margin-top: 1.5rem;
   }
 
-  .hero[data-cta-expanding] .scrollCue {
-    transition: translate 300ms cubic-bezier(0.22, 1, 0.36, 1);
-    translate: 0 64px;
+  .hero[data-cta-expanding] :is(.actions, .secondaryLinks) {
+    translate: none;
   }
 }
 
