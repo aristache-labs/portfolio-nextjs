@@ -117,9 +117,9 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
       <AboutSequence
         details={
           remainingBio ? (
-            <div className={statsCss.copy}>
+            <AboutReveal className={`${statsCss.copy} ${statsCss.paragraphReveal}`}>
               <AboutBio bio={remainingBio} />
-            </div>
+            </AboutReveal>
           ) : undefined
         }
       >
@@ -144,9 +144,9 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
               </h2>
             </div>
           </AboutReveal>
-          <div className={statsCss.introduction}>
+          <AboutReveal className={`${statsCss.introduction} ${statsCss.paragraphReveal}`}>
             <AboutIntroduction text={introduction} />
-          </div>
+          </AboutReveal>
           {profile.avatarUrl && (
             <AboutPortraitMotion className={statsCss.portrait}>
               <AvatarPortrait
