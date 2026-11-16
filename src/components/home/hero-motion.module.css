@@ -1156,8 +1156,8 @@
   }
 
   .hero[data-touch-scene] + :global(#about) {
-    margin-top: -46svh;
-    padding-top: 4svh;
+    margin-top: -30svh;
+    padding-top: 0svh;
   }
 }
 
