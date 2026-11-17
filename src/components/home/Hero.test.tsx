@@ -255,10 +255,16 @@ describe("Hero", () => {
     expect(screen.queryByRole("link", { name: "Facebook" })).not.toBeInTheDocument();
   });
 
-  it("renders a scroll cue and no avatar image", () => {
-    render(<Hero profile={profile} />);
+  it("links the scroll cue to About only when About is visible", () => {
+    const { rerender } = render(<Hero profile={profile} />);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/scroll to explore/i)).toHaveAttribute("href", "#projects");
+    expect(screen.queryByRole("link", { name: /scroll to explore/i })).not.toBeInTheDocument();
+
+    rerender(<Hero profile={profile} transitionToAbout />);
+    expect(screen.getByRole("link", { name: "Scroll to explore About" })).toHaveAttribute(
+      "href",
+      "#about",
+    );
   });
 
   it("keeps the portrait handoff without writing JavaScript scroll progress", () => {
