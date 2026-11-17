@@ -1327,7 +1327,7 @@
 @media (min-width: 1280px) and (min-height: 760px) and (pointer: fine) {
   .section {
     /* Keep the landing clear when browser zoom narrows the desktop viewport. */
-    padding-bottom: max(9rem, calc(100svh - 36rem - clamp(8px, 12svh - 88px, 48px)));
+    padding-bottom: max(9rem, calc(100svh - 36rem));
   }
 }
 
