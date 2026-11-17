@@ -3,3 +3,4 @@
 * text=auto eol=lf
 
 *.ts linguist-detectable=true
+graphify-out/graph.json merge=graphify

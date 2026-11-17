@@ -26,6 +26,7 @@
 /.agents/
 /skills-lock.json
 /SKILL.md
+graphify-out/
 
 # misc
 .DS_Store
