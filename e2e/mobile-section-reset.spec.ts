@@ -83,15 +83,15 @@ for (const method of ["menu", "scroll"] as const) {
       else await wheelToBeginning(page, id);
     };
     await navigate(page, "About", "about");
-    const more = page.locator("#about").getByRole("button", { name: "View more", exact: true });
+    const more = page.locator("#about").getByRole("button", { name: "Read more", exact: true });
     await more.scrollIntoViewIfNeeded();
     await more.press("Enter");
     await expect(
-      page.locator("#about").getByRole("button", { name: "View less", exact: true }),
+      page.locator("#about").getByRole("button", { name: "Show less", exact: true }),
     ).toBeVisible();
     await leave("Skills", "skills");
     await expect(
-      page.locator("#about").getByRole("button", { name: "View less", exact: true }),
+      page.locator("#about").getByRole("button", { name: "Show less", exact: true }),
     ).toHaveAttribute("aria-expanded", "true");
     await returnTo("About", "about");
     await expect(more).toHaveAttribute("aria-expanded", "false");

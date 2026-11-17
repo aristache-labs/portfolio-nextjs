@@ -35,7 +35,7 @@ function split(text: string) {
 
 /**
  * The biography is rendered once. Desktop shows all of it; phones show the introduction and keep
- * the rest behind "View more". A cut inside a paragraph keeps that paragraph whole on desktop and
+ * the rest behind "Read more". A cut inside a paragraph keeps that paragraph whole on desktop and
  * lets its tail open as a paragraph of its own on phones.
  */
 export function AboutBio({ bio }: { bio: string }) {
@@ -94,7 +94,7 @@ export function AboutBio({ bio }: { bio: string }) {
               onClick={() => setExpanded((value) => !value)}
               className={`${styles.toggle} text-brand-bright border-brand-mid/30 hover:bg-brand-mid/10 focus-visible:ring-brand-mid/70 mx-auto mt-5 flex min-h-11 w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none`}
             >
-              {expanded ? "View less" : "View more"}
+              {expanded ? "Show less" : "Read more"}
               <ChevronDown
                 aria-hidden
                 className={`size-4 transition-transform duration-200 motion-reduce:transition-none ${expanded ? "rotate-180" : ""}`}

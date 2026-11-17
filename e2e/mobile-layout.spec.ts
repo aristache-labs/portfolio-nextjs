@@ -99,7 +99,7 @@ test("portrait hero keeps its height floor without shifting its heading", async 
         const hero = document.querySelector("#hero")!.getBoundingClientRect();
         const heading = document.querySelector("#hero h1")!.getBoundingClientRect();
         const cue = document
-          .querySelector('#hero a[href="#projects"][aria-label]')!
+          .querySelector('#hero a[href="#about"][aria-label]')!
           .getBoundingClientRect();
         const roles = document.querySelector("#hero .site-container")!.getBoundingClientRect();
         return {
