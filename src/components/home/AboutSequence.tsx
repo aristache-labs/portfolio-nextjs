@@ -58,7 +58,12 @@ function ScrollDriver({
   useEffect(() => {
     const stage = target.current?.firstElementChild;
     if (!stage || !pinned) return;
-    const measure = () => setStageBottom(stage.getBoundingClientRect().height + 80);
+    const measure = () => {
+      const stickyTop = parseFloat(getComputedStyle(stage).top);
+      setStageBottom(
+        stage.getBoundingClientRect().height + (Number.isFinite(stickyTop) ? stickyTop : 80),
+      );
+    };
     measure();
     if (typeof ResizeObserver !== "function") return;
     const observer = new ResizeObserver(measure);
@@ -167,7 +172,7 @@ function ScrollLanding({ target }: { target: RefObject<HTMLDivElement | null> })
           : window.matchMedia(TOUCH_LANDSCAPE_QUERY).matches
             ? 40
             : window.matchMedia(ABOUT_PIN_QUERY).matches
-              ? Math.round(Math.min(180, Math.max(112, innerHeight * 0.16)))
+              ? 40 + Math.round(Math.min(180, Math.max(112, innerHeight * 0.16)))
               : 80;
       track.setAttribute("data-scroll-landing", String(offset - distance));
     };
