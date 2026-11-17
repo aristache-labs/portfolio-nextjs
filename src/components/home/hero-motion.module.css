@@ -1,15 +1,3 @@
-/* Match the roles' uppercase metrics while Geist loads, without changing its final face. */
-@font-face {
-  font-family: "Hero Roles Fallback";
-  src: local("Arial");
-  font-style: normal;
-  font-weight: 100 900;
-  size-adjust: 95.36%;
-  ascent-override: 105.38%;
-  descent-override: 30.94%;
-  line-gap-override: 0%;
-}
-
 .hero {
   /* Entrance timeline. Desktop and touch landscape stretch these for a longer reveal. */
   --hero-role-step: 120ms;
@@ -149,7 +137,6 @@
 }
 
 .specialization {
-  font-family: "GeistSans", "Hero Roles Fallback", Arial, sans-serif;
   margin-bottom: 1.25rem;
   max-width: 30rem;
   color: var(--brand-bright);
@@ -214,6 +201,7 @@
   box-shadow: none;
   backdrop-filter: none;
   color: var(--foreground);
+  line-height: 1.2;
 }
 
 .contactAction:hover {
@@ -226,6 +214,16 @@
 .contactAction:focus-visible {
   outline: 2px solid var(--brand-mid);
   outline-offset: 3px;
+}
+
+.scrollCue :global(.animate-scroll-dot) {
+  animation-iteration-count: 2;
+}
+
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .contactAction {
+    font-size: 1.3125rem;
+  }
 }
 
 .secondaryLinks {
@@ -265,7 +263,7 @@
 }
 
 .scrollMedia {
-  transform-origin: center top;
+  transform-origin: center;
 }
 
 /* The pause control sits 8.5rem above the hero's bottom edge. On a short phone the hero is taller
@@ -289,7 +287,6 @@
   }
 }
 
-.halo,
 .handoff {
   display: none;
   pointer-events: none;
@@ -297,9 +294,6 @@
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
   .hero {
-    --hero-pointer-travel: -24px;
-    --hero-copy-travel: 6px;
-    --hero-depth-scale: 1.04;
     --hero-entry-distance: 18px;
     --hero-role-step: 160ms;
     --hero-words-at: 480ms;
@@ -320,17 +314,6 @@
   /* Capped so the copy, a likely LCP element, is fully drawn within the first half second. */
   .hero .enter {
     animation-delay: min(calc(var(--hero-enter-delay, 0s) * 1.7), 300ms);
-  }
-
-  .hero[data-cinematic] .halo {
-    display: block;
-    position: absolute;
-    inset: 8% 5% 12% 35%;
-    background: radial-gradient(ellipse, rgb(var(--brand-mid-rgb) / 0.12), transparent 65%);
-    transform: translate(
-      calc(var(--hero-halo-x, 0) * 48px),
-      calc(var(--hero-halo-y, 0) * 32px + var(--hero-light-progress, 0) * -24px)
-    );
   }
 
   .nameLine {
@@ -365,7 +348,6 @@
       scale(calc(1 - var(--hero-exit-title, 0) * 0.025));
     transform-origin: left center;
     opacity: calc(1 - var(--hero-exit-title, 0));
-    filter: blur(calc(var(--hero-exit-title, 0) * 6px));
   }
 
   /* The two name lines part as they leave: the first lifts, the surname drifts right. */
@@ -380,7 +362,6 @@
   .hero[data-cinematic] .exitDetails {
     transform: translateY(calc(var(--hero-exit-details, 0) * -24px));
     opacity: calc(1 - var(--hero-exit-details, 0));
-    filter: blur(calc(var(--hero-exit-details, 0) * 4px));
   }
 
   .hero[data-cinematic] .exitActions {
@@ -456,40 +437,8 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Desktop reserves image coverage before applying the stronger pointer movement. */
   .scrollMedia {
-    transform: translate(
-        calc(var(--hero-pointer-x, 0) * var(--hero-pointer-travel, -6px)),
-        calc(var(--hero-media-y, 0%) + var(--hero-pointer-y, 0) * var(--hero-pointer-travel, -6px))
-      )
-      scale(calc(var(--hero-media-scale, 1) * var(--hero-depth-scale, 1)));
-  }
-
-  /* The copy leans toward the cursor by a couple of degrees, never enough to hurt reading. */
-  .intro {
-    transform: perspective(1200px)
-      translate3d(
-        calc(var(--hero-pointer-x, 0) * var(--hero-copy-travel, 0px)),
-        calc(var(--hero-pointer-y, 0) * var(--hero-copy-travel, 0px)),
-        0
-      )
-      rotateX(calc(var(--hero-pointer-y, 0) * -1.5deg))
-      rotateY(calc(var(--hero-pointer-x, 0) * 2.5deg));
-  }
-
-  .intro:focus-within {
-    transform: none;
-  }
-
-  .scrollCopy {
-    transform: translateY(var(--hero-copy-y, 0px));
-    opacity: var(--hero-copy-opacity, 1);
-  }
-
-  /* Keep keyboard actions visible even late in the scroll sequence. */
-  .scrollCopy:focus-within {
-    transform: none;
-    opacity: 1;
+    transform: translateY(var(--hero-media-y, 0%)) scale(var(--hero-media-scale, 1));
   }
 
   .name {
@@ -743,8 +692,9 @@
     position: relative;
     top: 86px;
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: max-content minmax(0, max-content);
+    justify-content: center;
+    gap: clamp(0.75rem, 5vw, 1.25rem);
     margin-top: 1.5rem;
   }
 
@@ -752,14 +702,14 @@
     display: contents;
   }
 
-  .actions .actionSecond {
-    justify-self: end;
-  }
-
   .actions a {
     min-height: 52px;
     padding-inline: 0.75rem;
     font-size: 0.8959rem;
+  }
+
+  .actions .contactAction {
+    font-size: 1.125rem;
   }
 
   .hero .secondaryLinks {
@@ -934,6 +884,7 @@
   .actions .contactAction {
     min-height: 48px;
     padding: 12px 22px;
+    font-size: clamp(16px, 1.4375rem, 18px);
   }
 
   .secondaryLinks {
@@ -1012,14 +963,6 @@
 
   .hero[data-touch-scene] .enter {
     animation-delay: calc(var(--hero-enter-delay, 0s) * 1.7);
-  }
-
-  .hero[data-touch-scene] .halo {
-    display: block;
-    position: absolute;
-    inset: 8% 5% 12% 35%;
-    background: radial-gradient(ellipse, rgb(var(--brand-mid-rgb) / 0.12), transparent 65%);
-    transform: translateY(calc(var(--hero-light-progress, 0) * -24px));
   }
 
   .hero[data-touch-scene] .nameLine {
@@ -1132,7 +1075,6 @@
 
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero[data-touch-scene] .exitTitle {
-    opacity: 1;
     transform: none;
   }
 
@@ -1164,12 +1106,6 @@
       animation-range: 0svh 75svh;
     }
 
-    .hero[data-touch-scene] .halo {
-      animation: portrait-halo-drift 1ms linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0svh 75svh;
-    }
-
     .hero[data-touch-scene]
       .intro:not(:focus-within)
       :is(.exitActions, .exitDetails, .specialization, .availability),
@@ -1196,7 +1132,7 @@
       --portrait-exit-lift: 0px;
     }
 
-    .hero[data-touch-scene] .actionSecond:not(:focus-within) .contactAction {
+    .hero[data-touch-scene]:has(.primaryAction) .actionSecond:not(:focus-within) .contactAction {
       animation: portrait-contact-exit 1ms ease-out both;
       animation-timeline: scroll(root block);
       animation-range: 1svh 6svh;
@@ -1220,13 +1156,7 @@
     transform: none;
   }
   to {
-    transform: translateY(-2%) scale(1.1);
-  }
-}
-
-@keyframes portrait-halo-drift {
-  to {
-    transform: translateY(-24px);
+    transform: translateY(-0.5%) scale(1.02);
   }
 }
 
@@ -1640,12 +1570,6 @@
    about 7:8 box, so nudge the picture right by the difference and keep the Fold's own scale; the
    person's head then lands at the same place on the screen as on the Fold. */
 @media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
-  /* Simulators can report a fine pointer. Keep the Fold crop without desktop depth. */
-  .hero {
-    --hero-depth-scale: 1;
-    --hero-pointer-travel: 0px;
-  }
-
   /* At 1024px Tailwind's lg: rules add a second column and 2rem of left padding. The Fold has
      neither, so match it: one full-width column that starts at the container edge. */
   .content {
@@ -1859,7 +1783,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .hero {
     --cta-collapse-duration: 650ms;
-    --cta-content-return-delay: 150ms;
+    --cta-content-return-delay: 350ms;
   }
 
   .actions {
@@ -2081,7 +2005,7 @@
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .hero {
-    --cta-collapse-duration: 550ms;
+    --cta-collapse-duration: 750ms;
   }
 
   .actions {
@@ -2102,13 +2026,13 @@
       visibility 420ms var(--cta-content-return-delay);
   }
 
-  .hero[data-cta-expanding] .actionSecond {
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .actionSecond {
     transition:
       filter 420ms cubic-bezier(0.4, 0, 0.2, 1),
       visibility 420ms;
   }
 
-  .hero[data-cta-expanding] .actionSecond:not(:focus-within) {
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .actionSecond:not(:focus-within) {
     filter: opacity(0);
     visibility: hidden;
   }
@@ -2116,7 +2040,7 @@
 
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
   .hero {
-    --cta-collapse-duration: 1050ms;
+    --cta-collapse-duration: 750ms;
   }
 }
 

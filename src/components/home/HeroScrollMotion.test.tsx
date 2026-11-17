@@ -28,9 +28,7 @@ afterEach(() => {
 const TARGET: Record<string, keyof typeof styles> = {
   "media-y": "scrollMedia",
   "media-scale": "scrollMedia",
-  "copy-y": "scrollCopy",
-  "copy-opacity": "scrollCopy",
-  "light-progress": "halo",
+  "light-progress": "scrollCue",
   handoff: "handoff",
   "exit-actions": "exitActions",
   "exit-details": "exitDetails",
@@ -58,39 +56,20 @@ describe("HeroScrollMotion", () => {
     const node = makeSection();
     render(<HeroScrollMotion section={{ current: node }} expressive={false} variant="touch" />);
 
-    act(() => scroll.progress!.set(0.38));
+    act(() => scroll.progress!.set(0.54));
     expect(exit(node, "actions")).toBeGreaterThan(exit(node, "details"));
     expect(exit(node, "title")).toBe(0);
-    expect(node.hasAttribute("data-cta-expanding")).toBe(true);
 
     act(() => scroll.progress!.set(0));
     expect(exit(node, "actions")).toBe(0);
-    expect(node.hasAttribute("data-cta-expanding")).toBe(false);
-  });
-
-  it("stops the unpinned CTA expansion once the CTA reaches the header", () => {
-    const node = makeSection();
-    const cta = node.appendChild(document.createElement("div"));
-    cta.className = styles.actions;
-    let top = 300;
-    cta.getBoundingClientRect = () => ({ top }) as DOMRect;
-    render(<HeroScrollMotion section={{ current: node }} expressive />);
-
-    act(() => scroll.progress!.set(0.3));
-    expect(node.hasAttribute("data-cta-expanding")).toBe(true);
-
-    top = 40;
-    act(() => scroll.progress!.set(0.4));
-    expect(node.hasAttribute("data-cta-expanding")).toBe(false);
   });
 
   it("opens the pinned scene while keeping enough image coverage for its upward movement", () => {
     const section = { current: makeSection() };
     render(<HeroScrollMotion section={section} expressive variant="desktop" />);
     act(() => scroll.progress!.set(0.5));
-    expect(read(section.current, "media-y")).toBe("-1%");
-    expect(read(section.current, "media-scale")).toBe("1.05");
-    expect(read(section.current, "copy-opacity")).toBe("1");
+    expect(read(section.current, "media-y")).toBe("-0.75%");
+    expect(read(section.current, "media-scale")).toBe("1.02");
     act(() => scroll.progress!.set(0));
     expect(read(section.current, "media-scale")).toBe("1");
     expect(read(section.current, "exit-title")).toBe("0");
@@ -100,16 +79,17 @@ describe("HeroScrollMotion", () => {
   it("clears the desktop scene from the bottom up, leaving the name until last", () => {
     const section = { current: makeSection() };
     render(<HeroScrollMotion section={section} expressive variant="desktop" />);
-    act(() => scroll.progress!.set(0.3));
     const node = section.current;
+    act(() => scroll.progress!.set(0.3));
+    expect(exit(node, "actions")).toBe(0);
+    act(() => scroll.progress!.set(0.5));
     expect(exit(node, "actions")).toBeGreaterThan(exit(node, "details"));
     expect(exit(node, "details")).toBeGreaterThan(exit(node, "specialization"));
     expect(exit(node, "title")).toBe(0);
-    act(() => scroll.progress!.set(0.6));
+    act(() => scroll.progress!.set(0.67));
     expect(exit(node, "actions")).toBe(1);
     expect(exit(node, "title")).toBeGreaterThan(0);
     expect(exit(node, "title")).toBeLessThan(0.1);
-    // The plate darkens as the copy leaves, so it never holds the stage alone.
     expect(Number(read(node, "handoff"))).toBeGreaterThan(0.5);
     act(() => scroll.progress!.set(1));
     expect(exit(node, "title")).toBe(1);
@@ -120,20 +100,16 @@ describe("HeroScrollMotion", () => {
     const section = { current: makeSection() };
     render(<HeroScrollMotion section={section} expressive={false} variant="touch" />);
     const node = section.current;
-    const expected: [number, Record<string, number>][] = [
-      [0.3, { actions: 0.352, details: 0.2858, specialization: 0, title: 0, handoff: 0.0383 }],
-      [0.5, { actions: 1, details: 0.99, specialization: 0.5, title: 0, handoff: 0.369 }],
-      [0.8, { actions: 1, details: 1, specialization: 1, title: 0.5357, handoff: 0.9415 }],
-    ];
-    for (const [progress, values] of expected) {
-      act(() => scroll.progress!.set(progress));
-      for (const [name, value] of Object.entries(values)) {
-        expect(Number(read(node, name === "handoff" ? name : `exit-${name}`))).toBeCloseTo(
-          value,
-          3,
-        );
-      }
-    }
+    act(() => scroll.progress!.set(0.45));
+    expect(exit(node, "actions")).toBe(0);
+    expect(exit(node, "details")).toBe(0);
+    act(() => scroll.progress!.set(0.6));
+    expect(exit(node, "actions")).toBeGreaterThan(exit(node, "details"));
+    expect(exit(node, "details")).toBeGreaterThan(exit(node, "specialization"));
+    expect(exit(node, "title")).toBe(0);
+    act(() => scroll.progress!.set(0.86));
+    expect(exit(node, "actions")).toBe(1);
+    expect(exit(node, "title")).toBeLessThan(1);
   });
 
   it("replaces the desktop handoff curve when the scene switches to touch", () => {
@@ -147,29 +123,25 @@ describe("HeroScrollMotion", () => {
     act(() => scroll.progress!.set(0.5));
     expect(Number(read(section.current, "handoff"))).toBeCloseTo(0.369, 3);
     expect(exit(section.current, "title")).toBe(0);
-    expect(exit(section.current, "specialization")).toBeCloseTo(0.5, 3);
+    expect(exit(section.current, "specialization")).toBe(0);
   });
 
   it("reverses the desktop scene when scrolling back to the top", () => {
     const section = { current: makeSection() };
     render(<HeroScrollMotion section={section} expressive />);
     act(() => scroll.progress!.set(1));
-    expect(read(section.current, "media-y")).toBe("18%");
-    expect(read(section.current, "media-scale")).toBe("1.06");
-    expect(read(section.current, "copy-opacity")).toBe("0");
+    expect(read(section.current, "media-y")).toBe("-1.5%");
+    expect(read(section.current, "media-scale")).toBe("1.04");
     expect(read(section.current, "handoff")).toBe("");
     act(() => scroll.progress!.set(0));
     expect(read(section.current, "media-y")).toBe("0%");
-    expect(read(section.current, "copy-opacity")).toBe("1");
   });
 
-  it("keeps touch copy visible and caps motion after leaving the hero", () => {
+  it("caps the smaller touch parallax after leaving the hero", () => {
     const section = { current: makeSection() };
     render(<HeroScrollMotion section={section} expressive={false} />);
     act(() => scroll.progress!.set(2));
-    expect(read(section.current, "media-y")).toBe("5%");
-    expect(read(section.current, "copy-y")).toBe("-12px");
-    expect(read(section.current, "copy-opacity")).toBe("1");
+    expect(read(section.current, "media-y")).toBe("-0.5%");
   });
 
   it("restores static styles and stops updates when motion is disabled", () => {

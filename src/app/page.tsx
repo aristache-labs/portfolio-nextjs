@@ -80,6 +80,8 @@ export default async function Home() {
 
       <Hero
         transitionToAbout={show("about")}
+        showProjects={show("projects")}
+        showContact={show("contact")}
         profile={{
           name: profile.name,
           roles: profile.roles,
