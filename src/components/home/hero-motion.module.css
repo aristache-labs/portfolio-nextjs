@@ -684,11 +684,14 @@
   }
 }
 
-@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))),
+  (orientation: landscape) and (pointer: coarse) {
   :global(html):has(.hero:not([data-pull-refresh])) {
     overscroll-behavior-y: none;
   }
+}
 
+@media (max-width: 767px) and (orientation: portrait) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero .scene {
     min-height: 100svh;
   }
@@ -785,12 +788,6 @@
   }
 }
 
-@keyframes hero-poster-drift {
-  to {
-    transform: translateY(40%) scale(1.2);
-  }
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .hero[data-touch-scene] :is(.specialization, .availability) {
     transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
@@ -842,14 +839,6 @@
     position: relative;
     width: fit-content;
     max-width: 100%;
-  }
-
-  @supports (animation-timeline: scroll()) {
-    .hero:not([data-touch-scene]) .poster {
-      animation: hero-poster-drift linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 80svh;
-    }
   }
 
   /* About overlaps the hero edge; only its backdrop dissolves, its content stays in place. */
@@ -1138,6 +1127,202 @@
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   .hero[data-touch-scene] + :global(#about) {
     margin-top: -51svh;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
+  .hero[data-touch-scene] .exitTitle {
+    opacity: 1;
+    transform: none;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .hero[data-touch-scene] .intro:not(:focus-within) :is(.nameLine, .headline) {
+      transform-origin: left center;
+      animation: portrait-title-exit 1ms ease-in-out both;
+      animation-timeline: scroll(root block);
+      animation-range: 43.5svh 75svh;
+    }
+
+    .hero[data-touch-scene] .nameLine.surname {
+      --portrait-title-exit-x: 28px;
+    }
+
+    .hero[data-touch-scene] :is(.surname, .headline) {
+      --portrait-title-exit-y: -36px;
+    }
+
+    .hero[data-touch-scene]:not(:has(:focus-visible)) .handoff {
+      animation: portrait-handoff 1ms ease-in-out both;
+      animation-timeline: scroll(root block);
+      animation-range: 16.5svh 67.5svh;
+    }
+
+    .hero[data-touch-scene] .scrollMedia {
+      animation: portrait-media-drift 1ms linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0svh 75svh;
+    }
+
+    .hero[data-touch-scene] .halo {
+      animation: portrait-halo-drift 1ms linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0svh 75svh;
+    }
+
+    .hero[data-touch-scene]
+      .intro:not(:focus-within)
+      :is(.exitActions, .exitDetails, .specialization, .availability),
+    .hero[data-touch-scene] .scrollCue:not(:focus-visible) > span {
+      animation: portrait-content-exit 1ms ease-in-out both;
+      animation-timeline: scroll(root block);
+      animation-range: var(--portrait-exit-range, 13.5svh 36svh);
+    }
+
+    .hero[data-touch-scene] .exitActions {
+      --portrait-exit-lift: -16px;
+    }
+
+    .hero[data-touch-scene] .exitDetails {
+      --portrait-exit-range: 13.5svh 39svh;
+    }
+
+    .hero[data-touch-scene] :is(.specialization, .availability) {
+      --portrait-exit-range: 22.5svh 52.5svh;
+    }
+
+    .hero[data-touch-scene] .scrollCue {
+      --portrait-exit-range: 0svh 15svh;
+      --portrait-exit-lift: 0px;
+    }
+
+    .hero[data-touch-scene]
+      .primaryAction:not(:focus-visible)
+      :is(
+        .buttonFoundation,
+        .buttonSurface,
+        .buttonLabel,
+        .buttonLid,
+        .buttonGuides,
+        .buttonShadow,
+        .buttonAnnotations
+      ) {
+      animation: portrait-cta-expand 1ms ease-out both;
+      animation-timeline: scroll(root block);
+      animation-range: 1svh 8svh;
+    }
+
+    .hero[data-touch-scene] .buttonFoundation {
+      --portrait-cta-rest-offset: 5px;
+      --portrait-cta-offset: 25px;
+    }
+
+    .hero[data-touch-scene] .buttonSurface {
+      --portrait-cta-offset: 10px;
+    }
+
+    .hero[data-touch-scene] .buttonLabel {
+      --portrait-cta-offset: -12px;
+      --portrait-cta-color: var(--brand-bright);
+    }
+
+    .hero[data-touch-scene] .buttonLid {
+      --portrait-cta-offset: -37px;
+    }
+
+    .hero[data-touch-scene] .buttonShadow {
+      --portrait-cta-offset: 43px;
+    }
+
+    .hero[data-touch-scene] :is(.buttonLid, .buttonGuides, .buttonShadow, .buttonAnnotations) {
+      --portrait-cta-rest-opacity: 0;
+    }
+
+    .hero[data-touch-scene] .buttonAnnotations {
+      --portrait-cta-tilt: 0deg;
+      --portrait-cta-rest-color: var(--brand-bright);
+      --portrait-cta-color: var(--brand-bright);
+    }
+
+    .hero[data-touch-scene] .actionSecond:not(:focus-within) .contactAction {
+      animation: portrait-contact-exit 1ms ease-out both;
+      animation-timeline: scroll(root block);
+      animation-range: 1svh 6svh;
+    }
+  }
+}
+
+@keyframes portrait-content-exit {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(var(--portrait-exit-lift, -24px));
+  }
+}
+
+@keyframes portrait-media-drift {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateY(-2%) scale(1.1);
+  }
+}
+
+@keyframes portrait-halo-drift {
+  to {
+    transform: translateY(-24px);
+  }
+}
+
+@keyframes portrait-cta-expand {
+  from {
+    opacity: var(--portrait-cta-rest-opacity, 1);
+    transform: translateY(var(--portrait-cta-rest-offset, 0px));
+    color: var(--portrait-cta-rest-color, white);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(var(--portrait-cta-offset, 0px)) rotateX(var(--portrait-cta-tilt, 48deg))
+      rotateZ(var(--portrait-cta-tilt, -10deg));
+    color: var(--portrait-cta-color, white);
+  }
+}
+
+@keyframes portrait-contact-exit {
+  from {
+    opacity: 1;
+    scale: 1;
+    visibility: visible;
+  }
+  to {
+    opacity: 0;
+    scale: 0.9;
+    visibility: hidden;
+  }
+}
+
+@keyframes portrait-title-exit {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--portrait-title-exit-x, 0px), var(--portrait-title-exit-y, -56px))
+      scale(0.975);
+  }
+}
+
+@keyframes portrait-handoff {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.6;
   }
 }
 
@@ -1598,7 +1783,7 @@
 }
 
 /* Galaxy Tab S9 Ultra portrait fills the tall viewport with a larger introduction. */
-@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+@media (min-width: 1105px) and (min-height: 1500px) and (orientation: portrait) {
   .scene {
     min-height: 100svh;
   }

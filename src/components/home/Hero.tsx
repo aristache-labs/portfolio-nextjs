@@ -12,6 +12,7 @@ import {
   FOLD_VIEWPORT_QUERY,
   HERO_VIDEO_QUERY,
   PORTRAIT_PHONE_QUERY,
+  TOUCH_LANDSCAPE_QUERY,
   useMediaQuery,
 } from "@/hooks/useMediaQuery";
 import { SocialGlyph } from "./social-icons";
@@ -150,12 +151,14 @@ export function Hero({
   const expressive = mode === "expressive";
   const showNetwork = useIdleAfterLoad(expressive) && expressive;
   const ultraPortrait = useMediaQuery(
-    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+    "(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)",
   );
   const desktopPinned =
     useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout && !ultraPortrait;
   const touchLandscape = useMediaQuery(HERO_LANDSCAPE_PIN_QUERY);
   const portraitPhone = useMediaQuery(PORTRAIT_PHONE_QUERY);
+  const touchLandscapeRefresh = useMediaQuery(TOUCH_LANDSCAPE_QUERY);
+  const delayedPullRefresh = portraitPhone || touchLandscapeRefresh;
   const touchScene = (touchLandscape || portraitPhone) && mode !== "static" && transitionToAbout;
   const stopAnchorScroll = useRef<(() => void) | undefined>(undefined);
   useEffect(() => () => stopAnchorScroll.current?.(), []);
@@ -173,7 +176,7 @@ export function Hero({
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const hero = sectionRef.current;
-    if (!portraitPhone || !hero) return;
+    if (!delayedPullRefresh || !hero) return;
 
     let timer: ReturnType<typeof setTimeout> | undefined;
     const update = () => {
@@ -196,7 +199,7 @@ export function Hero({
       clearTimeout(timer);
       hero.removeAttribute("data-pull-refresh");
     };
-  }, [portraitPhone]);
+  }, [delayedPullRefresh]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(!reduce);
   const playingRef = useRef(playing);
@@ -332,7 +335,7 @@ export function Hero({
       data-touch-scene={touchScene || undefined}
       className={`${styles.hero} relative scroll-mt-24`}
     >
-      {mode !== "static" && !reduce && (
+      {mode !== "static" && !reduce && !portraitPhone && (
         <HeroScrollMotion
           section={sectionRef}
           expressive={expressive}

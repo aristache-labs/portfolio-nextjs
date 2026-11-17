@@ -28,9 +28,8 @@ export function ExperienceReveal({
   const element = useRef<HTMLDivElement>(null);
   const { mode } = useAnimationPolicy();
   const solidEntry =
-    useMediaQuery(
-      "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
-    ) && kind === "entry";
+    useMediaQuery("(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)") &&
+    kind === "entry";
   const { controls } = useProgressiveReveal({
     ...options,
     element,

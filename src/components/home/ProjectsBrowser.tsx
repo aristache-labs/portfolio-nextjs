@@ -97,7 +97,7 @@ export function ProjectsBrowser({
   );
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const ultraPortrait = useMediaQuery(
-    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+    "(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)",
   );
   // Recently updated is one column below 640px (three cards) and 2x2 from there (four cards).
   // The query is inverted so the server renders the wide layout, as it did before.

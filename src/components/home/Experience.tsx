@@ -490,7 +490,7 @@ export function Experience({
   const landscape = useMediaQuery(EXPERIENCE_LANDSCAPE_QUERY);
   const fold = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const ultraPortrait = useMediaQuery(
-    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+    "(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)",
   );
   const desktop = useMediaQuery("(min-width: 1024px)") && !fold && !ultraPortrait;
   const desktopDisclosure =

@@ -132,7 +132,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const desktop = useMediaQuery("(min-width: 1024px) and (pointer: fine)") && !fold;
   const ipadProLandscape = useMediaQuery(IPAD_PRO_LANDSCAPE_QUERY);
   const ultraPortrait = useMediaQuery(
-    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+    "(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)",
   );
   const solidTablet = ipadProLandscape || ultraPortrait;
   const tabletLandscape = useMediaQuery(TABLET_LANDSCAPE_QUERY) || ipadProLandscape;
