@@ -1196,54 +1196,6 @@
       --portrait-exit-lift: 0px;
     }
 
-    .hero[data-touch-scene]
-      .primaryAction:not(:focus-visible)
-      :is(
-        .buttonFoundation,
-        .buttonSurface,
-        .buttonLabel,
-        .buttonLid,
-        .buttonGuides,
-        .buttonShadow,
-        .buttonAnnotations
-      ) {
-      animation: portrait-cta-expand 1ms ease-out both;
-      animation-timeline: scroll(root block);
-      animation-range: 1svh 8svh;
-    }
-
-    .hero[data-touch-scene] .buttonFoundation {
-      --portrait-cta-rest-offset: 5px;
-      --portrait-cta-offset: 25px;
-    }
-
-    .hero[data-touch-scene] .buttonSurface {
-      --portrait-cta-offset: 10px;
-    }
-
-    .hero[data-touch-scene] .buttonLabel {
-      --portrait-cta-offset: -12px;
-      --portrait-cta-color: var(--brand-bright);
-    }
-
-    .hero[data-touch-scene] .buttonLid {
-      --portrait-cta-offset: -37px;
-    }
-
-    .hero[data-touch-scene] .buttonShadow {
-      --portrait-cta-offset: 43px;
-    }
-
-    .hero[data-touch-scene] :is(.buttonLid, .buttonGuides, .buttonShadow, .buttonAnnotations) {
-      --portrait-cta-rest-opacity: 0;
-    }
-
-    .hero[data-touch-scene] .buttonAnnotations {
-      --portrait-cta-tilt: 0deg;
-      --portrait-cta-rest-color: var(--brand-bright);
-      --portrait-cta-color: var(--brand-bright);
-    }
-
     .hero[data-touch-scene] .actionSecond:not(:focus-within) .contactAction {
       animation: portrait-contact-exit 1ms ease-out both;
       animation-timeline: scroll(root block);
@@ -1275,20 +1227,6 @@
 @keyframes portrait-halo-drift {
   to {
     transform: translateY(-24px);
-  }
-}
-
-@keyframes portrait-cta-expand {
-  from {
-    opacity: var(--portrait-cta-rest-opacity, 1);
-    transform: translateY(var(--portrait-cta-rest-offset, 0px));
-    color: var(--portrait-cta-rest-color, white);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(var(--portrait-cta-offset, 0px)) rotateX(var(--portrait-cta-tilt, 48deg))
-      rotateZ(var(--portrait-cta-tilt, -10deg));
-    color: var(--portrait-cta-color, white);
   }
 }
 
@@ -1923,7 +1861,7 @@
     --cta-layer-ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .hero[data-cta-expanding] .actions,
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .actions,
   .primaryAction:focus-visible {
     --cta-layer-duration: 550ms;
     --cta-layer-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -1940,33 +1878,33 @@
       color 350ms ease;
   }
 
-  .hero[data-cta-expanding] .primaryAction .buttonFoundation,
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .primaryAction .buttonFoundation,
   .primaryAction:focus-visible .buttonFoundation {
     transform: translateY(calc(25px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
       rotateZ(-10deg);
   }
 
-  .hero[data-cta-expanding] .primaryAction .buttonSurface,
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .primaryAction .buttonSurface,
   .primaryAction:focus-visible .buttonSurface {
     transform: translateY(calc(10px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
       rotateZ(-10deg);
   }
 
-  .hero[data-cta-expanding] .primaryAction .buttonLabel,
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .primaryAction .buttonLabel,
   .primaryAction:focus-visible .buttonLabel {
     transform: translateY(calc(-12px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
       rotateZ(-10deg);
     color: var(--brand-bright);
   }
 
-  .hero[data-cta-expanding] .primaryAction .buttonLid,
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .primaryAction .buttonLid,
   .primaryAction:focus-visible .buttonLid {
     opacity: 1;
     transform: translateY(calc(-37px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
       rotateZ(-10deg);
   }
 
-  .hero[data-cta-expanding] .primaryAction .buttonGuides,
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .primaryAction .buttonGuides,
   .primaryAction:focus-visible .buttonGuides {
     opacity: 1;
     transform: rotateX(var(--cta-layer-tilt, 48deg)) rotateZ(-10deg);
@@ -2066,14 +2004,14 @@
       transform var(--cta-layer-duration) var(--cta-layer-ease);
   }
 
-  .hero[data-cta-expanding] .primaryAction .buttonShadow,
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .primaryAction .buttonShadow,
   .primaryAction:focus-visible .buttonShadow {
     opacity: 1;
     transform: translateY(calc(43px * var(--cta-spread, 1))) rotateX(var(--cta-layer-tilt, 48deg))
       rotateZ(-10deg);
   }
 
-  .hero[data-cta-expanding] .primaryAction .buttonAnnotations,
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .primaryAction .buttonAnnotations,
   .primaryAction:focus-visible .buttonAnnotations {
     opacity: 1;
   }
@@ -2167,6 +2105,12 @@
   .hero[data-cta-expanding] .actionSecond:not(:focus-within) {
     filter: opacity(0);
     visibility: hidden;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
+  .hero {
+    --cta-collapse-duration: 1050ms;
   }
 }
 

@@ -176,6 +176,26 @@ export function Hero({
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const hero = sectionRef.current;
+    if (!hero || !portraitPhone || !touchScene || reduce) return;
+
+    const update = () => {
+      const expanded = hero.hasAttribute("data-portrait-cta-expanded");
+      const threshold = expanded ? 32 : 64;
+      const shouldExpand = window.scrollY >= threshold;
+      if (expanded !== shouldExpand) {
+        hero.toggleAttribute("data-portrait-cta-expanded", shouldExpand);
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", update);
+      hero.removeAttribute("data-portrait-cta-expanded");
+    };
+  }, [portraitPhone, touchScene, reduce]);
+  useEffect(() => {
+    const hero = sectionRef.current;
     if (!delayedPullRefresh || !hero) return;
 
     let timer: ReturnType<typeof setTimeout> | undefined;
