@@ -407,11 +407,12 @@ export function Footer({
               className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right [@media(orientation:landscape)_and_(max-width:1024px)]:order-none [@media(orientation:landscape)_and_(max-width:1024px)]:text-right [@media(orientation:landscape)_and_(max-width:740px)]:hidden"
             >
               DESIGNED &amp; BUILT WITH <span className="sr-only">CARE</span>
+              {/* The cycling words are CSS-generated, so the page text reads "with care" once. */}
               <span aria-hidden className={wordsCss.words}>
-                <span>CARE</span>
-                <span>LOVE</span>
-                <span>PRECISION</span>
-                <span>CARE</span>
+                <span data-word="CARE" />
+                <span data-word="LOVE" />
+                <span data-word="PRECISION" />
+                <span data-word="CARE" />
               </span>
             </m.p>
           </FooterPart>

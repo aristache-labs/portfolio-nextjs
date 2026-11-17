@@ -10,6 +10,10 @@
   color: var(--brand-bright);
 }
 
+.words span::before {
+  content: attr(data-word);
+}
+
 .words span {
   display: block;
   animation: footer-word-cycle 6s cubic-bezier(0.8, 0, 0.2, 1) infinite;

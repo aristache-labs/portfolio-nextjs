@@ -112,6 +112,11 @@
   animation: term-type 1.4s steps(16) 0.7s forwards;
 }
 
+.typed::before {
+  content: attr(data-text);
+  white-space: pre;
+}
+
 .out {
   opacity: 0;
   color: #8b949e;

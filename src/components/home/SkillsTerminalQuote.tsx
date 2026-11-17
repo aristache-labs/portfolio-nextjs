@@ -53,7 +53,8 @@ export function SkillsTerminalQuote() {
           </div>
           <div className={terminalCss.body}>
             <span className={`${terminalCss.line} ${terminalCss.command}`}>
-              <span className={terminalCss.typed}>npm create quote</span>
+              {/* Decorative prompt, CSS-generated so it stays out of the page's text content. */}
+              <span aria-hidden className={terminalCss.typed} data-text="npm create quote" />
               <span aria-hidden className={terminalCss.caret} />
             </span>
             <span className={`${terminalCss.line} ${terminalCss.out}`} style={printAt(2.3)}>

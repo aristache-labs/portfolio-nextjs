@@ -101,8 +101,10 @@ describe("About", () => {
   it("renders the documented outcomes independently of the GitHub stats", () => {
     render(<About profile={mockProfile} />);
     for (const value of ["8+", "60%", "1,600+", "5"]) {
+      // Visible digits are aria-hidden; the announced value is CSS-generated from data-value.
       const copies = screen.getAllByText(value);
-      expect(copies.filter((node) => !node.closest('[aria-hidden="true"]'))).toHaveLength(1);
+      expect(copies.filter((node) => !node.closest('[aria-hidden="true"]'))).toHaveLength(0);
+      expect(document.querySelectorAll(`[data-value="${value}"]`)).toHaveLength(1);
     }
     expect(screen.queryByText("120+")).not.toBeInTheDocument();
   });
