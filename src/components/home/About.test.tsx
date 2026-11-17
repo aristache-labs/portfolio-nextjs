@@ -71,14 +71,14 @@ describe("About", () => {
     );
     const toggle = screen.getByRole("button", { name: "View more" });
     const remainder = document.getElementById(toggle.getAttribute("aria-controls")!);
-    expect(remainder).toHaveAttribute("hidden");
+    expect(remainder).toHaveAttribute("data-collapsed");
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    expect(remainder).not.toHaveAttribute("hidden");
+    expect(remainder).not.toHaveAttribute("data-collapsed");
     expect(remainder).toHaveTextContent("More about my work.");
     fireEvent.click(screen.getByRole("button", { name: "View less" }));
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(remainder).toHaveAttribute("hidden");
+    expect(remainder).toHaveAttribute("data-collapsed");
   });
   it("renders the bio text", () => {
     const { container } = render(<About profile={mockProfile} />);

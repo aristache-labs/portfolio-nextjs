@@ -1,4 +1,5 @@
-.mobile {
+/* Desktop shows the whole biography; "View more" and the collapsed state are phone-only. */
+.buttonReveal {
   display: none;
 }
 
@@ -55,7 +56,8 @@
     animation: gentle-float 4s ease-in-out infinite;
   }
 
-  .remainder:not([hidden]) {
+  .remainder:not([data-collapsed]),
+  .tail:not([data-collapsed]) {
     animation: reveal-copy 180ms ease-out;
   }
 }
@@ -83,12 +85,19 @@
 
 @media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))),
   (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) {
-  .desktop {
+  .buttonReveal {
+    display: block;
+  }
+
+  .remainder[data-collapsed],
+  .tail[data-collapsed] {
     display: none;
   }
 
-  .mobile {
+  /* A cut inside a paragraph opens its tail as a paragraph of its own. */
+  .tail {
     display: block;
+    margin-top: 1rem;
   }
 }
 
@@ -111,15 +120,5 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@media (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
-  .desktop {
-    display: block;
-  }
-
-  .mobile {
-    display: none;
   }
 }

@@ -1275,6 +1275,12 @@
   opacity: 0;
 }
 
+/* Reserves the name's box from live text metrics without adding the name to the page text. */
+.nameMeasure::before {
+  content: attr(data-text);
+  white-space: pre;
+}
+
 .nameOutline {
   position: absolute;
   inset: 0;
