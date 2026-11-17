@@ -24,6 +24,7 @@ vi.mock("framer-motion", async (importOriginal) => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 function Scene() {
@@ -203,13 +204,14 @@ describe("AboutSequence", () => {
 
   it("names an end-of-pin landing offset for menu navigation", () => {
     installMatchMedia({ [EXPRESSIVE_MOTION_QUERY]: true, [ABOUT_PIN_QUERY]: true });
+    vi.stubGlobal("innerHeight", 800);
     vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(862);
     vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
       height: 520,
     } as DOMRect);
     const { container } = render(<Scene />);
     const track = container.firstElementChild as HTMLElement;
-    expect(track.dataset.scrollLanding).toBe("-262");
+    expect(track.dataset.scrollLanding).toBe("-174");
   });
 
   it("restores static content when reduced motion changes at runtime", () => {
