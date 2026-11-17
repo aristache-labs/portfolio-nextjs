@@ -2,7 +2,6 @@
 
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { preload } from "react-dom";
-import dynamic from "next/dynamic";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -18,36 +17,8 @@ import {
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
-import { HeroDepth } from "./HeroDepth";
-
 const PULL_REFRESH_DELAY_MS = 500;
 
-// Desktop-only WebGL field; its chunk loads after the page is idle, never on touch screens.
-const HeroNetwork = dynamic(() => import("./HeroNetwork"), { ssr: false });
-
-/** Resolves once the page has loaded and the main thread has a quiet moment. */
-function useIdleAfterLoad(enabled: boolean) {
-  const [idle, setIdle] = useState(false);
-  useEffect(() => {
-    if (!enabled || idle) return;
-    let handle: number | undefined;
-    const schedule = () => {
-      handle =
-        typeof window.requestIdleCallback === "function"
-          ? window.requestIdleCallback(() => setIdle(true), { timeout: 2500 })
-          : window.setTimeout(() => setIdle(true), 1200);
-    };
-    if (document.readyState === "complete") schedule();
-    else window.addEventListener("load", schedule, { once: true });
-    return () => {
-      window.removeEventListener("load", schedule);
-      if (handle === undefined) return;
-      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(handle);
-      else window.clearTimeout(handle);
-    };
-  }, [enabled, idle]);
-  return idle;
-}
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import { subscribeScroll } from "@/lib/scroll-state";
@@ -139,18 +110,21 @@ export function Hero({
   resumeUrl,
   socials = [],
   transitionToAbout = false,
+  showProjects = true,
+  showContact = true,
 }: {
   profile: HeroProfile;
   heroTagline?: string | null;
   resumeUrl?: string | null;
   socials?: { platform: string; url: string }[];
   transitionToAbout?: boolean;
+  showProjects?: boolean;
+  showContact?: boolean;
 }) {
   preloadPoster();
   const reduce = useReducedMotion();
   const { mode } = useAnimationPolicy();
   const expressive = mode === "expressive";
-  const showNetwork = useIdleAfterLoad(expressive) && expressive;
   const ultraPortrait = useMediaQuery(
     "(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)",
   );
@@ -171,13 +145,18 @@ export function Hero({
     stopAnchorScroll.current?.();
     stopAnchorScroll.current = scrollToSection(id, reduce);
   };
+  const cssPortraitMotion =
+    portraitPhone &&
+    touchScene &&
+    typeof CSS !== "undefined" &&
+    CSS.supports?.("animation-timeline: scroll()");
   const canPlayVideo = useMediaQuery(HERO_VIDEO_QUERY);
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const portraitPoster = useMediaQuery(PORTRAIT_POSTER_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const hero = sectionRef.current;
-    if (!hero || !portraitPhone || !touchScene || reduce) return;
+    if (!hero || !showProjects || !portraitPhone || !touchScene || reduce) return;
 
     const update = () => {
       const expanded = hero.hasAttribute("data-portrait-cta-expanded");
@@ -194,7 +173,7 @@ export function Hero({
       window.removeEventListener("scroll", update);
       hero.removeAttribute("data-portrait-cta-expanded");
     };
-  }, [portraitPhone, touchScene, reduce]);
+  }, [portraitPhone, touchScene, reduce, showProjects]);
   useEffect(() => {
     const hero = sectionRef.current;
     if (!delayedPullRefresh || !hero) return;
@@ -356,10 +335,11 @@ export function Hero({
       data-touch-scene={touchScene || undefined}
       className={`${styles.hero} relative scroll-mt-24`}
     >
-      {mode !== "static" && !reduce && !portraitPhone && (
+      {mode !== "static" && !reduce && !cssPortraitMotion && (
         <HeroScrollMotion
           section={sectionRef}
           expressive={expressive}
+          expandProjects={showProjects}
           variant={desktopPinned ? "desktop" : touchScene ? "touch" : undefined}
         />
       )}
@@ -412,10 +392,6 @@ export function Hero({
             </div>
           </div>
           <div className={`${styles.scrim} hero-vignette absolute inset-0`} />
-          {expressive && <HeroDepth section={sectionRef} />}
-          {showNetwork && <HeroNetwork section={sectionRef} />}
-          <div aria-hidden className={styles.halo} />
-          <div className="hero-noise absolute inset-0" />
           <div className={styles.handoff} />
           <SectionEdge edge="bottom" />
         </div>
@@ -432,7 +408,7 @@ export function Hero({
         )}
 
         <div
-          className={`${styles.content} ${styles.scrollCopy} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
+          className={`${styles.content} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
         >
           <div className={`${styles.intro} min-w-0 lg:col-start-1 lg:row-start-1 lg:pl-8`}>
             {profile.availability && (
@@ -515,49 +491,55 @@ export function Hero({
               )}
             </div>
 
-            <div
-              className={`${styles.actions} ${styles.exitActions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
-            >
-              <span className={`${styles.actionEntrance} ${styles.actionFirst} inline-block`}>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  href="#projects"
-                  onClick={(event) => navigateToSection(event, "projects")}
-                  className={`${styles.primaryAction} rounded-2xl`}
-                >
-                  <span aria-hidden="true" className={styles.buttonShadow} />
-                  <span aria-hidden="true" className={styles.buttonFoundation} />
-                  <span aria-hidden="true" className={styles.buttonSurface} />
-                  <span aria-hidden="true" className={styles.buttonLid} />
-                  <span aria-hidden="true" className={styles.buttonGuides} />
-                  <span className={styles.buttonLabel}>
-                    Explore Projects
-                    <ArrowRight aria-hidden="true" className="size-4" />
+            {(showProjects || showContact) && (
+              <div
+                className={`${styles.actions} ${styles.exitActions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
+              >
+                {showProjects && (
+                  <span className={`${styles.actionEntrance} ${styles.actionFirst} inline-block`}>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      href="#projects"
+                      onClick={(event) => navigateToSection(event, "projects")}
+                      className={`${styles.primaryAction} rounded-2xl`}
+                    >
+                      <span aria-hidden="true" className={styles.buttonShadow} />
+                      <span aria-hidden="true" className={styles.buttonFoundation} />
+                      <span aria-hidden="true" className={styles.buttonSurface} />
+                      <span aria-hidden="true" className={styles.buttonLid} />
+                      <span aria-hidden="true" className={styles.buttonGuides} />
+                      <span className={styles.buttonLabel}>
+                        Explore Projects
+                        <ArrowRight aria-hidden="true" className="size-4" />
+                      </span>
+                      <span aria-hidden="true" className={styles.buttonAnnotations}>
+                        {["Ideas", "Projects", "Code"].map((label) => (
+                          <span key={label}>{label}</span>
+                        ))}
+                      </span>
+                    </Button>
                   </span>
-                  <span aria-hidden="true" className={styles.buttonAnnotations}>
-                    {["Ideas", "Projects", "Code"].map((label) => (
-                      <span key={label}>{label}</span>
-                    ))}
-                  </span>
-                </Button>
-              </span>
-              <div className="flex gap-3 sm:contents">
-                <Magnetic
-                  className={`${styles.actionEntrance} ${styles.actionSecond} max-sm:min-w-0 max-sm:flex-1`}
-                >
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    href="#contact"
-                    onClick={(event) => navigateToSection(event, "contact")}
-                    className={`${styles.contactAction} rounded-xl px-7 py-4 text-base max-sm:w-full`}
-                  >
-                    Get in Touch
-                  </Button>
-                </Magnetic>
+                )}
+                {showContact && (
+                  <div className="flex gap-3 sm:contents">
+                    <Magnetic
+                      className={`${styles.actionEntrance} ${styles.actionSecond} max-sm:min-w-0 max-sm:flex-1`}
+                    >
+                      <Button
+                        variant="secondary"
+                        size="lg"
+                        href="#contact"
+                        onClick={(event) => navigateToSection(event, "contact")}
+                        className={`${styles.contactAction} rounded-xl px-7 py-4 text-base max-sm:w-full`}
+                      >
+                        Get in Touch
+                      </Button>
+                    </Magnetic>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
             <div className={`${styles.secondaryLinks} ${styles.exitActions}`}>
               {resumeUrl && (
@@ -593,17 +575,19 @@ export function Hero({
           </div>
         </div>
 
-        <a
-          href="#projects"
-          onClick={(event) => navigateToSection(event, "projects")}
-          className={`${styles.sceneControl} ${styles.scrollCue} text-foreground/50 hover:text-foreground relative z-10 mb-[8.5rem] flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-translate-y-10`}
-          aria-label="Scroll to explore, jump to projects"
-        >
-          <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">
-            <span className="animate-scroll-dot h-2 w-1 rounded-full bg-(--brand-bright)" />
-          </span>
-          <span className="text-xs tracking-wide">Scroll to explore</span>
-        </a>
+        {transitionToAbout && (
+          <a
+            href="#about"
+            onClick={(event) => navigateToSection(event, "about")}
+            className={`${styles.sceneControl} ${styles.scrollCue} text-foreground/50 hover:text-foreground relative z-10 mb-[8.5rem] flex flex-col items-center gap-2 self-center md:absolute md:bottom-6 md:left-1/2 md:mb-0 md:-translate-x-1/2 [@media(max-height:500px)]:flex-row [@media(orientation:landscape)_and_(max-width:1024px)_and_(max-height:500px)]:-translate-y-10`}
+            aria-label="Scroll to explore About"
+          >
+            <span className="border-foreground/25 flex h-10 w-6 items-start justify-center rounded-full border p-1.5 [@media(max-height:500px)]:h-6 [@media(max-height:500px)]:w-4 [@media(max-height:500px)]:p-1">
+              <span className="animate-scroll-dot h-2 w-1 rounded-full bg-(--brand-bright)" />
+            </span>
+            <span className="text-xs tracking-wide">Scroll to explore</span>
+          </a>
+        )}
       </div>
     </section>
   );

@@ -83,6 +83,11 @@
         "name": "terminal-intro",
         "value": "5s",
         "purpose": "First-visit terminal timeline. A 6.5s fallback hides the curtain if normal dismissal does not run."
+      },
+      {
+        "name": "hero-scroll-cue",
+        "value": "1.8s ease-in-out, 2 iterations",
+        "purpose": "Draw attention to the About link twice. Reduced motion keeps the cue static."
       }
     ],
     "shadows": [
