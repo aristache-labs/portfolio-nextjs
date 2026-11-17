@@ -255,6 +255,17 @@ describe("Hero", () => {
     expect(screen.queryByRole("link", { name: "Facebook" })).not.toBeInTheDocument();
   });
 
+  it.each([
+    [true, true],
+    [true, false],
+    [false, true],
+    [false, false],
+  ])("matches the visibility of Projects (%s) and Contact (%s)", (showProjects, showContact) => {
+    render(<Hero profile={profile} showProjects={showProjects} showContact={showContact} />);
+    expect(Boolean(screen.queryByRole("link", { name: "Explore Projects" }))).toBe(showProjects);
+    expect(Boolean(screen.queryByRole("link", { name: "Get in Touch" }))).toBe(showContact);
+  });
+
   it("links the scroll cue to About only when About is visible", () => {
     const { rerender } = render(<Hero profile={profile} />);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();

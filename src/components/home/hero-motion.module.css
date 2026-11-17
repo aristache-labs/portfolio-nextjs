@@ -1132,7 +1132,7 @@
       --portrait-exit-lift: 0px;
     }
 
-    .hero[data-touch-scene] .actionSecond:not(:focus-within) .contactAction {
+    .hero[data-touch-scene]:has(.primaryAction) .actionSecond:not(:focus-within) .contactAction {
       animation: portrait-contact-exit 1ms ease-out both;
       animation-timeline: scroll(root block);
       animation-range: 1svh 6svh;

@@ -78,10 +78,12 @@ export type HeroScrollVariant = "desktop" | "touch";
 export function HeroScrollMotion({
   section,
   expressive,
+  expandProjects = true,
   variant,
 }: {
   section: RefObject<HTMLElement | null>;
   expressive: boolean;
+  expandProjects?: boolean;
   /** Which pinned scene is active; omitted when the hero scrolls away unpinned. */
   variant?: HeroScrollVariant;
 }) {
@@ -108,7 +110,8 @@ export function HeroScrollMotion({
       previous = progress;
       node.toggleAttribute(
         "data-cta-expanding",
-        scrolling &&
+        expandProjects &&
+          scrolling &&
           progress > 0 &&
           (returning
             ? window.scrollY > CTA_RETURN_COLLAPSE_PX
@@ -137,7 +140,7 @@ export function HeroScrollMotion({
       node.removeAttribute("data-cta-expanding");
       for (const name of Object.keys(VARIABLE_TARGETS)) writeVariable(node, name, null);
     };
-  }, [expressive, pinned, scrollYProgress, section, variant]);
+  }, [expandProjects, expressive, pinned, scrollYProgress, section, variant]);
 
   return null;
 }

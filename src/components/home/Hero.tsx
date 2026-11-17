@@ -110,12 +110,16 @@ export function Hero({
   resumeUrl,
   socials = [],
   transitionToAbout = false,
+  showProjects = true,
+  showContact = true,
 }: {
   profile: HeroProfile;
   heroTagline?: string | null;
   resumeUrl?: string | null;
   socials?: { platform: string; url: string }[];
   transitionToAbout?: boolean;
+  showProjects?: boolean;
+  showContact?: boolean;
 }) {
   preloadPoster();
   const reduce = useReducedMotion();
@@ -152,7 +156,7 @@ export function Hero({
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
     const hero = sectionRef.current;
-    if (!hero || !portraitPhone || !touchScene || reduce) return;
+    if (!hero || !showProjects || !portraitPhone || !touchScene || reduce) return;
 
     const update = () => {
       const expanded = hero.hasAttribute("data-portrait-cta-expanded");
@@ -169,7 +173,7 @@ export function Hero({
       window.removeEventListener("scroll", update);
       hero.removeAttribute("data-portrait-cta-expanded");
     };
-  }, [portraitPhone, touchScene, reduce]);
+  }, [portraitPhone, touchScene, reduce, showProjects]);
   useEffect(() => {
     const hero = sectionRef.current;
     if (!delayedPullRefresh || !hero) return;
@@ -335,6 +339,7 @@ export function Hero({
         <HeroScrollMotion
           section={sectionRef}
           expressive={expressive}
+          expandProjects={showProjects}
           variant={desktopPinned ? "desktop" : touchScene ? "touch" : undefined}
         />
       )}
@@ -486,49 +491,55 @@ export function Hero({
               )}
             </div>
 
-            <div
-              className={`${styles.actions} ${styles.exitActions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
-            >
-              <span className={`${styles.actionEntrance} ${styles.actionFirst} inline-block`}>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  href="#projects"
-                  onClick={(event) => navigateToSection(event, "projects")}
-                  className={`${styles.primaryAction} rounded-2xl`}
-                >
-                  <span aria-hidden="true" className={styles.buttonShadow} />
-                  <span aria-hidden="true" className={styles.buttonFoundation} />
-                  <span aria-hidden="true" className={styles.buttonSurface} />
-                  <span aria-hidden="true" className={styles.buttonLid} />
-                  <span aria-hidden="true" className={styles.buttonGuides} />
-                  <span className={styles.buttonLabel}>
-                    Explore Projects
-                    <ArrowRight aria-hidden="true" className="size-4" />
+            {(showProjects || showContact) && (
+              <div
+                className={`${styles.actions} ${styles.exitActions} mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 [@media(max-height:500px)]:mt-3 [@media(max-height:500px)]:gap-2`}
+              >
+                {showProjects && (
+                  <span className={`${styles.actionEntrance} ${styles.actionFirst} inline-block`}>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      href="#projects"
+                      onClick={(event) => navigateToSection(event, "projects")}
+                      className={`${styles.primaryAction} rounded-2xl`}
+                    >
+                      <span aria-hidden="true" className={styles.buttonShadow} />
+                      <span aria-hidden="true" className={styles.buttonFoundation} />
+                      <span aria-hidden="true" className={styles.buttonSurface} />
+                      <span aria-hidden="true" className={styles.buttonLid} />
+                      <span aria-hidden="true" className={styles.buttonGuides} />
+                      <span className={styles.buttonLabel}>
+                        Explore Projects
+                        <ArrowRight aria-hidden="true" className="size-4" />
+                      </span>
+                      <span aria-hidden="true" className={styles.buttonAnnotations}>
+                        {["Ideas", "Projects", "Code"].map((label) => (
+                          <span key={label}>{label}</span>
+                        ))}
+                      </span>
+                    </Button>
                   </span>
-                  <span aria-hidden="true" className={styles.buttonAnnotations}>
-                    {["Ideas", "Projects", "Code"].map((label) => (
-                      <span key={label}>{label}</span>
-                    ))}
-                  </span>
-                </Button>
-              </span>
-              <div className="flex gap-3 sm:contents">
-                <Magnetic
-                  className={`${styles.actionEntrance} ${styles.actionSecond} max-sm:min-w-0 max-sm:flex-1`}
-                >
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    href="#contact"
-                    onClick={(event) => navigateToSection(event, "contact")}
-                    className={`${styles.contactAction} rounded-xl px-7 py-4 text-base max-sm:w-full`}
-                  >
-                    Get in Touch
-                  </Button>
-                </Magnetic>
+                )}
+                {showContact && (
+                  <div className="flex gap-3 sm:contents">
+                    <Magnetic
+                      className={`${styles.actionEntrance} ${styles.actionSecond} max-sm:min-w-0 max-sm:flex-1`}
+                    >
+                      <Button
+                        variant="secondary"
+                        size="lg"
+                        href="#contact"
+                        onClick={(event) => navigateToSection(event, "contact")}
+                        className={`${styles.contactAction} rounded-xl px-7 py-4 text-base max-sm:w-full`}
+                      >
+                        Get in Touch
+                      </Button>
+                    </Magnetic>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
             <div className={`${styles.secondaryLinks} ${styles.exitActions}`}>
               {resumeUrl && (
