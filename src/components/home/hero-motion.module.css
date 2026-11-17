@@ -215,6 +215,12 @@
   outline-offset: 3px;
 }
 
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .contactAction {
+    font-size: 1.325rem;
+  }
+}
+
 .secondaryLinks {
   display: flex;
   flex-wrap: wrap;
@@ -681,8 +687,9 @@
     position: relative;
     top: 86px;
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: max-content minmax(0, max-content);
+    justify-content: center;
+    gap: clamp(0.75rem, 5vw, 1.25rem);
     margin-top: 1.5rem;
   }
 
@@ -690,14 +697,15 @@
     display: contents;
   }
 
-  .actions .actionSecond {
-    justify-self: end;
-  }
-
   .actions a {
     min-height: 52px;
     padding-inline: 0.75rem;
     font-size: 0.8959rem;
+  }
+
+  .actions .contactAction {
+    font-size: 1.1rem;
+    line-height: 0.5;
   }
 
   .hero .secondaryLinks {
@@ -1774,7 +1782,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .hero {
     --cta-collapse-duration: 650ms;
-    --cta-content-return-delay: 150ms;
+    --cta-content-return-delay: 350ms;
   }
 
   .actions {
@@ -1996,7 +2004,7 @@
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   (max-width: 1023px) and (orientation: landscape) and (prefers-reduced-motion: no-preference) {
   .hero {
-    --cta-collapse-duration: 550ms;
+    --cta-collapse-duration: 750ms;
   }
 
   .actions {
@@ -2017,13 +2025,13 @@
       visibility 420ms var(--cta-content-return-delay);
   }
 
-  .hero[data-cta-expanding] .actionSecond {
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .actionSecond {
     transition:
       filter 420ms cubic-bezier(0.4, 0, 0.2, 1),
       visibility 420ms;
   }
 
-  .hero[data-cta-expanding] .actionSecond:not(:focus-within) {
+  .hero:is([data-cta-expanding], [data-portrait-cta-expanded]) .actionSecond:not(:focus-within) {
     filter: opacity(0);
     visibility: hidden;
   }
@@ -2031,7 +2039,7 @@
 
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) {
   .hero {
-    --cta-collapse-duration: 1050ms;
+    --cta-collapse-duration: 750ms;
   }
 }
 
