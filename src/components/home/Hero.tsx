@@ -151,7 +151,7 @@ export function Hero({
   const expressive = mode === "expressive";
   const showNetwork = useIdleAfterLoad(expressive) && expressive;
   const ultraPortrait = useMediaQuery(
-    "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
+    "(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)",
   );
   const desktopPinned =
     useMediaQuery(HERO_PIN_QUERY) && expressive && transitionToAbout && !ultraPortrait;

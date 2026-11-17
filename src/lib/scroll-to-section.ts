@@ -95,9 +95,8 @@ function navigationGap(target: HTMLElement) {
   }
   if (
     (target.id === "skills" || target.id === "about" || target.id === "experience") &&
-    window.matchMedia(
-      "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
-    ).matches
+    window.matchMedia("(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)")
+      .matches
   ) {
     return SECTION_NAV_GAP + (target.id === "about" ? 40 : 70);
   }
@@ -185,9 +184,8 @@ function compactNavHeight() {
   )
     return 80;
   if (
-    window.matchMedia(
-      "(min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait)",
-    ).matches
+    window.matchMedia("(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)")
+      .matches
   )
     return COMPACT_NAV_HEIGHTS.galaxyUltraPortrait;
   if (

@@ -1,5 +1,5 @@
 /* Ultra portrait follows the S7 composition with larger text and controls. */
-@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+@media (min-width: 1105px) and (min-height: 1500px) and (orientation: portrait) {
   .section > [data-scroll-anchor] {
     zoom: 1.4;
   }

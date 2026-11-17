@@ -252,7 +252,7 @@
 }
 
 /* Ultra portrait uses the phone's collapsible contents above one enlarged reading panel. */
-@media (min-width: 1105px) and (max-width: 1140px) and (min-height: 1500px) and (max-height: 1850px) and (orientation: portrait) {
+@media (min-width: 1105px) and (min-height: 1500px) and (orientation: portrait) {
   .backdropSection > :global(.site-container) {
     zoom: 1.4;
   }
