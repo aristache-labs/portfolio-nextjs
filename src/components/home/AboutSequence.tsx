@@ -172,11 +172,7 @@ function ScrollLanding({ target }: { target: RefObject<HTMLDivElement | null> })
           : window.matchMedia(TOUCH_LANDSCAPE_QUERY).matches
             ? 40
             : window.matchMedia(ABOUT_PIN_QUERY).matches
-
               ? 40 + Math.round(Math.min(180, Math.max(112, innerHeight * 0.16)))
-
-              ? Math.round(Math.min(180, Math.max(112, innerHeight * 0.16)))
-
               : 80;
       track.setAttribute("data-scroll-landing", String(offset - distance));
     };
