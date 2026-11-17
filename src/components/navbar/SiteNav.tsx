@@ -28,7 +28,6 @@ import { sectionNumbers } from "@/lib/section-numbers";
 import { NavChapterRail } from "./NavChapterRail";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Logo } from "@/components/brand/Logo";
-import { PORTRAIT_PHONE_QUERY } from "@/lib/motion-queries";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import navStyles from "./nav-landscape.module.css";
 import panelStyles from "./nav-panel.module.css";
@@ -130,11 +129,7 @@ export function SiteNav({
   // to collapse its height first, and Framer Motion measures that exit with window.scrollTo, which
   // cancelled any scroll already in flight, so the scroll had to wait for the exit to end (a
   // delay of 0.4 s, and over 2 s on a slow phone). A fade has nothing to measure.
-  const goToSection = (
-    event: MouseEvent<HTMLAnchorElement>,
-    id: string,
-    mobileMenuLink = false,
-  ) => {
+  const goToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
       return;
     if (!onHomepage) {
@@ -148,16 +143,7 @@ export function SiteNav({
       if (open) {
         // One frame later, once the menu has released the page lock (it hides body overflow).
         requestAnimationFrame(() => {
-          const quickSkills =
-            mobileMenuLink &&
-            id === "skills" &&
-            window.matchMedia(PORTRAIT_PHONE_QUERY).matches &&
-            window.matchMedia("(pointer: coarse)").matches;
-          stopAnchorScroll.current = scrollToSection(
-            id,
-            reduce,
-            quickSkills ? { maxDuration: 450, revealImmediately: true } : undefined,
-          );
+          stopAnchorScroll.current = scrollToSection(id, reduce);
         });
       } else stopAnchorScroll.current = scrollToSection(id, reduce);
     }
@@ -417,7 +403,7 @@ export function SiteNav({
                               href={sectionHref(section.id)}
                               data-testid="mobile-section-link"
                               aria-current={section.id === active ? "location" : undefined}
-                              onClick={(e) => goToSection(e, section.id, true)}
+                              onClick={(e) => goToSection(e, section.id)}
                               className={cn(
                                 panelStyles.link,
                                 section.id === active && panelStyles.active,
