@@ -51,6 +51,7 @@ export type ProgressiveRevealProps = {
     | "zoom"
     /** Grows up from its bottom edge with a small settling bounce; counters follow its end. */
     | "scale-up-bottom"
+    | "settle"
     | "cascade"
     | "line";
   /** Glass surfaces can keep their background visible while their entrance moves or scales. */
@@ -182,6 +183,7 @@ export function useProgressiveReveal({
         const entrance = controls.start({
           opacity: effect === "slide-from-right" || scaleUp || !fade ? 1 : [0, 1],
           ...(effect === "rise" ? { y: [expressive ? 38 : 28, 0] } : {}),
+          ...(effect === "settle" && !navigation.replay ? { y: [8, 0] } : {}),
           ...(effect === "slide" ? { x: [expressive ? -24 : -12, 0] } : {}),
           ...(effect === "fade-from-left" ? { x: [-48, 0] } : {}),
           ...(fromRight ? { x: [rightStart, 0] } : {}),
@@ -202,7 +204,7 @@ export function useProgressiveReveal({
                 ease: ease ?? (effect === "rise" ? [0.44, 2, 0.72, 2] : [0.22, 1, 0.36, 1]),
               },
         });
-        if (effect === "zoom" || scaleUp) {
+        if (effect === "zoom" || scaleUp || effect === "settle") {
           void entrance.then(() => {
             if (active && !settled) sequence.publish("complete");
           });
@@ -340,7 +342,7 @@ export function ProgressiveReveal({
   // collapsed to nothing on its bottom edge (scale-up-bottom) would only be seen once that edge,
   // not the bar itself, had come far enough up the screen.
   const scaleUp = effect === "scale-up-bottom";
-  if (fromRight || scaleUp) {
+  if (fromRight || scaleUp || effect === "settle") {
     return (
       <div ref={element} className={className}>
         <m.div
@@ -349,7 +351,7 @@ export function ProgressiveReveal({
           animate={controls}
           style={scaleUp ? { transformOrigin: "50% 100%" } : undefined}
         >
-          {scaleUp ? (
+          {scaleUp || effect === "settle" ? (
             <RevealSequence.Provider value={sequence}>{children}</RevealSequence.Provider>
           ) : (
             children
