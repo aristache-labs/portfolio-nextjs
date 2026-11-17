@@ -93,6 +93,10 @@
 }
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .stage {
+    top: 120px;
+  }
+
   .track::after {
     height: 24svh;
   }
