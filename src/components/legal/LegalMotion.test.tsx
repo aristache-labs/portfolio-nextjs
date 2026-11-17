@@ -185,7 +185,11 @@ describe("LegalContents", () => {
     installMatchMedia();
     const tops: Record<string, number> = { first: -400, second: 300 };
     vi.spyOn(document, "getElementById").mockImplementation(
-      (id) => ({ getBoundingClientRect: () => ({ top: tops[id] }) }) as HTMLElement,
+      (id) =>
+        ({
+          getBoundingClientRect: () => ({ top: tops[id] }),
+          getClientRects: () => [{}],
+        }) as unknown as HTMLElement,
     );
     render(
       <LegalContents

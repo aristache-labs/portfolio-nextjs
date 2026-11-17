@@ -33,6 +33,14 @@ if (!("IntersectionObserver" in globalThis)) {
   vi.stubGlobal("IntersectionObserver", MockIntersectionObserver);
 }
 
+// jsdom has no ResizeObserver; a silent stub is enough for components that only re-measure on it.
+// Assigned directly, not stubbed, so a test's vi.unstubAllGlobals() cannot remove it.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 // Required env for modules that read it at import time (e.g. SITE.url via
 // requireEnv). Set a stable test value so importing route/SEO modules in tests
 // never throws on a missing variable.
