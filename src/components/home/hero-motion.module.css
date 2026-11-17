@@ -216,6 +216,10 @@
   outline-offset: 3px;
 }
 
+.scrollCue :global(.animate-scroll-dot) {
+  animation-iteration-count: 2;
+}
+
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
   .contactAction {
     font-size: 1.3125rem;
