@@ -107,8 +107,18 @@
 }
 
 .action {
+  position: relative;
   grid-area: action;
   justify-self: end;
+}
+
+/* The compact View pill is about 29px tall; an invisible ::before makes it a 44px touch target. */
+@media (pointer: coarse) {
+  .action::before {
+    content: "";
+    position: absolute;
+    inset: -8px -4px;
+  }
 }
 
 /* Fold keeps this summary beside the heading instead of stretching across the section. */

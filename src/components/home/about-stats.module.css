@@ -455,7 +455,12 @@
     align-self: center;
     width: clamp(110px, calc(100svh - 230px), 170px);
   }
+}
 
+/* Phones in landscape (500px tall or less) keep the single-column "View more" biography
+   (about-bio.module.css), so the two columns start above that height. */
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px) and (min-height: 501px),
+  (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
   .copy > div:first-child {
     columns: 2;
     column-gap: 32px;

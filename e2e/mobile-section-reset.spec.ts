@@ -31,6 +31,20 @@ async function navigate(page: Page, name: string, id: string) {
     .toBeLessThan(3);
 }
 
+/**
+ * Sections notice a reader leaving through an IntersectionObserver, which reports after a rendered
+ * frame. A person always spends frames scrolling; an instant jump back within the same frame would
+ * not, so let two frames render before the next step.
+ */
+async function settleFrames(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+}
+
 async function wheelTo(page: Page, id: string) {
   const next = page.locator(`#${id}`);
   const distance = await next.evaluate((node) => node.getBoundingClientRect().top + 2);
@@ -39,6 +53,7 @@ async function wheelTo(page: Page, id: string) {
   await expect
     .poll(() => next.evaluate((node) => Math.abs(node.getBoundingClientRect().top + 2)))
     .toBeLessThan(8);
+  await settleFrames(page);
 }
 
 async function wheelToBeginning(page: Page, id: string) {
@@ -49,6 +64,7 @@ async function wheelToBeginning(page: Page, id: string) {
   await expect
     .poll(() => heading.evaluate((node) => Math.abs(node.getBoundingClientRect().top - 110)))
     .toBeLessThan(8);
+  await settleFrames(page);
 }
 
 for (const method of ["menu", "scroll"] as const) {
@@ -107,26 +123,8 @@ for (const method of ["menu", "scroll"] as const) {
     await expect(page.locator("#experience details[open]")).toHaveCount(2);
     await returnTo("Experience", "experience");
     await expect(page.locator("#experience details[open]")).toHaveCount(0);
-    await leave("Projects", "projects");
-
-    const cards = page.locator("#projects article");
-    const initialCount = await cards.count();
-    const showMore = page.getByRole("button", { name: "Show more projects", exact: true });
-    await showMore.click();
-    await expect.poll(() => cards.count()).toBeGreaterThan(initialCount);
-    // Opening a dialog must not reset the expanded grid or its opener.
-    const opener = page.getByRole("button", { name: /^View / }).last();
-    await opener.scrollIntoViewIfNeeded();
-    await opener.press("Enter");
-    await expect(page.getByRole("button", { name: "Close", exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "Close", exact: true }).click();
-    await expect(page.getByRole("button", { name: "Close", exact: true })).toBeHidden();
-    await expect.poll(() => cards.count()).toBeGreaterThan(initialCount);
-    await leave("Contact", "contact");
-    await expect.poll(() => cards.count()).toBeGreaterThan(initialCount);
-    await returnTo("Projects", "projects");
-    await expect(cards).toHaveCount(initialCount);
-    await expect(showMore).toBeAttached();
+    // Projects no longer paginates ("Show more projects" went with 5aaba00), so it has no state
+    // to keep or reset.
   });
 }
 

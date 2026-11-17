@@ -98,7 +98,8 @@ it.each([
   const node = container.firstElementChild!;
   const output = node.querySelector("[aria-hidden]")!;
   expect(output.textContent).toBe("0+");
-  expect(node.firstElementChild).toHaveTextContent("1,600+");
+  // The final value is CSS-generated from data-value: one copy in the page text, still announced.
+  expect(node.firstElementChild).toHaveAttribute("data-value", "1,600+");
   expect(node.firstElementChild).toHaveClass("opacity-0");
   expect(node).toHaveClass("inline-grid", "tabular-nums");
   expect(node.querySelector("[aria-live]")).toBeNull();

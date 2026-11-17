@@ -1230,7 +1230,10 @@ for (const hasTouch of [true, false]) {
               }
             }
             if (id === "projects") {
-              const previews = section.locator('button[aria-label^="View "]');
+              // Posters are "Open preview for …" and the card actions "View …"; both open the dialog.
+              const previews = section.locator(
+                'button[aria-label^="View "], button[aria-label^="Open preview for "]',
+              );
               if (await previews.count()) {
                 // Stacked scenes intentionally cover older cards. Use a control a reader can hit.
                 let label = "";
@@ -1270,7 +1273,9 @@ for (const hasTouch of [true, false]) {
                 await preview.click();
                 const dialog = page.getByRole("dialog");
                 await expect(dialog).toBeVisible();
-                await expect(dialog).toHaveAccessibleName(label.slice(5));
+                await expect(dialog).toHaveAccessibleName(
+                  label.replace(/^(View|Open preview for) /, ""),
+                );
                 await expect
                   .poll(() =>
                     dialog.evaluate((node) => {

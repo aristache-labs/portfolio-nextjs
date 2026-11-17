@@ -148,8 +148,17 @@ export function SkillsScene({
 }
 
 /** One card's place in the scene. Cards enter in turn and then stay. */
-export function SkillSlot({ index, children }: { index: number; children: ReactNode }) {
-  const progress = useContext(ScenePeak);
+export function SkillSlot({
+  index,
+  revealed = false,
+  children,
+}: {
+  index: number;
+  revealed?: boolean;
+  children: ReactNode;
+}) {
+  const peak = useContext(ScenePeak);
+  const progress = revealed ? null : peak;
   const entry = useMotionValue(1);
   const slot = useRef<HTMLDivElement>(null);
 

@@ -27,7 +27,7 @@ colors:
 typography:
   headline:
     fontFamily: "Sora, sans-serif"
-    fontWeight: 800
+    fontWeight: 500
     lineHeight: 1.05
     letterSpacing: "-0.025em"
   body:
@@ -126,7 +126,7 @@ The palette is maintained in [brand.ts](src/lib/brand.ts) and [globals.css](src/
 
 Small text has a floor. Functional text (chips, pills, status labels, navigation, meta rows) is never below **11px**; the footer legal line and decorative micro-copy may go to 10px. The sizes in use are 11, 12, 13, 14, 15, 16 and 17px for UI and body; display headings scale up from there. Letter spacing above 0.05em is reserved for short uppercase labels (section label, chips), never for sentences.
 
-Sora gives homepage display headings their weight and tight tracking. Shared cinematic section headings scale from 1.65rem to 3.5rem with an 800 weight. The root layout loads Geist Sans, while the cinematic scope supplies a system sans utility stack. Geist Mono is registered after page load for technical labels, with system monospace fallbacks available immediately.
+Sora gives homepage display headings their weight and tight tracking. Shared cinematic section headings scale from 1.65rem to 3.5rem and request Sora at CSS weight 500. Chrome reports the underlying font face as Sora-SemiBold for the sampled heading glyphs. The root layout loads Geist Sans, while the cinematic scope supplies a system sans utility stack. Geist Mono is registered after page load for technical labels, with system monospace fallbacks available immediately.
 
 ## Layout
 
@@ -145,7 +145,7 @@ Pill buttons and compact tags contrast with the 1rem corners of cards and dialog
 - **Buttons.** Primary uses the action gradient with a shifting background position on hover. Secondary uses a surfaced outline. Ghost uses muted text that brightens on hover. Shared controls use a visible keyboard focus ring and motion-safe lift and press feedback.
 - **Cards.** The shared card uses the first surface tone, a hairline border, and 1.5rem padding. Hover raises the surface tone.
 - **Admin fields.** Inputs, textareas, and selects share the page ground, muted placeholder, and turquoise focus ring. Disabled fields reduce opacity.
-- **Navigation.** The fixed public nav gains a blurred background after scrolling. The compact menu opens a bounded, scrollable panel below the header.
+- **Navigation.** The fixed public nav applies blur immediately when it becomes compact. Background color, border color, and shadow transition over 300 ms. The compact menu opens a bounded, scrollable panel below the header. The panel and backdrop enter together in 180 ms and fade out together in 140 ms. Escape closes the menu immediately and restores focus to its toggle. Reduced motion skips the menu animation.
 - **Dialogs.** The Radix primitive pairs a dark overlay with a rounded panel and a circular close control. Project Quick View uses this overlay pattern to surface project media and repository details.
 - **Section label.** `SectionLabel` ("01 ABOUT") is the one pattern above every section title: a laser beam runs under it once, lights the letters and leaves the separator. `delayMs` holds the beam while the label fades in.
 - **Section heading entrance.** Every heading enters as About does: the label first, then the title words rising out of a blur, then the accent underline draws, then the subtitle. `AboutReveal` arms and plays it; `HeadingWords` splits the title.
@@ -167,4 +167,4 @@ Known and decided; detectors may keep reporting them.
 
 - **Non-composited animations.** The About blur ("focus in") filters are the approved look, and the rotate-hint arc animates `stroke-dashoffset` once on a small element. Both cost little.
 - **Mobile Total Blocking Time (200-330 ms).** React hydration plus framer-motion. The fix, deferred hydration, would touch the approved animations, so it is accepted.
-- **Intro curtain "covered text".** The terminal intro is a fixed, opaque, `aria-hidden` layer above the hero. Detectors see its lines overlapping hero text while it runs. It ends with `display: none` after about 6.5 s, and nothing covers the hero afterwards.
+- **Intro curtain "covered text".** The terminal intro is a fixed, opaque, `aria-hidden` layer above the hero. Detectors see its lines overlapping hero text while it runs. The terminal timeline runs for 5 s. A 6.5 s fallback hides the curtain if the normal dismissal does not run.

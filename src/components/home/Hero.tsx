@@ -117,7 +117,8 @@ function HeroNameText({ text, surname = false }: { text: string; surname?: boole
   return (
     <span className={`${styles.nameLine}${surname ? ` ${styles.surname}` : ""}`}>
       <span className={styles.nameDraw}>
-        <span className={styles.nameMeasure}>{text}</span>
+        {/* CSS-generated, so the page text holds the name once: in the drawn SVG below. */}
+        <span className={styles.nameMeasure} data-text={text} />
         <svg className={styles.nameOutline} aria-hidden="true" focusable="false">
           <text x="0" y="0.82em">
             {text}
@@ -174,6 +175,26 @@ export function Hero({
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const portraitPoster = useMediaQuery(PORTRAIT_POSTER_QUERY);
   const sectionRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const hero = sectionRef.current;
+    if (!hero || !portraitPhone || !touchScene || reduce) return;
+
+    const update = () => {
+      const expanded = hero.hasAttribute("data-portrait-cta-expanded");
+      const threshold = expanded ? 32 : 64;
+      const shouldExpand = window.scrollY >= threshold;
+      if (expanded !== shouldExpand) {
+        hero.toggleAttribute("data-portrait-cta-expanded", shouldExpand);
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", update);
+      hero.removeAttribute("data-portrait-cta-expanded");
+    };
+  }, [portraitPhone, touchScene, reduce]);
   useEffect(() => {
     const hero = sectionRef.current;
     if (!delayedPullRefresh || !hero) return;
@@ -438,7 +459,11 @@ export function Hero({
               </span>
             </p>
 
-            <h1 className={`${styles.exitTitle} max-w-3xl`}>
+            {/* The visible name is SVG text marked aria-hidden, so the heading names itself. */}
+            <h1
+              className={`${styles.exitTitle} max-w-3xl`}
+              aria-label={[firstName, ...remainingName, ...headlineWords].join(" ")}
+            >
               <span className={`${styles.name} font-display block`}>
                 <HeroNameText text={firstName} />
                 {remainingName.length > 0 && (

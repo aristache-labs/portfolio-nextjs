@@ -27,13 +27,22 @@ export function useScrollSpy(ids: string[], offsetPx = 120): string {
       const tops: Record<string, number> = {};
       for (const id of ids) {
         const el = document.getElementById(id);
-        if (el) tops[id] = el.getBoundingClientRect().top;
+        // A section still streaming in sits in a hidden container: no box, and a top of 0 that
+        // would read as "scrolled past" and mark the last such section active at the page top.
+        if (el && el.getClientRects().length > 0) tops[id] = el.getBoundingClientRect().top;
       }
       setActive(pickActive(ids, tops, offsetPx));
     };
 
     compute();
-    return subscribeScroll(compute);
+    // Streamed sections appear after mount without any scroll event; the page grows when they do.
+    const resize = new ResizeObserver(compute);
+    resize.observe(document.body);
+    const unsubscribe = subscribeScroll(compute);
+    return () => {
+      unsubscribe();
+      resize.disconnect();
+    };
   }, [ids, offsetPx]);
 
   return active;

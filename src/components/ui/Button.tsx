@@ -15,6 +15,8 @@ const base =
   // a gentle press-in on click. Transform-based (GPU-cheap) and motion-safe.
   "transition-[transform,box-shadow,background-color,background-position,border-color,color,opacity] duration-300 ease-out " +
   "will-change-transform motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] " +
+  // The press lands in 150ms so the button answers at once; hover keeps the slower 300ms.
+  "active:duration-150 " +
   "hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 const variants: Record<Variant, string> = {

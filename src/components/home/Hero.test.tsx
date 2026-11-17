@@ -161,7 +161,7 @@ describe("Hero", () => {
     expect(h1).toHaveAccessibleName(
       "Adrian Cristache Enterprise IT, PowerShell automation, and app development.",
     );
-    expect(screen.getByText("Adrian", { selector: "span" })).toBeVisible();
+    expect(h1.querySelector(`[data-text="Adrian"]`)).toBeVisible();
     expect(h1.querySelector(".sr-only")).toBeNull();
     expect(h1.querySelectorAll('svg[aria-hidden="true"] text')).toHaveLength(2);
     expect(h1.querySelector("svg text")).toHaveTextContent("Adrian");
@@ -184,7 +184,7 @@ describe("Hero", () => {
   ])("preserves the profile name accessibly for %s", (name, first, remainder) => {
     render(<Hero profile={{ ...profile, name }} />);
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(screen.getByText(first, { selector: "span" })).toBeVisible();
+    expect(h1.querySelector(`[data-text="${first}"]`)).toBeVisible();
     if (remainder) {
       expect(h1.firstElementChild?.lastElementChild).toHaveTextContent(remainder);
       expect(h1).toHaveAccessibleName(

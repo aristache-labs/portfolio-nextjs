@@ -134,8 +134,12 @@ export function SpringCount({ value }: { value: string }) {
 
   return (
     <span ref={element} className="relative inline-grid tabular-nums">
-      {/* This final value reserves space and remains the only accessible text. */}
-      <span className="col-start-1 row-start-1 opacity-0">{value}</span>
+      {/* The final value reserves space and remains the accessible text. It is CSS-generated, so
+      the page's text content holds the number once instead of twice. */}
+      <span
+        data-value={value}
+        className="col-start-1 row-start-1 opacity-0 before:content-[attr(data-value)]"
+      />
       <span ref={output} aria-hidden="true" className="col-start-1 row-start-1">
         {value}
       </span>

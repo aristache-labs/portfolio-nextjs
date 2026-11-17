@@ -71,14 +71,14 @@ describe("About", () => {
     );
     const toggle = screen.getByRole("button", { name: "View more" });
     const remainder = document.getElementById(toggle.getAttribute("aria-controls")!);
-    expect(remainder).toHaveAttribute("hidden");
+    expect(remainder).toHaveAttribute("data-collapsed");
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    expect(remainder).not.toHaveAttribute("hidden");
+    expect(remainder).not.toHaveAttribute("data-collapsed");
     expect(remainder).toHaveTextContent("More about my work.");
     fireEvent.click(screen.getByRole("button", { name: "View less" }));
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(remainder).toHaveAttribute("hidden");
+    expect(remainder).toHaveAttribute("data-collapsed");
   });
   it("renders the bio text", () => {
     const { container } = render(<About profile={mockProfile} />);
@@ -101,8 +101,10 @@ describe("About", () => {
   it("renders the documented outcomes independently of the GitHub stats", () => {
     render(<About profile={mockProfile} />);
     for (const value of ["8+", "60%", "1,600+", "5"]) {
+      // Visible digits are aria-hidden; the announced value is CSS-generated from data-value.
       const copies = screen.getAllByText(value);
-      expect(copies.filter((node) => !node.closest('[aria-hidden="true"]'))).toHaveLength(1);
+      expect(copies.filter((node) => !node.closest('[aria-hidden="true"]'))).toHaveLength(0);
+      expect(document.querySelectorAll(`[data-value="${value}"]`)).toHaveLength(1);
     }
     expect(screen.queryByText("120+")).not.toBeInTheDocument();
   });

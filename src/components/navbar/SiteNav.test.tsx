@@ -182,7 +182,8 @@ describe("SiteNav", () => {
     );
   });
 
-  it("closes on Escape", () => {
+  it("closes immediately on Escape even when motion is enabled", () => {
+    installMatchMedia({ "(prefers-reduced-motion: reduce)": false });
     render(<SiteNav socials={socials} />);
     fireEvent.click(screen.getByRole("button", { name: /open menu/i }));
     fireEvent.keyDown(document, { key: "Escape" });
