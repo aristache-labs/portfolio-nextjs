@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { LazyMotion, domMax, m } from "framer-motion";
-import { subscribeSectionNavigationComplete } from "@/lib/section-navigation";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
@@ -93,14 +92,6 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   }, [ordered]);
 
   const [filter, setFilter] = useState(MOST_USED);
-  const [arrivedFromMenu, setArrivedFromMenu] = useState(false);
-  useEffect(
-    () =>
-      subscribeSectionNavigationComplete((target, arrived, revealImmediately) => {
-        if (target === sectionRef.current && arrived && revealImmediately) setArrivedFromMenu(true);
-      }),
-    [],
-  );
   const [hasFiltered, setHasFiltered] = useState(false);
   const [animateSelection, setAnimateSelection] = useState(false);
   const [resetEpoch, setResetEpoch] = useState(0);
@@ -201,7 +192,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
       <Entrance
         key={key}
         filtered={false}
-        skipEntrance={arrivedFromMenu || hasFiltered || (mobile && resetEpoch > 0)}
+        skipEntrance={hasFiltered || (mobile && resetEpoch > 0)}
         order={index}
         mobile={mobile}
         landscape={mobileLandscape}
@@ -251,7 +242,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
           <div className={`${responsiveCss.split} lg:grid lg:grid-cols-[0.8fr_1.6fr] lg:gap-6`}>
             <div aria-hidden className="hidden lg:block" />
             <div className={`${responsiveCss.heading} min-w-0 text-left`}>
-              <AboutReveal className={responsiveCss.title} skipEntrance={arrivedFromMenu}>
+              <AboutReveal className={responsiveCss.title}>
                 <SectionLabel
                   as="div"
                   number={number}
@@ -306,7 +297,6 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
               <div className="min-w-0">
                 {ordered.length > 0 && (
                   <ProgressiveReveal
-                    enabled={!arrivedFromMenu}
                     effect="cascade"
                     duration={0}
                     delay={0.3}
@@ -323,30 +313,20 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                           <m.button
                             key={value}
                             initial={false}
-                            animate={arrivedFromMenu ? { opacity: 1, scale: 1 } : undefined}
-                            transition={arrivedFromMenu ? { duration: 0 } : undefined}
-                            variants={
-                              arrivedFromMenu
-                                ? undefined
-                                : {
-                                    hidden: { opacity: 0, scale: 0 },
-                                    visible: {
-                                      opacity: 1,
-                                      scale: 1,
-                                      transition:
-                                        mode === "static"
-                                          ? { duration: 0 }
-                                          : {
-                                              opacity: { duration: 0.25 },
-                                              scale: {
-                                                type: "spring",
-                                                visualDuration: 0.7,
-                                                bounce: 0.5,
-                                              },
-                                            },
-                                    },
-                                  }
-                            }
+                            variants={{
+                              hidden: { opacity: 0, scale: 0 },
+                              visible: {
+                                opacity: 1,
+                                scale: 1,
+                                transition:
+                                  mode === "static"
+                                    ? { duration: 0 }
+                                    : {
+                                        opacity: { duration: 0.25 },
+                                        scale: { type: "spring", visualDuration: 0.7, bounce: 0.5 },
+                                      },
+                              },
+                            }}
                             type="button"
                             role="tab"
                             id={tabId(value)}

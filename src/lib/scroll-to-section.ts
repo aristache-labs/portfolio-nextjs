@@ -248,11 +248,7 @@ export function sectionScrollPosition(target: HTMLElement): number {
 }
 
 /** A paced anchor transition that yields immediately to manual navigation. */
-export function scrollToSection(
-  id: string,
-  reducedMotion: boolean,
-  options: { maxDuration?: number; revealImmediately?: boolean } = {},
-): () => void {
+export function scrollToSection(id: string, reducedMotion: boolean): () => void {
   const target = document.getElementById(id);
   if (!target) return () => {};
 
@@ -271,8 +267,8 @@ export function scrollToSection(
   // Let Next copy its internal history state and synchronize the router URL.
   // Passing history.state back would bypass its public replaceState integration.
   window.history.replaceState(null, "", url);
-  const finish = beginSectionNavigation(target, options.revealImmediately);
-  return scrollToPosition(destination, reducedMotion, finish, options);
+  const finish = beginSectionNavigation(target);
+  return scrollToPosition(destination, reducedMotion, finish);
 }
 
 /** Paced scroll to a document offset, cancelled by any manual input. */
@@ -280,7 +276,7 @@ export function scrollToPosition(
   destinationOrGetter: number | (() => number),
   reducedMotion: boolean,
   onFinish?: (arrived: boolean) => void,
-  options: { duration?: number; maxDuration?: number } = {},
+  options: { duration?: number } = {},
 ): () => void {
   const resolve =
     typeof destinationOrGetter === "function" ? destinationOrGetter : () => destinationOrGetter;
@@ -297,10 +293,8 @@ export function scrollToPosition(
   // glide's top speed, so it reads as a jump; a longer floor spreads the fade over more frames.
   const minDuration =
     window.innerHeight <= 500 && window.innerWidth > window.innerHeight ? 1500 : 900;
-  const duration = Math.min(
-    options.maxDuration ?? Infinity,
-    options.duration ?? Math.min(3200, Math.max(minDuration, Math.abs(destination - start) * 1.1)),
-  );
+  const duration =
+    options.duration ?? Math.min(3200, Math.max(minDuration, Math.abs(destination - start) * 1.1));
   const lenis = getSmoothScroll();
   if (lenis) return scrollWithLenis(lenis, destination, resolve, duration, onFinish);
   let frame = 0;
@@ -327,21 +321,14 @@ export function scrollToPosition(
   const tick = (now: number) => {
     // A frame that comes late (the page was busy) counts for at most MAX_FRAME_MS of the glide, so
     // a long block slows the glide down instead of leaping across the distance.
-    if (lastNow !== undefined)
-      elapsed += Math.min(
-        now - lastNow,
-        options.maxDuration === undefined ? MAX_FRAME_MS : Infinity,
-      );
+    if (lastNow !== undefined) elapsed += Math.min(now - lastNow, MAX_FRAME_MS);
     lastNow = now;
     const progress = Math.min(1, elapsed / duration);
     const eased = easeInOutSine(progress);
     shownGoal += (resolve() - shownGoal) * GOAL_FOLLOW;
     window.scrollTo({ top: start + (shownGoal - start) * eased, behavior: "instant" });
     if (progress < 1) frame = requestAnimationFrame(tick);
-    else if (options.maxDuration !== undefined) {
-      window.scrollTo({ top: resolve(), behavior: "instant" });
-      stop(true);
-    } else settle();
+    else settle();
   };
   // After arriving, follow the target until it stops moving (a section that finishes rendering
   // as it comes into view can still shift it), for at most about 40 frames.

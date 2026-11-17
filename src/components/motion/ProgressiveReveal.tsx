@@ -25,7 +25,6 @@ const SCALE_UP_BOTTOM_EASE: [number, number, number, number][] = [
 ];
 
 export type ProgressiveRevealProps = {
-  enabled?: boolean;
   children: ReactNode;
   className?: string;
   /**
@@ -311,7 +310,6 @@ export function useProgressiveReveal({
 
 export function ProgressiveReveal({
   children,
-  enabled = true,
   className,
   innerClassName,
   desktopDelay = 0.3,
@@ -327,7 +325,6 @@ export function ProgressiveReveal({
   const element = useRef<HTMLDivElement>(null);
   const { controls, sequence, mode, fromRight } = useProgressiveReveal({
     element,
-    enabled,
     desktopDelay,
     duration,
     delay,
