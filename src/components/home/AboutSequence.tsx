@@ -103,15 +103,20 @@ function PinnedExit({
     const stage = target.current?.firstElementChild;
     if (!(stage instanceof HTMLElement)) return;
     const nodes = details.current ? [stage, details.current] : [stage];
+    const section = target.current?.closest("section");
+    const desktop = window.matchMedia(ABOUT_PIN_QUERY);
     const update = (value: number) => {
       const exit = phaseProgress(value, EXIT_START, 1);
       for (const node of nodes)
         node.style.setProperty("--about-exit", String(exit * exit * (3 - 2 * exit)));
+      if (desktop.matches)
+        section?.style.setProperty("--about-depth", String(phaseProgress(value, 0, EXIT_START)));
     };
     update(progress.get());
     const unsubscribe = progress.on("change", update);
     return () => {
       unsubscribe();
+      section?.style.removeProperty("--about-depth");
       for (const node of nodes) node.style.removeProperty("--about-exit");
     };
   }, [details, progress, target]);
@@ -161,7 +166,9 @@ function ScrollLanding({ target }: { target: RefObject<HTMLDivElement | null> })
           ? 120
           : window.matchMedia(TOUCH_LANDSCAPE_QUERY).matches
             ? 40
-            : 80;
+            : window.matchMedia(ABOUT_PIN_QUERY).matches
+              ? Math.round(Math.min(180, Math.max(112, innerHeight * 0.16)))
+              : 80;
       track.setAttribute("data-scroll-landing", String(offset - distance));
     };
     measure();

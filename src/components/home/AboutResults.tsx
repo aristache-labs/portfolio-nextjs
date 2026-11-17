@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { ProgressiveReveal } from "@/components/motion/ProgressiveReveal";
 import { FOLD_VIEWPORT_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
-import { ABOUT_FOLD_QUERY } from "./AboutSequence";
+import { ABOUT_FOLD_QUERY, ABOUT_PIN_QUERY } from "./AboutSequence";
 
 /** A short Fold seats the results row near the bottom edge, so it must trigger from there. */
 const SHORT_FOLD_QUERY = `${FOLD_VIEWPORT_QUERY} and (max-height: 780px)`;
@@ -21,9 +21,12 @@ export function AboutResults({ children, className }: { children: ReactNode; cla
     `(min-width: 1024px) and (pointer: fine), (orientation: landscape) and (pointer: coarse), ${ABOUT_FOLD_QUERY}`,
   );
   const shortFold = useMediaQuery(SHORT_FOLD_QUERY);
+  const desktop = useMediaQuery(ABOUT_PIN_QUERY);
   return (
     <ProgressiveReveal
-      effect="scale-up-bottom"
+      effect={desktop ? "settle" : "scale-up-bottom"}
+      duration={desktop ? 0.35 : undefined}
+      delay={desktop ? 0 : undefined}
       fade={!opaque}
       className={className}
       countOnJump

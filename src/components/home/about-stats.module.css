@@ -2,6 +2,60 @@
   overflow: clip;
 }
 
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
+  .results .label {
+    color: var(--muted);
+  }
+
+  .results .numberValue {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .results .panel > [aria-hidden="true"]:first-child {
+    opacity: 0.5;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .results .grid .item {
+      opacity: 1;
+      animation: none;
+    }
+
+    .section:has(.portrait) .biography {
+      position: relative;
+      min-height: clamp(220px, calc(100svh - 470px), 250px);
+      align-content: start;
+    }
+
+    .section:has(.portrait) .copy > div:first-child {
+      columns: 1;
+      max-width: calc(100% - clamp(290px, 31%, 420px));
+    }
+
+    .section:has(.portrait) .portrait {
+      position: absolute;
+      inset: 40px 0 auto auto;
+      opacity: 1;
+      transform: none;
+    }
+
+    .section .introduction {
+      opacity: 1;
+      transform: translateY(calc(var(--about-exit, 0) * -24px));
+    }
+
+    .section > [aria-hidden="true"]:first-child > :first-child {
+      transform: translateY(calc(var(--about-depth, 0.5) * 48px - 24px)) scale(1.06);
+    }
+
+    .portrait img {
+      transform: translateY(calc(6px - var(--about-depth, 1) * 20px + var(--about-exit, 0) * 12px))
+        scale(calc(1.12 + var(--about-exit, 0) * 0.18));
+      transform-origin: 50% 22%;
+    }
+  }
+}
+
 .biography {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

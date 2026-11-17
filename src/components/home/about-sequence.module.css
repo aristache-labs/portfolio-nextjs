@@ -96,6 +96,17 @@
   .track::after {
     height: 24svh;
   }
+
+  .details {
+    margin-top: calc(-1 * clamp(32px, 12svh - 64px, 80px) - 64px);
+    padding-bottom: 64px;
+    border-top: 0;
+  }
+
+  .details p {
+    opacity: 1;
+    transform: translateY(min(0px, calc(var(--about-exit, 1) * 64px - 56px)));
+  }
 }
 
 @media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
