@@ -16,5 +16,12 @@
         "reason": "Chrome DevTools CSS.getPlatformFontsForNode confirms Hero role glyphs render with Geist-Medium."
       }
     ]
+  },
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
   }
 }
