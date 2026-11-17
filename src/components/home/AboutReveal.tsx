@@ -19,11 +19,13 @@ export function AboutReveal({
   children,
   className,
   pinnedRootMargin,
+  skipEntrance = false,
 }: {
   children: ReactNode;
   className?: string;
   /** Replaces the default trigger only in the desktop pinned scene, where About rises over the hero. */
   pinnedRootMargin?: string;
+  skipEntrance?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const played = useRef(false);
@@ -39,6 +41,11 @@ export function AboutReveal({
   const navigation = useSectionNavigation(ref, () => !played.current);
   useLayoutEffect(() => {
     const node = ref.current;
+    if (skipEntrance && node) {
+      played.current = true;
+      node.dataset.reveal = "static";
+      return;
+    }
     if (navigation.pending && node && mode !== "static") {
       node.dataset.reveal = "armed";
       return () => {
@@ -68,7 +75,7 @@ export function AboutReveal({
       observer.disconnect();
       if (!played.current) delete node.dataset.reveal;
     };
-  }, [mode, ready, rootMargin, navigation.pending, navigation.replay]);
+  }, [skipEntrance, mode, ready, rootMargin, navigation.pending, navigation.replay]);
 
   return (
     <div ref={ref} className={className}>

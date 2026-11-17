@@ -1,14 +1,16 @@
 type Listener = (pending: boolean) => void;
 const listeners = new Set<{ node: () => HTMLElement | null; notify: Listener }>();
 let destination: HTMLElement | null = null;
-const completionListeners = new Set<(target: HTMLElement, arrived: boolean) => void>();
+const completionListeners = new Set<
+  (target: HTMLElement, arrived: boolean, revealImmediately: boolean) => void
+>();
 
 export function sectionNavigationInProgress() {
   return destination !== null;
 }
 
 export function subscribeSectionNavigationComplete(
-  listener: (target: HTMLElement, arrived: boolean) => void,
+  listener: (target: HTMLElement, arrived: boolean, revealImmediately: boolean) => void,
 ) {
   completionListeners.add(listener);
   return () => {
@@ -73,7 +75,7 @@ export function subscribeSectionNavigation(node: () => HTMLElement | null, notif
 const NAVIGATION_TIMEOUT = 6000;
 
 /** Explicit completion belongs to our scroll driver, not the browser's per-frame scrollend. */
-export function beginSectionNavigation(target: HTMLElement) {
+export function beginSectionNavigation(target: HTMLElement, revealImmediately = false) {
   destination = target;
   for (const listener of listeners) {
     const node = listener.node();
@@ -89,7 +91,7 @@ export function beginSectionNavigation(target: HTMLElement) {
       const node = listener.node();
       if (node && target.contains(node)) listener.notify(false);
     }
-    completionListeners.forEach((listener) => listener(target, arrived));
+    completionListeners.forEach((listener) => listener(target, arrived, revealImmediately));
   };
   // While a jump is open, every section outside the destination holds its entrance back. If the
   // scroll driver never reports back (Lenis stopped mid-jump by an opened dialog, a very slow
