@@ -35,6 +35,8 @@ import chromeStyles from "./nav-chrome.module.css";
 
 /** Past this offset the bar turns to glass and shrinks to its compact height. */
 const COMPACT_AFTER = 24;
+const MENU_ENTER = { duration: 0.18, ease: [0.22, 1, 0.36, 1] } as const;
+const MENU_EXIT = { opacity: 0, transition: { duration: 0.14, ease: "easeOut" } } as const;
 
 export type MenuSection = { id: string; label: string };
 
@@ -100,6 +102,7 @@ export function SiteNav({
   const sectionHref = (id: string) => `${onHomepage ? "" : "/"}#${id}`;
   const reduce = useReducedMotion();
   const [open, setOpen] = useState(false);
+  const [escapeCloseEpoch, setEscapeCloseEpoch] = useState(0);
   const [clickedSection, setClickedSection] = useState<string | null>(null);
   const indicatorId = useId();
   const highlightedSection = clickedSection ?? active;
@@ -175,6 +178,7 @@ export function SiteNav({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
+        setEscapeCloseEpoch((epoch) => epoch + 1);
         setOpen(false);
         menuButtonRef.current?.focus();
       } else if (e.key === "Tab") {
@@ -213,20 +217,22 @@ export function SiteNav({
     <>
       {/* Blurred backdrop behind the mobile menu. Sits outside the header: the header's
           transform would otherwise make this fixed layer position relative to the header. */}
-      <AnimatePresence>
-        {open && (
-          <m.div
-            key="menu-backdrop"
-            aria-hidden
-            onClick={() => setOpen(false)}
-            initial={reduce ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={reduce ? undefined : { opacity: 0, transition: { delay: 0.1, duration: 0.2 } }}
-            transition={{ duration: reduce ? 0 : 0.3 }}
-            className={`${panelStyles.backdrop} fixed inset-0 z-65 xl:hidden`}
-          />
-        )}
-      </AnimatePresence>
+      <div className="contents" inert={!open}>
+        <AnimatePresence key={escapeCloseEpoch}>
+          {open && (
+            <m.div
+              key="menu-backdrop"
+              aria-hidden
+              onClick={() => setOpen(false)}
+              initial={reduce ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reduce ? undefined : MENU_EXIT}
+              transition={reduce ? { duration: 0 } : MENU_ENTER}
+              className={`${panelStyles.backdrop} fixed inset-0 z-65 xl:hidden`}
+            />
+          )}
+        </AnimatePresence>
+      </div>
       <m.header
         ref={headerRef}
         initial={false}
@@ -234,7 +240,7 @@ export function SiteNav({
         data-compact={scrolled && !open ? "" : undefined}
         className={cn(
           chromeStyles.header,
-          "fixed inset-x-0 top-0 border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
+          "fixed inset-x-0 top-0 border-b transition-[background-color,border-color,box-shadow] duration-300",
           // The open menu sits above the consent bar (z-60); the bar returns when it closes.
           "z-50 has-[#mobile-navigation]:z-70",
           open
@@ -372,69 +378,71 @@ export function SiteNav({
           </button>
         </nav>
 
-        <AnimatePresence>
-          {open && (
-            <m.div
-              id="mobile-navigation"
-              initial={reduce ? false : { height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={reduce ? undefined : { height: 0, opacity: 0 }}
-              transition={{ duration: reduce ? 0 : 0.3, ease: "easeInOut" }}
-              className={`${navStyles.panel} ${panelStyles.panel} bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t border-(--brand-mid)/30 backdrop-blur-xl xl:hidden`}
-            >
-              <div className={`site-container ${panelStyles.content}`}>
-                <nav aria-label="Mobile navigation">
-                  <p className={panelStyles.eyebrow}>Explore the portfolio</p>
-                  <ul className={panelStyles.links}>
-                    {visibleSections.map((section) => {
-                      const Icon = SECTION_ICONS[section.id] ?? Layers;
-                      return (
-                        <li key={section.id} data-section={section.id}>
-                          <SectionLink
-                            crossPage={!onHomepage}
-                            scroll={onHomepage}
-                            href={sectionHref(section.id)}
-                            data-testid="mobile-section-link"
-                            aria-current={section.id === active ? "location" : undefined}
-                            onClick={(e) => goToSection(e, section.id)}
-                            className={cn(
-                              panelStyles.link,
-                              section.id === active && panelStyles.active,
-                            )}
-                          >
-                            <span aria-hidden className={panelStyles.icon}>
-                              <Icon size={19} strokeWidth={1.6} />
-                            </span>
-                            <span>{section.label}</span>
-                            <ArrowUpRight aria-hidden className={panelStyles.arrow} />
-                          </SectionLink>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </nav>
-                {navCta && (
-                  <div className={panelStyles.action}>
-                    <p className={panelStyles.eyebrow}>Project inquiries</p>
-                    <p className={panelStyles.actionTitle}>Discuss your project.</p>
-                    <p className={panelStyles.actionDescription}>
-                      Share the scope, stack and timeline.
-                    </p>
-                    <SectionLink
-                      crossPage={!onHomepage}
-                      href={navCta.href}
-                      onClick={(event) => goToSection(event, "contact")}
-                      className={panelStyles.cta}
-                    >
-                      {navCta.label}
-                      <ArrowRight className="ml-auto size-4" aria-hidden />
-                    </SectionLink>
-                  </div>
-                )}
-              </div>
-            </m.div>
-          )}
-        </AnimatePresence>
+        <div className="contents" inert={!open}>
+          <AnimatePresence key={escapeCloseEpoch}>
+            {open && (
+              <m.div
+                id="mobile-navigation"
+                initial={reduce ? false : { opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduce ? undefined : MENU_EXIT}
+                transition={reduce ? { duration: 0 } : MENU_ENTER}
+                className={`${navStyles.panel} ${panelStyles.panel} bg-background/95 max-h-[calc(100dvh-72px)] overflow-x-hidden overflow-y-auto overscroll-contain border-t border-(--brand-mid)/30 backdrop-blur-xl xl:hidden`}
+              >
+                <div className={`site-container ${panelStyles.content}`}>
+                  <nav aria-label="Mobile navigation">
+                    <p className={panelStyles.eyebrow}>Explore the portfolio</p>
+                    <ul className={panelStyles.links}>
+                      {visibleSections.map((section) => {
+                        const Icon = SECTION_ICONS[section.id] ?? Layers;
+                        return (
+                          <li key={section.id} data-section={section.id}>
+                            <SectionLink
+                              crossPage={!onHomepage}
+                              scroll={onHomepage}
+                              href={sectionHref(section.id)}
+                              data-testid="mobile-section-link"
+                              aria-current={section.id === active ? "location" : undefined}
+                              onClick={(e) => goToSection(e, section.id)}
+                              className={cn(
+                                panelStyles.link,
+                                section.id === active && panelStyles.active,
+                              )}
+                            >
+                              <span aria-hidden className={panelStyles.icon}>
+                                <Icon size={19} strokeWidth={1.6} />
+                              </span>
+                              <span>{section.label}</span>
+                              <ArrowUpRight aria-hidden className={panelStyles.arrow} />
+                            </SectionLink>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </nav>
+                  {navCta && (
+                    <div className={panelStyles.action}>
+                      <p className={panelStyles.eyebrow}>Project inquiries</p>
+                      <p className={panelStyles.actionTitle}>Discuss your project.</p>
+                      <p className={panelStyles.actionDescription}>
+                        Share the scope, stack and timeline.
+                      </p>
+                      <SectionLink
+                        crossPage={!onHomepage}
+                        href={navCta.href}
+                        onClick={(event) => goToSection(event, "contact")}
+                        className={panelStyles.cta}
+                      >
+                        {navCta.label}
+                        <ArrowRight className="ml-auto size-4" aria-hidden />
+                      </SectionLink>
+                    </div>
+                  )}
+                </div>
+              </m.div>
+            )}
+          </AnimatePresence>
+        </div>
         {/* Reading progress on the header's bottom edge. Where the chapter rail is shown (xl and up
             on the homepage) the rail already tracks progress, so the line is hidden there. */}
         <span
