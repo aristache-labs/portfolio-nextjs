@@ -1301,8 +1301,8 @@
     stroke-dasharray: 400;
     stroke-dashoffset: 400;
     animation:
-      name-draw-line 2s ease-out forwards,
-      name-draw-fill 0.6s ease-out 1.6s forwards;
+      name-draw-line 1s ease-out forwards,
+      name-draw-fill 0.6s ease-out 0.8s forwards;
   }
 }
 
