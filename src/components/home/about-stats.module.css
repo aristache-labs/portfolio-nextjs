@@ -1327,7 +1327,6 @@
 @media (min-width: 1280px) and (min-height: 760px) and (pointer: fine) {
   .section {
     padding-bottom: max(9rem, calc(100svh - 36rem));
-
   }
 }
 
