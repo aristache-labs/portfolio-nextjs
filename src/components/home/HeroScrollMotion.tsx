@@ -13,18 +13,18 @@ export const HERO_LANDSCAPE_PIN_QUERY = LANDSCAPE_LAYOUT_QUERY;
 
 /** About rises from the bottom on desktop, so layers leave in the order it covers them. */
 const DESKTOP_EXIT_PHASES = [
-  { name: "actions", start: 0.22, end: 0.58 },
-  { name: "details", start: 0.22, end: 0.62 },
-  { name: "specialization", start: 0.32, end: 0.78 },
-  { name: "title", start: 0.55, end: 1 },
+  { name: "actions", start: 0.34, end: 0.66 },
+  { name: "details", start: 0.36, end: 0.7 },
+  { name: "specialization", start: 0.42, end: 0.82 },
+  { name: "title", start: 0.6, end: 1 },
 ] as const;
 
-/** Shorter pins than desktop, so the lower layers clear sooner while the name still overlaps About. */
+/** Touch keeps actions readable longer during the shorter handoff. */
 const TOUCH_EXIT_PHASES = [
-  { name: "actions", start: 0.18, end: 0.48 },
-  { name: "details", start: 0.18, end: 0.52 },
-  { name: "specialization", start: 0.3, end: 0.7 },
-  { name: "title", start: 0.58, end: 1 },
+  { name: "actions", start: 0.46, end: 0.86 },
+  { name: "details", start: 0.49, end: 0.87 },
+  { name: "specialization", start: 0.52, end: 0.9 },
+  { name: "title", start: 0.64, end: 1 },
 ] as const;
 
 const HANDOFF_RANGE = {
@@ -38,15 +38,12 @@ const HEADER_CLEARANCE_PX = 96;
 
 /**
  * Each variable is written only on the elements whose rules read it. A custom property set on the
- * section itself invalidated style for the whole scene (plate, canvas, buttons) on every scroll
- * frame, which was most of the recalculation cost while scrolling the hero.
+ * section itself invalidates styles for the whole scene on every scroll frame.
  */
 const VARIABLE_TARGETS: Record<string, (keyof typeof styles)[]> = {
   "media-y": ["scrollMedia"],
   "media-scale": ["scrollMedia"],
-  "copy-y": ["scrollCopy"],
-  "copy-opacity": ["scrollCopy"],
-  "light-progress": ["halo", "scrollCue"],
+  "light-progress": ["scrollCue"],
   handoff: ["handoff"],
   "exit-actions": ["exitActions", "sceneControl"],
   "exit-details": ["exitDetails"],
@@ -98,6 +95,7 @@ export function HeroScrollMotion({
     const node = section.current;
     if (!node) return;
     const phases = variant === "desktop" ? DESKTOP_EXIT_PHASES : TOUCH_EXIT_PHASES;
+    const travel = expressive ? -1.5 : -0.5;
     const start = variant === "touch" ? 0 : pinned ? 0.08 : 0.15;
     const cta = node.querySelector(`.${styles.actions}`);
     // Unpinned, the CTA scrolls away with the page; its annotations stop once it reaches the header.
@@ -129,16 +127,8 @@ export function HeroScrollMotion({
         const value = smoothstep(phaseProgress(progress, range.start, range.end));
         writeVariable(node, "handoff", String(value));
       } else writeVariable(node, "handoff", null);
-      writeVariable(node, "media-y", `${progress * (pinned ? -2 : expressive ? 18 : 5)}%`);
-      writeVariable(
-        node,
-        "media-scale",
-        String(1 + progress * (pinned ? 0.1 : expressive ? 0.06 : 0.02)),
-      );
-      writeVariable(node, "copy-y", `${progress * (pinned ? 0 : expressive ? -40 : -12)}px`);
-      // Touch keeps the copy legible throughout its natural passage out of view.
-      const fade = expressive && !pinned ? Math.max(0, Math.min(1, (progress - 0.45) / 0.4)) : 0;
-      writeVariable(node, "copy-opacity", String(1 - fade));
+      writeVariable(node, "media-y", String(progress * travel) + "%");
+      writeVariable(node, "media-scale", String(1 + progress * (expressive ? 0.04 : 0.02)));
     };
     update(scrollYProgress.get());
     const unsubscribe = scrollYProgress.on("change", update);

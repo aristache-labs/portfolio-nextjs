@@ -2,7 +2,6 @@
 
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import { preload } from "react-dom";
-import dynamic from "next/dynamic";
 import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Magnetic } from "@/components/motion/Magnetic";
@@ -18,36 +17,8 @@ import {
 import { SocialGlyph } from "./social-icons";
 import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
-import { HeroDepth } from "./HeroDepth";
-
 const PULL_REFRESH_DELAY_MS = 500;
 
-// Desktop-only WebGL field; its chunk loads after the page is idle, never on touch screens.
-const HeroNetwork = dynamic(() => import("./HeroNetwork"), { ssr: false });
-
-/** Resolves once the page has loaded and the main thread has a quiet moment. */
-function useIdleAfterLoad(enabled: boolean) {
-  const [idle, setIdle] = useState(false);
-  useEffect(() => {
-    if (!enabled || idle) return;
-    let handle: number | undefined;
-    const schedule = () => {
-      handle =
-        typeof window.requestIdleCallback === "function"
-          ? window.requestIdleCallback(() => setIdle(true), { timeout: 2500 })
-          : window.setTimeout(() => setIdle(true), 1200);
-    };
-    if (document.readyState === "complete") schedule();
-    else window.addEventListener("load", schedule, { once: true });
-    return () => {
-      window.removeEventListener("load", schedule);
-      if (handle === undefined) return;
-      if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(handle);
-      else window.clearTimeout(handle);
-    };
-  }, [enabled, idle]);
-  return idle;
-}
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import { subscribeScroll } from "@/lib/scroll-state";
@@ -150,7 +121,6 @@ export function Hero({
   const reduce = useReducedMotion();
   const { mode } = useAnimationPolicy();
   const expressive = mode === "expressive";
-  const showNetwork = useIdleAfterLoad(expressive) && expressive;
   const ultraPortrait = useMediaQuery(
     "(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)",
   );
@@ -171,6 +141,11 @@ export function Hero({
     stopAnchorScroll.current?.();
     stopAnchorScroll.current = scrollToSection(id, reduce);
   };
+  const cssPortraitMotion =
+    portraitPhone &&
+    touchScene &&
+    typeof CSS !== "undefined" &&
+    CSS.supports?.("animation-timeline: scroll()");
   const canPlayVideo = useMediaQuery(HERO_VIDEO_QUERY);
   const foldViewport = useMediaQuery(FOLD_VIEWPORT_QUERY);
   const portraitPoster = useMediaQuery(PORTRAIT_POSTER_QUERY);
@@ -356,7 +331,7 @@ export function Hero({
       data-touch-scene={touchScene || undefined}
       className={`${styles.hero} relative scroll-mt-24`}
     >
-      {mode !== "static" && !reduce && !portraitPhone && (
+      {mode !== "static" && !reduce && !cssPortraitMotion && (
         <HeroScrollMotion
           section={sectionRef}
           expressive={expressive}
@@ -412,10 +387,6 @@ export function Hero({
             </div>
           </div>
           <div className={`${styles.scrim} hero-vignette absolute inset-0`} />
-          {expressive && <HeroDepth section={sectionRef} />}
-          {showNetwork && <HeroNetwork section={sectionRef} />}
-          <div aria-hidden className={styles.halo} />
-          <div className="hero-noise absolute inset-0" />
           <div className={styles.handoff} />
           <SectionEdge edge="bottom" />
         </div>
@@ -432,7 +403,7 @@ export function Hero({
         )}
 
         <div
-          className={`${styles.content} ${styles.scrollCopy} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
+          className={`${styles.content} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
         >
           <div className={`${styles.intro} min-w-0 lg:col-start-1 lg:row-start-1 lg:pl-8`}>
             {profile.availability && (
