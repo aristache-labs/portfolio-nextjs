@@ -1270,12 +1270,14 @@
     font-size: 20px;
   }
 }
-@media (min-width: 1840px) and (min-height: 900px) and (pointer: fine) {
+@media (min-width: 1280px) and (min-height: 760px) and (pointer: fine) {
   .section {
-    /* The desktop anchor lands after the pinned intro has already scrolled. */
-    padding-bottom: clamp(9rem, calc(75svh - 33rem), 18rem);
+    /* Keep the landing clear when browser zoom narrows the desktop viewport. */
+    padding-bottom: max(9rem, calc(100svh - 36rem));
   }
+}
 
+@media (min-width: 1840px) and (min-height: 900px) and (pointer: fine) {
   .biography,
   .copy,
   .results {

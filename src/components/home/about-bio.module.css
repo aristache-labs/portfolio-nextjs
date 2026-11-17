@@ -17,9 +17,19 @@
     animation: button-arrive 800ms 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  .buttonReveal[data-reveal="play"] .toggle svg {
+    animation: read-more-cue 320ms 980ms ease-in-out;
+  }
+
   .buttonReveal[data-reveal]:focus-within .toggle {
     animation: none;
     opacity: 1;
+  }
+}
+
+@keyframes read-more-cue {
+  50% {
+    translate: 0 5px;
   }
 }
 
@@ -52,23 +62,9 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .toggle[aria-expanded="false"] {
-    animation: gentle-float 4s ease-in-out infinite;
-  }
-
   .remainder:not([data-collapsed]),
   .tail:not([data-collapsed]) {
     animation: reveal-copy 180ms ease-out;
-  }
-}
-
-@keyframes gentle-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
   }
 }
 

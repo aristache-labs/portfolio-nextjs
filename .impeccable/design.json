@@ -87,7 +87,12 @@
       {
         "name": "hero-scroll-cue",
         "value": "1.8s ease-in-out, 2 iterations",
-        "purpose": "Draw attention to the About link twice. Reduced motion keeps the cue static."
+        "purpose": "Pulse twice when About is visible as a destination. Reduced motion keeps the cue static."
+      },
+      {
+        "name": "hero-cta-collapse",
+        "value": "650ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Collapse the layered Explore Projects action. Use 750ms in portrait up to 767px and landscape up to 1023px."
       }
     ],
     "shadows": [
@@ -138,5 +143,5 @@
     ],
     "overview": "Aristache has a technical, cinematic visual identity. Section media, near-black surfaces, and turquoise accents give the homepage depth. The same dark palette carries through navigation, dialogs, and the admin interface."
   },
-  "generatedAt": "2026-11-17T02:43:04.912Z"
+  "generatedAt": "2026-11-17T08:51:05.677Z"
 }
