@@ -201,6 +201,7 @@
   box-shadow: none;
   backdrop-filter: none;
   color: var(--foreground);
+  line-height: 1.2;
 }
 
 .contactAction:hover {
@@ -217,7 +218,7 @@
 
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
   .contactAction {
-    font-size: 1.325rem;
+    font-size: 1.3125rem;
   }
 }
 
@@ -704,8 +705,7 @@
   }
 
   .actions .contactAction {
-    font-size: 1.1rem;
-    line-height: 0.5;
+    font-size: 1.125rem;
   }
 
   .hero .secondaryLinks {
@@ -880,6 +880,7 @@
   .actions .contactAction {
     min-height: 48px;
     padding: 12px 22px;
+    font-size: clamp(16px, 1.4375rem, 18px);
   }
 
   .secondaryLinks {
@@ -1565,10 +1566,6 @@
    about 7:8 box, so nudge the picture right by the difference and keep the Fold's own scale; the
    person's head then lands at the same place on the screen as on the Fold. */
 @media (min-width: 1000px) and (max-width: 1100px) and (min-height: 1100px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
-  /* Simulators can report a fine pointer. Keep the Fold crop without desktop depth. */
-  .hero {
-  }
-
   /* At 1024px Tailwind's lg: rules add a second column and 2rem of left padding. The Fold has
      neither, so match it: one full-width column that starts at the container edge. */
   .content {
