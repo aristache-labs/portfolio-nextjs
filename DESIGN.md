@@ -150,6 +150,8 @@ Pill buttons and compact tags contrast with the 1rem corners of cards and dialog
 - **Section label.** `SectionLabel` ("01 ABOUT") is the one pattern above every section title: a laser beam runs under it once, lights the letters and leaves the separator. `delayMs` holds the beam while the label fades in.
 - **Section heading entrance.** Every heading enters as About does: the label first, then the title words rising out of a blur, then the accent underline draws, then the subtitle. `AboutReveal` arms and plays it; `HeadingWords` splits the title.
 - **Section motion.** Homepage entrances and overlays use opacity and transform effects. The terminal intro is configurable, and the homepage provides a reduced-motion path.
+- **Hero.** The first name and offset surname form the focal point. The supporting headline accents its last word in turquoise. Explore Projects is the layered primary action, while Get in Touch is the secondary text action. Phone portrait centers the actions as a group. Each action follows the admin visibility setting of its destination.
+- **Hero motion and navigation.** Explore Projects expands on eligible pointer or scroll interactions. The background uses a subtle scroll-linked drift into About. Scroll to explore appears when About is visible, leads to that section, and pulses twice. Reduced motion keeps the poster and links available with a static scroll cue.
 
 ## Do's and Don'ts
 
