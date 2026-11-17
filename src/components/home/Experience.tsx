@@ -434,11 +434,9 @@ function CurrentRole({
           {count(index + 1)} / {count(experiences.length)}
         </p>
         <span className="mt-2 block h-px w-full overflow-hidden bg-white/10">
-          {/* Width, not a scale transform: a transformed 1px bar is rasterised on its own layer at
-              a fractional offset, so its brightness pulses while the sticky column scrolls. */}
           <span
-            className="block h-full bg-(image:--gradient-brand) transition-[width] duration-500 ease-out motion-reduce:transition-none"
-            style={{ width: `${((index + 1) / experiences.length) * 100}%` }}
+            className="block h-full w-full origin-left bg-(image:--gradient-brand) transition-transform duration-500 ease-out motion-reduce:transition-none"
+            style={{ transform: `scaleX(${(index + 1) / experiences.length})` }}
           />
         </span>
         <AnimatePresence mode="wait" initial={false}>
