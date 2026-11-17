@@ -21,11 +21,13 @@ import { createRevealSequence, RevealSequence } from "@/components/motion/Reveal
 /** Solid tablet cards reveal by clipping and moving, without fading their surface. */
 export function SolidSkillEntrance({
   filtered,
+  skipEntrance = false,
   order = 0,
   ref,
   children,
 }: {
   filtered: boolean;
+  skipEntrance?: boolean;
   order?: number;
   ref?: Ref<HTMLDivElement>;
   children: ReactNode;
@@ -47,7 +49,12 @@ export function SolidSkillEntrance({
       transform: "translateY(0px) scale(1)",
       clipPath: "inset(0% 0% 0% 0% round 16px)",
     };
-    if (mode === "static" || entered.current || typeof IntersectionObserver !== "function") {
+    if (
+      skipEntrance ||
+      mode === "static" ||
+      entered.current ||
+      typeof IntersectionObserver !== "function"
+    ) {
       controls.set(settled);
       sequence.publish("static");
       return;
@@ -105,6 +112,7 @@ export function SolidSkillEntrance({
     controls,
     sequence,
     entersOnMount,
+    skipEntrance,
     order,
     navigation.pending,
     navigation.replay,
@@ -115,7 +123,7 @@ export function SolidSkillEntrance({
       <m.div
         className="h-full"
         initial={
-          entersOnMount && mode !== "static"
+          entersOnMount && !skipEntrance && mode !== "static"
             ? {
                 transform: "translateY(18px) scale(0.97)",
               }
@@ -140,7 +148,7 @@ export function SkillEntrance({
   children,
 }: {
   filtered: boolean;
-  /** An automatic reset restores cards without replaying their first entrance. */
+  /** Show filtered or restored cards in their settled state. */
   skipEntrance?: boolean;
   /** Position in the grid, so cards brought in by a filter arrive in turn. */
   order?: number;
@@ -169,7 +177,7 @@ export function SkillEntrance({
   useEffect(() => {
     if (!ready || navigation.pending) return;
     if (mobile) return;
-    if (mode === "static") {
+    if (mode === "static" || skipEntrance) {
       sequence.publish("static");
       return;
     }
@@ -187,7 +195,17 @@ export function SkillEntrance({
         else sequence.publish("prepared");
       }
     });
-  }, [entersOnMount, mode, parent, ready, sequence, mobile, navigation.pending, navigation.replay]);
+  }, [
+    entersOnMount,
+    mode,
+    parent,
+    ready,
+    sequence,
+    mobile,
+    skipEntrance,
+    navigation.pending,
+    navigation.replay,
+  ]);
 
   useEffect(() => {
     const node = nodeRef.current;
@@ -289,7 +307,7 @@ export function SkillEntrance({
     <m.div
       ref={nodeRef}
       animate={mobile ? controls : undefined}
-      layout={mode === "static" ? false : "position"}
+      layout={mode === "static" || skipEntrance ? false : "position"}
       transition={{ layout: { type: "spring", damping: 20, stiffness: 300 } }}
       exit={
         mode === "static"
@@ -297,17 +315,21 @@ export function SkillEntrance({
           : { opacity: 0, scale: 0.94, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }
       }
       initial={false}
-      variants={{
-        hidden:
-          mode === "static"
-            ? { opacity: 1, y: 0 }
-            : { opacity: 0, y: mode === "expressive" ? 16 : 8 },
-        visible: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: mode === "static" ? 0 : 1.3, ease: [0.22, 1, 0.36, 1] },
-        },
-      }}
+      variants={
+        skipEntrance
+          ? undefined
+          : {
+              hidden:
+                mode === "static"
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: mode === "expressive" ? 16 : 8 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: mode === "static" ? 0 : 1.3, ease: [0.22, 1, 0.36, 1] },
+              },
+            }
+      }
       className="min-w-0"
       onAnimationComplete={(definition) => {
         if (definition !== "visible") return;
@@ -318,14 +340,15 @@ export function SkillEntrance({
       <m.div
         className="h-full"
         initial={
-          entersOnMount && mode !== "static"
+          entersOnMount && !skipEntrance && mode !== "static"
             ? { opacity: preserveSurface ? 1 : 0, scale: 0.96 }
             : false
         }
         animate={{ opacity: 1, scale: 1 }}
         transition={{
-          duration: mode === "static" ? 0 : 0.35,
-          delay: entersOnMount && mode !== "static" ? Math.min(order, 11) * 0.04 : 0,
+          duration: mode === "static" || skipEntrance ? 0 : 0.35,
+          delay:
+            entersOnMount && !skipEntrance && mode !== "static" ? Math.min(order, 11) * 0.04 : 0,
           ease: [0.22, 1, 0.36, 1],
         }}
         onAnimationComplete={() => {

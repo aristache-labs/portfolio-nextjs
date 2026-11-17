@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import { AnimatePresence, LazyMotion, domMax, m } from "framer-motion";
+import { LazyMotion, domMax, m } from "framer-motion";
 import { useAnimationPolicy } from "@/hooks/useAnimationPolicy";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { FOLD_VIEWPORT_QUERY, PINNED_SCENE_QUERY, useMediaQuery } from "@/hooks/useMediaQuery";
@@ -93,10 +93,12 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
 
   const [filter, setFilter] = useState(MOST_USED);
   const [hasFiltered, setHasFiltered] = useState(false);
+  const [animateSelection, setAnimateSelection] = useState(false);
   const [resetEpoch, setResetEpoch] = useState(0);
   useMobileSectionReset(sectionRef, filter !== MOST_USED, () => {
     setFilter(MOST_USED);
     setHasFiltered(false);
+    setAnimateSelection(false);
     // Restore the grid in one commit without replaying card entrances on return.
     setResetEpoch((epoch) => epoch + 1);
   });
@@ -105,9 +107,10 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   const tabsId = useId();
   const tabId = (value: string) => `${tabsId}-tab-${tabs.indexOf(value)}`;
   const panelId = `${tabsId}-panel`;
-  const selectTab = (value: string) => {
+  const selectTab = (value: string, pointer = false) => {
     if (value === active) return;
     setHasFiltered(true);
+    setAnimateSelection(pointer);
     setFilter(value);
   };
   // WAI-ARIA tabs with automatic activation: arrows, Home and End move focus and select.
@@ -175,30 +178,35 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
   }, [mobilePortrait, active]);
 
   const Entrance = solidTablet ? SolidSkillEntrance : SkillEntrance;
-  // Stable keys let shared cards move while leaving cards finish outside the grid flow.
-  const cards = (
-    <AnimatePresence key={resetEpoch} mode="popLayout" initial={false}>
-      {visible.map((skill, index) => (
-        <Entrance
-          key={`${skill.category}-${skill.name}`}
-          filtered={hasFiltered}
-          skipEntrance={mobile && resetEpoch > 0 && !hasFiltered}
-          order={index}
-          mobile={mobile}
-          landscape={mobileLandscape}
-        >
-          <SkillSlot index={index}>
-            <SkillCard
-              name={skill.name}
-              iconPath={skill.iconPath}
-              level={skill.level}
-              loadIcon={iconsNear}
-            />
+  const cards = visible.map((skill, index) => {
+    const key = `${skill.category}-${skill.name}`;
+    const card = (
+      <SkillCard
+        name={skill.name}
+        iconPath={skill.iconPath}
+        level={skill.level}
+        loadIcon={iconsNear}
+      />
+    );
+    return (
+      <Entrance
+        key={key}
+        filtered={false}
+        skipEntrance={hasFiltered || (mobile && resetEpoch > 0)}
+        order={index}
+        mobile={mobile}
+        landscape={mobileLandscape}
+      >
+        {solidTablet ? (
+          card
+        ) : (
+          <SkillSlot index={index} revealed={hasFiltered}>
+            {card}
           </SkillSlot>
-        </Entrance>
-      ))}
-    </AnimatePresence>
-  );
+        )}
+      </Entrance>
+    );
+  });
 
   return (
     <section
@@ -295,7 +303,7 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                     staggerChildren={0.2}
                   >
                     <div
-                      className="flex flex-wrap items-center gap-2 max-lg:justify-center"
+                      className="flex flex-wrap items-center gap-2 max-lg:justify-center pointer-coarse:gap-y-3.5"
                       role="tablist"
                       aria-label="Filter skills by category"
                     >
@@ -326,10 +334,11 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                             aria-controls={panelId}
                             tabIndex={selected ? 0 : -1}
                             onKeyDown={onTabKeyDown}
-                            onClick={() => selectTab(value)}
+                            onClick={(event) => selectTab(value, event.detail > 0)}
                             whileHover={mode === "expressive" ? { y: -2 } : undefined}
-                            whileTap={mode === "static" ? undefined : { scale: 0.98 }}
-                            className={`relative rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-300 ${
+                            // On touch screens an invisible ::before lifts the 30px chip to a 44px target; the wrapped
+                            // rows sit 14px apart so neighbouring targets never overlap.
+                            className={`relative rounded-full border px-3 py-1.5 text-xs font-medium pointer-coarse:before:absolute pointer-coarse:before:inset-x-0 pointer-coarse:before:-inset-y-[7px] ${
                               selected
                                 ? "border-transparent text-white"
                                 : "text-foreground/65 hover:border-brand-mid/40 hover:text-foreground border-white/12 bg-white/3 backdrop-blur-md"
@@ -341,9 +350,9 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                                 aria-hidden
                                 layoutId="skills-active-tab"
                                 transition={
-                                  mode === "static"
+                                  mode === "static" || !animateSelection
                                     ? { duration: 0 }
-                                    : { type: "spring", visualDuration: 0.45, bounce: 0.2 }
+                                    : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }
                                 }
                                 className="border-brand-bright/60 absolute -inset-px rounded-full border bg-(image:--gradient-brand-action)"
                               />
@@ -356,50 +365,18 @@ export function Skills({ skills, number = "02" }: { skills: SkillRow[]; number?:
                   </ProgressiveReveal>
                 )}
 
-                {/* Stable keys let shared cards move between their old and new grid positions. */}
                 <div
                   id={panelId}
                   role={ordered.length > 0 ? "tabpanel" : undefined}
                   aria-labelledby={ordered.length > 0 ? tabId(active) : undefined}
                 >
                   {solidTablet ? (
-                    <AnimatePresence mode="wait" initial={false}>
-                      <m.div
-                        key={active}
-                        ref={gridRef}
-                        className={GRID}
-                        initial={false}
-                        animate={{
-                          transform: "translateY(0px)",
-                        }}
-                        exit={
-                          mode === "static"
-                            ? undefined
-                            : {
-                                transform: "translateY(-8px)",
-                                transition: { duration: 0.16, ease: [0.22, 1, 0.36, 1] },
-                              }
-                        }
-                      >
-                        {visible.map((skill, index) => (
-                          <SolidSkillEntrance
-                            key={`${skill.category}-${skill.name}`}
-                            filtered={hasFiltered}
-                            order={index}
-                          >
-                            <SkillCard
-                              name={skill.name}
-                              iconPath={skill.iconPath}
-                              level={skill.level}
-                              loadIcon={iconsNear}
-                            />
-                          </SolidSkillEntrance>
-                        ))}
-                      </m.div>
-                    </AnimatePresence>
+                    <div ref={gridRef} className={GRID}>
+                      {cards}
+                    </div>
                   ) : (
                     <SkillsGridReveal
-                      enabled={!scene && !mobile}
+                      enabled={!scene && !mobile && !hasFiltered}
                       gridRef={gridRef}
                       className={GRID}
                     >

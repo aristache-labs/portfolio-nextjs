@@ -398,6 +398,34 @@ describe("Skills category tabs", () => {
   beforeEach(() => installMatchMedia({ [REDUCED_MOTION_QUERY]: true }));
   afterEach(cleanup);
 
+  it.each(["keyboard", "pointer"])("swaps tablet categories immediately with %s", (input) => {
+    installMatchMedia({
+      "(min-width: 1105px) and (min-height: 1500px) and (orientation: portrait)": true,
+      [REDUCED_MOTION_QUERY]: false,
+    });
+    render(
+      <MotionProvider>
+        <Skills skills={mockSkills} />
+      </MotionProvider>,
+    );
+    const mostUsed = screen.getByRole("tab", { name: "Most Used" });
+    const backend = screen.getByRole("tab", { name: "Backend" });
+    const panel = screen.getByRole("tabpanel");
+
+    if (input === "keyboard") {
+      mostUsed.focus();
+      fireEvent.keyDown(mostUsed, { key: "End" });
+      expect(backend).toHaveFocus();
+    } else {
+      fireEvent.click(backend, { detail: 1 });
+    }
+
+    expect(backend).toHaveAttribute("aria-selected", "true");
+    expect(panel).toHaveAttribute("aria-labelledby", backend.id);
+    expect(panel).toHaveTextContent("Node.js");
+    expect(panel).not.toHaveTextContent("React");
+  });
+
   it("links tabs to one panel and moves selection with the keyboard", () => {
     render(
       <MotionProvider>
