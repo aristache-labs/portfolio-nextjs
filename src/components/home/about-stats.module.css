@@ -1272,8 +1272,8 @@
 }
 @media (min-width: 1840px) and (min-height: 900px) and (pointer: fine) {
   .section {
-    /* The desktop anchor lands after the pinned intro has already scrolled. */
-    padding-bottom: clamp(9rem, calc(75svh - 33rem), 18rem);
+    /* The desktop anchor lands after the pinned intro, so shorter bios need more space below. */
+    padding-bottom: max(9rem, calc(100svh - 40rem));
   }
 
   .biography,

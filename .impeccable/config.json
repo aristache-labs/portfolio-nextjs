@@ -1,1 +1,20 @@
-{}
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "hero roles fallback",
+        "createdAt": "2026-11-17T07:23:40.026Z",
+        "reason": "Existing Hero font-metrics fallback for uppercase roles while Geist loads, documented in the CSS."
+      },
+      {
+        "rule": "design-system-font",
+        "value": "geistsans",
+        "createdAt": "2026-11-17T07:26:42.059Z",
+        "reason": "Chrome DevTools CSS.getPlatformFontsForNode confirms Hero role glyphs render with Geist-Medium."
+      }
+    ]
+  }
+}

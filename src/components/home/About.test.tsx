@@ -69,14 +69,14 @@ describe("About", () => {
     render(
       <AboutBio bio="I turn technical challenges into practical, dependable solutions. More about my work." />,
     );
-    const toggle = screen.getByRole("button", { name: "View more" });
+    const toggle = screen.getByRole("button", { name: "Read more" });
     const remainder = document.getElementById(toggle.getAttribute("aria-controls")!);
     expect(remainder).toHaveAttribute("data-collapsed");
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     expect(remainder).not.toHaveAttribute("data-collapsed");
     expect(remainder).toHaveTextContent("More about my work.");
-    fireEvent.click(screen.getByRole("button", { name: "View less" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show less" }));
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(remainder).toHaveAttribute("data-collapsed");
   });
