@@ -18,6 +18,8 @@ const eslintConfig = [
       "drizzle/**",
       "playwright-report*/**",
       "test-results/**",
+      // Local, gitignored Remotion project; linting it buried real results under thousands of findings.
+      "videos/**",
     ],
   },
 ];

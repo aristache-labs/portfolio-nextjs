@@ -135,7 +135,7 @@ const CARD = `${motionStyles.card} group relative h-full w-full overflow-hidden 
 
 /**
  * Featured card in the same GitHub style as the Recently updated cards. Phones and tablets: poster,
- * then title with category, description and the Live / Code / Issues / Pull requests row. Desktop
+ * then title with category, description and the View / Live / Code / Issues row. Desktop
  * with a pointer: the poster fills the card and everything else shows over it on hover. `compact`
  * is the same card for the two smaller slots.
  */
@@ -177,7 +177,6 @@ export function FeaturedCard({
     <article className={`${layoutStyles.heroCard} ${hero ? "" : layoutStyles.heroCompact} ${CARD}`}>
       <Frame
         title={project.title}
-        label={`View ${project.title}`}
         onQuickView={onQuickView}
         className={`${layoutStyles.heroMedia} w-full`}
       >

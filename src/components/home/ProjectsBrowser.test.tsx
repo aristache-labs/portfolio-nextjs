@@ -278,10 +278,10 @@ describe("ProjectsBrowser highlights", () => {
       "href",
       `${repo}/issues`,
     );
-    expect(screen.getByRole("link", { name: "Pull requests for Project 3" })).toHaveAttribute(
-      "href",
-      `${repo}/pulls`,
-    );
+    // The pull requests icon sits in the repo header, so it names the repository, not the title.
+    expect(
+      screen.getByRole("link", { name: `Pull requests for ${list[2].repo} on GitHub` }),
+    ).toHaveAttribute("href", `${repo}/pulls`);
     const recent = screen.getByRole("heading", { name: "Project 3" }).closest("article")!;
     expect(within(recent).getByText(/^Updated /)).toHaveAttribute(
       "datetime",
