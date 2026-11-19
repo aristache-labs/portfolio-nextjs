@@ -88,11 +88,6 @@ function releaseVideo(node: HTMLVideoElement) {
 const PLATE =
   "absolute top-1/2 left-1/2 aspect-video w-[max(100cqw,calc(100cqh*16/9))] -translate-x-1/2 -translate-y-1/2";
 
-// CSS owns copy entrances so mobile never waits for hydration to reveal its LCP text.
-function entranceStyle(delay: number) {
-  return { "--hero-enter-delay": `${delay * 0.54}s` } as CSSProperties;
-}
-
 function staggerStyle(index: number) {
   return { "--i": index } as CSSProperties;
 }

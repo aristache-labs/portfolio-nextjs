@@ -337,16 +337,10 @@
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
   .hero {
-    --hero-entry-distance: 18px;
     --hero-words-at: 480ms;
     --hero-actions-at: 760ms;
     --hero-links-at: 1160ms;
     --hero-cue-at: 1700ms;
-  }
-
-  /* Capped so the copy, a likely LCP element, is fully drawn within the first half second. */
-  .hero .enter {
-    animation-delay: calc(min(calc(var(--hero-enter-delay, 0s) * 1.7), 300ms) * var(--hero-pace));
   }
 
   .nameLine {
@@ -485,13 +479,6 @@
     animation-delay: calc((var(--hero-words-at) + 450ms) * var(--hero-pace));
   }
 
-  /* Copy keeps some opacity at the start because it can be the mobile LCP element. */
-  .enter {
-    --hero-fade-from: 0.15;
-    animation: hero-focus-in calc(800ms * var(--hero-pace)) cubic-bezier(0.22, 1, 0.36, 1) backwards;
-    animation-delay: calc(var(--hero-enter-delay, 0s) * var(--hero-pace));
-  }
-
   /* Spring pop on `scale`, so it never fights Magnetic's inline transform. */
   .actionEntrance,
   .secondaryLinks > a {
@@ -527,24 +514,6 @@
 
   .scrollCue {
     animation: hero-cue-in 800ms var(--hero-cue-at) cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  }
-}
-
-@keyframes hero-focus-in {
-  from {
-    opacity: var(--hero-fade-from, 0);
-    filter: blur(8px);
-    transform: translateY(var(--hero-entry-distance, 10px));
-  }
-}
-
-/* An animated blur repaints the whole text box every frame, which touch GPUs drop frames on. */
-@media (pointer: coarse) {
-  @keyframes hero-focus-in {
-    from {
-      opacity: var(--hero-fade-from, 0);
-      transform: translateY(var(--hero-entry-distance, 10px));
-    }
   }
 }
 
@@ -746,10 +715,6 @@
 
 /* Portrait phones scroll away naturally while the copy exits in layers. */
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
-  .hero {
-    --hero-entry-distance: 8px;
-  }
-
   .nameLine {
     display: block;
     position: relative;
@@ -903,20 +868,12 @@
 @media (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
   (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)) and (prefers-reduced-motion: no-preference) {
-  /* Entrance timing keys on the media query alone, never on [data-touch-scene]: that attribute
-     lands at hydration, mid-entrance, and changing a running animation's delay or name there
-     restarts it (the roles retyped, the copy faded in twice). The roles keep only their
-     typewriter; nothing slides the line up afterwards. */
+  /* Keep entrance timing on the media query so hydration cannot restart an animation. */
   .hero {
-    --hero-entry-distance: 18px;
     --hero-words-at: 480ms;
     --hero-actions-at: 760ms;
     --hero-links-at: 1160ms;
     --hero-cue-at: 1700ms;
-  }
-
-  .hero .enter {
-    animation-delay: calc(var(--hero-enter-delay, 0s) * 1.7 * var(--hero-pace));
   }
 
   .hero[data-touch-scene] {
