@@ -1,11 +1,10 @@
 import type { CSSProperties } from "react";
 import { CalendarDays, MapPin, TrendingDown, Users, type LucideIcon } from "lucide-react";
-import { IconTile, ICON_PROPS } from "@/components/ui/IconTile";
-import { SpringCount } from "@/components/motion/SpringCount";
 import { AboutResults } from "./AboutResults";
-import { AboutStatsGlow } from "./AboutStatsGlow";
+import { AboutMilestones } from "./AboutMilestones";
 import { AvatarPortrait } from "./AvatarPortrait";
 import { AboutPortraitMotion } from "./AboutPortraitMotion";
+import { AboutPortraitBadges } from "./AboutPortraitBadges";
 import { AboutIntroduction } from "./AboutIntroduction";
 import { Section } from "@/components/ui/Section";
 import { SectionBackdrop } from "./SectionBackdrop";
@@ -16,7 +15,6 @@ import { SITE } from "@/lib/seo/site";
 import { aboutStats, type AboutStat, type AboutStatKey } from "@/lib/about-stats";
 import { AboutSequence } from "./AboutSequence";
 import { AboutReveal } from "./AboutReveal";
-import portraitCss from "@/components/ui/portrait-card-surface.module.css";
 import headingCss from "./section-heading.module.css";
 
 export type AboutProfile = {
@@ -26,6 +24,8 @@ export type AboutProfile = {
   highlights?: AboutStat[];
   name?: string;
   avatarUrl?: string;
+  /** Same note as the Hero; shown as a floating card on the portrait. */
+  availability?: string | null;
 };
 
 const STAT_ICONS: Record<AboutStatKey, LucideIcon> = {
@@ -42,6 +42,9 @@ function StatBar({ stats }: { stats: AboutStat[] }) {
     <AboutResults
       className={`${statsCss.results} landscape-short:col-span-2 mt-8 lg:col-span-2 lg:mt-14`}
     >
+
+      <AboutMilestones items={items} />
+
       <div
         className={`${statsCss.panel} ${portraitCss.surface} ${statsCss.glass} relative overflow-hidden rounded-2xl px-5 py-4 sm:px-6`}
       >
@@ -74,6 +77,7 @@ function StatBar({ stats }: { stats: AboutStat[] }) {
           ))}
         </AboutReveal>
       </div>
+
     </AboutResults>
   );
 }
@@ -141,16 +145,29 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
               </h2>
             </div>
           </AboutReveal>
-          <AboutReveal className={`${statsCss.introduction} ${statsCss.paragraphReveal}`}>
+          {/* Words blur in one by one (about-introduction.module.css), not the whole paragraph. */}
+          <AboutReveal className={statsCss.introduction}>
             <AboutIntroduction text={introduction} />
           </AboutReveal>
           {profile.avatarUrl && (
-            <AboutPortraitMotion className={statsCss.portrait}>
-              <AvatarPortrait
-                src={profile.avatarUrl}
-                name={profile.name ?? SITE.name}
-                scrollMotion
-              />
+            <AboutPortraitMotion
+              // Tailwind's layered `relative` loses to the module's pinned `absolute`, as intended.
+              className={`${statsCss.portrait} relative`}
+              overlay={
+                <AboutPortraitBadges
+                  repos={profile.stats.repos}
+                  stars={profile.stats.stars}
+                  availability={profile.availability}
+                />
+              }
+            >
+              <AboutReveal className={statsCss.portraitEnter}>
+                <AvatarPortrait
+                  src={profile.avatarUrl}
+                  name={profile.name ?? SITE.name}
+                  scrollMotion
+                />
+              </AboutReveal>
             </AboutPortraitMotion>
           )}
         </div>

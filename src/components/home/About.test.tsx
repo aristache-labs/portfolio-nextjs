@@ -1,3 +1,4 @@
+import { StrictMode } from "react";
 import { describe, it, expect, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
@@ -124,5 +125,34 @@ describe("About", () => {
   it("renders the eyebrow label", () => {
     render(<About profile={mockProfile} />);
     expect(screen.getByText("About")).toBeInTheDocument();
+  });
+
+  it("numbers bio words in reading order, identically on server and client", () => {
+    const bio =
+      "I turn technical challenges into practical, dependable solutions. Then a tail.\n\nA last paragraph.";
+    const order = (root: ParentNode) =>
+      [...root.querySelectorAll<HTMLElement>("p span[style]")].map((word) =>
+        word.style.getPropertyValue("--w"),
+      );
+    const server = document.createElement("div");
+    server.innerHTML = renderToString(<AboutBio bio={bio} />);
+    const { container } = render(
+      <StrictMode>
+        <AboutBio bio={bio} />
+      </StrictMode>,
+    );
+    const expected = Array.from({ length: 14 }, (_, index) => String(index));
+    expect(order(server)).toEqual(expected);
+    expect(order(container)).toEqual(expected);
+  });
+
+  it("floats GitHub numbers on the portrait and the availability card only when set", () => {
+    const avatarUrl = "https://example.com/portrait.webp";
+    const { rerender } = render(<About profile={{ ...mockProfile, avatarUrl }} />);
+    expect(screen.getByText("120 repos · 250 stars")).toBeInTheDocument();
+    expect(screen.queryByText("Open to work")).not.toBeInTheDocument();
+
+    rerender(<About profile={{ ...mockProfile, avatarUrl, availability: "Open to work" }} />);
+    expect(screen.getByText("Open to work")).toBeInTheDocument();
   });
 });

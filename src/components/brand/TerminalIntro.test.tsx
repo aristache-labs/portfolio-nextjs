@@ -1,4 +1,5 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { installMatchMedia } from "@/test/matchMedia";
 import { IntroCurtain } from "./IntroCurtain";
@@ -16,14 +17,19 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+/** The session script exists only in the server HTML, so read it from there. */
 function boot() {
-  const { container } = render(<IntroCurtain />);
-  const script = container.querySelector("script")!.textContent!;
-  cleanup();
-  return script;
+  const container = document.createElement("div");
+  container.innerHTML = renderToString(<IntroCurtain />);
+  return container.querySelector("script")!.textContent!;
 }
 
 describe("terminal intro", () => {
+  it("never creates the session script in a client render", () => {
+    const { container } = render(<IntroCurtain />);
+    expect(container.querySelector("script")).toBeNull();
+  });
+
   it("starts once per session and skips subsequent visits", () => {
     installMatchMedia({ "(prefers-reduced-motion: reduce)": false });
     vi.useFakeTimers();

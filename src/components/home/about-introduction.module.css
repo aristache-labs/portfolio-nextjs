@@ -19,6 +19,26 @@
   }
 }
 
+/* Entrance: each word sharpens out of a blur, staggered. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal="armed"] .word {
+    opacity: 0;
+  }
+
+  [data-reveal="play"] .word {
+    animation: intro-word-in 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(350ms + var(--word-index) * 35ms);
+  }
+}
+
+@keyframes intro-word-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(8px);
+  }
+}
+
 @media (max-width: 767px) {
   .introduction {
     font-size: 1.0625rem;

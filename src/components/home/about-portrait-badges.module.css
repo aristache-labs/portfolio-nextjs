@@ -1,0 +1,135 @@
+/* Floating cards on the About portrait (tablet and up; phones keep the bare portrait). */
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: none;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) and (min-height: 501px) {
+  .layer {
+    display: block;
+  }
+}
+
+.badge {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  max-width: 200px;
+  border-radius: 0.875rem;
+  padding: 6px 12px 6px 6px;
+  white-space: nowrap;
+  /* A mostly opaque dark tint keeps white text readable over the bright parts of the
+     photo; a moderate blur still lets it show through. */
+  background: linear-gradient(160deg, rgb(20 32 32 / 0.78), rgb(8 14 14 / 0.68));
+  box-shadow: 0 16px 32px -14px rgb(0 0 0 / 0.6);
+  -webkit-backdrop-filter: blur(8px) saturate(1.5) brightness(0.8);
+  backdrop-filter: blur(8px) saturate(1.5) brightness(0.8);
+  text-shadow: 0 1px 6px rgb(0 0 0 / 0.45);
+}
+
+/* Glare across the top-left and a thick-glass rim: bright top-left edge, softer bottom-right. */
+.badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.18), transparent 42%);
+  /* Hairline rim: half-pixel edges, lit top-left. */
+  box-shadow:
+    inset 0.5px 0.5px 0 0 rgb(255 255 255 / 0.45),
+    inset -0.5px -0.5px 0 0 rgb(255 255 255 / 0.2),
+    inset 0 0 0 0.5px rgb(255 255 255 / 0.1);
+  pointer-events: none;
+}
+
+.github {
+  /* Corners, mostly outside the frame, so the face stays clear. */
+  top: -6%;
+  left: -38%;
+}
+
+.availability {
+  /* The portrait can sit flush with the viewport edge (1024px), so this card hangs below, not right. */
+  right: -6%;
+  bottom: -10%;
+}
+
+.dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--brand-bright);
+  box-shadow: 0 0 8px rgb(var(--brand-bright-rgb) / 0.8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .badge {
+    --badge-from: -30px;
+    --badge-delay: 600ms;
+    animation: badge-float 5s ease-in-out infinite;
+  }
+
+  .availability {
+    --badge-from: 40px;
+    --badge-delay: 750ms;
+    animation-delay: -2.5s;
+  }
+
+  .dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--brand-bright);
+    animation: dot-pulse 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+
+  /* Cards slide in from their own side and grow, after the portrait. */
+  [data-reveal="armed"] .badge {
+    opacity: 0;
+  }
+
+  [data-reveal="play"] .badge {
+    animation:
+      badge-in 700ms var(--badge-delay) cubic-bezier(0.22, 1, 0.36, 1) backwards,
+      badge-float 5s ease-in-out infinite;
+  }
+
+  [data-reveal="play"] .availability {
+    animation-delay:
+      var(--badge-delay),
+      -2.5s;
+  }
+}
+
+@keyframes badge-in {
+  from {
+    opacity: 0;
+    translate: var(--badge-from) 0;
+    scale: 0.85;
+  }
+}
+
+@keyframes dot-pulse {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+@keyframes badge-float {
+  50% {
+    transform: translateY(-6px);
+  }
+}

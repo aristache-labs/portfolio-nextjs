@@ -19,7 +19,8 @@ function paintPortrait(node: HTMLDivElement, value: number, expressive: boolean)
   node.style.setProperty("--portrait-image-y", `${(1 - progress * 2) * (expressive ? 4 : 1.5)}%`);
   node.style.setProperty(
     "--portrait-image-scale",
-    String(expressive ? 1.18 - progress * 0.08 : 1.08 - progress * 0.04),
+    // Kept small so the square frame never crops the head.
+    String(expressive ? 1.08 - progress * 0.04 : 1.04 - progress * 0.02),
   );
 }
 
@@ -86,9 +87,12 @@ function PortraitScroll({
 export function AboutPortraitMotion({
   children,
   className,
+  overlay,
 }: {
   children: ReactNode;
   className?: string;
+  /** Sits outside the masked reveal so it can overhang the frame. */
+  overlay?: ReactNode;
 }) {
   const target = useRef<HTMLDivElement>(null);
   const { mode } = useAnimationPolicy();
@@ -108,6 +112,7 @@ export function AboutPortraitMotion({
           ))}
         {children}
       </div>
+      {overlay}
     </div>
   );
 }

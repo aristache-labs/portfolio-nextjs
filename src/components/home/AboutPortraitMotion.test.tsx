@@ -53,7 +53,7 @@ describe("AboutPortraitMotion", () => {
     act(() => scroll.progress!.set(0.5));
     expect(Number.parseFloat(reveal.style.getPropertyValue("--portrait-mask"))).toBeCloseTo(41.18);
     expect(reveal.style.getPropertyValue("--portrait-image-y")).toBe("0%");
-    expect(Number(reveal.style.getPropertyValue("--portrait-image-scale"))).toBeCloseTo(1.14);
+    expect(Number(reveal.style.getPropertyValue("--portrait-image-scale"))).toBeCloseTo(1.06);
     act(() => scroll.progress!.set(0.85));
     expect(reveal.style.getPropertyValue("--portrait-mask")).toBe("0%");
     act(() => scroll.progress!.set(0.5));
@@ -67,7 +67,7 @@ describe("AboutPortraitMotion", () => {
     const reveal = container.firstElementChild!.firstElementChild as HTMLElement;
     act(() => scroll.progress!.set(1));
     expect(reveal.style.getPropertyValue("--portrait-image-y")).toBe("-1.5%");
-    expect(reveal.style.getPropertyValue("--portrait-image-scale")).toBe("1.04");
+    expect(reveal.style.getPropertyValue("--portrait-image-scale")).toBe("1.02");
     installMatchMedia({ [REDUCED_MOTION_QUERY]: true });
     rerender(<AboutPortraitMotion>Portrait</AboutPortraitMotion>);
     act(() => scroll.progress!.set(0));

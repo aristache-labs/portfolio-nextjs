@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, type CSSProperties } from "react";
 import { useMobileSectionReset } from "@/hooks/useMobileSectionReset";
 import { ChevronDown } from "lucide-react";
 import styles from "./about-bio.module.css";
@@ -12,15 +12,26 @@ const END = "technical challenges into practical, dependable solutions.";
  * Each word is its own box, so CSS can light it up as it reaches the reading line
  * (about-bio.module.css). Spaces stay plain text, so wrapping and copy-paste are unchanged.
  */
-function ReadingWords({ text }: { text: string }) {
+function ReadingWords({ text, start }: { text: string; start: number }) {
+  let word = start; // local to this render, so server and client count the same
   return text.split(/(\s+)/).map((part, index) =>
     /^\s+$/.test(part) || !part ? (
       part
     ) : (
-      <span key={index} className={styles.word}>
+      // --w orders the entrance across the whole biography, not per paragraph.
+      <span key={index} className={styles.word} style={{ "--w": word++ } as CSSProperties}>
         {part}
       </span>
     ),
+  );
+}
+
+const countWords = (text: string) => text.split(/\s+/).filter(Boolean).length;
+
+/** Index of each text's first word when the texts are read in order. */
+function wordStarts(texts: string[]) {
+  return texts.map((_, index) =>
+    texts.slice(0, index).reduce((sum, text) => sum + countWords(text), 0),
   );
 }
 
@@ -53,6 +64,9 @@ export function AboutBio({ bio }: { bio: string }) {
   const tail = rest.length > 0 && !/^\s*\n\s*\n/.test(bio.slice(cut)) ? rest.shift() : undefined;
 
   const collapsed = !expanded || undefined;
+  // Reading order: introduction paragraphs, the tail that continues the last one, the rest.
+  const starts = wordStarts([...intro, ...(tail ? [tail] : []), ...rest]);
+  const restOffset = intro.length + (tail ? 1 : 0);
   const restIds = rest.map((_, index) => `${id}-${index}`);
 
   return (
@@ -63,12 +77,12 @@ export function AboutBio({ bio }: { bio: string }) {
       <div ref={bioRef} className="[&>p+p]:mt-4">
         {intro.map((paragraph, index) => (
           <p key={index} className={PARAGRAPH}>
-            <ReadingWords text={paragraph} />
+            <ReadingWords text={paragraph} start={starts[index]} />
             {tail && index === intro.length - 1 && (
               // Collapsed on phones only (about-bio.module.css); desktop keeps it in the paragraph.
               <span id={tailId} data-collapsed={collapsed} className={styles.tail}>
                 {" "}
-                <ReadingWords text={tail} />
+                <ReadingWords text={tail} start={starts[intro.length]} />
               </span>
             )}
           </p>
@@ -80,7 +94,7 @@ export function AboutBio({ bio }: { bio: string }) {
             data-collapsed={collapsed}
             className={`${styles.remainder} ${PARAGRAPH}`}
           >
-            <ReadingWords text={paragraph} />
+            <ReadingWords text={paragraph} start={starts[restOffset + index]} />
           </p>
         ))}
       </div>

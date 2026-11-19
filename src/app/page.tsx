@@ -87,7 +87,6 @@ export default async function Home() {
           roles: profile.roles,
           headline: profile.heroHeadline,
           summary: profile.heroSummary,
-          availability: profile.availability,
         }}
         heroTagline={profile.heroTagline}
         resumeUrl={profile.resumeUrl}
@@ -103,6 +102,7 @@ export default async function Home() {
             highlights: profile.aboutStats,
             name: profile.name,
             avatarUrl: profile.avatarUrl,
+            availability: profile.availability,
           }}
         />
       )}

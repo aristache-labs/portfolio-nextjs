@@ -74,62 +74,6 @@
 }
 
 /* Availability: a quiet glass pill above the roles, with a slow "live" pulse on the dot. */
-.availability {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-bottom: 1rem;
-  padding: 0.35rem 0.8rem 0.35rem 0.65rem;
-  border: 1px solid rgb(var(--brand-mid-rgb) / 0.28);
-  border-radius: 999px;
-  background: rgb(var(--brand-deep-rgb) / 0.22);
-  color: rgb(245 247 247 / 0.86);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
-  backdrop-filter: blur(10px);
-}
-
-.availabilityDot {
-  position: relative;
-  width: 0.5rem;
-  height: 0.5rem;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--brand-bright);
-  box-shadow: 0 0 8px rgb(var(--brand-bright-rgb) / 0.8);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .availabilityDot::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--brand-bright);
-    animation: availability-pulse 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-  }
-}
-
-@keyframes availability-pulse {
-  from {
-    opacity: 0.7;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(2.8);
-  }
-}
-
-@media (orientation: landscape) and (max-height: 500px) {
-  .availability {
-    margin-bottom: 0.4rem;
-    padding: 0.2rem 0.6rem 0.2rem 0.5rem;
-    font-size: 0.7rem;
-  }
-}
 
 .content {
   padding-top: 9rem;
@@ -337,8 +281,7 @@
     top: 0;
   }
 
-  /* The availability pill leaves with the roles line it sits above. */
-  .hero[data-cinematic] :is(.specialization, .availability) {
+  .hero[data-cinematic] .specialization {
     transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
     opacity: calc(1 - var(--hero-exit-specialization, 0));
   }
@@ -372,7 +315,7 @@
   /* Keyboard navigation restores the entire composition, including late in the scene. */
   .hero[data-cinematic]
     .intro:focus-within
-    :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
+    :is(.specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
     transform: none;
     opacity: 1;
     filter: none;
@@ -739,7 +682,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hero[data-touch-scene] :is(.specialization, .availability) {
+  .hero[data-touch-scene] .specialization {
     transform: translateY(calc(var(--hero-exit-specialization, 0) * -24px));
     opacity: calc(1 - var(--hero-exit-specialization, 0));
   }
@@ -771,7 +714,7 @@
 
   .hero[data-touch-scene]
     .intro:focus-within
-    :is(.availability, .specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
+    :is(.specialization, .exitTitle, .exitDetails, .exitActions, .nameLine) {
     transform: none;
     opacity: 1;
     filter: none;
@@ -1108,7 +1051,7 @@
 
     .hero[data-touch-scene]
       .intro:not(:focus-within)
-      :is(.exitActions, .exitDetails, .specialization, .availability),
+      :is(.exitActions, .exitDetails, .specialization),
     .hero[data-touch-scene] .scrollCue:not(:focus-visible) > span {
       animation: portrait-content-exit 1ms ease-in-out both;
       animation-timeline: scroll(root block);
@@ -1123,7 +1066,7 @@
       --portrait-exit-range: 13.5svh 39svh;
     }
 
-    .hero[data-touch-scene] :is(.specialization, .availability) {
+    .hero[data-touch-scene] .specialization {
       --portrait-exit-range: 22.5svh 52.5svh;
     }
 
@@ -1256,22 +1199,12 @@
 
 /* Availability belongs in the navigation on short touch landscape screens. */
 @media (orientation: landscape) and (max-width: 1024px) and (max-height: 500px) and (pointer: coarse) {
-  .hero .availability {
-    display: none;
-  }
   .hero .content {
     padding-top: calc(8.5rem - 28px);
   }
   .hero .scrollCue {
     bottom: 24px;
     translate: -50% 0;
-  }
-}
-@media (orientation: portrait) and (max-width: 767px) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
-  .hero .availability {
-    display: flex;
-    width: fit-content;
-    margin-inline: auto;
   }
 }
 
@@ -1335,11 +1268,6 @@
   .content {
     padding-top: 9rem;
     padding-bottom: 7rem;
-  }
-
-  .hero .availability {
-    display: inline-flex;
-    margin-inline: 0;
   }
 
   .specialization {
@@ -1430,10 +1358,6 @@
   .content {
     padding-top: 6.5rem;
     padding-bottom: 6.5rem;
-  }
-
-  .hero .availability {
-    margin-bottom: 0.75rem;
   }
 
   .specialization {

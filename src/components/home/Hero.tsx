@@ -29,8 +29,6 @@ export type HeroProfile = {
   /** Admin-edited; the last word takes the accent. Defaults live in HERO_DEFAULTS. */
   headline?: string;
   summary?: string;
-  /** Short availability note with a live dot. Hidden when empty. */
-  availability?: string | null;
 };
 const PORTRAIT_POSTER = "/media/hero-portrait.webp";
 const PORTRAIT_POSTER_QUERY =
@@ -411,12 +409,6 @@ export function Hero({
           className={`${styles.content} site-container relative z-10 grid items-center gap-10 pt-28 pb-8 md:pb-24 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:pt-[92px] [@media(max-height:500px)]:pb-10 [@media(max-height:500px)]:md:pb-10`}
         >
           <div className={`${styles.intro} min-w-0 lg:col-start-1 lg:row-start-1 lg:pl-8`}>
-            {profile.availability && (
-              <p className={`${styles.enter} ${styles.availability}`} style={entranceStyle(0)}>
-                <span aria-hidden className={styles.availabilityDot} />
-                {profile.availability}
-              </p>
-            )}
             <p className={styles.specialization}>
               <span className={styles.specializationEntrance}>
                 {profile.roles.map((role, i) => (
