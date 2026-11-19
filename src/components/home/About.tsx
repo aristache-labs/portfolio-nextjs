@@ -42,7 +42,42 @@ function StatBar({ stats }: { stats: AboutStat[] }) {
     <AboutResults
       className={`${statsCss.results} landscape-short:col-span-2 mt-8 lg:col-span-2 lg:mt-14`}
     >
+
       <AboutMilestones items={items} />
+
+      <div
+        className={`${statsCss.panel} ${portraitCss.surface} ${statsCss.glass} relative overflow-hidden rounded-2xl px-5 py-4 sm:px-6`}
+      >
+        <AboutStatsGlow />
+        <AboutReveal
+          className={`${statsCss.grid} grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4 lg:divide-x lg:divide-white/10`}
+        >
+          {items.map(({ key, icon: Icon, value, label }, index) => (
+            <div
+              key={key}
+              style={{ "--i": index } as CSSProperties}
+              className={`${statsCss.item} flex min-w-0 items-center justify-center px-1 lg:px-3`}
+            >
+              <div className={statsCss.metricGroup}>
+                <IconTile size="md">
+                  <Icon className="size-5" {...ICON_PROPS} />
+                </IconTile>
+                <span className="min-w-0 text-left">
+                  <span
+                    className={`${statsCss.numberValue} font-display block text-xl leading-tight font-bold text-white sm:text-2xl`}
+                  >
+                    <SpringCount value={value} />
+                  </span>
+                  <span className={`${statsCss.label} block text-xs break-words text-white/50`}>
+                    {label}
+                  </span>
+                </span>
+              </div>
+            </div>
+          ))}
+        </AboutReveal>
+      </div>
+
     </AboutResults>
   );
 }
