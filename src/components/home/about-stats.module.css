@@ -247,7 +247,8 @@
     animation: paragraph-arrive 560ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
   }
 
-  .heading[data-reveal="armed"] ~ .introduction[data-reveal="play"] > * {
+  .heading[data-reveal="armed"] ~ .introduction[data-reveal="play"] > *,
+  .heading[data-reveal="armed"] ~ .introduction[data-reveal="play"]::before {
     opacity: 0;
     animation: none;
   }
@@ -266,8 +267,36 @@
 }
 
 .introduction {
-  border-left: 1px solid rgb(var(--brand-mid-rgb) / 0.25);
+  --about-intro-delay: 350ms;
+  position: relative;
+  border-left: 1px solid transparent;
   padding-left: 20px;
+}
+
+.introduction::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -1px;
+  width: 1px;
+  background: rgb(var(--brand-mid-rgb) / 0.25);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .introduction[data-reveal="armed"]::before {
+    opacity: 0;
+  }
+
+  .introduction[data-reveal="play"]::before {
+    animation: about-intro-line-in 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--about-intro-delay)
+      backwards;
+  }
+}
+
+@keyframes about-intro-line-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .portrait {
@@ -820,6 +849,10 @@
 /* Portrait keeps the frame intact while the image moves inside it. */
 @media (max-width: 767px) and (orientation: portrait) and (max-aspect-ratio: 4/5) and (prefers-reduced-motion: no-preference) and (not ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4))) {
   @supports (animation-timeline: view()) {
+    .introduction {
+      --about-intro-delay: 200ms;
+    }
+
     .introduction p span {
       animation: about-word linear both;
       animation-timeline: view();
@@ -837,7 +870,7 @@
       animation:
         about-word linear both,
         about-intro-word-in 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-      animation-delay: 0s, calc(200ms + var(--word-index, 0) * 35ms);
+      animation-delay: 0s, calc(var(--about-intro-delay) + var(--word-index, 0) * 35ms);
       animation-timeline: view(), auto;
       animation-range:
         entry 10% cover 45%,

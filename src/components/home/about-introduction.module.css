@@ -27,7 +27,7 @@
 
   [data-reveal="play"] .word {
     animation: intro-word-in 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-    animation-delay: calc(350ms + var(--word-index) * 35ms);
+    animation-delay: calc(var(--about-intro-delay, 350ms) + var(--word-index) * 35ms);
   }
 }
 

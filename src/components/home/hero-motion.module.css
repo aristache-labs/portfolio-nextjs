@@ -625,7 +625,7 @@
 
   .actions {
     position: relative;
-    top: 86px;
+    top: 66px;
     display: grid;
     grid-template-columns: max-content minmax(0, max-content);
     justify-content: center;
