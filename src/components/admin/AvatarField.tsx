@@ -6,9 +6,9 @@ import { Check, Expand, ImageOff, Link2, Loader2, UploadCloud, UserRound } from 
 import { setProfileAvatar } from "@/app/admin/actions";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
-// The About section's leaf silhouette at a third of the scale, since this preview is w-32 against
+// The About section's rounded frame at a third of the scale, since this preview is w-32 against
 // its w-96. Keep the ratio between the two if either changes - see home/AvatarPortrait.
-const SHAPE = "rounded-[2rem_0.6rem_2rem_0.6rem]";
+const SHAPE = "rounded-lg";
 
 type Status = { kind: "idle" | "saved" | "error"; message?: string };
 

@@ -1,0 +1,272 @@
+/* About results as staggered milestone cards joined by dotted elbows. */
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: 1rem;
+  padding: 14px 16px;
+  /* The glass sheen over a near-opaque base, so the card reads solid over any backdrop,
+     including phones where the backdrop blur is not always drawn. */
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 2%, transparent)
+    ),
+    color-mix(in srgb, var(--background) 90%, transparent);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgb(var(--brand-bright-rgb) / 0.75);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.value {
+  margin-top: 2px;
+  color: white;
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.label {
+  color: rgb(255 255 255 / 0.6);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* The closing milestone carries the brand, like the inverted last card of the reference. */
+.featured {
+  border-color: rgb(var(--brand-mid-rgb) / 0.55);
+  background:
+    linear-gradient(160deg, rgb(var(--brand-mid-rgb) / 0.28), rgb(var(--brand-deep-rgb) / 0.16)),
+    color-mix(in srgb, var(--background) 90%, transparent);
+}
+
+.featured .label {
+  color: white;
+}
+
+.connector,
+.end {
+  display: none;
+}
+
+/* Wide enough for one row (tablets, phones held sideways): all four cards side by side. */
+@media (min-width: 640px) {
+  .list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Phones held sideways: a narrower centred row, short cards, and an animated dashed line in
+   each gap, like the elbows on desktop. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .track {
+    max-width: 660px;
+    margin-inline: auto;
+  }
+
+  .list {
+    gap: 28px;
+  }
+
+  .card {
+    gap: 2px;
+    border-radius: 0.75rem;
+    padding: 9px 12px;
+  }
+
+  .value {
+    font-size: 1.375rem;
+  }
+
+  .label {
+    font-size: 0.75rem;
+  }
+
+  .connector {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    display: block;
+    width: 28px;
+    height: 2px;
+    overflow: visible;
+    color: rgb(255 255 255 / 0.35);
+    pointer-events: none;
+  }
+
+  .connector path {
+    fill: none;
+    stroke: currentColor;
+    stroke-dasharray: 2 7;
+    stroke-linecap: round;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+}
+
+/* Desktop: one staggered row joined by dotted elbows, as wide as the text column. */
+@media (min-width: 1024px) {
+  .track {
+    max-width: 64rem;
+    margin-inline: auto;
+  }
+
+  .list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    gap: 20px;
+    padding-bottom: 28px;
+  }
+
+  .lowered {
+    margin-top: 56px;
+  }
+
+  .connector {
+    position: absolute;
+    left: 50%;
+    display: block;
+    width: calc(50% + 10px);
+    height: 24px;
+    overflow: visible;
+    color: rgb(255 255 255 / 0.35);
+    pointer-events: none;
+  }
+
+  .connectorDown {
+    top: 100%;
+  }
+
+  .connectorUp {
+    bottom: 100%;
+  }
+
+  .connector path {
+    fill: none;
+    stroke: currentColor;
+    stroke-dasharray: 2 7;
+    stroke-linecap: round;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .end {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    display: block;
+    width: 2px;
+    height: 24px;
+    translate: -50% 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.35) 0 2px,
+      transparent 2px 9px
+    );
+  }
+
+  .endDot {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--brand-bright);
+    box-shadow: 0 0 8px rgb(var(--brand-bright-rgb) / 0.8);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .connector path {
+    animation: milestone-dash 1.2s linear infinite;
+  }
+
+  .endDot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--brand-bright);
+    animation: milestone-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  /* One card at a time, left to right: raised cards drop in from above, lowered ones rise from
+     below, and each card's dotted line follows it. The fade sits on the glass card itself; on
+     an ancestor it would hide the backdrop blur until the fade ends. */
+  .step {
+    --enter-from: -20px;
+    --enter-delay: calc(150ms + var(--i, 0) * 280ms);
+  }
+
+  .lowered {
+    --enter-from: 20px;
+  }
+
+  .track[data-reveal="armed"] :is(.card, .connector, .end) {
+    opacity: 0;
+  }
+
+  .track[data-reveal="play"] .card {
+    animation: milestone-in 550ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: var(--enter-delay);
+  }
+
+  .track[data-reveal="play"] :is(.connector, .end) {
+    animation: milestone-line-in 400ms ease-out backwards;
+    animation-delay: calc(var(--enter-delay) + 300ms);
+  }
+}
+
+@keyframes milestone-dash {
+  to {
+    stroke-dashoffset: -9;
+  }
+}
+
+@keyframes milestone-ping {
+  to {
+    opacity: 0;
+    scale: 2.4;
+  }
+}
+
+@keyframes milestone-in {
+  from {
+    opacity: 0;
+    translate: 0 var(--enter-from);
+  }
+}
+
+@keyframes milestone-line-in {
+  from {
+    opacity: 0;
+  }
+}

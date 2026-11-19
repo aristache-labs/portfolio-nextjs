@@ -22,15 +22,7 @@
   backdrop-filter: blur(18px);
 }
 
-.numberValue {
-  font-variant-numeric: tabular-nums;
-}
-
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
-  .results .label {
-    color: var(--muted);
-  }
-
   /* The film shows through on the portrait side and the top dissolves into the hero above it. */
   .veil {
     background:
@@ -49,23 +41,7 @@
       );
   }
 
-  .results .numberValue {
-    font-size: 2.25rem;
-    font-variant-numeric: tabular-nums;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-  }
-
-  .results .panel > [aria-hidden="true"]:first-child {
-    opacity: 0.5;
-  }
-
   @media (prefers-reduced-motion: no-preference) {
-    .results .grid .item {
-      opacity: 1;
-      animation: none;
-    }
-
     .section:has(.portrait) .biography {
       position: relative;
       min-height: clamp(220px, calc(100svh - 470px), 250px);
@@ -123,10 +99,11 @@
       transform: translateY(calc(var(--about-depth, 0.5) * 320px - 160px)) scale(1.32);
     }
 
+    /* A light depth move only: a bigger zoom crops the head out of the square frame. */
     .portrait img {
-      transform: translateY(calc(6px - var(--about-depth, 1) * 40px + var(--about-exit, 0) * 12px))
-        scale(calc(1.25 + var(--about-exit, 0) * 0.15));
-      transform-origin: 50% 22%;
+      transform: translateY(calc(4px - var(--about-depth, 1) * 8px + var(--about-exit, 0) * 6px))
+        scale(calc(1.04 + var(--about-exit, 0) * 0.04));
+      transform-origin: 50% 0%;
     }
   }
 }
@@ -153,7 +130,7 @@
 
 /* Entrance, played once by AboutReveal when the heading or the stats scroll into view. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-reveal="armed"] :is(.word, .item) {
+  [data-reveal="armed"] .word {
     opacity: 0;
   }
 
@@ -171,25 +148,6 @@
   }
 
   /* Same spring pop as the hero actions, on `scale` so layout transforms stay free. */
-  [data-reveal="play"] .item {
-    animation:
-      about-pop-fade 300ms ease-out both,
-      about-pop-scale 750ms
-        linear(
-          0,
-          0.33 9%,
-          0.84 18%,
-          1.12 28%,
-          1.16 34%,
-          1.08 46%,
-          0.98 60%,
-          0.974 68%,
-          0.995 85%,
-          1
-        )
-        both;
-    animation-delay: calc(350ms + var(--i, 0) * 150ms);
-  }
 }
 
 @keyframes about-draw {
@@ -198,23 +156,29 @@
   }
 }
 
+/* Heading words rise and straighten; the portrait lifts and grows in. */
 @keyframes about-word-in {
   from {
     opacity: 0;
-    filter: blur(6px);
-    transform: translateY(0.45em);
+    transform: translateY(110%) rotate(6deg);
   }
 }
 
-@keyframes about-pop-fade {
+@keyframes about-portrait-in {
   from {
     opacity: 0;
+    translate: 0 30px;
+    scale: 0.9;
   }
 }
 
-@keyframes about-pop-scale {
-  from {
-    scale: 0;
+@media (prefers-reduced-motion: no-preference) {
+  .portraitEnter[data-reveal="armed"] {
+    opacity: 0;
+  }
+
+  .portraitEnter[data-reveal="play"] {
+    animation: about-portrait-in 800ms 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 }
 
@@ -246,7 +210,8 @@
 @keyframes paragraph-arrive {
   from {
     opacity: 0;
-    translate: 0 16px;
+    filter: blur(8px);
+    translate: 0 8px;
   }
 }
 
@@ -284,8 +249,10 @@
     line-height: 1.55;
   }
 
+  /* Even space around the photo: more air below the introduction, less above the biography. */
   .portrait {
     width: 160px;
+    margin-block: 12px -10px;
   }
 
   .copy p {
@@ -392,170 +359,6 @@
   position: relative;
 }
 
-@media (orientation: landscape) and (pointer: coarse),
-  ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)) {
-  .panel {
-    background-color: var(--surface);
-  }
-}
-
-@media (max-width: 1023px) {
-  .panel {
-    padding: 16px 12px;
-  }
-
-  .grid {
-    position: relative;
-    gap: 24px;
-  }
-
-  .grid::before,
-  .grid::after {
-    content: "";
-    position: absolute;
-    pointer-events: none;
-  }
-
-  .grid::before {
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 1px;
-    background: linear-gradient(
-      transparent,
-      color-mix(in srgb, var(--foreground) 12%, transparent) 20% 80%,
-      transparent
-    );
-  }
-
-  .grid::after {
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      color-mix(in srgb, var(--foreground) 12%, transparent) 20% 80%,
-      transparent
-    );
-  }
-
-  .item {
-    width: 100%;
-    justify-self: center;
-    text-align: left;
-    gap: 8px;
-    padding: 0;
-    min-height: 52px;
-  }
-
-  .metricGroup {
-    gap: 8px;
-  }
-
-  .metricGroup > span:first-child > span {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-control);
-  }
-
-  .metricGroup > span:first-child svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .label {
-    font-size: 11px;
-    line-height: 1.4;
-  }
-
-  .numberValue {
-    font-size: 22px;
-  }
-}
-
-@media (max-width: 374px) {
-  .panel .numberValue {
-    font-size: 19px;
-  }
-}
-
-@media (orientation: landscape) and (max-width: 1023px) and (max-height: 500px) {
-  .panel {
-    width: min(640px, 100%);
-    max-width: 100%;
-    margin-inline: auto;
-    padding: 12px;
-  }
-
-  .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .grid::before,
-  .grid::after {
-    display: none;
-  }
-
-  .item {
-    width: 100%;
-    gap: 6px;
-    min-height: 44px;
-  }
-
-  .item + .item {
-    border-left: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
-  }
-
-  .metricGroup {
-    gap: 6px;
-  }
-
-  .metricGroup > span:first-child > span {
-    width: 28px;
-    height: 28px;
-  }
-
-  .metricGroup > span:first-child svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .numberValue {
-    font-size: 18px;
-  }
-
-  .label {
-    font-size: 11px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .panel {
-    width: min(100%, 1216px);
-    margin-inline: auto;
-    padding-inline: 20px;
-  }
-
-  .grid {
-    column-gap: 12px;
-  }
-
-  .item {
-    gap: 10px;
-    padding-inline: 10px;
-  }
-}
-.metricGroup {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 100%;
-  min-width: 0;
-}
-
 /* Touch landscape: the desktop two-column composition, sized for short screens. */
 @media (orientation: landscape) and (pointer: coarse) and (max-width: 1023px),
   (min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4) {
@@ -623,10 +426,6 @@
     animation: none;
     opacity: 1;
     transform: none;
-  }
-
-  .panel {
-    background-color: var(--surface);
   }
 
   .results {
@@ -708,10 +507,6 @@
   .copy button svg {
     width: 12px;
     height: 12px;
-  }
-
-  .panel {
-    padding-block: 8px;
   }
 
   .biography .portrait {
@@ -810,6 +605,24 @@
       animation-range: entry 10% cover 45%;
     }
 
+    /* Blur-in entrance on top of the reading light: hidden until the reveal plays, then the
+       entrance owns opacity while it runs and hands back to the reading light. */
+    .introduction[data-reveal="armed"] p span {
+      animation: none;
+      opacity: 0;
+    }
+
+    .introduction[data-reveal="play"] p span {
+      animation:
+        about-word linear both,
+        about-intro-word-in 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+      animation-delay: 0s, calc(200ms + var(--word-index, 0) * 35ms);
+      animation-timeline: view(), auto;
+      animation-range:
+        entry 10% cover 45%,
+        normal;
+    }
+
     .heading > div {
       animation: about-rise linear both;
       animation-timeline: view();
@@ -858,12 +671,12 @@
 
 @keyframes about-image-depth {
   from {
-    translate: 0 7%;
-    scale: 1.16;
+    translate: 0 2%;
+    scale: 1.05;
   }
   to {
-    translate: 0 -7%;
-    scale: 1.16;
+    translate: 0 -2%;
+    scale: 1.05;
   }
 }
 
@@ -992,6 +805,14 @@
   }
 }
 
+@keyframes about-intro-word-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(8px);
+  }
+}
+
 @keyframes about-portrait-reveal {
   from {
     clip-path: inset(0 0 100% 0);
@@ -1040,24 +861,6 @@
 
   .results {
     margin-top: 24px;
-  }
-
-  .panel {
-    padding: 10px 12px;
-  }
-
-  .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .grid::before,
-  .grid::after {
-    display: none;
-  }
-
-  .item + .item {
-    border-left: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
   }
 }
 /* Tall portrait tablets that are a little shorter than the iPad Air's 1180px (Safari toolbar):
@@ -1113,28 +916,6 @@
   .copy > div:first-child > p {
     font-size: 22px;
   }
-
-  .numberValue {
-    font-size: 34px;
-  }
-
-  .label {
-    font-size: 17px;
-  }
-
-  .metricGroup {
-    gap: 16px;
-  }
-
-  .metricGroup > span:first-child > span {
-    width: 56px;
-    height: 56px;
-  }
-
-  .metricGroup > span:first-child svg {
-    width: 28px;
-    height: 28px;
-  }
 }
 
 /* iPad Pro 13 landscape matches the Hero's modest content increase. */
@@ -1172,28 +953,6 @@
   .copy > div:first-child > p {
     font-size: 1.03125rem;
   }
-
-  .numberValue {
-    font-size: 1.65rem;
-  }
-
-  .label {
-    font-size: 0.825rem;
-  }
-
-  .metricGroup {
-    gap: 11px;
-  }
-
-  .metricGroup > span:first-child > span {
-    width: 48.4px;
-    height: 48.4px;
-  }
-
-  .metricGroup > span:first-child svg {
-    width: 22px;
-    height: 22px;
-  }
 }
 
 /* iPad Pro 13 portrait keeps the Fold composition at the shared 1.376 root scale. */
@@ -1222,77 +981,6 @@
 
   .results {
     margin-top: 2rem;
-  }
-
-  .panel {
-    width: 100%;
-    padding: 1rem 0.75rem;
-  }
-
-  .grid {
-    position: relative;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem;
-  }
-
-  .grid::before,
-  .grid::after {
-    content: "";
-    position: absolute;
-    pointer-events: none;
-  }
-
-  .grid::before {
-    inset-block: 0;
-    left: 50%;
-    width: 1px;
-    background: linear-gradient(
-      transparent,
-      color-mix(in srgb, var(--foreground) 12%, transparent) 20% 80%,
-      transparent
-    );
-  }
-
-  .grid::after {
-    inset-inline: 0;
-    top: 50%;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      color-mix(in srgb, var(--foreground) 12%, transparent) 20% 80%,
-      transparent
-    );
-  }
-
-  .item {
-    padding: 0;
-    min-height: 3.25rem;
-    border-inline-width: 0;
-  }
-
-  .metricGroup {
-    gap: 0.5rem;
-  }
-
-  .metricGroup > span:first-child > span {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.625rem;
-  }
-
-  .metricGroup > span:first-child svg {
-    width: 1.125rem;
-    height: 1.125rem;
-  }
-
-  .numberValue {
-    font-size: 1.375rem;
-  }
-
-  .label {
-    font-size: 0.6875rem;
-    line-height: 1.4;
   }
 }
 
@@ -1342,7 +1030,8 @@
     width: 340px;
   }
 
-  .portrait > div > div {
+  /* reveal > entrance > portrait frame */
+  .portrait > div > div > div {
     width: 100%;
   }
 
@@ -1352,79 +1041,6 @@
 
   .copy > div:first-child > p {
     font-size: 30px;
-  }
-
-  .panel {
-    padding: 28px;
-  }
-
-  .grid {
-    position: relative;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 32px;
-  }
-
-  .grid::before,
-  .grid::after {
-    content: "";
-    position: absolute;
-    pointer-events: none;
-  }
-
-  .grid::before {
-    inset-block: 0;
-    left: 50%;
-    width: 1px;
-    background: linear-gradient(
-      transparent,
-      color-mix(in srgb, var(--foreground) 12%, transparent) 20% 80%,
-      transparent
-    );
-  }
-
-  .grid::after {
-    inset-inline: 0;
-    top: 50%;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      color-mix(in srgb, var(--foreground) 12%, transparent) 20% 80%,
-      transparent
-    );
-  }
-
-  .item {
-    min-height: 112px;
-    padding: 0;
-    justify-content: center;
-    align-items: center;
-    border-inline-width: 0;
-  }
-
-  .metricGroup {
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .metricGroup > span:first-child > span {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-  }
-
-  .metricGroup > span:first-child svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  .numberValue {
-    font-size: 40px;
-  }
-
-  .label {
-    font-size: 20px;
   }
 }
 @media (min-width: 1280px) and (min-height: 760px) and (pointer: fine) {

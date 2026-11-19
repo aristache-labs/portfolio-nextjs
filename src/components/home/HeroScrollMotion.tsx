@@ -47,7 +47,7 @@ const VARIABLE_TARGETS: Record<string, (keyof typeof styles)[]> = {
   handoff: ["handoff"],
   "exit-actions": ["exitActions", "sceneControl"],
   "exit-details": ["exitDetails"],
-  "exit-specialization": ["specialization", "availability"],
+  "exit-specialization": ["specialization"],
   "exit-title": ["exitTitle"],
 };
 

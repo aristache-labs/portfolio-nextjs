@@ -15,9 +15,9 @@ const PORTRAIT_SIZES = [
   "288px",
 ].join(", ");
 
-// Leaf silhouette: two large corners opposite two small ones. Scaled-down twins
-// of these radii live in admin/AvatarField, whose preview is a third of this width.
-const SHAPE = "rounded-[6rem_1.75rem_6rem_1.75rem]";
+// Evenly rounded card. A scaled-down twin lives in admin/AvatarField, whose preview is a
+// third of this width.
+const SHAPE = "rounded-3xl";
 
 /**
  * Square, so the frame's height falls out of its width and both columns start at the same y.
