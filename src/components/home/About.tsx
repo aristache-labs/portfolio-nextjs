@@ -28,9 +28,6 @@ export type AboutProfile = {
   avatarUrl?: string;
 };
 
-const GLASS =
-  "border border-white/10 bg-[linear-gradient(180deg,rgb(255_255_255/0.07),rgb(255_255_255/0.02))] backdrop-blur-[18px]";
-
 const STAT_ICONS: Record<AboutStatKey, LucideIcon> = {
   manualWorkReduction: TrendingDown,
   deploymentLocations: MapPin,
@@ -46,7 +43,7 @@ function StatBar({ stats }: { stats: AboutStat[] }) {
       className={`${statsCss.results} landscape-short:col-span-2 mt-8 lg:col-span-2 lg:mt-14`}
     >
       <div
-        className={`${statsCss.panel} ${portraitCss.surface} ${GLASS} relative overflow-hidden rounded-2xl px-5 py-4 shadow-[0_20px_60px_rgb(0_0_0/0.4)] sm:px-6`}
+        className={`${statsCss.panel} ${portraitCss.surface} ${statsCss.glass} relative overflow-hidden rounded-2xl px-5 py-4 sm:px-6`}
       >
         <AboutStatsGlow />
         <AboutReveal
@@ -109,7 +106,7 @@ export function About({ profile, number = "01" }: { profile: AboutProfile; numbe
           />
           <div
             aria-hidden
-            className="bg-background/80 pointer-events-none absolute inset-0 z-[1]"
+            className={`${statsCss.veil} pointer-events-none absolute inset-0 z-[1]`}
           />
         </>
       }
