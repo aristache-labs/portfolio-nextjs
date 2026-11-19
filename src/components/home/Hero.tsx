@@ -19,6 +19,22 @@ import { SectionEdge } from "./SectionBackdrop";
 import { HERO_LANDSCAPE_PIN_QUERY, HERO_PIN_QUERY, HeroScrollMotion } from "./HeroScrollMotion";
 const PULL_REFRESH_DELAY_MS = 500;
 
+// Measure before the first paint without waiting for the portrait poster's hydration gate.
+const SUMMARY_LINES_SCRIPT = `(() => {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const words = Array.from(document.currentScript.parentElement.querySelectorAll(":scope > p > span"));
+  const tops = words.map(word => word.getBoundingClientRect().top);
+  let line = 0;
+  let top = tops[0];
+  words.forEach((word, index) => {
+    if (index > 0 && (word.parentElement !== words[index - 1].parentElement || tops[index] > top + 1)) {
+      line++;
+      top = tops[index];
+    }
+    word.style.setProperty("--summary-line", String(line));
+  });
+})()`;
+
 import styles from "./hero-motion.module.css";
 import { scrollToSection } from "@/lib/scroll-to-section";
 import { subscribeScroll } from "@/lib/scroll-state";
@@ -81,16 +97,20 @@ function staggerStyle(index: number) {
   return { "--i": index } as CSSProperties;
 }
 
-/** Live text reserves the responsive layout; SVG draws the same glyphs over it. */
-function HeroNameText({ text, surname = false }: { text: string; surname?: boolean }) {
+/** Live text reserves the responsive layout; SVG draws the same glyphs over it, letter by letter. */
+function HeroNameText({ text, startIndex = 0 }: { text: string; startIndex?: number }) {
   return (
-    <span className={`${styles.nameLine}${surname ? ` ${styles.surname}` : ""}`}>
+    <span className={`${styles.nameLine}${startIndex > 0 ? ` ${styles.surname}` : ""}`}>
       <span className={styles.nameDraw}>
         {/* CSS-generated, so the page text holds the name once: in the drawn SVG below. */}
         <span className={styles.nameMeasure} data-text={text} />
         <svg className={styles.nameOutline} aria-hidden="true" focusable="false">
           <text x="0" y="0.82em">
-            {text}
+            {[...text].map((char, index) => (
+              <tspan key={index} style={staggerStyle(startIndex + index)}>
+                {char}
+              </tspan>
+            ))}
           </text>
         </svg>
       </span>
@@ -310,6 +330,7 @@ export function Hero({
   });
 
   const [firstName, ...remainingName] = profile.name.trim().split(/\s+/);
+  const surname = remainingName.join(" ");
   const headlineWords = (profile.headline?.trim() || HERO_DEFAULTS.headline).split(/\s+/);
   const summary = profile.summary?.trim() || HERO_DEFAULTS.summary;
 
@@ -382,6 +403,8 @@ export function Hero({
                   loop
                   playsInline
                   preload="metadata"
+                  // Fades in over the matching poster once frames flow; see .videoPlate video.
+                  onPlaying={(event) => event.currentTarget.setAttribute("data-playing", "")}
                   onError={() => setVideoOk(false)}
                 >
                   <source src="/media/hero-v2.mp4" type="video/mp4" />
@@ -410,21 +433,18 @@ export function Hero({
         >
           <div className={`${styles.intro} min-w-0 lg:col-start-1 lg:row-start-1 lg:pl-8`}>
             <p className={styles.specialization}>
-              <span className={styles.specializationEntrance}>
-                {profile.roles.map((role, i) => (
-                  <Fragment key={role}>
-                    {i > 0 && (
-                      <span className={styles.roleDot} style={staggerStyle(i)}>
-                        {" · "}
-                      </span>
-                    )}
-                    <span className={styles.role} style={staggerStyle(i)}>
-                      {role}
-                    </span>
-                  </Fragment>
-                ))}
-                <span aria-hidden className={styles.caret} />
-              </span>
+              {profile.roles.length > 0 && (
+                <span className={styles.specializationEntrance}>
+                  <span className={styles.specializationText}>
+                    {profile.roles.map((role, i) => (
+                      <Fragment key={role}>
+                        {i > 0 && " · "}
+                        <span className={styles.role}>{role}</span>
+                      </Fragment>
+                    ))}
+                  </span>
+                </span>
+              )}
             </p>
 
             {/* The visible name is SVG text marked aria-hidden, so the heading names itself. */}
@@ -437,7 +457,7 @@ export function Hero({
                 {remainingName.length > 0 && (
                   <>
                     {" "}
-                    <HeroNameText text={remainingName.join(" ")} surname />
+                    <HeroNameText text={surname} startIndex={[...firstName].length} />
                   </>
                 )}
               </span>{" "}
@@ -467,20 +487,26 @@ export function Hero({
 
             <div className={styles.exitDetails}>
               <p
-                style={entranceStyle(0.6)}
-                className={`${styles.enter} ${styles.copy} text-foreground/95 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
+                className={`${styles.copy} text-foreground/95 mt-5 max-w-xl text-[15px] leading-relaxed sm:text-base [@media(max-height:500px)]:mt-2 [@media(max-height:500px)]:text-[12px] [@media(max-height:500px)]:leading-snug`}
               >
-                {summary}
+                {summary.split(/(\s+)/).map((word, index) =>
+                  index % 2 === 0 ? (
+                    <span className={styles.summaryWord} key={index} suppressHydrationWarning>
+                      <span>{word}</span>
+                    </span>
+                  ) : (
+                    word
+                  ),
+                )}
               </p>
-
               {heroTagline && (
-                <p
-                  style={entranceStyle(0.7)}
-                  className={`${styles.enter} ${styles.taglineRow} mt-4 [@media(max-height:500px)]:mt-2`}
-                >
-                  <span className={styles.tagline}>{heroTagline}</span>
+                <p className={`${styles.taglineRow} mt-4 [@media(max-height:500px)]:mt-2`}>
+                  <span className={styles.summaryWord} suppressHydrationWarning>
+                    <span className={styles.tagline}>{heroTagline}</span>
+                  </span>
                 </p>
               )}
+              <script dangerouslySetInnerHTML={{ __html: SUMMARY_LINES_SCRIPT }} />
             </div>
 
             {(showProjects || showContact) && (

@@ -167,14 +167,34 @@ describe("Hero", () => {
     expect(h1.querySelector("svg text")).toHaveTextContent("Adrian");
     expect(h1).toHaveTextContent("Adrian");
     expect(h1.lastElementChild).not.toBeEmptyDOMElement();
-    expect(
-      screen.getByText(
-        /I deploy and maintain enterprise systems, automate repetitive tasks with PowerShell/,
-      ),
-    ).toHaveTextContent("I also build web and mobile applications.");
+    expect(screen.getByText("PowerShell,", { exact: true }).closest("p")).toHaveTextContent(
+      HERO_DEFAULTS.summary,
+    );
     expect(screen.getByText(profile.roles[0]).closest("p")).toHaveTextContent(
       profile.roles.join(" · "),
     );
+  });
+
+  it("stages the tagline after the last rendered summary line", () => {
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return new DOMRect(0, this.textContent === "three" ? 24 : 0);
+    });
+    render(<Hero profile={{ ...profile, summary: "One two three" }} heroTagline="Diagnose" />);
+    const summary = screen.getByText("three").closest("p")!;
+    const details = summary.parentElement!;
+    const script = details.querySelector("script")!;
+    new Function("document", "matchMedia", script.textContent!)(
+      { currentScript: script },
+      window.matchMedia,
+    );
+    expect(summary).toHaveTextContent("One two three");
+    expect(
+      [...details.querySelectorAll(":scope > p > span")].map((word) =>
+        (word as HTMLElement).style.getPropertyValue("--summary-line"),
+      ),
+    ).toEqual(["0", "0", "1", "2"]);
   });
 
   it.each([
@@ -503,5 +523,14 @@ describe("Hero", () => {
     expect(second).not.toBe(first);
     expect(second.querySelector("source")).not.toBeNull();
     vi.unstubAllGlobals();
+  });
+  it("staggers every name letter in reading order across both lines", () => {
+    render(<Hero profile={profile} />);
+    const heading = screen.getByRole("heading", { level: 1 });
+    const letters = [...heading.querySelectorAll("tspan")];
+    expect(letters.map((letter) => letter.textContent).join("")).toBe("AdrianCristache");
+    expect(letters.map((letter) => letter.style.getPropertyValue("--i"))).toEqual(
+      letters.map((_, index) => String(index)),
+    );
   });
 });

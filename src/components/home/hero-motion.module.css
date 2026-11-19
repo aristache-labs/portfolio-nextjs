@@ -1,6 +1,7 @@
 .hero {
   /* Entrance timeline. Desktop and touch landscape stretch these for a longer reveal. */
-  --hero-role-step: 120ms;
+  /* Stretches the roles, headline, copy and tagline entrances together (durations and delays). */
+  --hero-pace: 1.35;
   --hero-words-at: 280ms;
   --hero-actions-at: 520ms;
   --hero-links-at: 920ms;
@@ -50,10 +51,6 @@
   white-space: nowrap;
 }
 
-.caret {
-  display: none;
-}
-
 .accentWord {
   position: relative;
 }
@@ -89,6 +86,96 @@
   letter-spacing: 0.16em;
   line-height: 1.8;
   text-transform: uppercase;
+}
+
+.specializationEntrance {
+  position: relative;
+  display: inline-block;
+  padding-inline: 0.25em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .specializationText {
+    display: block;
+    animation: specialization-open 1.3s both;
+  }
+
+  .specializationEntrance::before,
+  .specializationEntrance::after {
+    content: "";
+    position: absolute;
+    inset-block: -0.12em;
+    width: 50%;
+    pointer-events: none;
+    animation: specialization-line 1.3s both;
+  }
+
+  .specializationEntrance::before {
+    --specialization-line-start: 100%;
+    left: 0;
+    border-left: 1px solid currentColor;
+  }
+
+  .specializationEntrance::after {
+    --specialization-line-start: -100%;
+    right: 0;
+    border-right: 1px solid currentColor;
+  }
+}
+
+@keyframes specialization-open {
+  0%,
+  30% {
+    clip-path: inset(-0.15em 50%);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.2, 1);
+  }
+  80%,
+  100% {
+    clip-path: inset(-0.15em 0);
+  }
+}
+
+@keyframes specialization-line {
+  0% {
+    opacity: 1;
+    transform: translateX(var(--specialization-line-start)) scaleY(0);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+  }
+  30% {
+    transform: translateX(var(--specialization-line-start)) scaleY(1);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.2, 1);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+.summaryWord {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: top;
+}
+
+.summaryWord > span {
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .summaryWord > span {
+    animation: summary-reveal-up 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--summary-line, 0) * 150ms);
+  }
+}
+
+@keyframes summary-reveal-up {
+  from {
+    transform: translateY(110%);
+  }
 }
 
 .name {
@@ -236,28 +323,30 @@
   pointer-events: none;
 }
 
+/* The video's first frame matches the poster beneath it, but a decoded video draws through a
+   different path than the still image, so a hard swap reads as a jump. Cross-fade instead,
+   starting only once frames are actually playing (Hero sets data-playing). */
+.videoPlate video {
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+.videoPlate video[data-playing] {
+  opacity: 1;
+}
+
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) and (prefers-reduced-motion: no-preference) {
   .hero {
     --hero-entry-distance: 18px;
-    --hero-role-step: 160ms;
     --hero-words-at: 480ms;
     --hero-actions-at: 760ms;
     --hero-links-at: 1160ms;
     --hero-cue-at: 1700ms;
   }
 
-  .hero .specializationEntrance {
-    display: block;
-    animation: settle-in 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .hero .name {
-    animation-delay: 120ms;
-  }
-
   /* Capped so the copy, a likely LCP element, is fully drawn within the first half second. */
   .hero .enter {
-    animation-delay: min(calc(var(--hero-enter-delay, 0s) * 1.7), 300ms);
+    animation-delay: calc(min(calc(var(--hero-enter-delay, 0s) * 1.7), 300ms) * var(--hero-pace));
   }
 
   .nameLine {
@@ -384,49 +473,23 @@
     transform: translateY(var(--hero-media-y, 0%)) scale(var(--hero-media-scale, 1));
   }
 
-  .name {
-    animation: settle-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  /* Roles type on one after another behind a short-lived terminal caret. */
-  .role {
-    animation: hero-type 520ms cubic-bezier(0.5, 0, 0.2, 1) backwards;
-    animation-delay: calc(var(--i, 0) * var(--hero-role-step));
-  }
-
-  .roleDot {
-    animation: hero-fade 300ms ease backwards;
-    animation-delay: calc(var(--i, 0) * var(--hero-role-step) - 60ms);
-  }
-
-  .caret {
-    display: inline-block;
-    width: 2px;
-    height: 1.05em;
-    margin-left: 0.45em;
-    vertical-align: -0.15em;
-    background: var(--brand-bright);
-    box-shadow: 0 0 8px rgb(var(--brand-bright-rgb) / 0.6);
-    opacity: 0;
-    animation: hero-caret 2400ms steps(1, end) forwards;
-  }
-
   .word {
     display: inline-block;
-    animation: hero-word-in 750ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-    animation-delay: calc(var(--hero-words-at) + var(--i, 0) * 90ms);
+    animation: hero-word-in calc(750ms * var(--hero-pace)) cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc((var(--hero-words-at) + var(--i, 0) * 90ms) * var(--hero-pace));
   }
 
   .accentWord::after {
-    animation: hero-underline 700ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-    animation-delay: calc(var(--hero-words-at) + 450ms);
+    animation: hero-underline calc(700ms * var(--hero-pace)) cubic-bezier(0.22, 1, 0.36, 1)
+      backwards;
+    animation-delay: calc((var(--hero-words-at) + 450ms) * var(--hero-pace));
   }
 
   /* Copy keeps some opacity at the start because it can be the mobile LCP element. */
   .enter {
     --hero-fade-from: 0.15;
-    animation: hero-focus-in 800ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-    animation-delay: var(--hero-enter-delay, 0s);
+    animation: hero-focus-in calc(800ms * var(--hero-pace)) cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--hero-enter-delay, 0s) * var(--hero-pace));
   }
 
   /* Spring pop on `scale`, so it never fights Magnetic's inline transform. */
@@ -464,15 +527,6 @@
 
   .scrollCue {
     animation: hero-cue-in 800ms var(--hero-cue-at) cubic-bezier(0.22, 1, 0.36, 1) backwards;
-  }
-}
-
-@keyframes settle-in {
-  from {
-    transform: translateY(var(--hero-entry-distance, 10px));
-  }
-  to {
-    transform: translateY(0);
   }
 }
 
@@ -529,37 +583,6 @@
       opacity: 0;
       transform: translateY(0.45em);
     }
-  }
-}
-
-@keyframes hero-type {
-  from {
-    clip-path: inset(-0.3em 100% -0.3em 0);
-  }
-  to {
-    clip-path: inset(-0.3em -0.3em -0.3em 0);
-  }
-}
-
-@keyframes hero-fade {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes hero-caret {
-  0%,
-  18%,
-  36%,
-  54% {
-    opacity: 1;
-  }
-  9%,
-  27%,
-  45%,
-  63%,
-  100% {
-    opacity: 0;
   }
 }
 
@@ -880,32 +903,29 @@
 @media (orientation: landscape) and (pointer: coarse) and (prefers-reduced-motion: no-preference),
   (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: no-preference),
   ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)) and (prefers-reduced-motion: no-preference) {
-  .hero[data-touch-scene] {
+  /* Entrance timing keys on the media query alone, never on [data-touch-scene]: that attribute
+     lands at hydration, mid-entrance, and changing a running animation's delay or name there
+     restarts it (the roles retyped, the copy faded in twice). The roles keep only their
+     typewriter; nothing slides the line up afterwards. */
+  .hero {
     --hero-entry-distance: 18px;
-    --hero-role-step: 160ms;
     --hero-words-at: 480ms;
     --hero-actions-at: 760ms;
     --hero-links-at: 1160ms;
     --hero-cue-at: 1700ms;
+  }
+
+  .hero .enter {
+    animation-delay: calc(var(--hero-enter-delay, 0s) * 1.7 * var(--hero-pace));
+  }
+
+  .hero[data-touch-scene] {
     min-height: calc(min(100svh, 56rem) + 45svh);
   }
 
   .hero[data-touch-scene] .scene {
     position: sticky;
     top: 0;
-  }
-
-  .hero[data-touch-scene] .specializationEntrance {
-    display: block;
-    animation: settle-in 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .hero[data-touch-scene] .name {
-    animation-delay: 120ms;
-  }
-
-  .hero[data-touch-scene] .enter {
-    animation-delay: calc(var(--hero-enter-delay, 0s) * 1.7);
   }
 
   .hero[data-touch-scene] .nameLine {
@@ -1170,18 +1190,40 @@
   letter-spacing: inherit;
   fill: currentColor;
   stroke: currentColor;
+  stroke-linejoin: round;
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .nameOutline text {
+  .nameOutline tspan {
+    --name-delay: calc(var(--i) * 110ms);
     fill-opacity: 0;
-    stroke-dasharray: 400;
-    stroke-dashoffset: 400;
+    stroke-dasharray: 4em;
+    stroke-dashoffset: 4em;
     animation:
-      name-draw-line 1s ease-out forwards,
-      name-draw-fill 0.6s ease-out 0.8s forwards;
+      name-draw-line 460ms ease-in-out forwards,
+      name-draw-fill 240ms ease-out forwards;
+    animation-delay: calc(80ms + var(--name-delay)), calc(430ms + var(--name-delay));
+  }
+}
+
+/* Fade in the whole outline on touchscreens so each glyph stays readable as it fills. */
+@media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+  .nameOutline tspan {
+    --name-delay: calc(var(--i) * 85ms);
+    stroke-dasharray: none;
+    stroke-opacity: 0;
+    animation:
+      name-outline-in 160ms ease-out forwards,
+      name-draw-fill 220ms ease-out forwards;
+    animation-delay: calc(60ms + var(--name-delay)), calc(200ms + var(--name-delay));
+  }
+}
+
+@keyframes name-outline-in {
+  to {
+    stroke-opacity: 1;
   }
 }
 
