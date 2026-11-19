@@ -42,12 +42,11 @@ export function AboutMilestones({ items }: { items: Milestone[] }) {
               <div
                 className={`${styles.card} ${statsCss.glass} ${index === last ? styles.featured : ""}`}
               >
-                <span className={styles.eyebrow}>
-                  <Icon aria-hidden className="size-3.5" strokeWidth={2} />
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className={`${styles.value} font-display`}>
-                  <SpringCount value={value} />
+                <span className={styles.metric}>
+                  <Icon aria-hidden className={styles.icon} strokeWidth={1.75} />
+                  <span className={`${styles.value} font-display`}>
+                    <SpringCount value={value} />
+                  </span>
                 </span>
                 <span className={styles.label}>{label}</span>
               </div>
