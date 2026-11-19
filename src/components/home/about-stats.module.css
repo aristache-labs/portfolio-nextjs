@@ -11,7 +11,6 @@
   background: color-mix(in srgb, var(--background) 80%, transparent);
 }
 
-
 .glass {
   border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
   background: linear-gradient(
@@ -22,7 +21,6 @@
   box-shadow: 0 20px 60px color-mix(in srgb, var(--background) 70%, transparent);
   backdrop-filter: blur(18px);
 }
-
 
 .glass {
   border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
@@ -68,7 +66,7 @@
     line-height: 1.05;
     letter-spacing: -0.02em;
   }
-
+}
 
 @media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
   /* The film shows through on the portrait side and the top dissolves into the hero above it. */
@@ -149,7 +147,6 @@
 
     /* A light depth move only: a bigger zoom crops the head out of the square frame. */
     .portrait img {
-
       transform: translateY(calc(4px - var(--about-depth, 1) * 8px + var(--about-exit, 0) * 6px))
         scale(calc(1.04 + var(--about-exit, 0) * 0.04));
       transform-origin: 50% 0%;
@@ -157,7 +154,6 @@
       transform: translateY(calc(6px - var(--about-depth, 1) * 40px + var(--about-exit, 0) * 12px))
         scale(calc(1.25 + var(--about-exit, 0) * 0.15));
       transform-origin: 50% 22%;
-
     }
   }
 }
@@ -419,8 +415,6 @@
 .results {
   position: relative;
 }
-
-
 
 @media (orientation: landscape) and (pointer: coarse),
   ((min-width: 680px) and (max-width: 1100px) and (min-height: 650px) and (min-aspect-ratio: 74/100) and (max-aspect-ratio: 5/4)) {
@@ -1090,8 +1084,6 @@
     margin-top: 24px;
   }
 
-
-
   .panel {
     padding: 10px 12px;
   }
@@ -1109,7 +1101,6 @@
   .item + .item {
     border-left: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
   }
-
 }
 /* Tall portrait tablets that are a little shorter than the iPad Air's 1180px (Safari toolbar):
    shrink the portrait with the height so the results row stays on screen. */
@@ -1231,8 +1222,6 @@
     margin-top: 2rem;
   }
 
-
-
   .panel {
     width: 100%;
     padding: 1rem 0.75rem;
@@ -1303,7 +1292,6 @@
     font-size: 0.6875rem;
     line-height: 1.4;
   }
-
 }
 
 /* Galaxy Tab S9 Ultra portrait gives the copy and portrait room at the Hero's larger scale. */
@@ -1364,7 +1352,6 @@
   .copy > div:first-child > p {
     font-size: 30px;
   }
-
 
   .panel {
     padding: 28px;
@@ -1438,7 +1425,6 @@
   .label {
     font-size: 20px;
   }
-
 }
 @media (min-width: 1280px) and (min-height: 760px) and (pointer: fine) {
   .section {
