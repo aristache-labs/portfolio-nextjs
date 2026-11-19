@@ -244,9 +244,16 @@
     margin-bottom: 18px;
   }
 
+  /* Same size as the biography and a slimmer indent, so the introduction runs as wide as
+     the text below it; plain wrapping fills each line instead of balancing them. */
+  .introduction {
+    padding-left: 12px;
+  }
+
   .introduction p {
-    font-size: 1rem;
-    line-height: 1.55;
+    font-size: 0.9375rem;
+    line-height: 1.30;
+    text-wrap: wrap;
   }
 
   /* Even space around the photo: more air below the introduction, less above the biography. */
@@ -262,7 +269,7 @@
 
   .copy button {
     margin-top: 12px;
-    min-height: 44px;
+    min-height: 38px;
     padding: 4px 12px;
     font-size: 12px;
   }
