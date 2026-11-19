@@ -1,3 +1,77 @@
+/* Hallmark · v2.0.0 · redesign: restyle (Projects only) · theme: locked (DESIGN.md, Obsidian dark) · signature: the Projects film drifting under the cards while the heading and the build card arrive at their own speeds */
+/* critique: Projects sat under a 70% veil behind a hard dark seam from About, and on desktop nothing in it moved in depth */
+/* Hallmark · waive 9 · SectionLabel is shared by every section · the owner asked to keep the numbered labels consistent */
+
+.veil {
+  background: color-mix(in srgb, var(--background) 70%, transparent);
+}
+
+/* Desktop depth, driven by the section crossing the screen: the film drifts slowest,
+   the content rises a step behind the scroll. */
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (hover: hover) {
+  .veil {
+    background:
+      linear-gradient(
+        180deg,
+        var(--background) 0%,
+        transparent 16%,
+        transparent 84%,
+        var(--background) 100%
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--background) 82%, transparent) 0%,
+        color-mix(in srgb, var(--background) 60%, transparent) 50%,
+        color-mix(in srgb, var(--background) 82%, transparent) 100%
+      );
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .section {
+        view-timeline: --projects-depth block;
+      }
+
+      .section > [aria-hidden="true"]:first-child > :first-child {
+        animation: projects-depth-film linear both;
+        animation-timeline: --projects-depth;
+        animation-range: cover;
+      }
+
+      /* The content rises as one layer, so nothing in it overlaps its neighbour.
+         The build card keeps its own slide in from the right, off screen until it plays. */
+      /* Children of the scroll anchor, never the anchor: menu navigation measures it.
+         The rise ends while the section top is still low on screen, so a menu jump lands on settled content. */
+      .section > [data-scroll-anchor] > * {
+        animation: projects-depth-rise linear both;
+        animation-timeline: --projects-depth;
+        animation-range: entry 0% entry 70%;
+        --projects-rise: 280px;
+      }
+    }
+  }
+}
+
+@keyframes projects-depth-film {
+  from {
+    translate: 0 -260px;
+    scale: 1.45;
+  }
+  to {
+    translate: 0 260px;
+    scale: 1.45;
+  }
+}
+
+@keyframes projects-depth-rise {
+  from {
+    translate: 0 var(--projects-rise, 0px);
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
 /* Ultra portrait follows the S7 composition with larger text and controls. */
 @media (min-width: 1105px) and (min-height: 1500px) and (orientation: portrait) {
   .section > [data-scroll-anchor] {

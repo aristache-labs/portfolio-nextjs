@@ -79,7 +79,7 @@ export function Projects({
           />
           <div
             aria-hidden
-            className="bg-background/70 pointer-events-none absolute inset-0 z-[1]"
+            className={`${layoutCss.veil} pointer-events-none absolute inset-0 z-[1]`}
           />
         </>
       }
