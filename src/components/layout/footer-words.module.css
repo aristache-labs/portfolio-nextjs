@@ -1,7 +1,8 @@
-/* Rotating closing word in the footer signature: care, love, precision. The last span repeats
+/* Rotating closing word in the footer signature: care, precision, love. The last span repeats
    the first so the loop wraps without a jump. */
 .words {
   display: inline-block;
+  min-width: 9ch;
   height: 1.4em;
   overflow: hidden;
   vertical-align: bottom;

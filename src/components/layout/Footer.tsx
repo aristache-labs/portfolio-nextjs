@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type MouseEvent } from "react";
-import { ArrowRight, ChevronRight, Sparkle, Workflow } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { SectionLink } from "@/components/common/SectionLink";
@@ -29,21 +29,20 @@ import { FOOTER_MOBILE_QUERY, useFooterMobileEntrance } from "./useFooterMobileE
 import mobileCss from "./footer-mobile-motion.module.css";
 
 const LINKS = [
-  { label: "Home", href: "#hero" },
-  { label: "About", href: "#about" },
-  { label: "Projects", href: "#projects" },
-  { label: "Skills", href: "#skills" },
-  { label: "Experience", href: "#experience" },
-  { label: "Services", href: "#services" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "#hero", group: "explore" },
+  { label: "About", href: "#about", group: "explore" },
+  { label: "Projects", href: "#projects", group: "explore" },
+  { label: "Skills", href: "#skills", group: "explore" },
+  { label: "Experience", href: "#experience", group: "work" },
+  { label: "Services", href: "#services", group: "work" },
+  { label: "Contact", href: "#contact", group: "work" },
 ];
 
-const DIVIDER = "min-w-0 lg:pl-10 [@media(orientation:landscape)_and_(max-width:1024px)]:pl-0";
-const NAV_DIVIDER =
-  "min-w-0 lg:border-x lg:border-white/8 lg:px-8 [@media(orientation:landscape)_and_(max-width:1024px)]:self-stretch [@media(orientation:landscape)_and_(max-width:1024px)]:justify-center [@media(orientation:landscape)_and_(max-width:1024px)]:border-x [@media(orientation:landscape)_and_(max-width:1024px)]:border-white/8 [@media(orientation:landscape)_and_(max-width:1024px)]:px-4";
 const HEADING = "font-display text-[15px] font-medium tracking-[-0.01em] text-white/90";
 const FOCUS =
   "focus-visible:ring-brand-mid/70 focus-visible:ring-offset-background focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none";
+
+const COLUMN_LINK = `${layout.columnLink} flex min-h-11 w-full items-center rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 md:text-[15px] ${FOCUS}`;
 
 export function Footer({
   sponsorUrl,
@@ -66,8 +65,6 @@ export function Footer({
   const visibleLinks = LINKS.filter(
     (link) => link.href === "#hero" || sectionVisibility[link.href.slice(1)] !== false,
   ).map((link) => ({ ...link, href: `${homeHrefPrefix}${link.href}`, external: false }));
-  // The sections fill two balanced columns; the support link sits alone, centered beneath them.
-  const exploreRows = Math.ceil(visibleLinks.length / 2);
   const supportUrl = sponsorUrl?.trim();
   const supportLink = supportUrl
     ? { label: "Buy me a coffee", href: supportUrl, external: true }
@@ -136,7 +133,7 @@ export function Footer({
         />
 
         <div className="site-container relative z-10 pt-6 pb-24 sm:pb-8 lg:pt-8">
-          <div className={`${layout.intro} flex flex-col items-center text-center`}>
+          <div className={layout.intro}>
             <FooterPart scene={scene} mobile={mobile} part="title" entrance>
               <p data-entrance-part="title" className={headingCss.title}>
                 Thanks for <span className={headingCss.accent}>visiting</span>.
@@ -157,60 +154,16 @@ export function Footer({
                   scroll={!homeHrefPrefix}
                   href={`${homeHrefPrefix}#contact`}
                   onClick={(event) => glideToSection(event, "contact")}
-                  className={`${layout.cta} mt-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 text-[14px] font-medium text-white backdrop-blur-md transition-colors duration-300 hover:border-(--brand-mid)/50 hover:bg-white/10 ${FOCUS}`}
+                  className={`mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 text-[14px] font-medium text-white backdrop-blur-md transition-colors duration-300 hover:border-(--brand-mid)/50 hover:bg-white/10 ${FOCUS}`}
                 >
                   Let&apos;s build something
                   <ArrowRight className="text-brand-bright size-4" aria-hidden />
                 </SectionLink>
               )}
             </FooterPart>
-            <div className="mx-auto mt-5 flex w-full max-w-[620px] items-center gap-4">
-              <FooterPart
-                scene={scene}
-                mobile={mobile}
-                part="line"
-                effect="line"
-                delay={0.4}
-                className="flex-1 origin-right"
-              >
-                <span
-                  aria-hidden
-                  className="block h-px bg-gradient-to-r from-transparent to-white/25"
-                />
-              </FooterPart>
-              <FooterPart
-                scene={scene}
-                mobile={mobile}
-                part="sparkle"
-                effect="zoom"
-                duration={0.6}
-                delay={0.3}
-                className="shrink-0"
-              >
-                <Sparkle
-                  aria-hidden
-                  className={`${layout.sparkle} fill-brand-mid text-brand-bright size-4 drop-shadow-[0_0_8px_rgb(var(--brand-mid-rgb)/0.8)]`}
-                />
-              </FooterPart>
-              <FooterPart
-                scene={scene}
-                mobile={mobile}
-                part="line"
-                effect="line"
-                delay={0.4}
-                className="flex-1 origin-left"
-              >
-                <span
-                  aria-hidden
-                  className="block h-px bg-gradient-to-l from-transparent to-white/25"
-                />
-              </FooterPart>
-            </div>
           </div>
 
-          <div
-            className={`${layout.columns} mt-6 grid grid-cols-1 items-center gap-x-10 gap-y-7 sm:mt-8 sm:grid-cols-2 sm:gap-y-8 lg:mt-10 lg:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4`}
-          >
+          <div className={layout.columns}>
             <FooterPart
               scene={scene}
               mobile={mobile}
@@ -218,7 +171,7 @@ export function Footer({
               effect="zoom"
               duration={0.7}
               delay={0.3}
-              className={`${layout.identity} flex min-w-0 flex-col items-center justify-center`}
+              className={`${layout.identity} ${layout.panel}`}
             >
               <div className="flex flex-col items-center text-center">
                 <SectionLink
@@ -235,12 +188,14 @@ export function Footer({
                     unoptimized
                     loading="lazy"
                     style={{ aspectRatio: "400 / 415" }}
-                    className="h-32 w-auto sm:h-35 [@media(orientation:landscape)_and_(max-width:1024px)]:h-45"
+                    className="h-[108px] w-auto sm:h-[124px]"
                   />
                 </SectionLink>
                 {heroTagline && (
                   <p className="mt-2 max-w-[290px] sm:mt-2.5">
-                    <span className="border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[11px] tracking-[0.18em] uppercase backdrop-blur-sm [@media(orientation:landscape)_and_(max-width:740px)]:px-2.5 [@media(orientation:landscape)_and_(max-width:740px)]:text-[10px] [@media(orientation:landscape)_and_(max-width:740px)]:tracking-[0.08em]">
+                    <span
+                      className={`${layout.tagline} border-border bg-background/40 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1.5 font-mono text-[11px] tracking-[0.18em] uppercase backdrop-blur-sm`}
+                    >
                       {heroTagline}
                     </span>
                   </p>
@@ -248,131 +203,117 @@ export function Footer({
               </div>
             </FooterPart>
 
-            <FooterPart
-              scene={scene}
-              mobile={mobile}
-              part="explore"
-              effect="cascade"
-              duration={0}
-              delay={0.3}
-              staggerChildren={0.08}
-              className={`${layout.explore} ${NAV_DIVIDER} max-sm:flex max-sm:flex-col max-sm:items-center lg:flex lg:flex-col lg:items-center [@media(orientation:landscape)_and_(max-width:1024px)]:flex [@media(orientation:landscape)_and_(max-width:1024px)]:flex-col [@media(orientation:landscape)_and_(max-width:1024px)]:items-center`}
-            >
-              <nav aria-label="Explore" className="w-full">
-                <m.h3 initial={false} variants={itemVariants} className={`${HEADING} text-center`}>
-                  Explore
-                </m.h3>
-                <ul
-                  className={`${layout.links} mx-auto mt-2 grid w-full max-w-[280px] grid-flow-col grid-cols-2 gap-x-2 gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-x-4 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-4`}
-                  style={{ gridTemplateRows: `repeat(${exploreRows}, auto)` }}
-                >
-                  {visibleLinks.map((link) => (
-                    <m.li key={link.href} initial={false} variants={itemVariants}>
-                      <SectionLink
-                        crossPage={!!homeHrefPrefix}
-                        scroll={!homeHrefPrefix}
-                        href={link.href}
-                        onClick={(event) => glideToSection(event, link.href.split("#")[1] ?? "")}
-                        className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
-                      >
-                        <ChevronRight
-                          className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
-                          aria-hidden
-                        />
-                        <span className={layout.label}>{link.label}</span>
-                      </SectionLink>
-                    </m.li>
-                  ))}
-                  {supportLink && (
-                    <m.li
-                      initial={false}
-                      variants={itemVariants}
-                      className="justify-self-center"
-                      style={{ gridColumn: "1 / -1", gridRow: exploreRows + 1 }}
-                    >
-                      <SectionLink
-                        crossPage={false}
-                        href={supportLink.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`group flex min-h-11 items-center justify-center gap-1.5 rounded-md py-1 text-[14px] whitespace-nowrap text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
-                      >
-                        <ChevronRight
-                          className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
-                          aria-hidden
-                        />
-                        <span className={layout.label}>{supportLink.label}</span>
-                      </SectionLink>
-                    </m.li>
-                  )}
-                </ul>
-              </nav>
-            </FooterPart>
+            <div className={`${layout.linksPanel} ${layout.panel}`}>
+              <FooterPart
+                scene={scene}
+                mobile={mobile}
+                part="explore"
+                effect="cascade"
+                duration={0}
+                delay={0.3}
+                staggerChildren={0.08}
+              >
+                <nav aria-label="Explore" className={layout.linkColumns}>
+                  {[
+                    {
+                      title: "Explore",
+                      links: visibleLinks.filter((link) => link.group === "explore"),
+                    },
+                    {
+                      title: "Work",
+                      links: visibleLinks.filter((link) => link.group === "work"),
+                    },
+                  ]
+                    .filter(({ links }, index) => links.length > 0 || (index === 1 && supportLink))
+                    .map(({ title, links }) => (
+                      <div key={title} className="min-w-0">
+                        <m.h3 initial={false} variants={itemVariants} className={HEADING}>
+                          {title}
+                        </m.h3>
+                        <ul className={layout.linkList}>
+                          {links.map((link) => (
+                            <m.li key={link.href} initial={false} variants={itemVariants}>
+                              <SectionLink
+                                crossPage={!!homeHrefPrefix}
+                                scroll={!homeHrefPrefix}
+                                href={link.href}
+                                onClick={(event) =>
+                                  glideToSection(event, link.href.split("#")[1] ?? "")
+                                }
+                                className={COLUMN_LINK}
+                              >
+                                <span className={layout.label}>{link.label}</span>
+                              </SectionLink>
+                            </m.li>
+                          ))}
+                          {title === "Work" && supportLink && (
+                            <m.li initial={false} variants={itemVariants}>
+                              <SectionLink
+                                crossPage={false}
+                                href={supportLink.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={COLUMN_LINK}
+                              >
+                                <span className={layout.label}>{supportLink.label}</span>
+                              </SectionLink>
+                            </m.li>
+                          )}
+                        </ul>
+                      </div>
+                    ))}
+                </nav>
+              </FooterPart>
 
-            <FooterPart
-              scene={scene}
-              mobile={mobile}
-              part="legal"
-              effect="cascade"
-              duration={0}
-              delay={0.3}
-              staggerChildren={0.08}
-              className={`${layout.resources} ${DIVIDER} sm:col-span-2 lg:col-span-1 lg:self-start [@media(orientation:landscape)_and_(max-width:1024px)]:col-span-1 [@media(orientation:landscape)_and_(max-width:1024px)]:self-start`}
-            >
-              <nav aria-label="Legal" className="w-full">
-                <m.h3 initial={false} variants={itemVariants} className={`${HEADING} text-center`}>
-                  Legal
-                </m.h3>
-                <ul className="mx-auto mt-2 grid w-fit grid-cols-1 grid-rows-3 items-center gap-y-0.5 sm:mt-3 [@media(orientation:landscape)_and_(max-width:1024px)]:gap-y-4">
-                  {legalLinks.map((link, index) => (
-                    <m.li
-                      key={link.href}
-                      initial={false}
-                      variants={itemVariants}
-                      className="col-start-1"
-                      style={{ gridRow: index + 1 }}
-                    >
-                      <Link
-                        href={link.href}
-                        {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                        className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
-                      >
-                        <ChevronRight
-                          aria-hidden
-                          className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
-                        />
-                        <span className={layout.label}>{link.label}</span>
-                      </Link>
-                    </m.li>
-                  ))}
-                  {process.env.NEXT_PUBLIC_GTAG_ID && (
-                    <m.li
-                      initial={false}
-                      variants={itemVariants}
-                      className="col-start-1 row-start-3"
-                    >
-                      <button
-                        type="button"
-                        onClick={(event) =>
-                          window.dispatchEvent(
-                            new CustomEvent(PREFERENCES_EVENT, {
-                              detail: { opener: event.currentTarget },
-                            }),
-                          )
-                        }
-                        className={`group flex min-h-11 items-center justify-start gap-1.5 rounded-md py-1 text-left text-[14px] text-white/80 transition-colors duration-200 hover:text-white sm:min-h-9 sm:text-white/70 ${FOCUS}`}
-                      >
-                        <ChevronRight
-                          aria-hidden
-                          className="text-brand-mid group-hover:text-brand-bright size-3.5 shrink-0 transition-transform duration-200 motion-safe:group-hover:translate-x-0.5"
-                        />
-                        <span className={layout.label}>Cookie settings</span>
-                      </button>
-                    </m.li>
-                  )}
-                </ul>
-              </nav>
-            </FooterPart>
+              <FooterPart
+                scene={scene}
+                mobile={mobile}
+                part="legal"
+                effect="cascade"
+                duration={0}
+                delay={0.3}
+                staggerChildren={0.08}
+                className={layout.resources}
+              >
+                <nav aria-label="Legal" className="w-full">
+                  <m.h3 initial={false} variants={itemVariants} className={HEADING}>
+                    Legal
+                  </m.h3>
+                  <ul className={layout.linkList}>
+                    {legalLinks.map((link) => (
+                      <m.li key={link.href} initial={false} variants={itemVariants}>
+                        <Link
+                          href={link.href}
+                          {...(link.external
+                            ? { target: "_blank", rel: "noopener noreferrer" }
+                            : {})}
+                          className={COLUMN_LINK}
+                        >
+                          <span className={layout.label}>{link.label}</span>
+                        </Link>
+                      </m.li>
+                    ))}
+                    {process.env.NEXT_PUBLIC_GTAG_ID && (
+                      <m.li initial={false} variants={itemVariants}>
+                        <button
+                          type="button"
+                          onClick={(event) =>
+                            window.dispatchEvent(
+                              new CustomEvent(PREFERENCES_EVENT, {
+                                detail: { opener: event.currentTarget },
+                              }),
+                            )
+                          }
+                          className={COLUMN_LINK}
+                        >
+                          <span className={layout.label}>Cookie settings</span>
+                        </button>
+                      </m.li>
+                    )}
+                  </ul>
+                </nav>
+              </FooterPart>
+            </div>
           </div>
 
           <FooterPart
@@ -381,37 +322,21 @@ export function Footer({
             part="bar"
             entrance
             entrancePart="bar"
-            className={`${layout.legal} ${GLASS_CARD} mt-8 grid items-center gap-3 rounded-2xl px-6 py-4 text-center sm:mt-10 md:grid-cols-[1fr_auto] md:gap-4 lg:mt-12 [@media(orientation:landscape)_and_(max-width:1024px)]:grid-cols-[1fr_auto]`}
+            className={`${layout.legal} ${GLASS_CARD}`}
           >
-            <m.div
-              initial={false}
-              variants={itemVariants}
-              className="order-2 text-[13px] text-white/60 md:order-none md:text-left md:text-[13.5px] [@media(orientation:landscape)_and_(max-width:1024px)]:order-none [@media(orientation:landscape)_and_(max-width:1024px)]:text-left"
-            >
-              <span className="max-md:block">
-                <span className="text-brand-bright">&copy; {year}</span> {SITE.name}. All rights
-                reserved.
+            <m.div initial={false} variants={itemVariants} className="text-[13px] text-white/65">
+              <span>
+                Copyright &copy; <span className="text-brand-bright">{year}</span> {SITE.name}. All
+                rights reserved.
               </span>
             </m.div>
-            <m.div initial={false} variants={itemVariants} className={layout.expertise}>
-              <Workflow aria-hidden className={layout.expertiseIcon} />
-              <span>WEB</span>
-              <span aria-hidden>·</span>
-              <span className={layout.expertiseAccent}>MOBILE</span>
-              <span aria-hidden>·</span>
-              <span>INFRASTRUCTURE</span>
-            </m.div>
-            <m.p
-              initial={false}
-              variants={itemVariants}
-              className="order-1 font-mono text-[11.5px] tracking-[0.28em] text-white/65 uppercase md:order-none md:text-right [@media(orientation:landscape)_and_(max-width:1024px)]:order-none [@media(orientation:landscape)_and_(max-width:1024px)]:text-right [@media(orientation:landscape)_and_(max-width:740px)]:hidden"
-            >
+            <m.p initial={false} variants={itemVariants} className={layout.credit}>
               DESIGNED &amp; BUILT WITH <span className="sr-only">CARE</span>
               {/* The cycling words are CSS-generated, so the page text reads "with care" once. */}
               <span aria-hidden className={wordsCss.words}>
                 <span data-word="CARE" />
-                <span data-word="LOVE" />
                 <span data-word="PRECISION" />
+                <span data-word="LOVE" />
                 <span data-word="CARE" />
               </span>
             </m.p>

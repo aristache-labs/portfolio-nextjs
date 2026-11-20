@@ -375,7 +375,7 @@ describe("Footer", () => {
     },
   );
 
-  it("keeps the section links balanced and centers the support link beneath both columns", () => {
+  it("groups portfolio and work links with legal in its own column", () => {
     render(
       <Footer
         socials={mockSocials}
@@ -383,23 +383,19 @@ describe("Footer", () => {
         sectionVisibility={{ services: false }}
       />,
     );
-    const list = within(screen.getByRole("navigation", { name: "Explore" })).getByRole("list");
-    const items = [...list.querySelectorAll(":scope > li")] as HTMLElement[];
-    const support = screen.getByRole("link", { name: "Buy me a coffee" });
-    // Six sections flow into three rows of two; the support link is the only item after them.
-    expect(items).toHaveLength(7);
-    expect(items.at(-1)).toContainElement(support);
-    expect(items.slice(0, -1).map((item) => item.textContent)).toEqual([
-      "Home",
-      "About",
-      "Projects",
-      "Skills",
-      "Experience",
-      "Contact",
-    ]);
-    expect(list).toHaveStyle({ gridTemplateRows: "repeat(3, auto)" });
-    expect(items.at(-1)).toHaveClass("justify-self-center");
-    expect(support).toHaveClass("whitespace-nowrap");
+    const explore = screen.getByRole("navigation", { name: "Explore" });
+    const [portfolio, work] = within(explore).getAllByRole("list");
+    expect(
+      within(portfolio)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Home", "About", "Projects", "Skills"]);
+    expect(
+      within(work)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Experience", "Contact", "Buy me a coffee"]);
+    expect(screen.getByRole("navigation", { name: "Legal" })).toBeVisible();
   });
 
   it("renders empty socials gracefully", () => {
