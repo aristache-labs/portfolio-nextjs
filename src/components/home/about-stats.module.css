@@ -144,17 +144,6 @@
     .section > [aria-hidden="true"]:first-child > :first-child {
       transform: translateY(calc(var(--about-depth, 0.5) * 320px - 160px)) scale(1.32);
     }
-
-    /* A light depth move only: a bigger zoom crops the head out of the square frame. */
-    .portrait img {
-      transform: translateY(calc(4px - var(--about-depth, 1) * 8px + var(--about-exit, 0) * 6px))
-        scale(calc(1.04 + var(--about-exit, 0) * 0.04));
-      transform-origin: 50% 0%;
-
-      transform: translateY(calc(6px - var(--about-depth, 1) * 40px + var(--about-exit, 0) * 12px))
-        scale(calc(1.25 + var(--about-exit, 0) * 0.15));
-      transform-origin: 50% 22%;
-    }
   }
 }
 
@@ -302,6 +291,14 @@
 .portrait {
   justify-self: center;
   max-width: 100%;
+}
+
+@media (min-width: 1024px) and (pointer: fine) and (hover: hover) {
+  .portrait img {
+    background: var(--background);
+    object-fit: contain;
+    transform: none;
+  }
 }
 
 .copy {
